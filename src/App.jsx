@@ -237,7 +237,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
         </select>
       </div>
 
-      <div className="scroll-x" style={{display:"flex",gap:5,marginBottom:"1rem",flexWrap:"nowrap",paddingBottom:2}}>
+      <div style={{display:"flex",gap:5,marginBottom:"1rem",overflowX:"auto",WebkitOverflowScrolling:"touch",flexWrap:"nowrap",paddingBottom:4,msOverflowStyle:"none",scrollbarWidth:"none"}}>
         {["all","bonus","spec","quote","memory"].map(k => {
           const on = filter === k;
           return <button key={k} onClick={() => setFilter(k)} style={{padding:"4px 12px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:12,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{k==="all"?"すべて":CATS[k].label}</button>;
