@@ -128,7 +128,7 @@ export default function App() {
   const LABELS = { feed:"フィード", collect:"収集", overview:"俯瞰", research:"リサーチ" };
 
   return (
-    <div style={{padding:"1rem",maxWidth:740,margin:"0 auto",fontFamily:"sans-serif"}}>
+    <div style={{padding:"12px",maxWidth:740,margin:"0 auto",fontFamily:"sans-serif",textAlign:"left"}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1rem"}}>
         <div style={{fontSize:20,fontWeight:500}}><span style={{color:"#D85A30"}}>▶</span> スロクリ</div>
         <span style={{fontSize:12,color:"#888"}}>{posts.length}件</span>
@@ -136,10 +136,10 @@ export default function App() {
 
       {toast && <div style={{background:"#EAF3DE",border:"0.5px solid #97C459",borderRadius:8,padding:"8px 16px",fontSize:13,color:"#3B6D11",fontWeight:500,marginBottom:12,textAlign:"center"}}>{toast}</div>}
 
-      <div style={{display:"flex",gap:6,marginBottom:"1.5rem",borderBottom:"0.5px solid #ddd",paddingBottom:"0.75rem"}}>
+      <div className="scroll-x" style={{display:"flex",gap:6,marginBottom:"1.25rem",borderBottom:"0.5px solid #ddd",paddingBottom:"0.75rem",flexWrap:"nowrap"}}>
         {TABS.map(k => {
           const on = tab === k;
-          return <button key={k} onClick={() => setTab(k)} style={{padding:"6px 16px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400}}>{LABELS[k]}</button>;
+          return <button key={k} onClick={() => setTab(k)} style={{padding:"6px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{LABELS[k]}</button>;
         })}
       </div>
 
@@ -239,10 +239,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
         </select>
       </div>
 
-      <div style={{display:"flex",gap:5,marginBottom:"1rem",flexWrap:"wrap"}}>
+      <div className="scroll-x" style={{display:"flex",gap:5,marginBottom:"1rem",flexWrap:"nowrap",paddingBottom:2}}>
         {["all","bonus","spec","quote","memory"].map(k => {
           const on = filter === k;
-          return <button key={k} onClick={() => setFilter(k)} style={{padding:"4px 12px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:12,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400}}>{k==="all"?"すべて":CATS[k].label}</button>;
+          return <button key={k} onClick={() => setFilter(k)} style={{padding:"4px 12px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:12,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{k==="all"?"すべて":CATS[k].label}</button>;
         })}
       </div>
 
@@ -255,7 +255,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
         const iBM = (p.internal?.bookmarks || []).indexOf(MY_UID) >= 0;
         const isOpen = commentOpen === p.id;
         return (
-          <div key={p.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"1rem",marginBottom:10}}>
+          <div key={p.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"10px 12px",marginBottom:8}}>
             <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:6}}>
               <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center"}}><CatBadge cat={p.cat}/><SrcBadge src={p.source}/></div>
               <Dots q={p.quality}/>
@@ -320,7 +320,7 @@ function CollectTab({ posts, addPost, showToast }) {
     if (!input.trim()) return;
     setLoading(true); setStatus("Claudeが解析中...");
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("/api/claude", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514", max_tokens: 600,
@@ -345,7 +345,7 @@ async function autoCollect() {
     setStatus("ネットを巡回中...");
     const theme = AUTO_THEMES[Math.floor(Math.random() * AUTO_THEMES.length)];
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("/api/claude", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -425,8 +425,8 @@ async function autoCollect() {
         <button onClick={autoCollect} disabled={autoLoading} style={{padding:"8px 18px",background:autoLoading?"#ccc":"#185FA5",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:500,cursor:autoLoading?"not-allowed":"pointer"}}>{autoLoading?"巡回中...":"ネットを巡回して収集 ↗"}</button>
       </div>
 
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,minmax(0,1fr))",gap:8,marginBottom:"1.25rem"}}>
-        {["bonus","spec","quote","memory"].map(k => <div key={k} style={{background:"#f9f9f9",borderRadius:8,padding:"10px 12px"}}><div style={{fontSize:22,fontWeight:500,color:"#333"}}>{counts[k]}</div><div style={{fontSize:11,color:"#888",marginTop:2}}>{CATS[k].label}</div></div>)}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:"1.25rem"}}>
+        {["bonus","spec","quote","memory"].map(k => <div key={k} style={{background:"#f9f9f9",borderRadius:8,padding:"8px 10px"}}><div style={{fontSize:22,fontWeight:500,color:"#333"}}>{counts[k]}</div><div style={{fontSize:11,color:"#888",marginTop:2}}>{CATS[k].label}</div></div>)}
       </div>
 
       <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"1rem",marginBottom:12}}>
@@ -486,10 +486,10 @@ function OverviewTab({ posts }) {
 
   return (
     <div>
-      <div style={{display:"flex",gap:6,marginBottom:"1.25rem"}}>
+      <div className="scroll-x" style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"nowrap"}}>
         {[["rank","ランキング"],["machine","機種別"],["cat","カテゴリ分布"]].map(([k,l]) => {
           const on = view===k;
-          return <button key={k} onClick={() => { setView(k); setSelM(null); setQuery(""); }} style={{padding:"5px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:12,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400}}>{l}</button>;
+          return <button key={k} onClick={() => { setView(k); setSelM(null); setQuery(""); }} style={{padding:"5px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:12,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{l}</button>;
         })}
       </div>
 
@@ -564,7 +564,7 @@ function OverviewTab({ posts }) {
       {view==="cat" && (
         <div style={{display:"grid",gridTemplateColumns:"repeat(2,minmax(0,1fr))",gap:10}}>
           {catDist.map(c => (
-            <div key={c.key} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"1rem"}}>
+            <div key={c.key} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"10px 12px"}}>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
                 <span style={{fontSize:13,fontWeight:500,color:c.color}}>{c.label}</span>
                 <span style={{fontSize:20,fontWeight:500,color:"#333"}}>{c.cnt}<span style={{fontSize:12,color:"#aaa",marginLeft:2}}>件</span></span>
@@ -605,7 +605,7 @@ function ResearchTab({ posts }) {
     try {
       const lib = JSON.stringify(posts.map(p => ({ id:p.id, cat:p.cat, machine:p.machine, title:p.title, body:p.body, likes:p.internal?.likes?.length||0, quality:p.quality })));
       const system = "あなたはパチスロライブラリ「スロクリ」の調査アシスタントです。以下のライブラリデータとパチスロの知識を組み合わせて答えてください。【ライブラリデータ】" + lib + " 回答ルール: 質問に直接答える。ライブラリ内の関連投稿がある場合は文末に「関連投稿ID: [1,2,3]」を含める。ライブラリにない情報は（一般知識）と明記。300文字以内で簡潔に。";
-      const res = await fetch("https://api.anthropic.com/v1/messages", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:600, system, messages:msgs }) });
+      const res = await fetch("/api/claude", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:600, system, messages:msgs }) });
       const data = await res.json();
       if (data.error) throw new Error();
       const raw = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("") || "関連する情報が見つかりませんでした。";
@@ -622,7 +622,7 @@ function ResearchTab({ posts }) {
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem"}}>
         {[["chat","チャット"],["browse","絞り込み"]].map(([k,l]) => {
           const on = mode===k;
-          return <button key={k} onClick={() => setMode(k)} style={{padding:"5px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:12,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400}}>{l}</button>;
+          return <button key={k} onClick={() => setMode(k)} style={{padding:"5px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:12,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap"}}>{l}</button>;
         })}
       </div>
 
