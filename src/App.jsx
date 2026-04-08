@@ -340,33 +340,67 @@ function CollectTab({ posts, addPost, showToast }) {
     setLoading(false);
   }
 
-  async function autoCollect() {
-    setAutoLoading(true); setStatus("ネットを巡回中...");
-    const theme = AUTO_THEMES[Math.floor(Math.random()*AUTO_THEMES.length)];
+async function autoCollect() {
+    setAutoLoading(true);
+    setStatus("ネットを巡回中...");
+    const theme = AUTO_THEMES[Math.floor(Math.random() * AUTO_THEMES.length)];
     try {
       const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514", max_tokens: 2000,
-          tools: [{ type:"web_search_20250305", name:"web_search" }],
-          system: 'パチスロライブラリの収集ボットです。ウェブ検索して3件収集しJSON配列のみで返答: [{"cat":"bonus|spec|quote|memory","source":"twitter|youtube|wiki|manual","machine":"機種名","title":"30文字以内","body":"150文字以内","quality":3,"dupKey":"機種名_キー","eng":{}}]',
-          messages: [{ role: "user", content: "テーマ「"+theme+"」でウェブ検索してパチスロファンが面白いと感じるコンテンツを3件収集してください。" }]
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 2000,
+          tools: [{ type: "web_search_20250305", name: "web_search" }],
+          system: 'あなたはパチスロライブラリの収集ボットです。ウェブ検索でパチスロの面白い情報を3件集めて、必ずJSON配列だけで返答してください。他のテキストは一切不要です。形式: [{"cat":"bonus","source":"manual","machine":"機種名","title":"タイトル","body":"150文字以内の説明","quality":4,"dupKey":"機種名_キー","eng":{}}]',
+          messages: [{ role: "user", content: "「" + theme + "」についてウェブ検索して、パチスロファンが面白いと感じる情報を3件収集してJSON配列で返してください。" }]
         })
       });
       const data = await res.json();
-      if (data.error) throw new Error();
-      const allText = (data.content||[]).map(b => { if(b.type==="text")return b.text; if(b.type==="tool_result"&&b.content){return(Array.isArray(b.content)?b.content:[b.content]).map(c=>c.type==="text"?c.text:"").join("");} return ""; }).join("");
+      if (data.error) throw new Error(data.error.message || "api error");
+
+      // 全ブロックからテキストを収集
+      let allText = "";
+      (data.content || []).forEach(b => {
+        if (b.type === "text") allText += b.text;
+        if (b.type === "tool_result" && b.content) {
+          (Array.isArray(b.content) ? b.content : [b.content]).forEach(c => {
+            if (c.type === "text") allText += c.text;
+          });
+        }
+      });
+
+      // JSON配列を抽出
       const jsonMatch = allText.match(/\[[\s\S]*\]/);
-      if (!jsonMatch) throw new Error("no json");
+      if (!jsonMatch) throw new Error("JSONが見つかりませんでした");
       const items = JSON.parse(jsonMatch[0]);
+
       let added = 0;
       for (const p of items) {
-        const item = { cat:p.cat||"memory", source:p.source||"manual", machine:p.machine||"不明", title:p.title||"無題", body:p.body||"", url:"", quality:p.quality||3, dupKey:p.dupKey||"", eng:p.eng||{}, internal:blank() };
-        if (!isDup(item)) { await addPost(item); added++; }
+        const item = {
+          cat: p.cat || "memory",
+          source: p.source || "manual",
+          machine: p.machine || "不明",
+          title: p.title || "無題",
+          body: p.body || "",
+          url: "",
+          quality: p.quality || 3,
+          dupKey: p.dupKey || "",
+          eng: p.eng || {},
+          internal: blank(),
+        };
+        if (!isDup(item)) {
+          await addPost(item);
+          added++;
+        }
       }
       setStatus("");
-      showToast(added > 0 ? added+"件を自動収集しました！" : "新しいコンテンツは見つかりませんでした");
-    } catch { setStatus("少し時間をおいてもう一度試してみてください。"); setTimeout(() => setStatus(""), 3000); }
+      showToast(added > 0 ? added + "件を自動収集しました！" : "新しいコンテンツは見つかりませんでした");
+    } catch (e) {
+      console.error(e);
+      setStatus("少し時間をおいてもう一度試してみてください。");
+      setTimeout(() => setStatus(""), 3000);
+    }
     setAutoLoading(false);
   }
 
