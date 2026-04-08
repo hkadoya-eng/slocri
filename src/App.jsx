@@ -136,10 +136,10 @@ export default function App() {
 
       {toast && <div style={{background:"#EAF3DE",border:"0.5px solid #97C459",borderRadius:8,padding:"8px 16px",fontSize:13,color:"#3B6D11",fontWeight:500,marginBottom:12,textAlign:"center"}}>{toast}</div>}
 
-      <div className="scroll-x" style={{display:"flex",gap:6,marginBottom:"1.25rem",borderBottom:"0.5px solid #ddd",paddingBottom:"0.75rem",flexWrap:"nowrap"}}>
+      <div style={{display:"flex",gap:4,marginBottom:"1.25rem",borderBottom:"0.5px solid #ddd",paddingBottom:"0.75rem"}}>
         {TABS.map(k => {
           const on = tab === k;
-          return <button key={k} onClick={() => setTab(k)} style={{padding:"6px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{LABELS[k]}</button>;
+          return <button key={k} onClick={() => setTab(k)} style={{flex:1,padding:"7px 0",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,textAlign:"center"}}>{LABELS[k]}</button>;
         })}
       </div>
 
@@ -205,37 +205,35 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
   return (
     <div>
       <div style={{marginBottom:"1.25rem"}}>
-        {!showForm && <button onClick={() => setShowForm(true)} style={{width:"100%",padding:"10px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:12,fontSize:13,fontWeight:500,cursor:"pointer"}}>+ 投稿する</button>}
+        {!showForm && <button onClick={() => setShowForm(true)} style={{width:"100%",padding:"11px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:12,fontSize:14,fontWeight:500,cursor:"pointer"}}>+ 投稿する</button>}
         {showForm && (
-          <div style={{background:"#fff",border:"0.5px solid #ddd",borderRadius:12,padding:"1rem"}}>
-            <div style={{fontSize:13,fontWeight:500,marginBottom:12}}>新規投稿</div>
-            <div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap"}}>
-              <input value={fMachine} onChange={e => setFMachine(e.target.value)} placeholder="機種名（例: バジリスク絆2）" style={{flex:1,minWidth:140,fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9"}} />
-              <select value={fCat} onChange={e => setFCat(e.target.value)} style={{fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9"}}>
-                <option value="bonus">演出・ボーナス</option>
-                <option value="spec">機種情報・スペック</option>
-                <option value="quote">名言・煽り文句</option>
-                <option value="memory">思い出・エピソード</option>
-              </select>
-            </div>
-            <textarea value={fBody} onChange={e => setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:80,marginBottom:10,boxSizing:"border-box"}} />
+          <div style={{background:"#fff",border:"0.5px solid #ddd",borderRadius:12,padding:"12px"}}>
+            <div style={{fontSize:13,fontWeight:500,marginBottom:10}}>新規投稿</div>
+            <input value={fMachine} onChange={e => setFMachine(e.target.value)} placeholder="機種名（例: バジリスク絆2）" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
+            <select value={fCat} onChange={e => setFCat(e.target.value)} style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}}>
+              <option value="bonus">演出・ボーナス</option>
+              <option value="spec">機種情報・スペック</option>
+              <option value="quote">名言・煽り文句</option>
+              <option value="memory">思い出・エピソード</option>
+            </select>
+            <textarea value={fBody} onChange={e => setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:88,marginBottom:10,boxSizing:"border-box"}} />
             <div style={{display:"flex",gap:8}}>
-              <button onClick={submitPost} style={{flex:1,padding:"8px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:500,cursor:"pointer"}}>投稿する</button>
-              <button onClick={resetForm} style={{padding:"8px 16px",background:"#f0f0f0",color:"#666",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,cursor:"pointer"}}>キャンセル</button>
+              <button onClick={submitPost} style={{flex:1,padding:"9px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:14,fontWeight:500,cursor:"pointer"}}>投稿する</button>
+              <button onClick={resetForm} style={{padding:"9px 16px",background:"#f0f0f0",color:"#666",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,cursor:"pointer"}}>キャンセル</button>
             </div>
           </div>
         )}
       </div>
 
-      <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}}>
-        <div style={{position:"relative",flex:1,minWidth:140}}>
-          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="キーワード検索..." style={{width:"100%",fontSize:13,padding:"6px 28px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",boxSizing:"border-box"}} />
-          <span style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",fontSize:13,color:"#aaa",pointerEvents:"none"}}>⌕</span>
-          {query && <button onClick={() => setQuery("")} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:13,color:"#aaa",padding:0}}>×</button>}
+      <div style={{display:"flex",gap:6,marginBottom:10}}>
+        <div style={{position:"relative",flex:1}}>
+          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="キーワード検索..." style={{width:"100%",fontSize:14,padding:"8px 30px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",boxSizing:"border-box"}} />
+          <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",fontSize:13,color:"#aaa",pointerEvents:"none"}}>⌕</span>
+          {query && <button onClick={() => setQuery("")} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:14,color:"#aaa",padding:0}}>×</button>}
         </div>
-        <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={{fontSize:12,padding:"6px 8px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666"}}>
+        <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={{fontSize:12,padding:"8px 6px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666",flexShrink:0}}>
           <option value="new">新着順</option>
-          <option value="internal">社内評価順</option>
+          <option value="internal">評価順</option>
         </select>
       </div>
 
@@ -272,12 +270,11 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
               </div>
             )}
 
-            <div style={{borderTop:"0.5px solid #eee",paddingTop:8,display:"flex",alignItems:"center",gap:6}}>
-              <span style={{fontSize:11,color:"#aaa",marginRight:2}}>社内</span>
-              <button onClick={() => toggleLike(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"4px 10px",border:`0.5px solid ${iLiked?"#F0997B":"#ddd"}`,borderRadius:8,background:iLiked?"#FAECE7":"#f9f9f9",color:iLiked?"#993C1D":"#888",fontSize:12,cursor:"pointer",fontWeight:iLiked?500:400}}>♥ いいね {(p.internal?.likes||[]).length}</button>
-              <button onClick={() => toggleBM(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"4px 10px",border:`0.5px solid ${iBM?"#85B7EB":"#ddd"}`,borderRadius:8,background:iBM?"#E6F1FB":"#f9f9f9",color:iBM?"#185FA5":"#888",fontSize:12,cursor:"pointer"}}>◈ 保存 {(p.internal?.bookmarks||[]).length}</button>
-              <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:3,padding:"4px 10px",border:`0.5px solid ${isOpen?"#AFA9EC":"#ddd"}`,borderRadius:8,background:isOpen?"#EEEDFE":"#f9f9f9",color:isOpen?"#3C3489":"#888",fontSize:12,cursor:"pointer"}}>◎ コメント {(p.internal?.comments||[]).length}</button>
-              <button onClick={() => handleDelete(p.id)} style={{marginLeft:"auto",background:"none",border:"none",fontSize:11,color:"#ccc",cursor:"pointer",padding:0}}>削除</button>
+            <div style={{borderTop:"0.5px solid #eee",paddingTop:8,display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
+              <button onClick={() => toggleLike(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iLiked?"#F0997B":"#ddd"}`,borderRadius:8,background:iLiked?"#FAECE7":"#f9f9f9",color:iLiked?"#993C1D":"#888",fontSize:12,cursor:"pointer",fontWeight:iLiked?500:400}}>♥ {(p.internal?.likes||[]).length}</button>
+              <button onClick={() => toggleBM(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iBM?"#85B7EB":"#ddd"}`,borderRadius:8,background:iBM?"#E6F1FB":"#f9f9f9",color:iBM?"#185FA5":"#888",fontSize:12,cursor:"pointer"}}>◈ {(p.internal?.bookmarks||[]).length}</button>
+              <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${isOpen?"#AFA9EC":"#ddd"}`,borderRadius:8,background:isOpen?"#EEEDFE":"#f9f9f9",color:isOpen?"#3C3489":"#888",fontSize:12,cursor:"pointer"}}>◎ コメント {(p.internal?.comments||[]).length}</button>
+              <button onClick={() => handleDelete(p.id)} style={{marginLeft:"auto",background:"none",border:"none",fontSize:11,color:"#ddd",cursor:"pointer",padding:0}}>削除</button>
             </div>
 
             {isOpen && (
@@ -420,9 +417,9 @@ async function autoCollect() {
         </div>
       )}
 
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1.25rem"}}>
-        <div style={{fontSize:13,fontWeight:500}}>自動収集</div>
-        <button onClick={autoCollect} disabled={autoLoading} style={{padding:"8px 18px",background:autoLoading?"#ccc":"#185FA5",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:500,cursor:autoLoading?"not-allowed":"pointer"}}>{autoLoading?"巡回中...":"ネットを巡回して収集 ↗"}</button>
+      <div style={{marginBottom:"1.25rem"}}>
+        <div style={{fontSize:12,color:"#888",marginBottom:6}}>自動収集</div>
+        <button onClick={autoCollect} disabled={autoLoading} style={{width:"100%",padding:"10px 0",background:autoLoading?"#ccc":"#185FA5",color:"#fff",border:"none",borderRadius:10,fontSize:13,fontWeight:500,cursor:autoLoading?"not-allowed":"pointer"}}>{autoLoading?"ネットを巡回中...":"ネットを巡回して収集 ↗"}</button>
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:"1.25rem"}}>
@@ -507,15 +504,15 @@ function OverviewTab({ posts }) {
               <option value="quality">品質スコア順</option>
             </select>
           </div>
-          <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,overflow:"hidden"}}>
-            <table style={{width:"100%",borderCollapse:"collapse",tableLayout:"fixed"}}>
-              <colgroup><col style={{width:30}}/><col/><col style={{width:90}}/><col style={{width:44}}/><col style={{width:44}}/></colgroup>
+          <div className="scroll-x" style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12}}>
+            <table style={{width:"100%",borderCollapse:"collapse",tableLayout:"fixed",minWidth:360}}>
+              <colgroup><col style={{width:30}}/><col/><col style={{width:96}}/><col style={{width:36}}/><col style={{width:42}}/></colgroup>
               <thead><tr style={{background:"#f9f9f9"}}><th style={{...th,textAlign:"center"}}>#</th><th style={th}>タイトル・機種</th><th style={th}>カテゴリ</th><th style={{...th,textAlign:"right"}}>♥</th><th style={{...th,textAlign:"center"}}>品質</th></tr></thead>
               <tbody>
                 {ranked.map((p,i) => (
                   <tr key={p.id} style={{background:i%2===0?"#fff":"#fafafa"}}>
                     <td style={{...td,textAlign:"center",fontWeight:500,fontSize:12,color:i<3?"#D85A30":"#aaa"}}>{i+1}</td>
-                    <td style={td}><div style={{fontWeight:500,fontSize:13,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</div><div style={{fontSize:11,color:"#888",marginTop:1,display:"flex",gap:4}}><SrcBadge src={p.source}/><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.machine}</span></div></td>
+                    <td style={{...td,maxWidth:0}}><div style={{fontWeight:500,fontSize:13,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</div><div style={{fontSize:11,color:"#888",marginTop:1,display:"flex",gap:4}}><SrcBadge src={p.source}/><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.machine}</span></div></td>
                     <td style={td}><CatBadge cat={p.cat}/></td>
                     <td style={{...td,textAlign:"right",fontWeight:500,color:"#D85A30"}}>{p.internal?.likes?.length||0}</td>
                     <td style={{...td,textAlign:"center"}}><Dots q={p.quality||0}/></td>
@@ -529,15 +526,15 @@ function OverviewTab({ posts }) {
 
       {view==="machine" && (
         <div>
-          <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,overflow:"hidden",marginBottom:12}}>
-            <table style={{width:"100%",borderCollapse:"collapse",tableLayout:"fixed"}}>
-              <colgroup><col/><col style={{width:44}}/><col style={{width:54}}/><col style={{width:110}}/></colgroup>
-              <thead><tr style={{background:"#f9f9f9"}}><th style={th}>機種名</th><th style={{...th,textAlign:"right"}}>件数</th><th style={{...th,textAlign:"right"}}>♥ 合計</th><th style={th}>カテゴリ構成</th></tr></thead>
+          <div className="scroll-x" style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,marginBottom:12}}>
+            <table style={{width:"100%",borderCollapse:"collapse",tableLayout:"fixed",minWidth:340}}>
+              <colgroup><col/><col style={{width:40}}/><col style={{width:48}}/><col style={{width:120}}/></colgroup>
+              <thead><tr style={{background:"#f9f9f9"}}><th style={th}>機種名</th><th style={{...th,textAlign:"right"}}>件数</th><th style={{...th,textAlign:"right"}}>♥</th><th style={th}>カテゴリ構成</th></tr></thead>
               <tbody>
                 {machines.map((m,i) => {
                   const sel = selM===m.name;
                   return <tr key={m.name} onClick={() => setSelM(sel?null:m.name)} style={{background:sel?"#FAECE7":i%2===0?"#fff":"#fafafa",cursor:"pointer"}}>
-                    <td style={{...td,fontWeight:sel?500:400,color:sel?"#993C1D":"#333"}}>{m.name}</td>
+                    <td style={{...td,fontWeight:sel?500:400,color:sel?"#993C1D":"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:0}}>{m.name}</td>
                     <td style={{...td,textAlign:"right",fontSize:12,color:"#888"}}>{m.count}</td>
                     <td style={{...td,textAlign:"right",fontWeight:500,color:"#D85A30"}}>{m.likes}</td>
                     <td style={td}><div style={{display:"flex",gap:2,flexWrap:"wrap"}}>{Object.entries(m.cats).map(([k,v]) => <span key={k} style={{fontSize:10,padding:"1px 5px",borderRadius:10,background:CATS[k]?.bg,color:CATS[k]?.color,fontWeight:500}}>{CATS[k]?.label.slice(0,3)} {v}</span>)}</div></td>
@@ -649,8 +646,8 @@ function ResearchTab({ posts }) {
             <div ref={bottomRef}/>
           </div>
           <div style={{display:"flex",gap:8,marginTop:12,alignItems:"flex-end"}}>
-            <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}} placeholder="「あの台のあの演出ってどんなだっけ？」など (Enter で送信)" style={{flex:1,fontSize:13,padding:"8px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"none",minHeight:44,lineHeight:1.5}} rows={1}/>
-            <button onClick={() => send()} disabled={loading||!input.trim()} style={{padding:"10px 18px",background:loading||!input.trim()?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:500,cursor:loading||!input.trim()?"not-allowed":"pointer",height:44,whiteSpace:"nowrap"}}>送信</button>
+            <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}} placeholder="質問を入力... (Enterで送信)" style={{flex:1,fontSize:14,padding:"10px 12px",border:"0.5px solid #ddd",borderRadius:10,background:"#f9f9f9",resize:"none",minHeight:46,lineHeight:1.5}} rows={1}/>
+            <button onClick={() => send()} disabled={loading||!input.trim()} style={{padding:"0 18px",background:loading||!input.trim()?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:10,fontSize:13,fontWeight:500,cursor:loading||!input.trim()?"not-allowed":"pointer",height:46,whiteSpace:"nowrap",flexShrink:0}}>送信</button>
           </div>
           {messages.length>0 && <button onClick={() => setMessages([])} style={{marginTop:6,background:"none",border:"none",fontSize:12,color:"#aaa",cursor:"pointer",padding:0}}>会話をリセット</button>}
         </div>
@@ -658,20 +655,24 @@ function ResearchTab({ posts }) {
 
       {mode==="browse" && (
         <div>
-          <div style={{display:"flex",gap:8,marginBottom:12,flexWrap:"wrap"}}>
-            <select value={filter.machine} onChange={e => setFilter(f=>({...f,machine:e.target.value}))} style={{fontSize:13,padding:"6px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#333"}}>
-              <option value="">すべての機種</option>
-              {machines.map(m => <option key={m} value={m}>{m}</option>)}
-            </select>
-            <select value={filter.cat} onChange={e => setFilter(f=>({...f,cat:e.target.value}))} style={{fontSize:13,padding:"6px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#333"}}>
-              <option value="">すべてのカテゴリ</option>
-              <option value="bonus">演出・ボーナス</option>
-              <option value="spec">機種情報・スペック</option>
-              <option value="quote">名言・煽り文句</option>
-              <option value="memory">思い出・エピソード</option>
-            </select>
-            {(filter.machine||filter.cat) && <button onClick={() => setFilter({machine:"",cat:""})} style={{fontSize:12,padding:"6px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666",cursor:"pointer"}}>リセット</button>}
-            <span style={{fontSize:12,color:"#aaa",alignSelf:"center",marginLeft:"auto"}}>{filteredPosts.length}件</span>
+          <div style={{marginBottom:12}}>
+            <div style={{display:"flex",gap:8,marginBottom:6}}>
+              <select value={filter.machine} onChange={e => setFilter(f=>({...f,machine:e.target.value}))} style={{flex:1,fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#333",minWidth:0}}>
+                <option value="">すべての機種</option>
+                {machines.map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+              <select value={filter.cat} onChange={e => setFilter(f=>({...f,cat:e.target.value}))} style={{flex:1,fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#333",minWidth:0}}>
+                <option value="">すべてのカテゴリ</option>
+                <option value="bonus">演出・ボーナス</option>
+                <option value="spec">機種情報・スペック</option>
+                <option value="quote">名言・煽り文句</option>
+                <option value="memory">思い出・エピソード</option>
+              </select>
+            </div>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <span style={{fontSize:12,color:"#aaa"}}>{filteredPosts.length}件</span>
+              {(filter.machine||filter.cat) && <button onClick={() => setFilter({machine:"",cat:""})} style={{fontSize:12,padding:"5px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666",cursor:"pointer"}}>リセット</button>}
+            </div>
           </div>
           {filteredPosts.map(p => (
             <div key={p.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"10px 14px",marginBottom:8}}>
