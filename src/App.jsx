@@ -124,6 +124,7 @@ export default function App() {
       dup_key: item.dupKey || "",
       eng: item.eng || {},
       internal,
+      author: item.author || MY_NAME,
     }]).select().single();
     if (error) { console.error("addPost error:", error.message); return; }
     if (data) {
