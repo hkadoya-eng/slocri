@@ -27,7 +27,7 @@ const ENG_DEFS = {
   manual:  [],
 };
 const AUTO_AUTHORS = [
-  "編集部AI", "スロ好き編集マン", "スロクリ編集部", "パチスロ記者", "編集長補佐",
+  "編集部AI", "スロ好き編集マン", "スロキー編集部", "パチスロ記者", "編集長補佐",
   "ライター見習い", "スロ専門編集", "深夜のスロライター", "編集部のマニア",
 ];
 function randomAuthor() { return AUTO_AUTHORS[Math.floor(Math.random() * AUTO_AUTHORS.length)]; }
@@ -40,7 +40,7 @@ const AUTO_THEMES = [
   "人気パチスロの面白い思い出エピソード",
 ];
 const MY_UID = "me";
-const MY_NAME = localStorage.getItem("slocri_name") || "ゲスト";
+const MY_NAME = localStorage.getItem("slotkey_name") || "ゲスト";
 
 function fmtNum(n) {
   if (!n && n !== 0) return null;
@@ -177,7 +177,7 @@ export default function App() {
   return (
     <div style={{padding:"12px",maxWidth:740,margin:"0 auto",fontFamily:"sans-serif",textAlign:"left"}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1rem"}}>
-        <div style={{fontSize:20,fontWeight:500}}><span style={{color:"#D85A30"}}>▶</span> スロクリ</div>
+        <div style={{fontSize:20,fontWeight:500}}><span style={{color:"#D85A30"}}>▶</span> スロキー</div>
         <span style={{fontSize:12,color:"#888"}}>{posts.length}件</span>
       </div>
 
@@ -212,7 +212,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const [fCat, setFCat] = useState("bonus");
   const [fBody, setFBody] = useState("");
   const [fName, setFName] = useState(MY_NAME);
-  const [currentName, setCurrentName] = useState(() => localStorage.getItem("slocri_name") || "ゲスト");
+  const [currentName, setCurrentName] = useState(() => localStorage.getItem("slotkey_name") || "ゲスト");
   const [editId, setEditId] = useState(null);
   const [eMachine, setEMachine] = useState("");
   const [eCat, setECat] = useState("bonus");
@@ -339,7 +339,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
       const ok = window.confirm("名前が「ゲスト」のまま投稿すると、あとから編集・削除できません。\nこのまま投稿しますか？");
       if (!ok) return;
     }
-    localStorage.setItem("slocri_name", authorName);
+    localStorage.setItem("slotkey_name", authorName);
     setCurrentName(authorName);
     try {
       setUploading(true);
@@ -701,8 +701,8 @@ async function autoCollect() {
     setAutoLoading(false);
   }
 
-  function exportJSON() { const b=new Blob([JSON.stringify(posts,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="slocri.json";a.click();showToast("JSONをエクスポートしました"); }
-  function exportCSV() { const h=["id","cat","source","machine","title","body","url","quality"];const rows=posts.map(p=>h.map(k=>'"'+String(p[k]||"").replace(/"/g,'""')+'"').join(","));const b=new Blob([[h.join(","),...rows].join("\n")],{type:"text/csv"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="slocri.csv";a.click();showToast("CSVをエクスポートしました"); }
+  function exportJSON() { const b=new Blob([JSON.stringify(posts,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="slotkey.json";a.click();showToast("JSONをエクスポートしました"); }
+  function exportCSV() { const h=["id","cat","source","machine","title","body","url","quality"];const rows=posts.map(p=>h.map(k=>'"'+String(p[k]||"").replace(/"/g,'""')+'"').join(","));const b=new Blob([[h.join(","),...rows].join("\n")],{type:"text/csv"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="slotkey.csv";a.click();showToast("CSVをエクスポートしました"); }
 
   return (
     <div>
