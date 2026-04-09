@@ -459,7 +459,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
                   {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => toggleBad(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${isBad?"#e57373":"#ddd"}`,borderRadius:8,background:isBad?"#FFEBEE":"#f9f9f9",color:isBad?"#c62828":"#bbb",fontSize:12,cursor:"pointer",fontWeight:isBad?500:400}}>✕ bad {(p.internal?.bads||[]).length||""}</button>; })()}
                   {isOwn && <>
                     <button onClick={() => startEdit(p)} style={{marginLeft:"auto",background:"none",border:"0.5px solid #ddd",borderRadius:8,fontSize:11,color:"#888",cursor:"pointer",padding:"3px 10px"}}>編集</button>
-                    <button onClick={() => handleDelete(p.id)} style={{background:"none",border:"none",fontSize:11,color:"#ddd",cursor:"pointer",padding:0}}>削除</button>
+                    <button onClick={() => handleDelete(p.id)} style={{background:"none",border:"0.5px solid #ddd",borderRadius:8,fontSize:11,color:"#e57373",cursor:"pointer",padding:"3px 10px"}}>削除</button>
                   </>}
                 </div>
                 {isOpen && (
