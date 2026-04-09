@@ -174,14 +174,38 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
   const [fCat, setFCat] = useState("bonus");
   const [fBody, setFBody] = useState("");
   const [fName, setFName] = useState(MY_NAME);
+  const [currentName, setCurrentName] = useState(() => localStorage.getItem("slocri_name") || "ゲスト");
+  const [editId, setEditId] = useState(null);
+  const [eMachine, setEMachine] = useState("");
+  const [eCat, setECat] = useState("bonus");
+  const [eBody, setEBody] = useState("");
 
   function resetForm() { setShowForm(false); setFMachine(""); setFCat("bonus"); setFBody(""); }
+
+  function startEdit(p) {
+    setEditId(p.id);
+    setEMachine(p.machine);
+    setECat(p.cat);
+    setEBody(p.body);
+  }
+
+  async function saveEdit(p) {
+    const b = eBody.trim();
+    if (!b || !eMachine.trim()) return;
+    await updatePost(p.id, {
+      machine: eMachine.trim(), cat: eCat, body: b,
+      title: b.length > 30 ? b.slice(0,30)+"..." : b,
+    });
+    setEditId(null);
+    showToast("更新しました");
+  }
 
   async function submitPost() {
     if (!fMachine.trim() || !fBody.trim()) return;
     const b = fBody.trim();
     const authorName = fName.trim() || "ゲスト";
     localStorage.setItem("slocri_name", authorName);
+    setCurrentName(authorName);
     try {
       await addPost({
         cat: fCat, source: "manual", machine: fMachine.trim(),
@@ -274,48 +298,72 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
         const iLiked = (p.internal?.likes || []).indexOf(MY_UID) >= 0;
         const iBM = (p.internal?.bookmarks || []).indexOf(MY_UID) >= 0;
         const isOpen = commentOpen === p.id;
+        const postAuthor = p.internal?.author || p.author || "ゲスト";
+        const isOwn = currentName !== "ゲスト" && postAuthor === currentName;
+        const isEditing = editId === p.id;
         return (
-          <div key={p.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"10px 12px",marginBottom:8}}>
-            <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:6}}>
-              <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center"}}><CatBadge cat={p.cat}/><SrcBadge src={p.source}/></div>
-              <Dots q={p.quality}/>
-            </div>
-            <div style={{fontSize:12,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center"}}>
-              <span style={{fontWeight:500,color:"#555"}}>@{p.internal?.author||p.author||"ゲスト"}</span>
-              <span>機種: <span style={{color:"#333",fontWeight:500}}>{p.machine}</span></span>
-            </div>
-            <div style={{fontSize:14,fontWeight:500,color:"#333",marginBottom:4}}>{p.title}</div>
-            <div style={{fontSize:13,color:"#666",lineHeight:1.65,marginBottom:10}}>{p.body}</div>
-
-            {(hasEng || p.source !== "manual") && (
-              <div style={{background:"#f9f9f9",borderRadius:8,padding:"6px 10px",marginBottom:10,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
-                <span style={{fontSize:11,color:"#aaa"}}>外部</span>
-                {engDefs.map(d => { const v=fmtNum(p.eng?.[d.key]); if(!v)return null; return <span key={d.key} style={{fontSize:12,display:"flex",alignItems:"center",gap:3}}><span style={{color:"#aaa"}}>{d.icon}</span><span style={{fontWeight:500,color:"#333"}}>{v}</span><span style={{fontSize:11,color:"#aaa"}}>{d.label}</span></span>; })}
-                {!hasEng && <span style={{fontSize:11,color:"#aaa"}}>数値なし</span>}
-              </div>
-            )}
-
-            <div style={{borderTop:"0.5px solid #eee",paddingTop:8,display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
-              <button onClick={() => toggleLike(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iLiked?"#F0997B":"#ddd"}`,borderRadius:8,background:iLiked?"#FAECE7":"#f9f9f9",color:iLiked?"#993C1D":"#888",fontSize:12,cursor:"pointer",fontWeight:iLiked?500:400}}>♥ {(p.internal?.likes||[]).length}</button>
-              <button onClick={() => toggleBM(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iBM?"#85B7EB":"#ddd"}`,borderRadius:8,background:iBM?"#E6F1FB":"#f9f9f9",color:iBM?"#185FA5":"#888",fontSize:12,cursor:"pointer"}}>◈ {(p.internal?.bookmarks||[]).length}</button>
-              <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${isOpen?"#AFA9EC":"#ddd"}`,borderRadius:8,background:isOpen?"#EEEDFE":"#f9f9f9",color:isOpen?"#3C3489":"#888",fontSize:12,cursor:"pointer"}}>◎ コメント {(p.internal?.comments||[]).length}</button>
-              {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => toggleBad(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${isBad?"#e57373":"#ddd"}`,borderRadius:8,background:isBad?"#FFEBEE":"#f9f9f9",color:isBad?"#c62828":"#bbb",fontSize:12,cursor:"pointer",fontWeight:isBad?500:400}}>✕ bad {(p.internal?.bads||[]).length||""}</button>; })()}
-              <button onClick={() => handleDelete(p.id)} style={{marginLeft:"auto",background:"none",border:"none",fontSize:11,color:"#ddd",cursor:"pointer",padding:0}}>削除</button>
-            </div>
-
-            {isOpen && (
-              <div style={{marginTop:10}}>
-                {(p.internal?.comments||[]).map((c,i) => (
-                  <div key={i} style={{display:"flex",gap:8,marginBottom:8}}>
-                    <div style={{width:24,height:24,borderRadius:"50%",background:c.uid===MY_UID?"#FAECE7":"#f0f0f0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:c.uid===MY_UID?"#993C1D":"#888",flexShrink:0,fontWeight:500}}>{c.uid===MY_UID?"自":"他"}</div>
-                    <div style={{flex:1,background:"#f9f9f9",borderRadius:8,padding:"6px 10px",fontSize:13,color:"#333",lineHeight:1.5}}>{c.text}<span style={{fontSize:11,color:"#aaa",marginLeft:8}}>{c.ts}</span></div>
-                  </div>
-                ))}
-                <div style={{display:"flex",gap:6}}>
-                  <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => { if(e.key==="Enter"){e.preventDefault();addComment(p);}}} placeholder="コメントを入力… (Enter)" style={{flex:1,fontSize:13,padding:"6px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9"}} />
-                  <button onClick={() => addComment(p)} style={{padding:"6px 14px",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:13,cursor:"pointer"}}>送信</button>
+          <div key={p.id} style={{background:"#fff",border:`0.5px solid ${isOwn?"#F0997B":"#eee"}`,borderRadius:12,padding:"10px 12px",marginBottom:8}}>
+            {isEditing ? (
+              <div>
+                <select value={eCat} onChange={e => setECat(e.target.value)} style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}}>
+                  <option value="bonus">演出・ボーナス</option>
+                  <option value="spec">機種情報・スペック</option>
+                  <option value="quote">名言・煽り文句</option>
+                  <option value="memory">思い出・エピソード</option>
+                </select>
+                <input value={eMachine} onChange={e => setEMachine(e.target.value)} placeholder="機種名" style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
+                <textarea value={eBody} onChange={e => setEBody(e.target.value)} style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:80,marginBottom:8,boxSizing:"border-box"}} />
+                <div style={{display:"flex",gap:8}}>
+                  <button onClick={() => saveEdit(p)} style={{flex:1,padding:"7px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:500,cursor:"pointer"}}>保存</button>
+                  <button onClick={() => setEditId(null)} style={{padding:"7px 14px",background:"#f0f0f0",color:"#666",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,cursor:"pointer"}}>キャンセル</button>
                 </div>
               </div>
+            ) : (
+              <>
+                <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:6}}>
+                  <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center"}}><CatBadge cat={p.cat}/><SrcBadge src={p.source}/></div>
+                  <Dots q={p.quality}/>
+                </div>
+                <div style={{fontSize:12,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center"}}>
+                  <span style={{fontWeight:500,color:isOwn?"#D85A30":"#555"}}>@{postAuthor}{isOwn&&<span style={{fontSize:10,marginLeft:3,color:"#D85A30"}}>（自分）</span>}</span>
+                  <span>機種: <span style={{color:"#333",fontWeight:500}}>{p.machine}</span></span>
+                </div>
+                <div style={{fontSize:14,fontWeight:500,color:"#333",marginBottom:4}}>{p.title}</div>
+                <div style={{fontSize:13,color:"#666",lineHeight:1.65,marginBottom:10}}>{p.body}</div>
+
+                {(hasEng || p.source !== "manual") && (
+                  <div style={{background:"#f9f9f9",borderRadius:8,padding:"6px 10px",marginBottom:10,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+                    <span style={{fontSize:11,color:"#aaa"}}>外部</span>
+                    {engDefs.map(d => { const v=fmtNum(p.eng?.[d.key]); if(!v)return null; return <span key={d.key} style={{fontSize:12,display:"flex",alignItems:"center",gap:3}}><span style={{color:"#aaa"}}>{d.icon}</span><span style={{fontWeight:500,color:"#333"}}>{v}</span><span style={{fontSize:11,color:"#aaa"}}>{d.label}</span></span>; })}
+                    {!hasEng && <span style={{fontSize:11,color:"#aaa"}}>数値なし</span>}
+                  </div>
+                )}
+
+                <div style={{borderTop:"0.5px solid #eee",paddingTop:8,display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
+                  <button onClick={() => toggleLike(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iLiked?"#F0997B":"#ddd"}`,borderRadius:8,background:iLiked?"#FAECE7":"#f9f9f9",color:iLiked?"#993C1D":"#888",fontSize:12,cursor:"pointer",fontWeight:iLiked?500:400}}>♥ {(p.internal?.likes||[]).length}</button>
+                  <button onClick={() => toggleBM(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iBM?"#85B7EB":"#ddd"}`,borderRadius:8,background:iBM?"#E6F1FB":"#f9f9f9",color:iBM?"#185FA5":"#888",fontSize:12,cursor:"pointer"}}>◈ {(p.internal?.bookmarks||[]).length}</button>
+                  <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${isOpen?"#AFA9EC":"#ddd"}`,borderRadius:8,background:isOpen?"#EEEDFE":"#f9f9f9",color:isOpen?"#3C3489":"#888",fontSize:12,cursor:"pointer"}}>◎ コメント {(p.internal?.comments||[]).length}</button>
+                  {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => toggleBad(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${isBad?"#e57373":"#ddd"}`,borderRadius:8,background:isBad?"#FFEBEE":"#f9f9f9",color:isBad?"#c62828":"#bbb",fontSize:12,cursor:"pointer",fontWeight:isBad?500:400}}>✕ bad {(p.internal?.bads||[]).length||""}</button>; })()}
+                  {isOwn && <>
+                    <button onClick={() => startEdit(p)} style={{marginLeft:"auto",background:"none",border:"0.5px solid #ddd",borderRadius:8,fontSize:11,color:"#888",cursor:"pointer",padding:"3px 10px"}}>編集</button>
+                    <button onClick={() => handleDelete(p.id)} style={{background:"none",border:"none",fontSize:11,color:"#ddd",cursor:"pointer",padding:0}}>削除</button>
+                  </>}
+                </div>
+                {isOpen && (
+                  <div style={{marginTop:10}}>
+                    {(p.internal?.comments||[]).map((c,i) => (
+                      <div key={i} style={{display:"flex",gap:8,marginBottom:8}}>
+                        <div style={{width:24,height:24,borderRadius:"50%",background:c.uid===MY_UID?"#FAECE7":"#f0f0f0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:c.uid===MY_UID?"#993C1D":"#888",flexShrink:0,fontWeight:500}}>{c.uid===MY_UID?"自":"他"}</div>
+                        <div style={{flex:1,background:"#f9f9f9",borderRadius:8,padding:"6px 10px",fontSize:13,color:"#333",lineHeight:1.5}}>{c.text}<span style={{fontSize:11,color:"#aaa",marginLeft:8}}>{c.ts}</span></div>
+                      </div>
+                    ))}
+                    <div style={{display:"flex",gap:6}}>
+                      <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => { if(e.key==="Enter"){e.preventDefault();addComment(p);}}} placeholder="コメントを入力… (Enter)" style={{flex:1,fontSize:13,padding:"6px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9"}} />
+                      <button onClick={() => addComment(p)} style={{padding:"6px 14px",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:13,cursor:"pointer"}}>送信</button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         );
