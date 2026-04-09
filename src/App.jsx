@@ -43,6 +43,18 @@ function fmtNum(n) {
   if (v >= 1000) return (v / 1000).toFixed(1).replace(/\.0$/, "") + "k";
   return v.toLocaleString();
 }
+function normalizeName(s) {
+  return s.replace(/[Ａ-Ｚａ-ｚ０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/　/g, " ").trim();
+}
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const d = Array.from({length: m+1}, (_, i) => Array.from({length: n+1}, (_, j) => i === 0 ? j : j === 0 ? i : 0));
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      d[i][j] = a[i-1] === b[j-1] ? d[i-1][j-1] : 1 + Math.min(d[i-1][j], d[i][j-1], d[i-1][j-1]);
+  return d[m][n];
+}
+
 function blank() {
   return { likes: [], bookmarks: [], comments: [], bads: [] };
 }
@@ -179,6 +191,22 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
   const [eMachine, setEMachine] = useState("");
   const [eCat, setECat] = useState("bonus");
   const [eBody, setEBody] = useState("");
+  const [machineSuggestion, setMachineSuggestion] = useState(null);
+
+  const machineNames = useMemo(() => [...new Set(posts.map(p => p.machine).filter(Boolean))], [posts]);
+
+  function checkMachineName(val) {
+    const norm = normalizeName(val);
+    if (!norm) { setMachineSuggestion(null); return; }
+    const exact = machineNames.find(m => normalizeName(m) === norm);
+    if (exact) { if (exact !== val) setFMachine(exact); setMachineSuggestion(null); return; }
+    let best = null, bestDist = Infinity;
+    for (const m of machineNames) {
+      const d = levenshtein(norm, normalizeName(m));
+      if (d > 0 && d <= 2 && d < bestDist) { best = m; bestDist = d; }
+    }
+    setMachineSuggestion(best);
+  }
 
   function resetForm() { setShowForm(false); setFMachine(""); setFCat("bonus"); setFBody(""); }
 
@@ -259,11 +287,18 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
           <div style={{background:"#fff",border:"0.5px solid #ddd",borderRadius:12,padding:"12px"}}>
             <div style={{fontSize:13,fontWeight:500,marginBottom:10}}>新規投稿</div>
             <input value={fName} onChange={e => setFName(e.target.value)} placeholder="名前（例: ゲスト）" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
-            <input value={fMachine} onChange={e => setFMachine(e.target.value)} placeholder="機種名（例: バジリスク絆2）" list="machine-candidates" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
+            <input value={fMachine} onChange={e => { setFMachine(e.target.value); setMachineSuggestion(null); }} onBlur={e => checkMachineName(e.target.value)} placeholder="機種名（例: バジリスク絆2）" list="machine-candidates" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:machineSuggestion?4:8,boxSizing:"border-box"}} />
             <datalist id="machine-candidates">
               {[...new Map(posts.map(p => [p.machine, (posts.filter(q => q.machine === p.machine).length)])).entries()]
                 .sort((a,b) => b[1]-a[1]).map(([name]) => <option key={name} value={name} />)}
             </datalist>
+            {machineSuggestion && (
+              <div style={{fontSize:12,color:"#666",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
+                もしかして:
+                <button onClick={() => { setFMachine(machineSuggestion); setMachineSuggestion(null); }} style={{fontSize:12,color:"#D85A30",background:"none",border:"none",cursor:"pointer",padding:0,fontWeight:500,textDecoration:"underline"}}>{machineSuggestion}</button>
+                <button onClick={() => setMachineSuggestion(null)} style={{fontSize:11,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:0}}>✕</button>
+              </div>
+            )}
             <select value={fCat} onChange={e => setFCat(e.target.value)} style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}}>
               <option value="bonus">演出・ボーナス</option>
               <option value="spec">機種情報・スペック</option>
