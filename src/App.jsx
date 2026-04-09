@@ -88,10 +88,10 @@ const QUALITY_CONF = {
   3: { color:"#DC2626", bg:"#FEF2F2", label:"情報Lv.3" },
 };
 function QualityBadge({ q }) {
-  const level = Math.min(3, Math.max(1, Math.round((q / 5) * 3) || 1));
+  const level = q >= 5 ? 3 : q >= 4 ? 2 : 1;
   const c = QUALITY_CONF[level];
   return (
-    <span style={{display:"inline-flex",alignItems:"center",gap:2,padding:"2px 7px",borderRadius:6,background:c.bg,border:`0.5px solid ${c.color}`,fontSize:11}}>
+    <span style={{display:"inline-flex",alignItems:"center",gap:2,padding:"2px 7px",borderRadius:6,background:c.bg,border:`0.5px solid ${c.color}`,fontSize:11,flexShrink:0,whiteSpace:"nowrap"}}>
       <span style={{color:c.color,letterSpacing:1}}>{"★".repeat(level)}{"☆".repeat(3-level)}</span>
       <span style={{color:c.color,fontWeight:500}}>{c.label}</span>
     </span>
@@ -511,8 +511,8 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
               </div>
             ) : (
               <>
-                <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:6}}>
-                  <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center"}}><CatBadge cat={p.cat}/><SrcBadge src={p.source}/></div>
+                <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:6,gap:6}}>
+                  <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",minWidth:0,flex:1}}><CatBadge cat={p.cat}/><SrcBadge src={p.source}/></div>
                   {AUTO_AUTHORS.includes(p.internal?.author || p.author) && p.quality ? <QualityBadge q={p.quality}/> : null}
                 </div>
                 <div style={{fontSize:12,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center"}}>
