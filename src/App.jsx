@@ -368,41 +368,37 @@ async function autoCollect() {
       : "";
 
     try {
+      const systemPrompt =
+        `あなたはパチスロ業界の専門家です。実在するパチスロ・パチンコ機種の演出・スペック・名言・エピソードについて豊富な知識を持っています。
+指定テーマで、パチスロファンが「面白い・懐かしい・役立つ」と感じる情報を厳選して3件生成し、必ずJSON配列のみを返してください。他のテキストは一切不要です。
+形式: [{"cat":"bonus|spec|quote|memory","machine":"実在する機種名","title":"30文字以内","body":"100〜150文字の具体的な説明","quality":4,"dupKey":"機種名_キーワード"}]
+・catはbonus=演出・ボーナス, spec=スペック・攻略, quote=名言・煽り文句, memory=思い出・エピソード
+・実在する機種名を必ず使うこと。架空の機種は禁止。
+・bodyは具体的な数字・演出名・セリフを含めてリアリティを出すこと。` + badContext;
+
       const res = await fetch("/api/claude", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514",
           max_tokens: 2000,
-          tools: [{ type: "web_search_20250305", name: "web_search" }],
-          system: 'あなたはパチスロライブラリの収集ボットです。ウェブ検索でパチスロの面白い情報を3件集めて、必ずJSON配列だけで返答してください。他のテキストは一切不要です。形式: [{"cat":"bonus","source":"manual","machine":"機種名","title":"タイトル","body":"150文字以内の説明","quality":4,"dupKey":"機種名_キー","eng":{}}]' + badContext,
-          messages: [{ role: "user", content: "「" + theme + "」についてウェブ検索して、パチスロファンが面白いと感じる情報を3件収集してJSON配列で返してください。" }]
+          system: systemPrompt,
+          messages: [{ role: "user", content: "「" + theme + "」をテーマに、パチスロファンが喜ぶ情報を3件生成してJSON配列で返してください。" }]
         })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error.message || "api error");
 
-      // 全ブロックからテキストを収集
-      let allText = "";
-      (data.content || []).forEach(b => {
-        if (b.type === "text") allText += b.text;
-        if (b.type === "tool_result" && b.content) {
-          (Array.isArray(b.content) ? b.content : [b.content]).forEach(c => {
-            if (c.type === "text") allText += c.text;
-          });
-        }
-      });
-
-      // JSON配列を抽出
-      const jsonMatch = allText.match(/\[[\s\S]*\]/);
-      if (!jsonMatch) throw new Error("JSONが見つかりませんでした");
+      const allText = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
+      const jsonMatch = allText.match(/\[[\s\S]*?\]/);
+      if (!jsonMatch) throw new Error("JSONが見つかりませんでした: " + allText.slice(0, 200));
       const items = JSON.parse(jsonMatch[0]);
 
       let added = 0;
       for (const p of items) {
         const item = {
           cat: p.cat || "memory",
-          source: p.source || "manual",
+          source: "AI生成",
           machine: p.machine || "不明",
           title: p.title || "無題",
           body: p.body || "",
