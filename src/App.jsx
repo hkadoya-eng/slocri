@@ -198,6 +198,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
   const [eMachine, setEMachine] = useState("");
   const [eCat, setECat] = useState("bonus");
   const [eBody, setEBody] = useState("");
+  const [fUrl, setFUrl] = useState("");
   const [machineSuggestion, setMachineSuggestion] = useState(null);
 
   const machineNames = useMemo(() => [...new Set(posts.map(p => p.machine).filter(Boolean))], [posts]);
@@ -215,7 +216,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
     setMachineSuggestion(best);
   }
 
-  function resetForm() { setShowForm(false); setFMachine(""); setFCat("bonus"); setFBody(""); }
+  function resetForm() { setShowForm(false); setFMachine(""); setFCat("bonus"); setFBody(""); setFUrl(""); }
 
   function startEdit(p) {
     setEditId(p.id);
@@ -249,7 +250,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
       await addPost({
         cat: fCat, source: "manual", machine: fMachine.trim(),
         title: b.length > 30 ? b.slice(0,30)+"..." : b,
-        body: b, url: "", quality: 3, dupKey: "", author: authorName, eng: {}, internal: blank(),
+        body: b, url: fUrl.trim(), quality: 3, dupKey: "", author: authorName, eng: {}, internal: blank(),
       });
     } catch(e) {
       console.error("投稿エラー:", e);
@@ -312,7 +313,8 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
               <option value="quote">名言・煽り文句</option>
               <option value="memory">思い出・エピソード</option>
             </select>
-            <textarea value={fBody} onChange={e => setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:88,marginBottom:10,boxSizing:"border-box"}} />
+            <textarea value={fBody} onChange={e => setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:88,marginBottom:8,boxSizing:"border-box"}} />
+            <input value={fUrl} onChange={e => setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:10,boxSizing:"border-box"}} />
             <div style={{display:"flex",gap:8}}>
               <button onClick={submitPost} style={{flex:1,padding:"9px 0",background:"#2a9d3f",color:"#fff",border:"none",borderRadius:8,fontSize:14,fontWeight:500,cursor:"pointer"}}>投稿</button>
               <button onClick={resetForm} style={{padding:"9px 16px",background:"#f0f0f0",color:"#666",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,cursor:"pointer"}}>キャンセル</button>
@@ -379,7 +381,13 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
                   <span>機種: <span style={{color:"#333",fontWeight:500}}>{p.machine}</span></span>
                 </div>
                 <div style={{fontSize:14,fontWeight:500,color:"#333",marginBottom:4}}>{p.title}</div>
-                <div style={{fontSize:13,color:"#666",lineHeight:1.65,marginBottom:10}}>{p.body}</div>
+                <div style={{fontSize:13,color:"#666",lineHeight:1.65,marginBottom:p.url?6:10}}>{p.body}</div>
+                {p.url && (
+                  <a href={p.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",marginBottom:10,textDecoration:"none",overflow:"hidden"}}>
+                    <span style={{fontSize:12,color:"#888",flexShrink:0}}>🔗</span>
+                    <span style={{fontSize:12,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.url}</span>
+                  </a>
+                )}
 
                 {(hasEng || p.source !== "manual") && (
                   <div style={{background:"#f9f9f9",borderRadius:8,padding:"6px 10px",marginBottom:10,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
