@@ -259,7 +259,11 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
           <div style={{background:"#fff",border:"0.5px solid #ddd",borderRadius:12,padding:"12px"}}>
             <div style={{fontSize:13,fontWeight:500,marginBottom:10}}>新規投稿</div>
             <input value={fName} onChange={e => setFName(e.target.value)} placeholder="名前（例: ゲスト）" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
-            <input value={fMachine} onChange={e => setFMachine(e.target.value)} placeholder="機種名（例: バジリスク絆2）" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
+            <input value={fMachine} onChange={e => setFMachine(e.target.value)} placeholder="機種名（例: バジリスク絆2）" list="machine-candidates" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
+            <datalist id="machine-candidates">
+              {[...new Map(posts.map(p => [p.machine, (posts.filter(q => q.machine === p.machine).length)])).entries()]
+                .sort((a,b) => b[1]-a[1]).map(([name]) => <option key={name} value={name} />)}
+            </datalist>
             <select value={fCat} onChange={e => setFCat(e.target.value)} style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}}>
               <option value="bonus">演出・ボーナス</option>
               <option value="spec">機種情報・スペック</option>
