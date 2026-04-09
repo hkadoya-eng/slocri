@@ -224,9 +224,25 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
   function onImageChange(e) {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { alert("5MB以下の画像を選択してください"); return; }
-    setFImage(file);
-    setFImagePreview(URL.createObjectURL(file));
+    const MAX = 1200;
+    const QUALITY = 0.85;
+    const img = new Image();
+    img.onload = () => {
+      let { width: w, height: h } = img;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      canvas.toBlob(blob => {
+        const resized = new File([blob], file.name, { type: "image/jpeg" });
+        setFImage(resized);
+        setFImagePreview(URL.createObjectURL(resized));
+      }, "image/jpeg", QUALITY);
+    };
+    img.src = URL.createObjectURL(file);
   }
 
   function startEdit(p) {
@@ -342,7 +358,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
             <input value={fUrl} onChange={e => setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
             <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,cursor:"pointer"}}>
               <div style={{padding:"7px 14px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",fontSize:13,color:"#555",whiteSpace:"nowrap"}}>📷 画像を選ぶ</div>
-              <span style={{fontSize:12,color:"#aaa",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{fImage ? fImage.name : "未選択（最大5MB）"}</span>
+              <span style={{fontSize:12,color:"#aaa",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{fImage ? fImage.name : "未選択（自動リサイズあり）"}</span>
               <input type="file" accept="image/*" onChange={onImageChange} style={{display:"none"}} />
             </label>
             {fImagePreview && (
