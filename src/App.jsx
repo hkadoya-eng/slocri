@@ -159,7 +159,7 @@ export default function App() {
   }
 
   const TABS = ["feed","collect","overview","research"];
-  const LABELS = { feed:"フィード", collect:"収集", overview:"俯瞰", research:"リサーチ" };
+  const LABELS = { feed:"フィード", collect:"収集", overview:"まとめ", research:"リサーチ" };
 
   return (
     <div style={{padding:"12px",maxWidth:740,margin:"0 auto",fontFamily:"sans-serif",textAlign:"left"}}>
