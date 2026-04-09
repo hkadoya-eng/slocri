@@ -226,7 +226,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const [fImage, setFImage] = useState(null);
   const [fImagePreview, setFImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [expandedPosts, setExpandedPosts] = useState(new Set());
+  const [expandedPosts, setExpandedPosts] = useState({});
   const [machineSuggestion, setMachineSuggestion] = useState(null);
 
   const machineNames = useMemo(() => [...new Set(posts.map(p => p.machine).filter(Boolean))], [posts]);
@@ -520,19 +520,14 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <span>機種: <span style={{color:"#333",fontWeight:500}}>{p.machine}</span></span>
                 </div>
                 <div style={{fontSize:14,fontWeight:500,color:"#333",marginBottom:4}}>{p.title}</div>
-                {(() => {
+                {(function CollapseBody() {
                   const LIMIT = 100;
                   const isLong = p.body.length > LIMIT;
-                  const isExpanded = expandedPosts.has(p.id);
-                  const toggle = () => setExpandedPosts(prev => {
-                    const s = new Set(prev);
-                    s.has(p.id) ? s.delete(p.id) : s.add(p.id);
-                    return s;
-                  });
+                  const isExpanded = !!expandedPosts[p.id];
                   return (
                     <div style={{marginBottom:(p.internal?.imageUrl||p.url)?6:10}}>
                       <div style={{fontSize:13,color:"#666",lineHeight:1.65}}>{isLong && !isExpanded ? p.body.slice(0, LIMIT) + "…" : p.body}</div>
-                      {isLong && <button onClick={toggle} style={{fontSize:12,color:"#D85A30",background:"none",border:"none",padding:"2px 0",cursor:"pointer",fontWeight:500}}>{isExpanded ? "折りたたむ" : "もっと見る"}</button>}
+                      {isLong && <button onClick={() => setExpandedPosts(prev => ({...prev, [p.id]: !prev[p.id]}))} style={{fontSize:12,color:"#D85A30",background:"none",border:"none",padding:"2px 0",cursor:"pointer",fontWeight:500}}>{isExpanded ? "折りたたむ" : "もっと見る"}</button>}
                     </div>
                   );
                 })()}
