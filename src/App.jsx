@@ -182,7 +182,7 @@ export default function App() {
       {!loading && tab === "feed"     && <FeedTab     posts={posts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} />}
       {!loading && tab === "collect"  && <CollectTab  posts={posts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} />}
       {!loading && tab === "overview" && <OverviewTab posts={posts} />}
-      {!loading && tab === "research" && <ResearchTab posts={posts} aiEnabled={aiEnabled} />}
+      {!loading && tab === "research" && <ResearchTab posts={posts} aiEnabled={aiEnabled} updatePost={updatePost} />}
     </div>
   );
 }
@@ -865,8 +865,8 @@ function OverviewTab({ posts }) {
   );
 }
 
-function ResearchTab({ posts, aiEnabled }) {
-  const [mode, setMode] = useState("chat");
+function ResearchTab({ posts, aiEnabled, updatePost }) {
+  const [mode, setMode] = useState("browse");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -906,7 +906,7 @@ function ResearchTab({ posts, aiEnabled }) {
   return (
     <div>
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem"}}>
-        {[["chat","チャット"],["browse","絞り込み"]].map(([k,l]) => {
+        {[["browse","絞り込み"],["chat","チャット"]].map(([k,l]) => {
           const on = mode===k;
           return <button key={k} onClick={() => setMode(k)} style={{padding:"5px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:12,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap"}}>{l}</button>;
         })}
@@ -964,14 +964,22 @@ function ResearchTab({ posts, aiEnabled }) {
               {(filter.machine||filter.cat) && <button onClick={() => setFilter({machine:"",cat:""})} style={{fontSize:12,padding:"5px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666",cursor:"pointer"}}>リセット</button>}
             </div>
           </div>
-          {filteredPosts.map(p => (
-            <div key={p.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"10px 14px",marginBottom:8}}>
-              <div style={{display:"flex",gap:5,marginBottom:4,alignItems:"center"}}><CatBadge cat={p.cat}/><SrcBadge src={p.source}/><span style={{marginLeft:"auto",fontSize:11,color:"#D85A30",fontWeight:500}}>♥ {p.internal?.likes?.length||0}</span></div>
-              <div style={{fontSize:12,color:"#888",marginBottom:3}}>{p.machine}</div>
-              <div style={{fontSize:13,fontWeight:500,color:"#333",marginBottom:3}}>{p.title}</div>
-              <div style={{fontSize:12,color:"#666",lineHeight:1.6}}>{p.body}</div>
-            </div>
-          ))}
+          {filteredPosts.map(p => {
+            const iLiked = (p.internal?.likes||[]).indexOf(MY_UID) >= 0;
+            const toggleLike = async () => {
+              const newLikes = toggleArr(p.internal?.likes||[], MY_UID);
+              await updatePost(p.id, { internal: { ...p.internal, likes: newLikes } });
+            };
+            return (
+              <div key={p.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"10px 14px",marginBottom:8}}>
+                <div style={{display:"flex",gap:5,marginBottom:4,alignItems:"center"}}><CatBadge cat={p.cat}/><SrcBadge src={p.source}/></div>
+                <div style={{fontSize:12,color:"#888",marginBottom:3}}>{p.machine}</div>
+                <div style={{fontSize:13,fontWeight:500,color:"#333",marginBottom:3}}>{p.title}</div>
+                <div style={{fontSize:12,color:"#666",lineHeight:1.6,marginBottom:8}}>{p.body}</div>
+                <button onClick={toggleLike} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iLiked?"#F0997B":"#ddd"}`,borderRadius:8,background:iLiked?"#FAECE7":"#f9f9f9",color:iLiked?"#993C1D":"#888",fontSize:12,cursor:"pointer",fontWeight:iLiked?500:400}}>♥ {(p.internal?.likes||[]).length}</button>
+              </div>
+            );
+          })}
           {filteredPosts.length>0&&(filter.machine||filter.cat) && (
             <button onClick={() => { const q=filter.machine?filter.machine+(filter.cat?"の"+(CATS[filter.cat]?.label):"")+"について企画のヒントを教えて":(CATS[filter.cat]?.label)+"カテゴリで人気の投稿の共通点を教えて"; setMode("chat"); setTimeout(()=>send(q),100); }} style={{marginTop:4,width:"100%",padding:"10px 0",border:"0.5px solid #D85A30",borderRadius:8,background:"#FAECE7",color:"#993C1D",fontSize:13,fontWeight:500,cursor:"pointer"}}>
               この絞り込み結果をチャットで深掘り ↗
