@@ -44,7 +44,7 @@ function fmtNum(n) {
   return v.toLocaleString();
 }
 function blank() {
-  return { likes: [], bookmarks: [], comments: [] };
+  return { likes: [], bookmarks: [], comments: [], bads: [] };
 }
 function toggleArr(arr, uid) {
   if (arr.indexOf(uid) >= 0) return arr.filter(u => u !== uid);
@@ -194,6 +194,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
     const newBMs = toggleArr(p.internal.bookmarks || [], MY_UID);
     await updatePost(p.id, { internal: { ...p.internal, bookmarks: newBMs } });
   }
+  async function toggleBad(p) {
+    const newBads = toggleArr(p.internal.bads || [], MY_UID);
+    await updatePost(p.id, { internal: { ...p.internal, bads: newBads } });
+  }
   async function addComment(p) {
     if (!commentText.trim()) return;
     const comments = [...(p.internal.comments || []), { uid: MY_UID, text: commentText.trim(), ts: "たった今" }];
@@ -286,6 +290,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
               <button onClick={() => toggleLike(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iLiked?"#F0997B":"#ddd"}`,borderRadius:8,background:iLiked?"#FAECE7":"#f9f9f9",color:iLiked?"#993C1D":"#888",fontSize:12,cursor:"pointer",fontWeight:iLiked?500:400}}>♥ {(p.internal?.likes||[]).length}</button>
               <button onClick={() => toggleBM(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iBM?"#85B7EB":"#ddd"}`,borderRadius:8,background:iBM?"#E6F1FB":"#f9f9f9",color:iBM?"#185FA5":"#888",fontSize:12,cursor:"pointer"}}>◈ {(p.internal?.bookmarks||[]).length}</button>
               <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${isOpen?"#AFA9EC":"#ddd"}`,borderRadius:8,background:isOpen?"#EEEDFE":"#f9f9f9",color:isOpen?"#3C3489":"#888",fontSize:12,cursor:"pointer"}}>◎ コメント {(p.internal?.comments||[]).length}</button>
+              {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => toggleBad(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${isBad?"#e57373":"#ddd"}`,borderRadius:8,background:isBad?"#FFEBEE":"#f9f9f9",color:isBad?"#c62828":"#bbb",fontSize:12,cursor:"pointer",fontWeight:isBad?500:400}}>✕ bad {(p.internal?.bads||[]).length||""}</button>; })()}
               <button onClick={() => handleDelete(p.id)} style={{marginLeft:"auto",background:"none",border:"none",fontSize:11,color:"#ddd",cursor:"pointer",padding:0}}>削除</button>
             </div>
 
@@ -353,6 +358,15 @@ async function autoCollect() {
     setAutoLoading(true);
     setStatus("ネットを巡回中...");
     const theme = AUTO_THEMES[Math.floor(Math.random() * AUTO_THEMES.length)];
+
+    // badが付いた投稿から「避けるべき傾向」を抽出
+    const badPosts = posts.filter(p => (p.internal?.bads?.length || 0) > 0);
+    const badContext = badPosts.length > 0
+      ? `\n\n【避けるべきコンテンツ（編集部がbad評価した投稿の傾向）】\n` +
+        badPosts.map(p => `- 機種「${p.machine}」カテゴリ「${p.cat}」: "${p.title}"`).join("\n") +
+        `\n上記に類似した内容・機種・表現は収集しないこと。`
+      : "";
+
     try {
       const res = await fetch("/api/claude", {
         method: "POST",
@@ -361,7 +375,7 @@ async function autoCollect() {
           model: "claude-sonnet-4-20250514",
           max_tokens: 2000,
           tools: [{ type: "web_search_20250305", name: "web_search" }],
-          system: 'あなたはパチスロライブラリの収集ボットです。ウェブ検索でパチスロの面白い情報を3件集めて、必ずJSON配列だけで返答してください。他のテキストは一切不要です。形式: [{"cat":"bonus","source":"manual","machine":"機種名","title":"タイトル","body":"150文字以内の説明","quality":4,"dupKey":"機種名_キー","eng":{}}]',
+          system: 'あなたはパチスロライブラリの収集ボットです。ウェブ検索でパチスロの面白い情報を3件集めて、必ずJSON配列だけで返答してください。他のテキストは一切不要です。形式: [{"cat":"bonus","source":"manual","machine":"機種名","title":"タイトル","body":"150文字以内の説明","quality":4,"dupKey":"機種名_キー","eng":{}}]' + badContext,
           messages: [{ role: "user", content: "「" + theme + "」についてウェブ検索して、パチスロファンが面白いと感じる情報を3件収集してJSON配列で返してください。" }]
         })
       });
