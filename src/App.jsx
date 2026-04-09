@@ -407,12 +407,12 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
               </div>
             )}
             <select value={fCat} onChange={e => setFCat(e.target.value)} style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}}>
+              <option value="aimM">狙い目(機種)</option>
+              <option value="aimH">狙い目(ホール)</option>
               <option value="bonus">演出・表現</option>
               <option value="spec">機種情報</option>
               <option value="quote">版権ネタ</option>
               <option value="memory">勝＆負エピ</option>
-              <option value="aimM">狙い目(機種)</option>
-              <option value="aimH">狙い目(ホール)</option>
             </select>
             <textarea value={fBody} onChange={e => setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:88,marginBottom:8,boxSizing:"border-box"}} />
             <input value={fUrl} onChange={e => setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
@@ -448,7 +448,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
       </div>
 
       <div style={{display:"flex",gap:5,marginBottom:"1rem",flexWrap:"wrap"}}>
-        {["all","saved","bonus","spec","episode","hall","quote","memory","aimM","aimH"].map(k => {
+        {["all","saved","aimM","aimH","bonus","spec","episode","hall","quote","memory"].map(k => {
           const on = filter === k;
           const activeBg = k==="saved"?"#E6F1FB":"#FAECE7";
           const activeColor = k==="saved"?"#185FA5":"#993C1D";
@@ -584,7 +584,7 @@ function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick }) {
   const pending = useRef(null);
 
   const counts = {};
-  ["bonus","spec","episode","hall","quote","memory","aimM","aimH"].forEach(k => { counts[k] = posts.filter(p => p.cat===k).length; });
+  ["aimM","aimH","bonus","spec","episode","hall","quote","memory"].forEach(k => { counts[k] = posts.filter(p => p.cat===k).length; });
 
   function isDup(candidate) {
     return posts.some(p => candidate.dupKey && p.dup_key && candidate.dupKey === p.dup_key);
@@ -712,7 +712,7 @@ async function autoCollect() {
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:"1.25rem"}}>
-        {["bonus","spec","episode","hall","quote","memory","aimM","aimH"].map(k => (
+        {["aimM","aimH","bonus","spec","episode","hall","quote","memory"].map(k => (
           <div key={k} onClick={() => onCatClick?.(k)} style={{background:"#f9f9f9",borderRadius:8,padding:"8px 10px",cursor:"pointer",border:`0.5px solid ${CATS[k].border}`,transition:"background 0.1s"}}
             onMouseEnter={e=>e.currentTarget.style.background=CATS[k].bg}
             onMouseLeave={e=>e.currentTarget.style.background="#f9f9f9"}>
@@ -756,7 +756,7 @@ function OverviewTab({ posts }) {
   }, [posts]);
 
   const catDist = useMemo(() => {
-    return ["bonus","spec","episode","hall","quote","memory","aimM","aimH"].map(k => {
+    return ["aimM","aimH","bonus","spec","episode","hall","quote","memory"].map(k => {
       const ps = posts.filter(p => p.cat===k);
       const likes = ps.reduce((s,p) => s+(p.internal?.likes?.length||0), 0);
       const top = ps.slice().sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0))[0];
