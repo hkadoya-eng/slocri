@@ -2,16 +2,22 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { supabase } from "./supabase";
 
 const CATS = {
-  bonus:  { label:"演出・ボーナス",    bg:"#FAECE7", color:"#993C1D", border:"#F0997B" },
-  spec:   { label:"機種情報・スペック", bg:"#E6F1FB", color:"#185FA5", border:"#85B7EB" },
-  quote:  { label:"名言・煽り文句",    bg:"#EAF3DE", color:"#3B6D11", border:"#97C459" },
-  memory: { label:"思い出・エピソード", bg:"#EEEDFE", color:"#3C3489", border:"#AFA9EC" },
+  bonus:   { label:"演出・ボーナス",    bg:"#FAECE7", color:"#993C1D", border:"#F0997B" },
+  spec:    { label:"機種情報・スペック", bg:"#E6F1FB", color:"#185FA5", border:"#85B7EB" },
+  quote:   { label:"名言・煽り文句",    bg:"#EAF3DE", color:"#3B6D11", border:"#97C459" },
+  memory:  { label:"思い出・エピソード", bg:"#EEEDFE", color:"#3C3489", border:"#AFA9EC" },
+  episode: { label:"エピソード",        bg:"#FFF0F5", color:"#A0306A", border:"#F0A0C0" },
+  hall:    { label:"ホール・業界",      bg:"#F0F4E8", color:"#4A6B1A", border:"#A0C050" },
 };
 const SRC_COLORS = {
-  twitter: { bg:"#E6F1FB", color:"#185FA5" },
-  youtube: { bg:"#FCEBEB", color:"#A32D2D" },
-  wiki:    { bg:"#F1EFE8", color:"#5F5E5A" },
-  manual:  { bg:"#EEEDFE", color:"#3C3489" },
+  twitter:      { bg:"#E6F1FB", color:"#185FA5" },
+  youtube:      { bg:"#FCEBEB", color:"#A32D2D" },
+  wiki:         { bg:"#F1EFE8", color:"#5F5E5A" },
+  manual:       { bg:"#F3F3F3", color:"#555555" },
+  ちょんぼりすた: { bg:"#FFF4E5", color:"#9A5C00" },
+  WebSearch:    { bg:"#E8F5E9", color:"#2E7D32" },
+  ウェブ検索:    { bg:"#E8F5E9", color:"#2E7D32" },
+  マニュアル:    { bg:"#EEEDFE", color:"#3C3489" },
 };
 const ENG_DEFS = {
   twitter: [{key:"tw_likes",icon:"♥",label:"いいね"},{key:"tw_rt",icon:"↺",label:"RT"}],
@@ -27,6 +33,7 @@ const AUTO_THEMES = [
   "人気パチスロの面白い思い出エピソード",
 ];
 const MY_UID = "me";
+const MY_NAME = localStorage.getItem("slocri_name") || "ゲスト";
 
 function fmtNum(n) {
   if (!n && n !== 0) return null;
@@ -50,8 +57,9 @@ function CatBadge({ cat }) {
   return <span style={{fontSize:11,padding:"2px 8px",borderRadius:6,background:c.bg,color:c.color,border:`0.5px solid ${c.border}`,fontWeight:500,whiteSpace:"nowrap"}}>{c.label}</span>;
 }
 function SrcBadge({ src }) {
-  const c = SRC_COLORS[src] || SRC_COLORS.manual;
-  const lbl = src==="twitter"?"X":src==="youtube"?"YT":src==="wiki"?"W":"手";
+  if (!src || src === "manual" || src === "マニュアル" || src === "手動") return null;
+  const c = SRC_COLORS[src] || { bg:"#F1EFE8", color:"#5F5E5A" };
+  const lbl = src==="twitter"?"X":src==="youtube"?"YT":src==="wiki"?"W":src==="ちょんぼりすた"?"ちょんぼ":(src==="WebSearch"||src==="ウェブ検索")?"検索":src;
   return <span style={{fontSize:11,padding:"2px 6px",borderRadius:6,background:c.bg,color:c.color,fontWeight:500}}>{lbl}</span>;
 }
 function Dots({ q }) {
@@ -95,6 +103,7 @@ export default function App() {
       url: item.url || "",
       quality: item.quality || 3,
       dup_key: item.dupKey || "",
+      author: item.author || MY_NAME,
       eng: item.eng || {},
       internal: item.internal || blank(),
     }]).select().single();
@@ -172,7 +181,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
     await addPost({
       cat: fCat, source: "manual", machine: fMachine.trim(),
       title: b.length > 30 ? b.slice(0,30)+"..." : b,
-      body: b, url: "", quality: 3, dupKey: "", eng: {}, internal: blank(),
+      body: b, url: "", quality: 3, dupKey: "", author: MY_NAME, eng: {}, internal: blank(),
     });
     resetForm();
   }
@@ -238,7 +247,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
       </div>
 
       <div style={{display:"flex",gap:5,marginBottom:"1rem",overflowX:"auto",WebkitOverflowScrolling:"touch",flexWrap:"nowrap",paddingBottom:4,msOverflowStyle:"none",scrollbarWidth:"none"}}>
-        {["all","bonus","spec","quote","memory"].map(k => {
+        {["all","bonus","spec","episode","hall","quote","memory"].map(k => {
           const on = filter === k;
           return <button key={k} onClick={() => setFilter(k)} style={{padding:"4px 12px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:12,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{k==="all"?"すべて":CATS[k].label}</button>;
         })}
@@ -258,7 +267,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
               <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center"}}><CatBadge cat={p.cat}/><SrcBadge src={p.source}/></div>
               <Dots q={p.quality}/>
             </div>
-            <div style={{fontSize:12,color:"#888",marginBottom:3}}>機種: <span style={{color:"#333",fontWeight:500}}>{p.machine}</span></div>
+            <div style={{fontSize:12,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center"}}>
+              <span style={{fontWeight:500,color:"#555"}}>@{p.author||"ゲスト"}</span>
+              <span>機種: <span style={{color:"#333",fontWeight:500}}>{p.machine}</span></span>
+            </div>
             <div style={{fontSize:14,fontWeight:500,color:"#333",marginBottom:4}}>{p.title}</div>
             <div style={{fontSize:13,color:"#666",lineHeight:1.65,marginBottom:10}}>{p.body}</div>
 
@@ -307,7 +319,7 @@ function CollectTab({ posts, addPost, showToast }) {
   const pending = useRef(null);
 
   const counts = {};
-  ["bonus","spec","quote","memory"].forEach(k => { counts[k] = posts.filter(p => p.cat===k).length; });
+  ["bonus","spec","episode","hall","quote","memory"].forEach(k => { counts[k] = posts.filter(p => p.cat===k).length; });
 
   function isDup(candidate) {
     return posts.some(p => candidate.dupKey && p.dup_key && candidate.dupKey === p.dup_key);
@@ -423,7 +435,7 @@ async function autoCollect() {
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:"1.25rem"}}>
-        {["bonus","spec","quote","memory"].map(k => <div key={k} style={{background:"#f9f9f9",borderRadius:8,padding:"8px 10px"}}><div style={{fontSize:22,fontWeight:500,color:"#333"}}>{counts[k]}</div><div style={{fontSize:11,color:"#888",marginTop:2}}>{CATS[k].label}</div></div>)}
+        {["bonus","spec","episode","hall","quote","memory"].map(k => <div key={k} style={{background:"#f9f9f9",borderRadius:8,padding:"8px 10px"}}><div style={{fontSize:22,fontWeight:500,color:"#333"}}>{counts[k]}</div><div style={{fontSize:11,color:"#888",marginTop:2}}>{CATS[k].label}</div></div>)}
       </div>
 
       <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"1rem",marginBottom:12}}>
@@ -460,7 +472,7 @@ function OverviewTab({ posts }) {
   }, [posts]);
 
   const catDist = useMemo(() => {
-    return ["bonus","spec","quote","memory"].map(k => {
+    return ["bonus","spec","episode","hall","quote","memory"].map(k => {
       const ps = posts.filter(p => p.cat===k);
       const likes = ps.reduce((s,p) => s+(p.internal?.likes?.length||0), 0);
       const top = ps.slice().sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0))[0];
