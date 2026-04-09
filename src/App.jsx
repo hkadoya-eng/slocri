@@ -204,6 +204,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
     if (!fMachine.trim() || !fBody.trim()) return;
     const b = fBody.trim();
     const authorName = fName.trim() || "ゲスト";
+    if (authorName === "ゲスト") {
+      const ok = window.confirm("名前が「ゲスト」のまま投稿すると、あとから編集・削除できません。\nこのまま投稿しますか？");
+      if (!ok) return;
+    }
     localStorage.setItem("slocri_name", authorName);
     setCurrentName(authorName);
     try {
