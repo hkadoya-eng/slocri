@@ -173,17 +173,20 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
   const [fMachine, setFMachine] = useState("");
   const [fCat, setFCat] = useState("bonus");
   const [fBody, setFBody] = useState("");
+  const [fName, setFName] = useState(MY_NAME);
 
   function resetForm() { setShowForm(false); setFMachine(""); setFCat("bonus"); setFBody(""); }
 
   async function submitPost() {
     if (!fMachine.trim() || !fBody.trim()) return;
     const b = fBody.trim();
+    const authorName = fName.trim() || "ゲスト";
+    localStorage.setItem("slocri_name", authorName);
     try {
       await addPost({
         cat: fCat, source: "manual", machine: fMachine.trim(),
         title: b.length > 30 ? b.slice(0,30)+"..." : b,
-        body: b, url: "", quality: 3, dupKey: "", author: MY_NAME, eng: {}, internal: blank(),
+        body: b, url: "", quality: 3, dupKey: "", author: authorName, eng: {}, internal: blank(),
       });
     } catch(e) {
       console.error("投稿エラー:", e);
@@ -227,6 +230,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
         {showForm && (
           <div style={{background:"#fff",border:"0.5px solid #ddd",borderRadius:12,padding:"12px"}}>
             <div style={{fontSize:13,fontWeight:500,marginBottom:10}}>新規投稿</div>
+            <input value={fName} onChange={e => setFName(e.target.value)} placeholder="名前（例: ゲスト）" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
             <input value={fMachine} onChange={e => setFMachine(e.target.value)} placeholder="機種名（例: バジリスク絆2）" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
             <select value={fCat} onChange={e => setFCat(e.target.value)} style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}}>
               <option value="bonus">演出・ボーナス</option>
