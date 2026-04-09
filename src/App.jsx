@@ -2,10 +2,10 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { supabase } from "./supabase";
 
 const CATS = {
-  bonus:   { label:"演出・ボーナス",    bg:"#FAECE7", color:"#993C1D", border:"#F0997B" },
-  spec:    { label:"機種情報・スペック", bg:"#E6F1FB", color:"#185FA5", border:"#85B7EB" },
-  quote:   { label:"名言・煽り文句",    bg:"#EAF3DE", color:"#3B6D11", border:"#97C459" },
-  memory:  { label:"思い出・エピソード", bg:"#EEEDFE", color:"#3C3489", border:"#AFA9EC" },
+  bonus:   { label:"演出・表現",    bg:"#FAECE7", color:"#993C1D", border:"#F0997B" },
+  spec:    { label:"機種情報",      bg:"#E6F1FB", color:"#185FA5", border:"#85B7EB" },
+  quote:   { label:"版権ネタ",      bg:"#EAF3DE", color:"#3B6D11", border:"#97C459" },
+  memory:  { label:"勝＆負エピ",   bg:"#EEEDFE", color:"#3C3489", border:"#AFA9EC" },
   episode: { label:"エピソード",        bg:"#FFF0F5", color:"#A0306A", border:"#F0A0C0" },
   hall:    { label:"業界情報",          bg:"#F0F4E8", color:"#4A6B1A", border:"#A0C050" },
   aimM:    { label:"狙い目(機種)",      bg:"#E0F7FA", color:"#006064", border:"#4DD0E1" },
@@ -407,10 +407,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
               </div>
             )}
             <select value={fCat} onChange={e => setFCat(e.target.value)} style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}}>
-              <option value="bonus">演出・ボーナス</option>
-              <option value="spec">機種情報・スペック</option>
-              <option value="quote">名言・煽り文句</option>
-              <option value="memory">思い出・エピソード</option>
+              <option value="bonus">演出・表現</option>
+              <option value="spec">機種情報</option>
+              <option value="quote">版権ネタ</option>
+              <option value="memory">勝＆負エピ</option>
               <option value="aimM">狙い目(機種)</option>
               <option value="aimH">狙い目(ホール)</option>
             </select>
