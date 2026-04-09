@@ -513,7 +513,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
               <>
                 <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:6}}>
                   <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center"}}><CatBadge cat={p.cat}/><SrcBadge src={p.source}/></div>
-                  {p.source === "AI生成" && p.quality && <QualityBadge q={p.quality}/>}
+                  {AUTO_AUTHORS.includes(p.internal?.author || p.author) && p.quality ? <QualityBadge q={p.quality}/> : null}
                 </div>
                 <div style={{fontSize:12,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center"}}>
                   <span style={{fontWeight:500,color:isOwn?"#D85A30":"#555"}}>@{postAuthor}{isOwn&&<span style={{fontSize:10,marginLeft:3,color:"#D85A30"}}>（自分）</span>}</span>
