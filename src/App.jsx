@@ -378,6 +378,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   }
 
   const filtered = posts.filter(p => {
+    if (filter === "saved") return (p.internal?.bookmarks||[]).indexOf(MY_UID) >= 0;
     if (filter !== "all" && p.cat !== filter) return false;
     if (query.trim() && !(p.machine+p.title+p.body).toLowerCase().includes(query.toLowerCase())) return false;
     return true;
@@ -443,9 +444,12 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
       </div>
 
       <div style={{display:"flex",gap:5,marginBottom:"1rem",overflowX:"auto",WebkitOverflowScrolling:"touch",flexWrap:"nowrap",paddingBottom:4,msOverflowStyle:"none",scrollbarWidth:"none"}}>
-        {["all","bonus","spec","episode","hall","quote","memory"].map(k => {
+        {["all","saved","bonus","spec","episode","hall","quote","memory"].map(k => {
           const on = filter === k;
-          return <button key={k} onClick={() => updateFilter(k)} style={{padding:"4px 12px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:12,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{k==="all"?"すべて":CATS[k].label}</button>;
+          const activeBg = k==="saved"?"#E6F1FB":"#FAECE7";
+          const activeColor = k==="saved"?"#185FA5":"#993C1D";
+          const activeBorder = k==="saved"?"#85B7EB":"#D85A30";
+          return <button key={k} onClick={() => updateFilter(k)} style={{padding:"4px 12px",border:`0.5px solid ${on?activeBorder:"#ddd"}`,borderRadius:8,fontSize:12,background:on?activeBg:"#fff",color:on?activeColor:"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{k==="all"?"すべて":k==="saved"?"◈ 保存済み":CATS[k].label}</button>;
         })}
       </div>
 
