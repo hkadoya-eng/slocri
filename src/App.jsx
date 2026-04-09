@@ -465,7 +465,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
           const activeBg = k==="saved"?"#E6F1FB":"#FAECE7";
           const activeColor = k==="saved"?"#185FA5":"#993C1D";
           const activeBorder = k==="saved"?"#85B7EB":"#D85A30";
-          return <button key={k} onClick={() => updateFilter(k)} style={{padding:"4px 12px",border:`0.5px solid ${on?activeBorder:"#ddd"}`,borderRadius:8,fontSize:14,background:on?activeBg:"#fff",color:on?activeColor:"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{k==="all"?"すべて":k==="saved"?"◈ 保存済み":CATS[k].label}</button>;
+          return <button key={k} onClick={() => updateFilter(k)} style={{padding:"4px 10px",border:`0.5px solid ${on?activeBorder:"#ddd"}`,borderRadius:8,fontSize:13,background:on?activeBg:"#fff",color:on?activeColor:"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{k==="all"?"すべて":k==="saved"?"◈ 保存済み":CATS[k].label}</button>;
         })}
       </div>
 
@@ -518,9 +518,9 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",minWidth:0,flex:1}}><CatBadge cat={p.cat}/><SrcBadge src={p.source}/></div>
                   {AUTO_AUTHORS.includes(p.internal?.author || p.author) && p.quality ? <QualityBadge q={p.quality}/> : null}
                 </div>
-                <div style={{fontSize:14,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center"}}>
-                  <span style={{fontWeight:500,color:isOwn?"#D85A30":"#555"}}>@{postAuthor}{isOwn&&<span style={{fontSize:12,marginLeft:3,color:"#D85A30"}}>（自分）</span>}</span>
-                  <span>機種: <span style={{color:"#333",fontWeight:500}}>{p.machine}</span></span>
+                <div style={{fontSize:14,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+                  <span style={{fontWeight:500,color:isOwn?"#D85A30":"#555",whiteSpace:"nowrap"}}>@{postAuthor}{isOwn&&<span style={{fontSize:12,marginLeft:3,color:"#D85A30"}}>（自分）</span>}</span>
+                  <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0}}>機種: <span style={{color:"#333",fontWeight:500}}>{p.machine}</span></span>
                 </div>
                 <div style={{fontSize:16,fontWeight:500,color:"#333",marginBottom:4}}>{p.title}</div>
                 {(function CollapseBody() {
@@ -552,14 +552,14 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   </div>
                 )}
 
-                <div style={{borderTop:"0.5px solid #eee",paddingTop:8,display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
-                  <button onClick={() => toggleLike(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iLiked?"#F0997B":"#ddd"}`,borderRadius:8,background:iLiked?"#FAECE7":"#f9f9f9",color:iLiked?"#993C1D":"#888",fontSize:14,cursor:"pointer",fontWeight:iLiked?500:400}}>♥ いいね {(p.internal?.likes||[]).length}</button>
-                  <button onClick={() => toggleBM(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iBM?"#85B7EB":"#ddd"}`,borderRadius:8,background:iBM?"#E6F1FB":"#f9f9f9",color:iBM?"#185FA5":"#888",fontSize:14,cursor:"pointer"}}>◈ 保存 {(p.internal?.bookmarks||[]).length}</button>
-                  <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${isOpen?"#AFA9EC":"#ddd"}`,borderRadius:8,background:isOpen?"#EEEDFE":"#f9f9f9",color:isOpen?"#3C3489":"#888",fontSize:14,cursor:"pointer"}}>◎ コメント {(p.internal?.comments||[]).length}</button>
-                  {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => toggleBad(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${isBad?"#e57373":"#ddd"}`,borderRadius:8,background:isBad?"#FFEBEE":"#f9f9f9",color:isBad?"#c62828":"#bbb",fontSize:14,cursor:"pointer",fontWeight:isBad?500:400}}>✕ bad {(p.internal?.bads||[]).length||""}</button>; })()}
+                <div style={{borderTop:"0.5px solid #eee",paddingTop:8,display:"flex",alignItems:"center",gap:4,flexWrap:"wrap"}}>
+                  <button onClick={() => toggleLike(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:`0.5px solid ${iLiked?"#F0997B":"#ddd"}`,borderRadius:8,background:iLiked?"#FAECE7":"#f9f9f9",color:iLiked?"#993C1D":"#888",fontSize:13,cursor:"pointer",fontWeight:iLiked?500:400,whiteSpace:"nowrap"}}>♥ いいね {(p.internal?.likes||[]).length}</button>
+                  <button onClick={() => toggleBM(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:`0.5px solid ${iBM?"#85B7EB":"#ddd"}`,borderRadius:8,background:iBM?"#E6F1FB":"#f9f9f9",color:iBM?"#185FA5":"#888",fontSize:13,cursor:"pointer",whiteSpace:"nowrap"}}>◈ 保存 {(p.internal?.bookmarks||[]).length}</button>
+                  <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:`0.5px solid ${isOpen?"#AFA9EC":"#ddd"}`,borderRadius:8,background:isOpen?"#EEEDFE":"#f9f9f9",color:isOpen?"#3C3489":"#888",fontSize:13,cursor:"pointer",whiteSpace:"nowrap"}}>◎ コメント {(p.internal?.comments||[]).length}</button>
+                  {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => toggleBad(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:`0.5px solid ${isBad?"#e57373":"#ddd"}`,borderRadius:8,background:isBad?"#FFEBEE":"#f9f9f9",color:isBad?"#c62828":"#bbb",fontSize:13,cursor:"pointer",fontWeight:isBad?500:400,whiteSpace:"nowrap"}}>✕ bad {(p.internal?.bads||[]).length||""}</button>; })()}
                   {isOwn && <>
-                    <button onClick={() => startEdit(p)} style={{marginLeft:"auto",background:"none",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,color:"#888",cursor:"pointer",padding:"3px 10px"}}>編集</button>
-                    <button onClick={() => handleDelete(p.id)} style={{background:"none",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,color:"#e57373",cursor:"pointer",padding:"3px 10px"}}>削除</button>
+                    <button onClick={() => startEdit(p)} style={{marginLeft:"auto",background:"none",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,color:"#888",cursor:"pointer",padding:"4px 10px"}}>編集</button>
+                    <button onClick={() => handleDelete(p.id)} style={{background:"none",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,color:"#e57373",cursor:"pointer",padding:"4px 10px"}}>削除</button>
                   </>}
                 </div>
                 {isOpen && (
