@@ -437,7 +437,7 @@ function CollectTab({ posts, addPost, showToast }) {
       const res = await fetch("/api/claude", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514", max_tokens: 600,
+          model: "claude-sonnet-4-6", max_tokens: 600,
           system: 'パチスロライブラリの収集アシスタントです。JSON形式のみで返答: {"cat":"bonus|spec|quote|memory","source":"twitter|youtube|wiki|manual","machine":"機種名","title":"30文字以内","body":"150文字以内","quality":3,"dupKey":"機種名_キー","eng":{}}',
           messages: [{ role: "user", content: "以下を解析:\n" + input }]
         })
@@ -480,7 +480,7 @@ async function autoCollect() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
+          model: "claude-sonnet-4-6",
           max_tokens: 2000,
           system: systemPrompt,
           messages: [{ role: "user", content: "「" + theme + "」をテーマに、パチスロファンが喜ぶ情報を3件生成してJSON配列で返してください。" }]
@@ -517,9 +517,9 @@ async function autoCollect() {
       setStatus("");
       showToast(added > 0 ? added + "件を自動収集しました！" : "新しいコンテンツは見つかりませんでした");
     } catch (e) {
-      console.error(e);
-      setStatus("少し時間をおいてもう一度試してみてください。");
-      setTimeout(() => setStatus(""), 3000);
+      console.error("autoCollect error:", e);
+      setStatus("エラー: " + (e.message || "不明なエラー"));
+      setTimeout(() => setStatus(""), 5000);
     }
     setAutoLoading(false);
   }
@@ -725,7 +725,7 @@ function ResearchTab({ posts }) {
     try {
       const lib = JSON.stringify(posts.map(p => ({ id:p.id, cat:p.cat, machine:p.machine, title:p.title, body:p.body, likes:p.internal?.likes?.length||0, quality:p.quality })));
       const system = "あなたはパチスロライブラリ「スロクリ」の調査アシスタントです。以下のライブラリデータとパチスロの知識を組み合わせて答えてください。【ライブラリデータ】" + lib + " 回答ルール: 質問に直接答える。ライブラリ内の関連投稿がある場合は文末に「関連投稿ID: [1,2,3]」を含める。ライブラリにない情報は（一般知識）と明記。300文字以内で簡潔に。";
-      const res = await fetch("/api/claude", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:600, system, messages:msgs }) });
+      const res = await fetch("/api/claude", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:600, system, messages:msgs }) });
       const data = await res.json();
       if (data.error) throw new Error();
       const raw = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("") || "関連する情報が見つかりませんでした。";
