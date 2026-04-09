@@ -395,6 +395,7 @@ async function autoCollect() {
           url: "",
           quality: p.quality || 3,
           dupKey: p.dupKey || "",
+          author: "編集部",
           eng: p.eng || {},
           internal: blank(),
         };
