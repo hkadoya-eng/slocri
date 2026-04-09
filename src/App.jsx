@@ -94,6 +94,7 @@ export default function App() {
   }
 
   async function addPost(item) {
+    const internal = { ...(item.internal || blank()), author: item.author || MY_NAME };
     const { data, error } = await supabase.from("posts").insert([{
       cat: item.cat,
       source: item.source,
@@ -103,11 +104,11 @@ export default function App() {
       url: item.url || "",
       quality: item.quality || 3,
       dup_key: item.dupKey || "",
-      author: item.author || MY_NAME,
       eng: item.eng || {},
-      internal: item.internal || blank(),
+      internal,
     }]).select().single();
-    if (!error && data) {
+    if (error) { console.error("addPost error:", error.message); return; }
+    if (data) {
       setPosts(prev => [{ ...data, internal: data.internal || blank(), eng: data.eng || {} }, ...prev]);
       showToast("追加しました！");
     }
@@ -178,11 +179,15 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
   async function submitPost() {
     if (!fMachine.trim() || !fBody.trim()) return;
     const b = fBody.trim();
-    await addPost({
-      cat: fCat, source: "manual", machine: fMachine.trim(),
-      title: b.length > 30 ? b.slice(0,30)+"..." : b,
-      body: b, url: "", quality: 3, dupKey: "", author: MY_NAME, eng: {}, internal: blank(),
-    });
+    try {
+      await addPost({
+        cat: fCat, source: "manual", machine: fMachine.trim(),
+        title: b.length > 30 ? b.slice(0,30)+"..." : b,
+        body: b, url: "", quality: 3, dupKey: "", author: MY_NAME, eng: {}, internal: blank(),
+      });
+    } catch(e) {
+      console.error("投稿エラー:", e);
+    }
     resetForm();
   }
 
@@ -272,7 +277,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
               <Dots q={p.quality}/>
             </div>
             <div style={{fontSize:12,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center"}}>
-              <span style={{fontWeight:500,color:"#555"}}>@{p.author||"ゲスト"}</span>
+              <span style={{fontWeight:500,color:"#555"}}>@{p.internal?.author||p.author||"ゲスト"}</span>
               <span>機種: <span style={{color:"#333",fontWeight:500}}>{p.machine}</span></span>
             </div>
             <div style={{fontSize:14,fontWeight:500,color:"#333",marginBottom:4}}>{p.title}</div>
