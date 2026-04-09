@@ -7,7 +7,9 @@ const CATS = {
   quote:   { label:"名言・煽り文句",    bg:"#EAF3DE", color:"#3B6D11", border:"#97C459" },
   memory:  { label:"思い出・エピソード", bg:"#EEEDFE", color:"#3C3489", border:"#AFA9EC" },
   episode: { label:"エピソード",        bg:"#FFF0F5", color:"#A0306A", border:"#F0A0C0" },
-  hall:    { label:"ホール・業界",      bg:"#F0F4E8", color:"#4A6B1A", border:"#A0C050" },
+  hall:    { label:"業界情報",          bg:"#F0F4E8", color:"#4A6B1A", border:"#A0C050" },
+  aimM:    { label:"狙い目(機種)",      bg:"#E0F7FA", color:"#006064", border:"#4DD0E1" },
+  aimH:    { label:"狙い目(ホール)",    bg:"#FFF8E1", color:"#E65100", border:"#FFB74D" },
 };
 const SRC_COLORS = {
   twitter:      { bg:"#E6F1FB", color:"#185FA5" },
@@ -409,6 +411,8 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
               <option value="spec">機種情報・スペック</option>
               <option value="quote">名言・煽り文句</option>
               <option value="memory">思い出・エピソード</option>
+              <option value="aimM">狙い目(機種)</option>
+              <option value="aimH">狙い目(ホール)</option>
             </select>
             <textarea value={fBody} onChange={e => setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:88,marginBottom:8,boxSizing:"border-box"}} />
             <input value={fUrl} onChange={e => setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
@@ -444,7 +448,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
       </div>
 
       <div style={{display:"flex",gap:5,marginBottom:"1rem",flexWrap:"wrap"}}>
-        {["all","saved","bonus","spec","episode","hall","quote","memory"].map(k => {
+        {["all","saved","bonus","spec","episode","hall","quote","memory","aimM","aimH"].map(k => {
           const on = filter === k;
           const activeBg = k==="saved"?"#E6F1FB":"#FAECE7";
           const activeColor = k==="saved"?"#185FA5":"#993C1D";
@@ -580,7 +584,7 @@ function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick }) {
   const pending = useRef(null);
 
   const counts = {};
-  ["bonus","spec","episode","hall","quote","memory"].forEach(k => { counts[k] = posts.filter(p => p.cat===k).length; });
+  ["bonus","spec","episode","hall","quote","memory","aimM","aimH"].forEach(k => { counts[k] = posts.filter(p => p.cat===k).length; });
 
   function isDup(candidate) {
     return posts.some(p => candidate.dupKey && p.dup_key && candidate.dupKey === p.dup_key);
@@ -708,7 +712,7 @@ async function autoCollect() {
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:"1.25rem"}}>
-        {["bonus","spec","episode","hall","quote","memory"].map(k => (
+        {["bonus","spec","episode","hall","quote","memory","aimM","aimH"].map(k => (
           <div key={k} onClick={() => onCatClick?.(k)} style={{background:"#f9f9f9",borderRadius:8,padding:"8px 10px",cursor:"pointer",border:`0.5px solid ${CATS[k].border}`,transition:"background 0.1s"}}
             onMouseEnter={e=>e.currentTarget.style.background=CATS[k].bg}
             onMouseLeave={e=>e.currentTarget.style.background="#f9f9f9"}>
@@ -752,7 +756,7 @@ function OverviewTab({ posts }) {
   }, [posts]);
 
   const catDist = useMemo(() => {
-    return ["bonus","spec","episode","hall","quote","memory"].map(k => {
+    return ["bonus","spec","episode","hall","quote","memory","aimM","aimH"].map(k => {
       const ps = posts.filter(p => p.cat===k);
       const likes = ps.reduce((s,p) => s+(p.internal?.likes?.length||0), 0);
       const top = ps.slice().sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0))[0];
