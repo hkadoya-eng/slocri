@@ -45,9 +45,6 @@ body {
   flex-direction: column;
   box-sizing: border-box;
 
-  @media (max-width: 600px) {
-    zoom: 1.15;
-  }
 }
 
 .scroll-x {

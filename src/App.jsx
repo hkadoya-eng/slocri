@@ -73,13 +73,13 @@ function toggleArr(arr, uid) {
 function CatBadge({ cat }) {
   const c = CATS[cat];
   if (!c) return null;
-  return <span style={{fontSize:11,padding:"2px 8px",borderRadius:6,background:c.bg,color:c.color,border:`0.5px solid ${c.border}`,fontWeight:500,whiteSpace:"nowrap"}}>{c.label}</span>;
+  return <span style={{fontSize:13,padding:"2px 8px",borderRadius:6,background:c.bg,color:c.color,border:`0.5px solid ${c.border}`,fontWeight:500,whiteSpace:"nowrap"}}>{c.label}</span>;
 }
 function SrcBadge({ src }) {
   if (!src || src === "manual" || src === "マニュアル" || src === "手動") return null;
   const c = SRC_COLORS[src] || { bg:"#F1EFE8", color:"#5F5E5A" };
   const lbl = src==="twitter"?"X":src==="youtube"?"YT":src==="wiki"?"W":src==="ちょんぼりすた"?"ちょんぼ":(src==="WebSearch"||src==="ウェブ検索")?"検索":src;
-  return <span style={{fontSize:11,padding:"2px 6px",borderRadius:6,background:c.bg,color:c.color,fontWeight:500}}>{lbl}</span>;
+  return <span style={{fontSize:13,padding:"2px 6px",borderRadius:6,background:c.bg,color:c.color,fontWeight:500}}>{lbl}</span>;
 }
 const QUALITY_CONF = {
   1: { color:"#9CA3AF", bg:"#F3F4F6", label:"情報Lv.1" },
@@ -90,7 +90,7 @@ function QualityBadge({ q }) {
   const level = q >= 5 ? 3 : q >= 4 ? 2 : 1;
   const c = QUALITY_CONF[level];
   return (
-    <span style={{display:"inline-flex",alignItems:"center",gap:2,padding:"2px 7px",borderRadius:6,background:c.bg,border:`0.5px solid ${c.color}`,fontSize:11,flexShrink:0,whiteSpace:"nowrap"}}>
+    <span style={{display:"inline-flex",alignItems:"center",gap:2,padding:"2px 7px",borderRadius:6,background:c.bg,border:`0.5px solid ${c.color}`,fontSize:13,flexShrink:0,whiteSpace:"nowrap"}}>
       <span style={{color:c.color,letterSpacing:1}}>{"★".repeat(level)}{"☆".repeat(3-level)}</span>
       <span style={{color:c.color,fontWeight:500}}>{c.label}</span>
     </span>
@@ -178,15 +178,15 @@ export default function App() {
     <div style={{padding:"12px",maxWidth:740,margin:"0 auto",fontFamily:"sans-serif",textAlign:"left"}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1rem"}}>
         <div style={{fontSize:20,fontWeight:500}}><span style={{color:"#D85A30"}}>▶</span> スロキー</div>
-        <span style={{fontSize:12,color:"#888"}}>{posts.length}件</span>
+        <span style={{fontSize:14,color:"#888"}}>{posts.length}件</span>
       </div>
 
-      {toast && <div style={{background:"#EAF3DE",border:"0.5px solid #97C459",borderRadius:8,padding:"8px 16px",fontSize:13,color:"#3B6D11",fontWeight:500,marginBottom:12,textAlign:"center"}}>{toast}</div>}
+      {toast && <div style={{background:"#EAF3DE",border:"0.5px solid #97C459",borderRadius:8,padding:"8px 16px",fontSize:15,color:"#3B6D11",fontWeight:500,marginBottom:12,textAlign:"center"}}>{toast}</div>}
 
       <div style={{display:"flex",gap:4,marginBottom:"1.25rem",borderBottom:"0.5px solid #ddd",paddingBottom:"0.75rem"}}>
         {TABS.map(k => {
           const on = tab === k;
-          return <button key={k} onClick={() => setTab(k)} style={{flex:1,padding:"7px 0",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,textAlign:"center"}}>{LABELS[k]}</button>;
+          return <button key={k} onClick={() => setTab(k)} style={{flex:1,padding:"7px 0",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:15,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,textAlign:"center"}}>{LABELS[k]}</button>;
         })}
       </div>
 
@@ -400,24 +400,24 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   return (
     <div>
       <div style={{marginBottom:"1.25rem"}}>
-        <button onClick={() => setShowForm(v => !v)} style={{width:"100%",padding:"11px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:12,fontSize:14,fontWeight:500,cursor:"pointer"}}>{showForm ? "− 投稿する" : "+ 投稿する"}</button>
+        <button onClick={() => setShowForm(v => !v)} style={{width:"100%",padding:"11px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:12,fontSize:16,fontWeight:500,cursor:"pointer"}}>{showForm ? "− 投稿する" : "+ 投稿する"}</button>
         {showForm && (
           <div style={{background:"#fff",border:"0.5px solid #ddd",borderRadius:12,padding:"12px"}}>
-            <div style={{fontSize:13,fontWeight:500,marginBottom:10}}>新規投稿</div>
-            <input value={fName} onChange={e => setFName(e.target.value)} placeholder="名前（例: ゲスト）" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
-            <input value={fMachine} onChange={e => { setFMachine(e.target.value); setMachineSuggestion(null); }} onBlur={e => checkMachineName(e.target.value)} placeholder="機種名（例: バジリスク絆2）" list="machine-candidates" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:machineSuggestion?4:8,boxSizing:"border-box"}} />
+            <div style={{fontSize:15,fontWeight:500,marginBottom:10}}>新規投稿</div>
+            <input value={fName} onChange={e => setFName(e.target.value)} placeholder="名前（例: ゲスト）" style={{width:"100%",fontSize:16,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
+            <input value={fMachine} onChange={e => { setFMachine(e.target.value); setMachineSuggestion(null); }} onBlur={e => checkMachineName(e.target.value)} placeholder="機種名（例: バジリスク絆2）" list="machine-candidates" style={{width:"100%",fontSize:16,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:machineSuggestion?4:8,boxSizing:"border-box"}} />
             <datalist id="machine-candidates">
               {[...new Map(posts.map(p => [p.machine, (posts.filter(q => q.machine === p.machine).length)])).entries()]
                 .sort((a,b) => b[1]-a[1]).map(([name]) => <option key={name} value={name} />)}
             </datalist>
             {machineSuggestion && (
-              <div style={{fontSize:12,color:"#666",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
+              <div style={{fontSize:14,color:"#666",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
                 もしかして:
-                <button onClick={() => { setFMachine(machineSuggestion); setMachineSuggestion(null); }} style={{fontSize:12,color:"#D85A30",background:"none",border:"none",cursor:"pointer",padding:0,fontWeight:500,textDecoration:"underline"}}>{machineSuggestion}</button>
-                <button onClick={() => setMachineSuggestion(null)} style={{fontSize:11,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:0}}>✕</button>
+                <button onClick={() => { setFMachine(machineSuggestion); setMachineSuggestion(null); }} style={{fontSize:14,color:"#D85A30",background:"none",border:"none",cursor:"pointer",padding:0,fontWeight:500,textDecoration:"underline"}}>{machineSuggestion}</button>
+                <button onClick={() => setMachineSuggestion(null)} style={{fontSize:13,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:0}}>✕</button>
               </div>
             )}
-            <select value={fCat} onChange={e => setFCat(e.target.value)} style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}}>
+            <select value={fCat} onChange={e => setFCat(e.target.value)} style={{width:"100%",fontSize:16,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}}>
               <option value="aimH">お店狙い目</option>
               <option value="memory">勝＆負エピ</option>
               <option value="spec">機種情報</option>
@@ -426,22 +426,22 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
               <option value="quote">版権ネタ</option>
               <option value="bonus">演出・表現</option>
             </select>
-            <textarea value={fBody} onChange={e => setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:88,marginBottom:8,boxSizing:"border-box"}} />
-            <input value={fUrl} onChange={e => setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
+            <textarea value={fBody} onChange={e => setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{width:"100%",fontSize:16,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:88,marginBottom:8,boxSizing:"border-box"}} />
+            <input value={fUrl} onChange={e => setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:15,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
             <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,cursor:"pointer"}}>
-              <div style={{padding:"7px 14px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",fontSize:13,color:"#555",whiteSpace:"nowrap"}}>📷 画像を選ぶ</div>
-              <span style={{fontSize:12,color:"#aaa",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{fImage ? fImage.name : "未選択（自動リサイズあり）"}</span>
+              <div style={{padding:"7px 14px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",fontSize:15,color:"#555",whiteSpace:"nowrap"}}>📷 画像を選ぶ</div>
+              <span style={{fontSize:14,color:"#aaa",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{fImage ? fImage.name : "未選択（自動リサイズあり）"}</span>
               <input type="file" accept="image/*" onChange={onImageChange} style={{display:"none"}} />
             </label>
             {fImagePreview && (
               <div style={{position:"relative",marginBottom:10}}>
                 <img src={fImagePreview} alt="preview" style={{width:"100%",borderRadius:8,maxHeight:200,objectFit:"cover"}} />
-                <button onClick={() => { setFImage(null); setFImagePreview(null); }} style={{position:"absolute",top:6,right:6,background:"rgba(0,0,0,0.5)",color:"#fff",border:"none",borderRadius:"50%",width:22,height:22,cursor:"pointer",fontSize:13,lineHeight:1,padding:0}}>×</button>
+                <button onClick={() => { setFImage(null); setFImagePreview(null); }} style={{position:"absolute",top:6,right:6,background:"rgba(0,0,0,0.5)",color:"#fff",border:"none",borderRadius:"50%",width:22,height:22,cursor:"pointer",fontSize:15,lineHeight:1,padding:0}}>×</button>
               </div>
             )}
             <div style={{display:"flex",gap:8}}>
-              <button onClick={submitPost} disabled={uploading} style={{flex:1,padding:"9px 0",background:uploading?"#aaa":"#2a9d3f",color:"#fff",border:"none",borderRadius:8,fontSize:14,fontWeight:500,cursor:uploading?"not-allowed":"pointer"}}>{uploading?"アップロード中...":"投稿"}</button>
-              <button onClick={resetForm} style={{padding:"9px 16px",background:"#f0f0f0",color:"#666",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,cursor:"pointer"}}>キャンセル</button>
+              <button onClick={submitPost} disabled={uploading} style={{flex:1,padding:"9px 0",background:uploading?"#aaa":"#2a9d3f",color:"#fff",border:"none",borderRadius:8,fontSize:16,fontWeight:500,cursor:uploading?"not-allowed":"pointer"}}>{uploading?"アップロード中...":"投稿"}</button>
+              <button onClick={resetForm} style={{padding:"9px 16px",background:"#f0f0f0",color:"#666",border:"0.5px solid #ddd",borderRadius:8,fontSize:15,cursor:"pointer"}}>キャンセル</button>
             </div>
           </div>
         )}
@@ -449,11 +449,11 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
 
       <div style={{display:"flex",gap:6,marginBottom:10}}>
         <div style={{position:"relative",flex:1}}>
-          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="キーワード検索..." style={{width:"100%",fontSize:14,padding:"8px 30px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",boxSizing:"border-box"}} />
-          <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",fontSize:13,color:"#aaa",pointerEvents:"none"}}>⌕</span>
-          {query && <button onClick={() => setQuery("")} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:14,color:"#aaa",padding:0}}>×</button>}
+          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="キーワード検索..." style={{width:"100%",fontSize:16,padding:"8px 30px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",boxSizing:"border-box"}} />
+          <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",fontSize:15,color:"#aaa",pointerEvents:"none"}}>⌕</span>
+          {query && <button onClick={() => setQuery("")} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:16,color:"#aaa",padding:0}}>×</button>}
         </div>
-        <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={{fontSize:12,padding:"8px 6px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666",flexShrink:0}}>
+        <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={{fontSize:14,padding:"8px 6px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666",flexShrink:0}}>
           <option value="new">新着順</option>
           <option value="internal">評価順</option>
         </select>
@@ -465,11 +465,11 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
           const activeBg = k==="saved"?"#E6F1FB":"#FAECE7";
           const activeColor = k==="saved"?"#185FA5":"#993C1D";
           const activeBorder = k==="saved"?"#85B7EB":"#D85A30";
-          return <button key={k} onClick={() => updateFilter(k)} style={{padding:"4px 12px",border:`0.5px solid ${on?activeBorder:"#ddd"}`,borderRadius:8,fontSize:12,background:on?activeBg:"#fff",color:on?activeColor:"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{k==="all"?"すべて":k==="saved"?"◈ 保存済み":CATS[k].label}</button>;
+          return <button key={k} onClick={() => updateFilter(k)} style={{padding:"4px 12px",border:`0.5px solid ${on?activeBorder:"#ddd"}`,borderRadius:8,fontSize:14,background:on?activeBg:"#fff",color:on?activeColor:"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{k==="all"?"すべて":k==="saved"?"◈ 保存済み":CATS[k].label}</button>;
         })}
       </div>
 
-      {filtered.length === 0 && <div style={{textAlign:"center",padding:"2rem",color:"#aaa",fontSize:13}}>投稿がありません</div>}
+      {filtered.length === 0 && <div style={{textAlign:"center",padding:"2rem",color:"#aaa",fontSize:15}}>投稿がありません</div>}
 
       {filtered.map(p => {
         const engDefs = ENG_DEFS[p.source] || [];
@@ -484,7 +484,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
           <div key={p.id} style={{background:"#fff",border:`0.5px solid ${isOwn?"#F0997B":"#eee"}`,borderRadius:12,padding:"10px 12px",marginBottom:8}}>
             {isEditing ? (
               <div>
-                <select value={eCat} onChange={e => setECat(e.target.value)} style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}}>
+                <select value={eCat} onChange={e => setECat(e.target.value)} style={{width:"100%",fontSize:15,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}}>
                   <option value="aimH">お店狙い目</option>
                   <option value="memory">勝＆負エピ</option>
                   <option value="spec">機種情報</option>
@@ -493,23 +493,23 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <option value="quote">版権ネタ</option>
                   <option value="bonus">演出・表現</option>
                 </select>
-                <input value={eMachine} onChange={e => setEMachine(e.target.value)} placeholder="機種名" style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
-                <textarea value={eBody} onChange={e => setEBody(e.target.value)} style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:80,marginBottom:8,boxSizing:"border-box"}} />
-                <input value={eUrl} onChange={e => setEUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
+                <input value={eMachine} onChange={e => setEMachine(e.target.value)} placeholder="機種名" style={{width:"100%",fontSize:15,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
+                <textarea value={eBody} onChange={e => setEBody(e.target.value)} style={{width:"100%",fontSize:15,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:80,marginBottom:8,boxSizing:"border-box"}} />
+                <input value={eUrl} onChange={e => setEUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:15,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
                 <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,cursor:"pointer"}}>
-                  <div style={{padding:"6px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",fontSize:13,color:"#555",whiteSpace:"nowrap"}}>📷 画像を変更</div>
-                  <span style={{fontSize:12,color:"#aaa",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{eImage ? eImage.name : "未選択（自動リサイズあり）"}</span>
+                  <div style={{padding:"6px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",fontSize:15,color:"#555",whiteSpace:"nowrap"}}>📷 画像を変更</div>
+                  <span style={{fontSize:14,color:"#aaa",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{eImage ? eImage.name : "未選択（自動リサイズあり）"}</span>
                   <input type="file" accept="image/*" onChange={onEditImageChange} style={{display:"none"}} />
                 </label>
                 {eImagePreview && (
                   <div style={{position:"relative",marginBottom:8}}>
                     <img src={eImagePreview} alt="preview" style={{width:"100%",borderRadius:8,maxHeight:200,objectFit:"contain",background:"#f9f9f9"}} />
-                    <button onClick={() => { setEImage(null); setEImagePreview(null); }} style={{position:"absolute",top:6,right:6,background:"rgba(0,0,0,0.5)",color:"#fff",border:"none",borderRadius:"50%",width:22,height:22,cursor:"pointer",fontSize:13,lineHeight:1,padding:0}}>×</button>
+                    <button onClick={() => { setEImage(null); setEImagePreview(null); }} style={{position:"absolute",top:6,right:6,background:"rgba(0,0,0,0.5)",color:"#fff",border:"none",borderRadius:"50%",width:22,height:22,cursor:"pointer",fontSize:15,lineHeight:1,padding:0}}>×</button>
                   </div>
                 )}
                 <div style={{display:"flex",gap:8}}>
-                  <button onClick={() => saveEdit(p)} disabled={eUploading} style={{flex:1,padding:"7px 0",background:eUploading?"#aaa":"#2a9d3f",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:500,cursor:eUploading?"not-allowed":"pointer"}}>{eUploading?"アップロード中...":"保存"}</button>
-                  <button onClick={() => setEditId(null)} style={{padding:"7px 14px",background:"#f0f0f0",color:"#666",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,cursor:"pointer"}}>キャンセル</button>
+                  <button onClick={() => saveEdit(p)} disabled={eUploading} style={{flex:1,padding:"7px 0",background:eUploading?"#aaa":"#2a9d3f",color:"#fff",border:"none",borderRadius:8,fontSize:15,fontWeight:500,cursor:eUploading?"not-allowed":"pointer"}}>{eUploading?"アップロード中...":"保存"}</button>
+                  <button onClick={() => setEditId(null)} style={{padding:"7px 14px",background:"#f0f0f0",color:"#666",border:"0.5px solid #ddd",borderRadius:8,fontSize:15,cursor:"pointer"}}>キャンセル</button>
                 </div>
               </div>
             ) : (
@@ -518,19 +518,19 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",minWidth:0,flex:1}}><CatBadge cat={p.cat}/><SrcBadge src={p.source}/></div>
                   {AUTO_AUTHORS.includes(p.internal?.author || p.author) && p.quality ? <QualityBadge q={p.quality}/> : null}
                 </div>
-                <div style={{fontSize:12,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center"}}>
-                  <span style={{fontWeight:500,color:isOwn?"#D85A30":"#555"}}>@{postAuthor}{isOwn&&<span style={{fontSize:10,marginLeft:3,color:"#D85A30"}}>（自分）</span>}</span>
+                <div style={{fontSize:14,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center"}}>
+                  <span style={{fontWeight:500,color:isOwn?"#D85A30":"#555"}}>@{postAuthor}{isOwn&&<span style={{fontSize:12,marginLeft:3,color:"#D85A30"}}>（自分）</span>}</span>
                   <span>機種: <span style={{color:"#333",fontWeight:500}}>{p.machine}</span></span>
                 </div>
-                <div style={{fontSize:14,fontWeight:500,color:"#333",marginBottom:4}}>{p.title}</div>
+                <div style={{fontSize:16,fontWeight:500,color:"#333",marginBottom:4}}>{p.title}</div>
                 {(function CollapseBody() {
                   const LIMIT = 60;
                   const isLong = p.body.length > LIMIT;
                   const isExpanded = !!expandedPosts[p.id];
                   return (
                     <div style={{marginBottom:(p.internal?.imageUrl||p.url)?6:10}}>
-                      <div style={{fontSize:13,color:"#666",lineHeight:1.65}}>{isLong && !isExpanded ? p.body.slice(0, LIMIT) + "…" : p.body}</div>
-                      {isLong && <button onClick={() => setExpandedPosts(prev => ({...prev, [p.id]: !prev[p.id]}))} style={{fontSize:12,color:"#D85A30",background:"none",border:"none",padding:"2px 0",cursor:"pointer",fontWeight:500}}>{isExpanded ? "折りたたむ" : "もっと見る"}</button>}
+                      <div style={{fontSize:15,color:"#666",lineHeight:1.65}}>{isLong && !isExpanded ? p.body.slice(0, LIMIT) + "…" : p.body}</div>
+                      {isLong && <button onClick={() => setExpandedPosts(prev => ({...prev, [p.id]: !prev[p.id]}))} style={{fontSize:14,color:"#D85A30",background:"none",border:"none",padding:"2px 0",cursor:"pointer",fontWeight:500}}>{isExpanded ? "折りたたむ" : "もっと見る"}</button>}
                     </div>
                   );
                 })()}
@@ -539,40 +539,40 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                 )}
                 {p.url && (
                   <a href={p.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",marginBottom:10,textDecoration:"none",overflow:"hidden"}}>
-                    <span style={{fontSize:12,color:"#888",flexShrink:0}}>🔗</span>
-                    <span style={{fontSize:12,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.url}</span>
+                    <span style={{fontSize:14,color:"#888",flexShrink:0}}>🔗</span>
+                    <span style={{fontSize:14,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.url}</span>
                   </a>
                 )}
 
                 {(hasEng || p.source !== "manual") && (
                   <div style={{background:"#f9f9f9",borderRadius:8,padding:"6px 10px",marginBottom:10,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
-                    <span style={{fontSize:11,color:"#aaa"}}>外部</span>
-                    {engDefs.map(d => { const v=fmtNum(p.eng?.[d.key]); if(!v)return null; return <span key={d.key} style={{fontSize:12,display:"flex",alignItems:"center",gap:3}}><span style={{color:"#aaa"}}>{d.icon}</span><span style={{fontWeight:500,color:"#333"}}>{v}</span><span style={{fontSize:11,color:"#aaa"}}>{d.label}</span></span>; })}
-                    {!hasEng && <span style={{fontSize:11,color:"#aaa"}}>数値なし</span>}
+                    <span style={{fontSize:13,color:"#aaa"}}>外部</span>
+                    {engDefs.map(d => { const v=fmtNum(p.eng?.[d.key]); if(!v)return null; return <span key={d.key} style={{fontSize:14,display:"flex",alignItems:"center",gap:3}}><span style={{color:"#aaa"}}>{d.icon}</span><span style={{fontWeight:500,color:"#333"}}>{v}</span><span style={{fontSize:13,color:"#aaa"}}>{d.label}</span></span>; })}
+                    {!hasEng && <span style={{fontSize:13,color:"#aaa"}}>数値なし</span>}
                   </div>
                 )}
 
                 <div style={{borderTop:"0.5px solid #eee",paddingTop:8,display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
-                  <button onClick={() => toggleLike(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iLiked?"#F0997B":"#ddd"}`,borderRadius:8,background:iLiked?"#FAECE7":"#f9f9f9",color:iLiked?"#993C1D":"#888",fontSize:12,cursor:"pointer",fontWeight:iLiked?500:400}}>♥ いいね {(p.internal?.likes||[]).length}</button>
-                  <button onClick={() => toggleBM(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iBM?"#85B7EB":"#ddd"}`,borderRadius:8,background:iBM?"#E6F1FB":"#f9f9f9",color:iBM?"#185FA5":"#888",fontSize:12,cursor:"pointer"}}>◈ 保存 {(p.internal?.bookmarks||[]).length}</button>
-                  <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${isOpen?"#AFA9EC":"#ddd"}`,borderRadius:8,background:isOpen?"#EEEDFE":"#f9f9f9",color:isOpen?"#3C3489":"#888",fontSize:12,cursor:"pointer"}}>◎ コメント {(p.internal?.comments||[]).length}</button>
-                  {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => toggleBad(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${isBad?"#e57373":"#ddd"}`,borderRadius:8,background:isBad?"#FFEBEE":"#f9f9f9",color:isBad?"#c62828":"#bbb",fontSize:12,cursor:"pointer",fontWeight:isBad?500:400}}>✕ bad {(p.internal?.bads||[]).length||""}</button>; })()}
+                  <button onClick={() => toggleLike(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iLiked?"#F0997B":"#ddd"}`,borderRadius:8,background:iLiked?"#FAECE7":"#f9f9f9",color:iLiked?"#993C1D":"#888",fontSize:14,cursor:"pointer",fontWeight:iLiked?500:400}}>♥ いいね {(p.internal?.likes||[]).length}</button>
+                  <button onClick={() => toggleBM(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iBM?"#85B7EB":"#ddd"}`,borderRadius:8,background:iBM?"#E6F1FB":"#f9f9f9",color:iBM?"#185FA5":"#888",fontSize:14,cursor:"pointer"}}>◈ 保存 {(p.internal?.bookmarks||[]).length}</button>
+                  <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${isOpen?"#AFA9EC":"#ddd"}`,borderRadius:8,background:isOpen?"#EEEDFE":"#f9f9f9",color:isOpen?"#3C3489":"#888",fontSize:14,cursor:"pointer"}}>◎ コメント {(p.internal?.comments||[]).length}</button>
+                  {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => toggleBad(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${isBad?"#e57373":"#ddd"}`,borderRadius:8,background:isBad?"#FFEBEE":"#f9f9f9",color:isBad?"#c62828":"#bbb",fontSize:14,cursor:"pointer",fontWeight:isBad?500:400}}>✕ bad {(p.internal?.bads||[]).length||""}</button>; })()}
                   {isOwn && <>
-                    <button onClick={() => startEdit(p)} style={{marginLeft:"auto",background:"none",border:"0.5px solid #ddd",borderRadius:8,fontSize:11,color:"#888",cursor:"pointer",padding:"3px 10px"}}>編集</button>
-                    <button onClick={() => handleDelete(p.id)} style={{background:"none",border:"0.5px solid #ddd",borderRadius:8,fontSize:11,color:"#e57373",cursor:"pointer",padding:"3px 10px"}}>削除</button>
+                    <button onClick={() => startEdit(p)} style={{marginLeft:"auto",background:"none",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,color:"#888",cursor:"pointer",padding:"3px 10px"}}>編集</button>
+                    <button onClick={() => handleDelete(p.id)} style={{background:"none",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,color:"#e57373",cursor:"pointer",padding:"3px 10px"}}>削除</button>
                   </>}
                 </div>
                 {isOpen && (
                   <div style={{marginTop:10}}>
                     {(p.internal?.comments||[]).map((c,i) => (
                       <div key={i} style={{display:"flex",gap:8,marginBottom:8}}>
-                        <div style={{width:24,height:24,borderRadius:"50%",background:c.uid===MY_UID?"#FAECE7":"#f0f0f0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:c.uid===MY_UID?"#993C1D":"#888",flexShrink:0,fontWeight:500}}>{c.uid===MY_UID?"自":"他"}</div>
-                        <div style={{flex:1,background:"#f9f9f9",borderRadius:8,padding:"6px 10px",fontSize:13,color:"#333",lineHeight:1.5}}>{c.text}<span style={{fontSize:11,color:"#aaa",marginLeft:8}}>{c.ts}</span></div>
+                        <div style={{width:24,height:24,borderRadius:"50%",background:c.uid===MY_UID?"#FAECE7":"#f0f0f0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:c.uid===MY_UID?"#993C1D":"#888",flexShrink:0,fontWeight:500}}>{c.uid===MY_UID?"自":"他"}</div>
+                        <div style={{flex:1,background:"#f9f9f9",borderRadius:8,padding:"6px 10px",fontSize:15,color:"#333",lineHeight:1.5}}>{c.text}<span style={{fontSize:13,color:"#aaa",marginLeft:8}}>{c.ts}</span></div>
                       </div>
                     ))}
                     <div style={{display:"flex",gap:6}}>
-                      <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => { if(e.key==="Enter"){e.preventDefault();addComment(p);}}} placeholder="コメントを入力… (Enter)" style={{flex:1,fontSize:13,padding:"6px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9"}} />
-                      <button onClick={() => addComment(p)} style={{padding:"6px 14px",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:13,cursor:"pointer"}}>送信</button>
+                      <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => { if(e.key==="Enter"){e.preventDefault();addComment(p);}}} placeholder="コメントを入力… (Enter)" style={{flex:1,fontSize:15,padding:"6px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9"}} />
+                      <button onClick={() => addComment(p)} style={{padding:"6px 14px",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:15,cursor:"pointer"}}>送信</button>
                     </div>
                   </div>
                 )}
@@ -708,18 +708,18 @@ async function autoCollect() {
     <div>
       {dupModal && (
         <div style={{marginBottom:16,background:"#FAEEDA",border:"0.5px solid #EF9F27",borderRadius:12,padding:"1rem"}}>
-          <div style={{fontSize:14,fontWeight:500,color:"#633806",marginBottom:10}}>似たコンテンツが {dupModal.dups.length}件 見つかりました</div>
-          {dupModal.dups.map(d => <div key={d.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:8,padding:"8px 12px",marginBottom:8,fontSize:12}}><div style={{fontWeight:500,color:"#333",marginBottom:2}}>{d.title}</div><div style={{color:"#666"}}>{d.body?.slice(0,60)}...</div></div>)}
+          <div style={{fontSize:16,fontWeight:500,color:"#633806",marginBottom:10}}>似たコンテンツが {dupModal.dups.length}件 見つかりました</div>
+          {dupModal.dups.map(d => <div key={d.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:8,padding:"8px 12px",marginBottom:8,fontSize:14}}><div style={{fontWeight:500,color:"#333",marginBottom:2}}>{d.title}</div><div style={{color:"#666"}}>{d.body?.slice(0,60)}...</div></div>)}
           <div style={{display:"flex",gap:8,marginTop:10}}>
-            <button onClick={async () => { await addPost(pending.current); setDupModal(null); }} style={{flex:1,padding:"7px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:500,cursor:"pointer"}}>それでも追加する</button>
-            <button onClick={() => { setDupModal(null); showToast("キャンセルしました"); }} style={{flex:1,padding:"7px 0",background:"#f0f0f0",color:"#666",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,cursor:"pointer"}}>キャンセル</button>
+            <button onClick={async () => { await addPost(pending.current); setDupModal(null); }} style={{flex:1,padding:"7px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:15,fontWeight:500,cursor:"pointer"}}>それでも追加する</button>
+            <button onClick={() => { setDupModal(null); showToast("キャンセルしました"); }} style={{flex:1,padding:"7px 0",background:"#f0f0f0",color:"#666",border:"0.5px solid #ddd",borderRadius:8,fontSize:15,cursor:"pointer"}}>キャンセル</button>
           </div>
         </div>
       )}
 
       <div style={{marginBottom:"1.25rem"}}>
-        <div style={{fontSize:12,color:"#888",marginBottom:6}}>自動収集</div>
-        <button onClick={autoCollect} disabled={!aiEnabled||autoLoading} title={!aiEnabled?"APIキーが未設定です":""} style={{width:"100%",padding:"10px 0",background:(!aiEnabled||autoLoading)?"#e0e0e0":"#185FA5",color:(!aiEnabled||autoLoading)?"#aaa":"#fff",border:"none",borderRadius:10,fontSize:13,fontWeight:500,cursor:(!aiEnabled||autoLoading)?"not-allowed":"pointer"}}>{autoLoading?"ネットを巡回中...":"ネットを巡回して収集 ↗"}</button>
+        <div style={{fontSize:14,color:"#888",marginBottom:6}}>自動収集</div>
+        <button onClick={autoCollect} disabled={!aiEnabled||autoLoading} title={!aiEnabled?"APIキーが未設定です":""} style={{width:"100%",padding:"10px 0",background:(!aiEnabled||autoLoading)?"#e0e0e0":"#185FA5",color:(!aiEnabled||autoLoading)?"#aaa":"#fff",border:"none",borderRadius:10,fontSize:15,fontWeight:500,cursor:(!aiEnabled||autoLoading)?"not-allowed":"pointer"}}>{autoLoading?"ネットを巡回中...":"ネットを巡回して収集 ↗"}</button>
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:"1.25rem"}}>
@@ -728,22 +728,22 @@ async function autoCollect() {
             onMouseEnter={e=>e.currentTarget.style.background=CATS[k].bg}
             onMouseLeave={e=>e.currentTarget.style.background="#f9f9f9"}>
             <div style={{fontSize:22,fontWeight:500,color:"#333"}}>{counts[k]}</div>
-            <div style={{fontSize:11,color:CATS[k].color,marginTop:2,fontWeight:500}}>{CATS[k].label}</div>
+            <div style={{fontSize:13,color:CATS[k].color,marginTop:2,fontWeight:500}}>{CATS[k].label}</div>
           </div>
         ))}
       </div>
 
       <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"1rem",marginBottom:12}}>
-        <div style={{fontSize:12,color:"#888",marginBottom:8}}>機種名・テキストを入力すると編集部AIが自動分類・要約して登録します</div>
-        <textarea value={input} onChange={e => setInput(e.target.value)} style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:72,marginBottom:8,boxSizing:"border-box"}} placeholder="機種名やメモを入力" />
+        <div style={{fontSize:14,color:"#888",marginBottom:8}}>機種名・テキストを入力すると編集部AIが自動分類・要約して登録します</div>
+        <textarea value={input} onChange={e => setInput(e.target.value)} style={{width:"100%",fontSize:15,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:72,marginBottom:8,boxSizing:"border-box"}} placeholder="機種名やメモを入力" />
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <span style={{fontSize:12,color:"#3B6D11",fontWeight:500}}>{status}</span>
-          <button onClick={collect} disabled={!aiEnabled||loading} title={!aiEnabled?"APIキーが未設定です":""} style={{padding:"7px 18px",background:(!aiEnabled||loading)?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:500,cursor:(!aiEnabled||loading)?"not-allowed":"pointer"}}>{loading?"解析中...":"編集部AIで収集 ↗"}</button>
+          <span style={{fontSize:14,color:"#3B6D11",fontWeight:500}}>{status}</span>
+          <button onClick={collect} disabled={!aiEnabled||loading} title={!aiEnabled?"APIキーが未設定です":""} style={{padding:"7px 18px",background:(!aiEnabled||loading)?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:15,fontWeight:500,cursor:(!aiEnabled||loading)?"not-allowed":"pointer"}}>{loading?"解析中...":"編集部AIで収集 ↗"}</button>
         </div>
       </div>
       <div style={{display:"flex",gap:6,justifyContent:"flex-end"}}>
-        <button onClick={exportCSV} style={{fontSize:12,padding:"5px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666",cursor:"pointer"}}>CSV出力</button>
-        <button onClick={exportJSON} style={{fontSize:12,padding:"5px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666",cursor:"pointer"}}>JSON出力</button>
+        <button onClick={exportCSV} style={{fontSize:14,padding:"5px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666",cursor:"pointer"}}>CSV出力</button>
+        <button onClick={exportJSON} style={{fontSize:14,padding:"5px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666",cursor:"pointer"}}>JSON出力</button>
       </div>
     </div>
   );
@@ -785,15 +785,15 @@ function OverviewTab({ posts }) {
       });
   }, [posts, rankBy, query]);
 
-  const th = { fontSize:11, color:"#888", padding:"6px 10px", textAlign:"left", fontWeight:500, borderBottom:"0.5px solid #eee", whiteSpace:"nowrap" };
-  const td = { fontSize:13, padding:"7px 10px", color:"#333", borderBottom:"0.5px solid #eee", verticalAlign:"middle" };
+  const th = { fontSize:13, color:"#888", padding:"6px 10px", textAlign:"left", fontWeight:500, borderBottom:"0.5px solid #eee", whiteSpace:"nowrap" };
+  const td = { fontSize:15, padding:"7px 10px", color:"#333", borderBottom:"0.5px solid #eee", verticalAlign:"middle" };
 
   return (
     <div>
       <div className="scroll-x" style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"nowrap"}}>
         {[["rank","ランキング"],["machine","機種別"],["cat","カテゴリ分布"]].map(([k,l]) => {
           const on = view===k;
-          return <button key={k} onClick={() => { setView(k); setSelM(null); setQuery(""); }} style={{padding:"5px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:12,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{l}</button>;
+          return <button key={k} onClick={() => { setView(k); setSelM(null); setQuery(""); }} style={{padding:"5px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:14,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{l}</button>;
         })}
       </div>
 
@@ -801,11 +801,11 @@ function OverviewTab({ posts }) {
         <div>
           <div style={{display:"flex",gap:8,marginBottom:10}}>
             <div style={{position:"relative",flex:1}}>
-              <input value={query} onChange={e => setQuery(e.target.value)} placeholder="絞り込み..." style={{width:"100%",fontSize:13,padding:"6px 28px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",boxSizing:"border-box"}} />
-              <span style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",fontSize:13,color:"#aaa",pointerEvents:"none"}}>⌕</span>
-              {query && <button onClick={() => setQuery("")} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:13,color:"#aaa",padding:0}}>×</button>}
+              <input value={query} onChange={e => setQuery(e.target.value)} placeholder="絞り込み..." style={{width:"100%",fontSize:15,padding:"6px 28px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",boxSizing:"border-box"}} />
+              <span style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",fontSize:15,color:"#aaa",pointerEvents:"none"}}>⌕</span>
+              {query && <button onClick={() => setQuery("")} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:15,color:"#aaa",padding:0}}>×</button>}
             </div>
-            <select value={rankBy} onChange={e => setRankBy(e.target.value)} style={{fontSize:12,padding:"6px 8px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666"}}>
+            <select value={rankBy} onChange={e => setRankBy(e.target.value)} style={{fontSize:14,padding:"6px 8px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666"}}>
               <option value="likes">社内いいね順</option>
               <option value="bookmarks">ブックマーク順</option>
               <option value="quality">品質スコア順</option>
@@ -818,8 +818,8 @@ function OverviewTab({ posts }) {
               <tbody>
                 {ranked.map((p,i) => (
                   <tr key={p.id} style={{background:i%2===0?"#fff":"#fafafa"}}>
-                    <td style={{...td,textAlign:"center",fontWeight:500,fontSize:12,color:i<3?"#D85A30":"#aaa"}}>{i+1}</td>
-                    <td style={{...td,maxWidth:0}}><div style={{fontWeight:500,fontSize:13,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</div><div style={{fontSize:11,color:"#888",marginTop:1,display:"flex",gap:4}}><SrcBadge src={p.source}/><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.machine}</span></div></td>
+                    <td style={{...td,textAlign:"center",fontWeight:500,fontSize:14,color:i<3?"#D85A30":"#aaa"}}>{i+1}</td>
+                    <td style={{...td,maxWidth:0}}><div style={{fontWeight:500,fontSize:15,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</div><div style={{fontSize:13,color:"#888",marginTop:1,display:"flex",gap:4}}><SrcBadge src={p.source}/><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.machine}</span></div></td>
                     <td style={td}><CatBadge cat={p.cat}/></td>
                     <td style={{...td,textAlign:"right",fontWeight:500,color:"#D85A30"}}>{p.internal?.likes?.length||0}</td>
                     <td style={{...td,textAlign:"center"}}>{p.source==="AI生成"&&p.quality?<QualityBadge q={p.quality}/>:"-"}</td>
@@ -842,9 +842,9 @@ function OverviewTab({ posts }) {
                   const sel = selM===m.name;
                   return <tr key={m.name} onClick={() => setSelM(sel?null:m.name)} style={{background:sel?"#FAECE7":i%2===0?"#fff":"#fafafa",cursor:"pointer"}}>
                     <td style={{...td,fontWeight:sel?500:400,color:sel?"#993C1D":"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:0}}>{m.name}</td>
-                    <td style={{...td,textAlign:"right",fontSize:12,color:"#888"}}>{m.count}</td>
+                    <td style={{...td,textAlign:"right",fontSize:14,color:"#888"}}>{m.count}</td>
                     <td style={{...td,textAlign:"right",fontWeight:500,color:"#D85A30"}}>{m.likes}</td>
-                    <td style={td}><div style={{display:"flex",gap:2,flexWrap:"wrap"}}>{Object.entries(m.cats).map(([k,v]) => <span key={k} style={{fontSize:10,padding:"1px 5px",borderRadius:10,background:CATS[k]?.bg,color:CATS[k]?.color,fontWeight:500}}>{CATS[k]?.label.slice(0,3)} {v}</span>)}</div></td>
+                    <td style={td}><div style={{display:"flex",gap:2,flexWrap:"wrap"}}>{Object.entries(m.cats).map(([k,v]) => <span key={k} style={{fontSize:12,padding:"1px 5px",borderRadius:10,background:CATS[k]?.bg,color:CATS[k]?.color,fontWeight:500}}>{CATS[k]?.label.slice(0,3)} {v}</span>)}</div></td>
                   </tr>;
                 })}
               </tbody>
@@ -852,12 +852,12 @@ function OverviewTab({ posts }) {
           </div>
           {selM && (
             <div>
-              <div style={{fontSize:13,fontWeight:500,color:"#333",marginBottom:8}}>{selM} の投稿一覧</div>
+              <div style={{fontSize:15,fontWeight:500,color:"#333",marginBottom:8}}>{selM} の投稿一覧</div>
               {posts.filter(p => p.machine===selM).sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0)).map(p => (
                 <div key={p.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"10px 14px",marginBottom:8}}>
-                  <div style={{display:"flex",gap:5,marginBottom:4,alignItems:"center"}}><CatBadge cat={p.cat}/><span style={{marginLeft:"auto",fontSize:11,color:"#D85A30",fontWeight:500}}>♥ {p.internal?.likes?.length||0}</span></div>
-                  <div style={{fontSize:13,fontWeight:500,color:"#333",marginBottom:3}}>{p.title}</div>
-                  <div style={{fontSize:12,color:"#666",lineHeight:1.6}}>{p.body}</div>
+                  <div style={{display:"flex",gap:5,marginBottom:4,alignItems:"center"}}><CatBadge cat={p.cat}/><span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500}}>♥ {p.internal?.likes?.length||0}</span></div>
+                  <div style={{fontSize:15,fontWeight:500,color:"#333",marginBottom:3}}>{p.title}</div>
+                  <div style={{fontSize:14,color:"#666",lineHeight:1.6}}>{p.body}</div>
                 </div>
               ))}
             </div>
@@ -870,12 +870,12 @@ function OverviewTab({ posts }) {
           {catDist.map(c => (
             <div key={c.key} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"10px 12px"}}>
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
-                <span style={{fontSize:13,fontWeight:500,color:c.color}}>{c.label}</span>
-                <span style={{fontSize:20,fontWeight:500,color:"#333"}}>{c.cnt}<span style={{fontSize:12,color:"#aaa",marginLeft:2}}>件</span></span>
+                <span style={{fontSize:15,fontWeight:500,color:c.color}}>{c.label}</span>
+                <span style={{fontSize:20,fontWeight:500,color:"#333"}}>{c.cnt}<span style={{fontSize:14,color:"#aaa",marginLeft:2}}>件</span></span>
               </div>
               <div style={{height:5,background:"#f0f0f0",borderRadius:3,marginBottom:8,overflow:"hidden"}}><div style={{height:"100%",width:c.pct+"%",background:c.color,borderRadius:3,opacity:.7}}/></div>
-              <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#888",marginBottom:8}}><span>全体 {c.pct}%</span><span>♥ 合計 {c.likes}</span></div>
-              {c.top && <div style={{background:c.bg,borderRadius:8,padding:"6px 8px"}}><div style={{fontSize:10,color:c.color,marginBottom:2,fontWeight:500}}>最多いいね</div><div style={{fontSize:12,color:"#333",fontWeight:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.top.title}</div><div style={{fontSize:11,color:"#666",marginTop:1}}>{c.top.machine} · ♥ {c.top.internal?.likes?.length||0}</div></div>}
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"#888",marginBottom:8}}><span>全体 {c.pct}%</span><span>♥ 合計 {c.likes}</span></div>
+              {c.top && <div style={{background:c.bg,borderRadius:8,padding:"6px 8px"}}><div style={{fontSize:12,color:c.color,marginBottom:2,fontWeight:500}}>最多いいね</div><div style={{fontSize:14,color:"#333",fontWeight:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.top.title}</div><div style={{fontSize:13,color:"#666",marginTop:1}}>{c.top.machine} · ♥ {c.top.internal?.likes?.length||0}</div></div>}
             </div>
           ))}
         </div>
@@ -927,7 +927,7 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem"}}>
         {[["browse","絞り込み"],["chat","チャット"]].map(([k,l]) => {
           const on = mode===k;
-          return <button key={k} onClick={() => setMode(k)} style={{padding:"5px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:12,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap"}}>{l}</button>;
+          return <button key={k} onClick={() => setMode(k)} style={{padding:"5px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:14,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap"}}>{l}</button>;
         })}
       </div>
 
@@ -935,8 +935,8 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
         <div>
           {messages.length===0 && (
             <div style={{marginBottom:16}}>
-              <div style={{fontSize:12,color:"#888",marginBottom:8}}>ライブラリの実データをもとに回答します</div>
-              {SUGG.map((s,i) => <button key={i} onClick={() => send(s)} style={{display:"block",width:"100%",textAlign:"left",padding:"8px 14px",border:"0.5px solid #ddd",borderRadius:8,background:"#fff",color:"#666",fontSize:13,cursor:"pointer",marginBottom:6}}>{s}</button>)}
+              <div style={{fontSize:14,color:"#888",marginBottom:8}}>ライブラリの実データをもとに回答します</div>
+              {SUGG.map((s,i) => <button key={i} onClick={() => send(s)} style={{display:"block",width:"100%",textAlign:"left",padding:"8px 14px",border:"0.5px solid #ddd",borderRadius:8,background:"#fff",color:"#666",fontSize:15,cursor:"pointer",marginBottom:6}}>{s}</button>)}
             </div>
           )}
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
@@ -945,20 +945,20 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
               const relPosts = !isUser&&m.relIds?.length>0 ? posts.filter(p=>m.relIds.includes(p.id)) : [];
               return (
                 <div key={i} style={{display:"flex",flexDirection:"column",alignItems:isUser?"flex-end":"flex-start"}}>
-                  <div style={{maxWidth:"88%",padding:"10px 14px",borderRadius:isUser?"12px 12px 4px 12px":"12px 12px 12px 4px",background:isUser?"#D85A30":"#f0f0f0",color:isUser?"#fff":"#333",fontSize:13,lineHeight:1.65}}>{m.content}</div>
-                  {relPosts.length>0 && <div style={{marginTop:8,width:"100%"}}><div style={{fontSize:11,color:"#aaa",marginBottom:6}}>ライブラリ内の関連投稿</div>{relPosts.map(p => <div key={p.id} style={{background:"#FAECE7",border:"0.5px solid #F0997B",borderRadius:12,padding:"10px 14px",marginBottom:6}}><div style={{display:"flex",gap:5,marginBottom:4,alignItems:"center"}}><CatBadge cat={p.cat}/><span style={{fontSize:11,color:"#888"}}>{p.machine}</span><span style={{marginLeft:"auto",fontSize:11,color:"#D85A30",fontWeight:500}}>♥ {p.internal?.likes?.length||0}</span></div><div style={{fontSize:13,fontWeight:500,color:"#333",marginBottom:3}}>{p.title}</div><div style={{fontSize:12,color:"#666",lineHeight:1.6}}>{p.body}</div></div>)}</div>}
+                  <div style={{maxWidth:"88%",padding:"10px 14px",borderRadius:isUser?"12px 12px 4px 12px":"12px 12px 12px 4px",background:isUser?"#D85A30":"#f0f0f0",color:isUser?"#fff":"#333",fontSize:15,lineHeight:1.65}}>{m.content}</div>
+                  {relPosts.length>0 && <div style={{marginTop:8,width:"100%"}}><div style={{fontSize:13,color:"#aaa",marginBottom:6}}>ライブラリ内の関連投稿</div>{relPosts.map(p => <div key={p.id} style={{background:"#FAECE7",border:"0.5px solid #F0997B",borderRadius:12,padding:"10px 14px",marginBottom:6}}><div style={{display:"flex",gap:5,marginBottom:4,alignItems:"center"}}><CatBadge cat={p.cat}/><span style={{fontSize:13,color:"#888"}}>{p.machine}</span><span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500}}>♥ {p.internal?.likes?.length||0}</span></div><div style={{fontSize:15,fontWeight:500,color:"#333",marginBottom:3}}>{p.title}</div><div style={{fontSize:14,color:"#666",lineHeight:1.6}}>{p.body}</div></div>)}</div>}
                 </div>
               );
             })}
-            {loading && <div style={{alignSelf:"flex-start"}}><div style={{padding:"10px 14px",borderRadius:12,background:"#f0f0f0",fontSize:13,color:"#aaa"}}>調べています...</div></div>}
+            {loading && <div style={{alignSelf:"flex-start"}}><div style={{padding:"10px 14px",borderRadius:12,background:"#f0f0f0",fontSize:15,color:"#aaa"}}>調べています...</div></div>}
             <div ref={bottomRef}/>
           </div>
-          {!aiEnabled && <div style={{fontSize:12,color:"#e57373",marginBottom:8,padding:"6px 10px",background:"#fff5f5",borderRadius:8,border:"0.5px solid #e57373"}}>APIキーが未設定のためチャットは利用できません</div>}
+          {!aiEnabled && <div style={{fontSize:14,color:"#e57373",marginBottom:8,padding:"6px 10px",background:"#fff5f5",borderRadius:8,border:"0.5px solid #e57373"}}>APIキーが未設定のためチャットは利用できません</div>}
           <div style={{display:"flex",gap:8,marginTop:12,alignItems:"flex-end"}}>
-            <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}} placeholder={aiEnabled?"質問を入力... (Enterで送信)":"APIキーが未設定です"} disabled={!aiEnabled} style={{flex:1,fontSize:14,padding:"10px 12px",border:"0.5px solid #ddd",borderRadius:10,background:aiEnabled?"#f9f9f9":"#f0f0f0",resize:"none",minHeight:46,lineHeight:1.5,color:aiEnabled?"#333":"#aaa"}} rows={1}/>
-            <button onClick={() => send()} disabled={!aiEnabled||loading||!input.trim()} style={{padding:"0 18px",background:(!aiEnabled||loading||!input.trim())?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:10,fontSize:13,fontWeight:500,cursor:(!aiEnabled||loading||!input.trim())?"not-allowed":"pointer",height:46,whiteSpace:"nowrap",flexShrink:0}}>送信</button>
+            <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}} placeholder={aiEnabled?"質問を入力... (Enterで送信)":"APIキーが未設定です"} disabled={!aiEnabled} style={{flex:1,fontSize:16,padding:"10px 12px",border:"0.5px solid #ddd",borderRadius:10,background:aiEnabled?"#f9f9f9":"#f0f0f0",resize:"none",minHeight:46,lineHeight:1.5,color:aiEnabled?"#333":"#aaa"}} rows={1}/>
+            <button onClick={() => send()} disabled={!aiEnabled||loading||!input.trim()} style={{padding:"0 18px",background:(!aiEnabled||loading||!input.trim())?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:10,fontSize:15,fontWeight:500,cursor:(!aiEnabled||loading||!input.trim())?"not-allowed":"pointer",height:46,whiteSpace:"nowrap",flexShrink:0}}>送信</button>
           </div>
-          {messages.length>0 && <button onClick={() => setMessages([])} style={{marginTop:6,background:"none",border:"none",fontSize:12,color:"#aaa",cursor:"pointer",padding:0}}>会話をリセット</button>}
+          {messages.length>0 && <button onClick={() => setMessages([])} style={{marginTop:6,background:"none",border:"none",fontSize:14,color:"#aaa",cursor:"pointer",padding:0}}>会話をリセット</button>}
         </div>
       )}
 
@@ -966,11 +966,11 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
         <div>
           <div style={{marginBottom:12}}>
             <div style={{display:"flex",gap:8,marginBottom:6}}>
-              <select value={filter.machine} onChange={e => setFilter(f=>({...f,machine:e.target.value}))} style={{flex:1,fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#333",minWidth:0}}>
+              <select value={filter.machine} onChange={e => setFilter(f=>({...f,machine:e.target.value}))} style={{flex:1,fontSize:15,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#333",minWidth:0}}>
                 <option value="">すべての機種</option>
                 {machines.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
-              <select value={filter.cat} onChange={e => setFilter(f=>({...f,cat:e.target.value}))} style={{flex:1,fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#333",minWidth:0}}>
+              <select value={filter.cat} onChange={e => setFilter(f=>({...f,cat:e.target.value}))} style={{flex:1,fontSize:15,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#333",minWidth:0}}>
                 <option value="">すべてのカテゴリ</option>
                 <option value="aimH">お店狙い目</option>
                 <option value="memory">勝＆負エピ</option>
@@ -982,8 +982,8 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
               </select>
             </div>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-              <span style={{fontSize:12,color:"#aaa"}}>{filteredPosts.length}件</span>
-              {(filter.machine||filter.cat) && <button onClick={() => setFilter({machine:"",cat:""})} style={{fontSize:12,padding:"5px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666",cursor:"pointer"}}>リセット</button>}
+              <span style={{fontSize:14,color:"#aaa"}}>{filteredPosts.length}件</span>
+              {(filter.machine||filter.cat) && <button onClick={() => setFilter({machine:"",cat:""})} style={{fontSize:14,padding:"5px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666",cursor:"pointer"}}>リセット</button>}
             </div>
           </div>
           {filteredPosts.map(p => {
@@ -995,15 +995,15 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
             return (
               <div key={p.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"10px 14px",marginBottom:8}}>
                 <div style={{display:"flex",gap:5,marginBottom:4,alignItems:"center"}}><CatBadge cat={p.cat}/><SrcBadge src={p.source}/></div>
-                <div style={{fontSize:12,color:"#888",marginBottom:3}}>{p.machine}</div>
-                <div style={{fontSize:13,fontWeight:500,color:"#333",marginBottom:3}}>{p.title}</div>
-                <div style={{fontSize:12,color:"#666",lineHeight:1.6,marginBottom:8}}>{p.body}</div>
-                <button onClick={toggleLike} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iLiked?"#F0997B":"#ddd"}`,borderRadius:8,background:iLiked?"#FAECE7":"#f9f9f9",color:iLiked?"#993C1D":"#888",fontSize:12,cursor:"pointer",fontWeight:iLiked?500:400}}>♥ {(p.internal?.likes||[]).length}</button>
+                <div style={{fontSize:14,color:"#888",marginBottom:3}}>{p.machine}</div>
+                <div style={{fontSize:15,fontWeight:500,color:"#333",marginBottom:3}}>{p.title}</div>
+                <div style={{fontSize:14,color:"#666",lineHeight:1.6,marginBottom:8}}>{p.body}</div>
+                <button onClick={toggleLike} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iLiked?"#F0997B":"#ddd"}`,borderRadius:8,background:iLiked?"#FAECE7":"#f9f9f9",color:iLiked?"#993C1D":"#888",fontSize:14,cursor:"pointer",fontWeight:iLiked?500:400}}>♥ {(p.internal?.likes||[]).length}</button>
               </div>
             );
           })}
           {filteredPosts.length>0&&(filter.machine||filter.cat) && (
-            <button onClick={() => { const q=filter.machine?filter.machine+(filter.cat?"の"+(CATS[filter.cat]?.label):"")+"について企画のヒントを教えて":(CATS[filter.cat]?.label)+"カテゴリで人気の投稿の共通点を教えて"; setMode("chat"); setTimeout(()=>send(q),100); }} style={{marginTop:4,width:"100%",padding:"10px 0",border:"0.5px solid #D85A30",borderRadius:8,background:"#FAECE7",color:"#993C1D",fontSize:13,fontWeight:500,cursor:"pointer"}}>
+            <button onClick={() => { const q=filter.machine?filter.machine+(filter.cat?"の"+(CATS[filter.cat]?.label):"")+"について企画のヒントを教えて":(CATS[filter.cat]?.label)+"カテゴリで人気の投稿の共通点を教えて"; setMode("chat"); setTimeout(()=>send(q),100); }} style={{marginTop:4,width:"100%",padding:"10px 0",border:"0.5px solid #D85A30",borderRadius:8,background:"#FAECE7",color:"#993C1D",fontSize:15,fontWeight:500,cursor:"pointer"}}>
               この絞り込み結果をチャットで深掘り ↗
             </button>
           )}
