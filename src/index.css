@@ -25,7 +25,7 @@
   -moz-osx-font-smoothing: grayscale;
 
   @media (max-width: 1024px) {
-    font-size: 16px;
+    font-size: 17px;
   }
 }
 
@@ -44,6 +44,10 @@ body {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+
+  @media (max-width: 600px) {
+    zoom: 1.15;
+  }
 }
 
 .scroll-x {
@@ -71,6 +75,9 @@ h1 {
     font-size: 36px;
     margin: 20px 0;
   }
+  @media (max-width: 600px) {
+    font-size: 30px;
+  }
 }
 h2 {
   font-size: 24px;
@@ -79,6 +86,9 @@ h2 {
   margin: 0 0 8px;
   @media (max-width: 1024px) {
     font-size: 20px;
+  }
+  @media (max-width: 600px) {
+    font-size: 22px;
   }
 }
 p {
