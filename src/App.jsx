@@ -426,8 +426,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
               <option value="quote">版権ネタ</option>
               <option value="bonus">演出・表現</option>
             </select>
-            <textarea value={fBody} onChange={e => setFBody(e.target.value.slice(0,150))} placeholder="演出の感想、名言、思い出など（150文字以内）" style={{width:"100%",fontSize:14,padding:"9px 10px",border:`0.5px solid ${fBody.length>=140?"#D85A30":"#ddd"}`,borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:88,marginBottom:2,boxSizing:"border-box"}} />
-            <div style={{textAlign:"right",fontSize:11,color:fBody.length>=140?"#D85A30":"#aaa",marginBottom:8}}>{fBody.length}/150</div>
+            <textarea value={fBody} onChange={e => setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:88,marginBottom:8,boxSizing:"border-box"}} />
             <input value={fUrl} onChange={e => setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
             <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,cursor:"pointer"}}>
               <div style={{padding:"7px 14px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",fontSize:13,color:"#555",whiteSpace:"nowrap"}}>📷 画像を選ぶ</div>
@@ -495,8 +494,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <option value="bonus">演出・表現</option>
                 </select>
                 <input value={eMachine} onChange={e => setEMachine(e.target.value)} placeholder="機種名" style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
-                <textarea value={eBody} onChange={e => setEBody(e.target.value.slice(0,150))} style={{width:"100%",fontSize:13,padding:"7px 10px",border:`0.5px solid ${eBody.length>=140?"#D85A30":"#ddd"}`,borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:80,marginBottom:2,boxSizing:"border-box"}} />
-                <div style={{textAlign:"right",fontSize:11,color:eBody.length>=140?"#D85A30":"#aaa",marginBottom:8}}>{eBody.length}/150</div>
+                <textarea value={eBody} onChange={e => setEBody(e.target.value)} style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:80,marginBottom:8,boxSizing:"border-box"}} />
                 <input value={eUrl} onChange={e => setEUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
                 <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,cursor:"pointer"}}>
                   <div style={{padding:"6px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",fontSize:13,color:"#555",whiteSpace:"nowrap"}}>📷 画像を変更</div>
