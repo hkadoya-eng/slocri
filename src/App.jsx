@@ -426,7 +426,8 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
               <option value="quote">版権ネタ</option>
               <option value="bonus">演出・表現</option>
             </select>
-            <textarea value={fBody} onChange={e => setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:88,marginBottom:8,boxSizing:"border-box"}} />
+            <textarea value={fBody} onChange={e => setFBody(e.target.value.slice(0,150))} placeholder="演出の感想、名言、思い出など（150文字以内）" style={{width:"100%",fontSize:14,padding:"9px 10px",border:`0.5px solid ${fBody.length>=140?"#D85A30":"#ddd"}`,borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:88,marginBottom:2,boxSizing:"border-box"}} />
+            <div style={{textAlign:"right",fontSize:11,color:fBody.length>=140?"#D85A30":"#aaa",marginBottom:8}}>{fBody.length}/150</div>
             <input value={fUrl} onChange={e => setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
             <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,cursor:"pointer"}}>
               <div style={{padding:"7px 14px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",fontSize:13,color:"#555",whiteSpace:"nowrap"}}>📷 画像を選ぶ</div>
@@ -494,7 +495,8 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <option value="bonus">演出・表現</option>
                 </select>
                 <input value={eMachine} onChange={e => setEMachine(e.target.value)} placeholder="機種名" style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
-                <textarea value={eBody} onChange={e => setEBody(e.target.value)} style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:80,marginBottom:8,boxSizing:"border-box"}} />
+                <textarea value={eBody} onChange={e => setEBody(e.target.value.slice(0,150))} style={{width:"100%",fontSize:13,padding:"7px 10px",border:`0.5px solid ${eBody.length>=140?"#D85A30":"#ddd"}`,borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:80,marginBottom:2,boxSizing:"border-box"}} />
+                <div style={{textAlign:"right",fontSize:11,color:eBody.length>=140?"#D85A30":"#aaa",marginBottom:8}}>{eBody.length}/150</div>
                 <input value={eUrl} onChange={e => setEUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
                 <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,cursor:"pointer"}}>
                   <div style={{padding:"6px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",fontSize:13,color:"#555",whiteSpace:"nowrap"}}>📷 画像を変更</div>
@@ -524,7 +526,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                 </div>
                 <div style={{fontSize:14,fontWeight:500,color:"#333",marginBottom:4}}>{p.title}</div>
                 {(function CollapseBody() {
-                  const LIMIT = 100;
+                  const LIMIT = 60;
                   const isLong = p.body.length > LIMIT;
                   const isExpanded = !!expandedPosts[p.id];
                   return (
@@ -612,7 +614,7 @@ function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick }) {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-4-6", max_tokens: 600,
-          system: 'パチスロライブラリの収集アシスタントです。実在する機種名・具体的な情報のみ使用。JSON形式のみで返答: {"cat":"bonus|spec|quote|memory","source":"manual","machine":"機種名","title":"30文字以内","body":"100〜150文字の具体的な説明","quality":3,"dupKey":"機種名_キー","eng":{}}',
+          system: 'パチスロライブラリの収集アシスタントです。実在する機種名・具体的な情報のみ使用。JSON形式のみで返答: {"cat":"bonus|spec|quote|memory","source":"manual","machine":"機種名","title":"30文字以内","body":"60〜100文字の具体的な説明","quality":3,"dupKey":"機種名_キー","eng":{}}',
           messages: [{ role: "user", content: userMsg }]
         })
       });
@@ -646,7 +648,7 @@ async function autoCollect() {
       const systemPrompt =
         `あなたはパチスロ業界の専門家です。実在するパチスロ・パチンコ機種の演出・スペック・名言・エピソードについて豊富な知識を持っています。
 指定テーマで、パチスロファンが「面白い・懐かしい・役立つ」と感じる情報を厳選して3件生成し、必ずJSON配列のみを返してください。他のテキストは一切不要です。
-形式: [{"cat":"bonus|spec|quote|memory","machine":"実在する機種名","title":"30文字以内","body":"100〜150文字の具体的な説明","quality":3,"dupKey":"機種名_キーワード"}]
+形式: [{"cat":"bonus|spec|quote|memory","machine":"実在する機種名","title":"30文字以内","body":"60〜100文字の具体的な説明","quality":3,"dupKey":"機種名_キーワード"}]
 ・qualityは情報の有力さ: 3=具体的な数字・固有名詞・確実な情報, 2=ある程度具体的, 1=一般的・曖昧な情報
 ・catはbonus=演出・ボーナス, spec=スペック・攻略, quote=名言・煽り文句, memory=思い出・エピソード
 ・実在する機種名を必ず使うこと。架空の機種は禁止。
