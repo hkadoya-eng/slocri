@@ -82,8 +82,20 @@ function SrcBadge({ src }) {
   const lbl = src==="twitter"?"X":src==="youtube"?"YT":src==="wiki"?"W":src==="ちょんぼりすた"?"ちょんぼ":(src==="WebSearch"||src==="ウェブ検索")?"検索":src;
   return <span style={{fontSize:11,padding:"2px 6px",borderRadius:6,background:c.bg,color:c.color,fontWeight:500}}>{lbl}</span>;
 }
-function Dots({ q }) {
-  return <span style={{display:"flex",gap:2}}>{[1,2,3,4,5].map(n => <span key={n} style={{width:5,height:5,borderRadius:"50%",display:"inline-block",background:n<=q?"#D85A30":"var(--color-border-secondary)"}}/>)}</span>;
+const QUALITY_CONF = {
+  1: { color:"#9CA3AF", bg:"#F3F4F6", label:"参考情報" },
+  2: { color:"#FB923C", bg:"#FFF7ED", label:"有力情報" },
+  3: { color:"#F59E0B", bg:"#FFFBEB", label:"確度高" },
+};
+function QualityBadge({ q }) {
+  const level = Math.min(3, Math.max(1, Math.round((q / 5) * 3) || 1));
+  const c = QUALITY_CONF[level];
+  return (
+    <span style={{display:"inline-flex",alignItems:"center",gap:2,padding:"2px 7px",borderRadius:6,background:c.bg,border:`0.5px solid ${c.color}`,fontSize:11}}>
+      <span style={{color:c.color,letterSpacing:1}}>{"★".repeat(level)}{"☆".repeat(3-level)}</span>
+      <span style={{color:c.color,fontWeight:500}}>{c.label}</span>
+    </span>
+  );
 }
 
 export default function App() {
@@ -501,7 +513,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
               <>
                 <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:6}}>
                   <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center"}}><CatBadge cat={p.cat}/><SrcBadge src={p.source}/></div>
-                  <Dots q={p.quality}/>
+                  {p.source === "AI生成" && p.quality && <QualityBadge q={p.quality}/>}
                 </div>
                 <div style={{fontSize:12,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center"}}>
                   <span style={{fontWeight:500,color:isOwn?"#D85A30":"#555"}}>@{postAuthor}{isOwn&&<span style={{fontSize:10,marginLeft:3,color:"#D85A30"}}>（自分）</span>}</span>
@@ -636,7 +648,8 @@ async function autoCollect() {
       const systemPrompt =
         `あなたはパチスロ業界の専門家です。実在するパチスロ・パチンコ機種の演出・スペック・名言・エピソードについて豊富な知識を持っています。
 指定テーマで、パチスロファンが「面白い・懐かしい・役立つ」と感じる情報を厳選して3件生成し、必ずJSON配列のみを返してください。他のテキストは一切不要です。
-形式: [{"cat":"bonus|spec|quote|memory","machine":"実在する機種名","title":"30文字以内","body":"100〜150文字の具体的な説明","quality":4,"dupKey":"機種名_キーワード"}]
+形式: [{"cat":"bonus|spec|quote|memory","machine":"実在する機種名","title":"30文字以内","body":"100〜150文字の具体的な説明","quality":3,"dupKey":"機種名_キーワード"}]
+・qualityは情報の有力さ: 3=具体的な数字・固有名詞・確実な情報, 2=ある程度具体的, 1=一般的・曖昧な情報
 ・catはbonus=演出・ボーナス, spec=スペック・攻略, quote=名言・煽り文句, memory=思い出・エピソード
 ・実在する機種名を必ず使うこと。架空の機種は禁止。
 ・bodyは具体的な数字・演出名・セリフを含めてリアリティを出すこと。` + badContext;
@@ -811,7 +824,7 @@ function OverviewTab({ posts }) {
                     <td style={{...td,maxWidth:0}}><div style={{fontWeight:500,fontSize:13,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</div><div style={{fontSize:11,color:"#888",marginTop:1,display:"flex",gap:4}}><SrcBadge src={p.source}/><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.machine}</span></div></td>
                     <td style={td}><CatBadge cat={p.cat}/></td>
                     <td style={{...td,textAlign:"right",fontWeight:500,color:"#D85A30"}}>{p.internal?.likes?.length||0}</td>
-                    <td style={{...td,textAlign:"center"}}><Dots q={p.quality||0}/></td>
+                    <td style={{...td,textAlign:"center"}}>{p.source==="AI生成"&&p.quality?<QualityBadge q={p.quality}/>:"-"}</td>
                   </tr>
                 ))}
               </tbody>
