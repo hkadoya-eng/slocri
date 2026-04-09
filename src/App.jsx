@@ -327,7 +327,7 @@ function CollectTab({ posts, addPost, showToast }) {
 
   async function collect() {
     if (!input.trim()) return;
-    setLoading(true); setStatus("Claudeが解析中...");
+    setLoading(true); setStatus("編集部AIが解析中...");
     try {
       const res = await fetch("/api/claude", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -439,11 +439,11 @@ async function autoCollect() {
       </div>
 
       <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"1rem",marginBottom:12}}>
-        <div style={{fontSize:12,color:"#888",marginBottom:8}}>URLまたはテキストを貼り付けると、Claudeが自動分類・要約して登録します</div>
+        <div style={{fontSize:12,color:"#888",marginBottom:8}}>URLまたはテキストを貼り付けると、編集部AIが自動分類・要約して登録します</div>
         <textarea value={input} onChange={e => setInput(e.target.value)} style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:72,marginBottom:8,boxSizing:"border-box"}} placeholder="https://twitter.com/... やメモを貼り付け" />
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <span style={{fontSize:12,color:"#3B6D11",fontWeight:500}}>{status}</span>
-          <button onClick={collect} disabled={loading} style={{padding:"7px 18px",background:loading?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:500,cursor:loading?"not-allowed":"pointer"}}>{loading?"解析中...":"Claudeで収集 ↗"}</button>
+          <button onClick={collect} disabled={loading} style={{padding:"7px 18px",background:loading?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:500,cursor:loading?"not-allowed":"pointer"}}>{loading?"解析中...":"編集部AIで収集 ↗"}</button>
         </div>
       </div>
       <div style={{display:"flex",gap:6,justifyContent:"flex-end"}}>
