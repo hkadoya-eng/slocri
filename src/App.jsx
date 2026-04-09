@@ -2,14 +2,14 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { supabase } from "./supabase";
 
 const CATS = {
+  aimM:    { label:"狙い目(機種)",  bg:"#E0F7FA", color:"#006064", border:"#4DD0E1" },
+  aimH:    { label:"狙い目(ホール)",bg:"#FFF8E1", color:"#E65100", border:"#FFB74D" },
   bonus:   { label:"演出・表現",    bg:"#FAECE7", color:"#993C1D", border:"#F0997B" },
   spec:    { label:"機種情報",      bg:"#E6F1FB", color:"#185FA5", border:"#85B7EB" },
+  episode: { label:"昔の機種",      bg:"#FFF0F5", color:"#A0306A", border:"#F0A0C0" },
+  hall:    { label:"業界情報",      bg:"#F0F4E8", color:"#4A6B1A", border:"#A0C050" },
   quote:   { label:"版権ネタ",      bg:"#EAF3DE", color:"#3B6D11", border:"#97C459" },
   memory:  { label:"勝＆負エピ",   bg:"#EEEDFE", color:"#3C3489", border:"#AFA9EC" },
-  episode: { label:"昔の機種",           bg:"#FFF0F5", color:"#A0306A", border:"#F0A0C0" },
-  hall:    { label:"業界情報",          bg:"#F0F4E8", color:"#4A6B1A", border:"#A0C050" },
-  aimM:    { label:"狙い目(機種)",      bg:"#E0F7FA", color:"#006064", border:"#4DD0E1" },
-  aimH:    { label:"狙い目(ホール)",    bg:"#FFF8E1", color:"#E65100", border:"#FFB74D" },
 };
 const SRC_COLORS = {
   twitter:      { bg:"#E6F1FB", color:"#185FA5" },
@@ -423,10 +423,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
               <option value="aimH">狙い目(ホール)</option>
               <option value="bonus">演出・表現</option>
               <option value="spec">機種情報</option>
-              <option value="quote">版権ネタ</option>
-              <option value="memory">勝＆負エピ</option>
               <option value="episode">昔の機種</option>
               <option value="hall">業界情報</option>
+              <option value="quote">版権ネタ</option>
+              <option value="memory">勝＆負エピ</option>
             </select>
             <textarea value={fBody} onChange={e => setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:88,marginBottom:8,boxSizing:"border-box"}} />
             <input value={fUrl} onChange={e => setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
@@ -491,10 +491,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <option value="aimH">狙い目(ホール)</option>
                   <option value="bonus">演出・表現</option>
                   <option value="spec">機種情報</option>
-                  <option value="quote">版権ネタ</option>
-                  <option value="memory">勝＆負エピ</option>
                   <option value="episode">昔の機種</option>
                   <option value="hall">業界情報</option>
+                  <option value="quote">版権ネタ</option>
+                  <option value="memory">勝＆負エピ</option>
                 </select>
                 <input value={eMachine} onChange={e => setEMachine(e.target.value)} placeholder="機種名" style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
                 <textarea value={eBody} onChange={e => setEBody(e.target.value)} style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:80,marginBottom:8,boxSizing:"border-box"}} />
@@ -975,14 +975,14 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
               </select>
               <select value={filter.cat} onChange={e => setFilter(f=>({...f,cat:e.target.value}))} style={{flex:1,fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#333",minWidth:0}}>
                 <option value="">すべてのカテゴリ</option>
-                <option value="bonus">演出・表現</option>
-                <option value="spec">機種情報</option>
-                <option value="quote">版権ネタ</option>
-                <option value="memory">勝＆負エピ</option>
-                <option value="episode">昔の機種</option>
-                <option value="hall">業界情報</option>
                 <option value="aimM">狙い目(機種)</option>
                 <option value="aimH">狙い目(ホール)</option>
+                <option value="bonus">演出・表現</option>
+                <option value="spec">機種情報</option>
+                <option value="episode">昔の機種</option>
+                <option value="hall">業界情報</option>
+                <option value="quote">版権ネタ</option>
+                <option value="memory">勝＆負エピ</option>
               </select>
             </div>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
