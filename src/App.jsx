@@ -268,7 +268,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
             </select>
             <textarea value={fBody} onChange={e => setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:88,marginBottom:10,boxSizing:"border-box"}} />
             <div style={{display:"flex",gap:8}}>
-              <button onClick={submitPost} style={{flex:1,padding:"9px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:14,fontWeight:500,cursor:"pointer"}}>投稿する</button>
+              <button onClick={submitPost} style={{flex:1,padding:"9px 0",background:"#2a9d3f",color:"#fff",border:"none",borderRadius:8,fontSize:14,fontWeight:500,cursor:"pointer"}}>投稿</button>
               <button onClick={resetForm} style={{padding:"9px 16px",background:"#f0f0f0",color:"#666",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,cursor:"pointer"}}>キャンセル</button>
             </div>
           </div>
