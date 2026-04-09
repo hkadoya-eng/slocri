@@ -199,6 +199,9 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
   const [eCat, setECat] = useState("bonus");
   const [eBody, setEBody] = useState("");
   const [fUrl, setFUrl] = useState("");
+  const [fImage, setFImage] = useState(null);
+  const [fImagePreview, setFImagePreview] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const [machineSuggestion, setMachineSuggestion] = useState(null);
 
   const machineNames = useMemo(() => [...new Set(posts.map(p => p.machine).filter(Boolean))], [posts]);
@@ -216,7 +219,15 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
     setMachineSuggestion(best);
   }
 
-  function resetForm() { setShowForm(false); setFMachine(""); setFCat("bonus"); setFBody(""); setFUrl(""); }
+  function resetForm() { setShowForm(false); setFMachine(""); setFCat("bonus"); setFBody(""); setFUrl(""); setFImage(null); setFImagePreview(null); }
+
+  function onImageChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert("5MB以下の画像を選択してください"); return; }
+    setFImage(file);
+    setFImagePreview(URL.createObjectURL(file));
+  }
 
   function startEdit(p) {
     setEditId(p.id);
@@ -247,13 +258,27 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
     localStorage.setItem("slocri_name", authorName);
     setCurrentName(authorName);
     try {
+      setUploading(true);
+      let imageUrl = "";
+      if (fImage) {
+        const ext = fImage.name.split(".").pop();
+        const path = `posts/${Date.now()}.${ext}`;
+        const { data: upData, error: upErr } = await supabase.storage.from("images").upload(path, fImage);
+        if (upErr) throw new Error("画像アップロード失敗: " + upErr.message);
+        const { data: { publicUrl } } = supabase.storage.from("images").getPublicUrl(upData.path);
+        imageUrl = publicUrl;
+      }
       await addPost({
         cat: fCat, source: "manual", machine: fMachine.trim(),
         title: b.length > 30 ? b.slice(0,30)+"..." : b,
-        body: b, url: fUrl.trim(), quality: 3, dupKey: "", author: authorName, eng: {}, internal: blank(),
+        body: b, url: fUrl.trim(), quality: 3, dupKey: "", author: authorName, eng: {},
+        internal: { ...blank(), imageUrl },
       });
     } catch(e) {
       console.error("投稿エラー:", e);
+      alert(e.message || "投稿に失敗しました");
+    } finally {
+      setUploading(false);
     }
     resetForm();
   }
@@ -314,9 +339,20 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
               <option value="memory">思い出・エピソード</option>
             </select>
             <textarea value={fBody} onChange={e => setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{width:"100%",fontSize:14,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:88,marginBottom:8,boxSizing:"border-box"}} />
-            <input value={fUrl} onChange={e => setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:10,boxSizing:"border-box"}} />
+            <input value={fUrl} onChange={e => setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
+            <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,cursor:"pointer"}}>
+              <div style={{padding:"7px 14px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",fontSize:13,color:"#555",whiteSpace:"nowrap"}}>📷 画像を選ぶ</div>
+              <span style={{fontSize:12,color:"#aaa",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{fImage ? fImage.name : "未選択（最大5MB）"}</span>
+              <input type="file" accept="image/*" onChange={onImageChange} style={{display:"none"}} />
+            </label>
+            {fImagePreview && (
+              <div style={{position:"relative",marginBottom:10}}>
+                <img src={fImagePreview} alt="preview" style={{width:"100%",borderRadius:8,maxHeight:200,objectFit:"cover"}} />
+                <button onClick={() => { setFImage(null); setFImagePreview(null); }} style={{position:"absolute",top:6,right:6,background:"rgba(0,0,0,0.5)",color:"#fff",border:"none",borderRadius:"50%",width:22,height:22,cursor:"pointer",fontSize:13,lineHeight:1,padding:0}}>×</button>
+              </div>
+            )}
             <div style={{display:"flex",gap:8}}>
-              <button onClick={submitPost} style={{flex:1,padding:"9px 0",background:"#2a9d3f",color:"#fff",border:"none",borderRadius:8,fontSize:14,fontWeight:500,cursor:"pointer"}}>投稿</button>
+              <button onClick={submitPost} disabled={uploading} style={{flex:1,padding:"9px 0",background:uploading?"#aaa":"#2a9d3f",color:"#fff",border:"none",borderRadius:8,fontSize:14,fontWeight:500,cursor:uploading?"not-allowed":"pointer"}}>{uploading?"アップロード中...":"投稿"}</button>
               <button onClick={resetForm} style={{padding:"9px 16px",background:"#f0f0f0",color:"#666",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,cursor:"pointer"}}>キャンセル</button>
             </div>
           </div>
@@ -381,7 +417,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
                   <span>機種: <span style={{color:"#333",fontWeight:500}}>{p.machine}</span></span>
                 </div>
                 <div style={{fontSize:14,fontWeight:500,color:"#333",marginBottom:4}}>{p.title}</div>
-                <div style={{fontSize:13,color:"#666",lineHeight:1.65,marginBottom:p.url?6:10}}>{p.body}</div>
+                <div style={{fontSize:13,color:"#666",lineHeight:1.65,marginBottom:(p.internal?.imageUrl||p.url)?6:10}}>{p.body}</div>
+                {p.internal?.imageUrl && (
+                  <img src={p.internal.imageUrl} alt="" style={{width:"100%",borderRadius:8,marginBottom:6,objectFit:"cover",maxHeight:300}} />
+                )}
                 {p.url && (
                   <a href={p.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",marginBottom:10,textDecoration:"none",overflow:"hidden"}}>
                     <span style={{fontSize:12,color:"#888",flexShrink:0}}>🔗</span>
