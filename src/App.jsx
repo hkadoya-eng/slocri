@@ -543,7 +543,7 @@ async function autoCollect() {
 
       <div style={{marginBottom:"1.25rem"}}>
         <div style={{fontSize:12,color:"#888",marginBottom:6}}>自動収集</div>
-        <button onClick={autoCollect} disabled={autoLoading} style={{width:"100%",padding:"10px 0",background:autoLoading?"#ccc":"#185FA5",color:"#fff",border:"none",borderRadius:10,fontSize:13,fontWeight:500,cursor:autoLoading?"not-allowed":"pointer"}}>{autoLoading?"ネットを巡回中...":"ネットを巡回して収集 ↗"}</button>
+        <button disabled title="APIキーが必要です" style={{width:"100%",padding:"10px 0",background:"#e0e0e0",color:"#aaa",border:"none",borderRadius:10,fontSize:13,fontWeight:500,cursor:"not-allowed"}}>ネットを巡回して収集 ↗</button>
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:"1.25rem"}}>
