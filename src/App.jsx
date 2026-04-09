@@ -88,8 +88,11 @@ export default function App() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("feed");
+  const [feedFilter, setFeedFilter] = useState("all");
   const [toast, setToast] = useState("");
   const [aiEnabled, setAiEnabled] = useState(true);
+
+  function goToFeedWithFilter(cat) { setFeedFilter(cat); setTab("feed"); }
   const nextId = useRef(1000);
 
   useEffect(() => {
@@ -176,16 +179,17 @@ export default function App() {
 
       {loading && <div style={{textAlign:"center",padding:"2rem",color:"#888"}}>読み込み中...</div>}
 
-      {!loading && tab === "feed"     && <FeedTab     posts={posts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} />}
-      {!loading && tab === "collect"  && <CollectTab  posts={posts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} />}
+      {!loading && tab === "feed"     && <FeedTab     posts={posts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} />}
+      {!loading && tab === "collect"  && <CollectTab  posts={posts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} />}
       {!loading && tab === "overview" && <OverviewTab posts={posts} />}
       {!loading && tab === "research" && <ResearchTab posts={posts} aiEnabled={aiEnabled} />}
     </div>
   );
 }
 
-function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
-  const [filter, setFilter] = useState("all");
+function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFilter = "all", onFilterChange }) {
+  const [filter, setFilter] = useState(initialFilter);
+  function updateFilter(v) { setFilter(v); onFilterChange?.(v); }
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("new");
   const [commentOpen, setCommentOpen] = useState(null);
@@ -441,7 +445,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
       <div style={{display:"flex",gap:5,marginBottom:"1rem",overflowX:"auto",WebkitOverflowScrolling:"touch",flexWrap:"nowrap",paddingBottom:4,msOverflowStyle:"none",scrollbarWidth:"none"}}>
         {["all","bonus","spec","episode","hall","quote","memory"].map(k => {
           const on = filter === k;
-          return <button key={k} onClick={() => setFilter(k)} style={{padding:"4px 12px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:12,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{k==="all"?"すべて":CATS[k].label}</button>;
+          return <button key={k} onClick={() => updateFilter(k)} style={{padding:"4px 12px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:12,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{k==="all"?"すべて":CATS[k].label}</button>;
         })}
       </div>
 
@@ -563,7 +567,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
   );
 }
 
-function CollectTab({ posts, addPost, showToast, aiEnabled }) {
+function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [autoLoading, setAutoLoading] = useState(false);
@@ -700,7 +704,14 @@ async function autoCollect() {
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:"1.25rem"}}>
-        {["bonus","spec","episode","hall","quote","memory"].map(k => <div key={k} style={{background:"#f9f9f9",borderRadius:8,padding:"8px 10px"}}><div style={{fontSize:22,fontWeight:500,color:"#333"}}>{counts[k]}</div><div style={{fontSize:11,color:"#888",marginTop:2}}>{CATS[k].label}</div></div>)}
+        {["bonus","spec","episode","hall","quote","memory"].map(k => (
+          <div key={k} onClick={() => onCatClick?.(k)} style={{background:"#f9f9f9",borderRadius:8,padding:"8px 10px",cursor:"pointer",border:`0.5px solid ${CATS[k].border}`,transition:"background 0.1s"}}
+            onMouseEnter={e=>e.currentTarget.style.background=CATS[k].bg}
+            onMouseLeave={e=>e.currentTarget.style.background="#f9f9f9"}>
+            <div style={{fontSize:22,fontWeight:500,color:"#333"}}>{counts[k]}</div>
+            <div style={{fontSize:11,color:CATS[k].color,marginTop:2,fontWeight:500}}>{CATS[k].label}</div>
+          </div>
+        ))}
       </div>
 
       <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"1rem",marginBottom:12}}>
