@@ -481,7 +481,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         const isOwn = currentName !== "ゲスト" && postAuthor === currentName;
         const isEditing = editId === p.id;
         return (
-          <div key={p.id} style={{background:"#fff",border:`0.5px solid ${isOwn?"#F0997B":"#eee"}`,borderRadius:12,padding:"10px 12px",marginBottom:8}}>
+          <div key={p.id} style={{background:"#fff",border:`0.5px solid ${isOwn?"#F0997B":"#eee"}`,borderRadius:12,padding:"10px 12px",marginBottom:8,overflow:"hidden",minWidth:0}}>
             {isEditing ? (
               <div>
                 <select value={eCat} onChange={e => setECat(e.target.value)} style={{width:"100%",fontSize:15,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}}>
@@ -538,9 +538,9 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <img src={p.internal.imageUrl} alt="" style={{width:"100%",maxHeight:360,objectFit:"contain",borderRadius:8,marginBottom:6,display:"block",background:"#f9f9f9"}} />
                 )}
                 {p.url && (
-                  <a href={p.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",marginBottom:10,textDecoration:"none",overflow:"hidden"}}>
+                  <a href={p.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",marginBottom:10,textDecoration:"none",overflow:"hidden",minWidth:0}}>
                     <span style={{fontSize:14,color:"#888",flexShrink:0}}>🔗</span>
-                    <span style={{fontSize:14,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.url}</span>
+                    <span style={{fontSize:14,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0,flex:1}}>{p.url}</span>
                   </a>
                 )}
 
