@@ -89,10 +89,12 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("feed");
   const [toast, setToast] = useState("");
+  const [aiEnabled, setAiEnabled] = useState(true);
   const nextId = useRef(1000);
 
   useEffect(() => {
     loadPosts();
+    fetch("/api/health").then(r => r.json()).then(d => setAiEnabled(!!d.aiEnabled)).catch(() => setAiEnabled(false));
   }, []);
 
   async function loadPosts() {
@@ -175,9 +177,9 @@ export default function App() {
       {loading && <div style={{textAlign:"center",padding:"2rem",color:"#888"}}>読み込み中...</div>}
 
       {!loading && tab === "feed"     && <FeedTab     posts={posts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} />}
-      {!loading && tab === "collect"  && <CollectTab  posts={posts} addPost={addPost} showToast={showToast} />}
+      {!loading && tab === "collect"  && <CollectTab  posts={posts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} />}
       {!loading && tab === "overview" && <OverviewTab posts={posts} />}
-      {!loading && tab === "research" && <ResearchTab posts={posts} />}
+      {!loading && tab === "research" && <ResearchTab posts={posts} aiEnabled={aiEnabled} />}
     </div>
   );
 }
@@ -561,7 +563,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
   );
 }
 
-function CollectTab({ posts, addPost, showToast }) {
+function CollectTab({ posts, addPost, showToast, aiEnabled }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [autoLoading, setAutoLoading] = useState(false);
@@ -694,7 +696,7 @@ async function autoCollect() {
 
       <div style={{marginBottom:"1.25rem"}}>
         <div style={{fontSize:12,color:"#888",marginBottom:6}}>自動収集</div>
-        <button disabled title="APIキーが必要です" style={{width:"100%",padding:"10px 0",background:"#e0e0e0",color:"#aaa",border:"none",borderRadius:10,fontSize:13,fontWeight:500,cursor:"not-allowed"}}>ネットを巡回して収集 ↗</button>
+        <button onClick={autoCollect} disabled={!aiEnabled||autoLoading} title={!aiEnabled?"APIキーが未設定です":""} style={{width:"100%",padding:"10px 0",background:(!aiEnabled||autoLoading)?"#e0e0e0":"#185FA5",color:(!aiEnabled||autoLoading)?"#aaa":"#fff",border:"none",borderRadius:10,fontSize:13,fontWeight:500,cursor:(!aiEnabled||autoLoading)?"not-allowed":"pointer"}}>{autoLoading?"ネットを巡回中...":"ネットを巡回して収集 ↗"}</button>
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:"1.25rem"}}>
@@ -702,11 +704,11 @@ async function autoCollect() {
       </div>
 
       <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"1rem",marginBottom:12}}>
-        <div style={{fontSize:12,color:"#888",marginBottom:8}}>URLまたはテキストを貼り付けると、編集部AIが自動分類・要約して登録します</div>
-        <textarea value={input} onChange={e => setInput(e.target.value)} style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:72,marginBottom:8,boxSizing:"border-box"}} placeholder="https://twitter.com/... やメモを貼り付け" />
+        <div style={{fontSize:12,color:"#888",marginBottom:8}}>機種名・テキストを入力すると編集部AIが自動分類・要約して登録します</div>
+        <textarea value={input} onChange={e => setInput(e.target.value)} style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:72,marginBottom:8,boxSizing:"border-box"}} placeholder="機種名やメモを入力" />
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <span style={{fontSize:12,color:"#3B6D11",fontWeight:500}}>{status}</span>
-          <button onClick={collect} disabled={loading} style={{padding:"7px 18px",background:loading?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:500,cursor:loading?"not-allowed":"pointer"}}>{loading?"解析中...":"編集部AIで収集 ↗"}</button>
+          <button onClick={collect} disabled={!aiEnabled||loading} title={!aiEnabled?"APIキーが未設定です":""} style={{padding:"7px 18px",background:(!aiEnabled||loading)?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:500,cursor:(!aiEnabled||loading)?"not-allowed":"pointer"}}>{loading?"解析中...":"編集部AIで収集 ↗"}</button>
         </div>
       </div>
       <div style={{display:"flex",gap:6,justifyContent:"flex-end"}}>
@@ -852,7 +854,7 @@ function OverviewTab({ posts }) {
   );
 }
 
-function ResearchTab({ posts }) {
+function ResearchTab({ posts, aiEnabled }) {
   const [mode, setMode] = useState("chat");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -921,9 +923,10 @@ function ResearchTab({ posts }) {
             {loading && <div style={{alignSelf:"flex-start"}}><div style={{padding:"10px 14px",borderRadius:12,background:"#f0f0f0",fontSize:13,color:"#aaa"}}>調べています...</div></div>}
             <div ref={bottomRef}/>
           </div>
+          {!aiEnabled && <div style={{fontSize:12,color:"#e57373",marginBottom:8,padding:"6px 10px",background:"#fff5f5",borderRadius:8,border:"0.5px solid #e57373"}}>APIキーが未設定のためチャットは利用できません</div>}
           <div style={{display:"flex",gap:8,marginTop:12,alignItems:"flex-end"}}>
-            <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}} placeholder="質問を入力... (Enterで送信)" style={{flex:1,fontSize:14,padding:"10px 12px",border:"0.5px solid #ddd",borderRadius:10,background:"#f9f9f9",resize:"none",minHeight:46,lineHeight:1.5}} rows={1}/>
-            <button onClick={() => send()} disabled={loading||!input.trim()} style={{padding:"0 18px",background:loading||!input.trim()?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:10,fontSize:13,fontWeight:500,cursor:loading||!input.trim()?"not-allowed":"pointer",height:46,whiteSpace:"nowrap",flexShrink:0}}>送信</button>
+            <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}} placeholder={aiEnabled?"質問を入力... (Enterで送信)":"APIキーが未設定です"} disabled={!aiEnabled} style={{flex:1,fontSize:14,padding:"10px 12px",border:"0.5px solid #ddd",borderRadius:10,background:aiEnabled?"#f9f9f9":"#f0f0f0",resize:"none",minHeight:46,lineHeight:1.5,color:aiEnabled?"#333":"#aaa"}} rows={1}/>
+            <button onClick={() => send()} disabled={!aiEnabled||loading||!input.trim()} style={{padding:"0 18px",background:(!aiEnabled||loading||!input.trim())?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:10,fontSize:13,fontWeight:500,cursor:(!aiEnabled||loading||!input.trim())?"not-allowed":"pointer",height:46,whiteSpace:"nowrap",flexShrink:0}}>送信</button>
           </div>
           {messages.length>0 && <button onClick={() => setMessages([])} style={{marginTop:6,background:"none",border:"none",fontSize:12,color:"#aaa",cursor:"pointer",padding:0}}>会話をリセット</button>}
         </div>
