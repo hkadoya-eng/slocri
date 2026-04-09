@@ -443,7 +443,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         </select>
       </div>
 
-      <div style={{display:"flex",gap:5,marginBottom:"1rem",overflowX:"auto",WebkitOverflowScrolling:"touch",flexWrap:"nowrap",paddingBottom:4,msOverflowStyle:"none",scrollbarWidth:"none"}}>
+      <div style={{display:"flex",gap:5,marginBottom:"1rem",flexWrap:"wrap"}}>
         {["all","saved","bonus","spec","episode","hall","quote","memory"].map(k => {
           const on = filter === k;
           const activeBg = k==="saved"?"#E6F1FB":"#FAECE7";
