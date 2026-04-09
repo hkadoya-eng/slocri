@@ -25,6 +25,12 @@ const ENG_DEFS = {
   wiki:    [{key:"wk_views",icon:"◈",label:"閲覧"}],
   manual:  [],
 };
+const AUTO_AUTHORS = [
+  "編集部AI", "スロ好き編集マン", "スロクリ編集部", "パチスロ記者", "編集長補佐",
+  "ライター見習い", "スロ専門編集", "深夜のスロライター", "編集部のマニア",
+];
+function randomAuthor() { return AUTO_AUTHORS[Math.floor(Math.random() * AUTO_AUTHORS.length)]; }
+
 const AUTO_THEMES = [
   "最近話題のパチスロ機種の演出や名言",
   "パチスロ北斗の拳シリーズの名シーン",
@@ -506,7 +512,7 @@ async function autoCollect() {
           url: "",
           quality: p.quality || 3,
           dupKey: p.dupKey || "",
-          author: "編集部",
+          author: randomAuthor(),
           eng: p.eng || {},
           internal: blank(),
         };
