@@ -579,24 +579,29 @@ function CollectTab({ posts, addPost, showToast }) {
   async function collect() {
     if (!input.trim()) return;
     setLoading(true); setStatus("編集部AIが解析中...");
+    const isShort = input.trim().length < 30;
+    const userMsg = isShort
+      ? `「${input.trim()}」というパチスロ機種について、ファンが興味を持つ情報（演出・スペック・名言・思い出など）を1件生成してください。`
+      : `以下のテキストを解析して1件の投稿データにまとめてください。\n\n${input}`;
     try {
       const res = await fetch("/api/claude", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-4-6", max_tokens: 600,
-          system: 'パチスロライブラリの収集アシスタントです。JSON形式のみで返答: {"cat":"bonus|spec|quote|memory","source":"twitter|youtube|wiki|manual","machine":"機種名","title":"30文字以内","body":"150文字以内","quality":3,"dupKey":"機種名_キー","eng":{}}',
-          messages: [{ role: "user", content: "以下を解析:\n" + input }]
+          system: 'パチスロライブラリの収集アシスタントです。実在する機種名・具体的な情報のみ使用。JSON形式のみで返答: {"cat":"bonus|spec|quote|memory","source":"manual","machine":"機種名","title":"30文字以内","body":"100〜150文字の具体的な説明","quality":3,"dupKey":"機種名_キー","eng":{}}',
+          messages: [{ role: "user", content: userMsg }]
         })
       });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      if (data.error) throw new Error();
+      if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || JSON.stringify(data.error)));
       const txt = (data.content||[]).filter(b => b.type==="text").map(b => b.text).join("");
       const parsed = JSON.parse(txt.replace(/```json|```/g,"").trim());
-      const item = { cat:parsed.cat||"memory", source:parsed.source||"manual", machine:parsed.machine||"不明", title:parsed.title||"無題", body:parsed.body||input.slice(0,150), url:input.startsWith("http")?input:"", quality:parsed.quality||3, dupKey:parsed.dupKey||"", eng:parsed.eng||{}, internal:blank() };
+      const item = { cat:parsed.cat||"memory", source:parsed.source||"manual", machine:parsed.machine||input.trim(), title:parsed.title||"無題", body:parsed.body||input.slice(0,150), url:"", quality:parsed.quality||3, dupKey:parsed.dupKey||"", eng:parsed.eng||{}, internal:blank() };
       setStatus("");
       if (isDup(item)) { pending.current=item; setDupModal({ item, dups:posts.filter(p=>p.dup_key===item.dupKey) }); setInput(""); }
       else { await addPost(item); setInput(""); }
-    } catch { setStatus("取得できませんでした。テキストを見直してみてください。"); setTimeout(() => setStatus(""), 3000); }
+    } catch(e) { setStatus("エラー: " + (e.message || "不明")); setTimeout(() => setStatus(""), 4000); }
     setLoading(false);
   }
 
