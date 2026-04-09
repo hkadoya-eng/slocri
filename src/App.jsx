@@ -83,9 +83,9 @@ function SrcBadge({ src }) {
   return <span style={{fontSize:11,padding:"2px 6px",borderRadius:6,background:c.bg,color:c.color,fontWeight:500}}>{lbl}</span>;
 }
 const QUALITY_CONF = {
-  1: { color:"#9CA3AF", bg:"#F3F4F6", label:"参考情報" },
-  2: { color:"#FB923C", bg:"#FFF7ED", label:"有力情報" },
-  3: { color:"#F59E0B", bg:"#FFFBEB", label:"確度高" },
+  1: { color:"#9CA3AF", bg:"#F3F4F6", label:"情報Lv.1" },
+  2: { color:"#2563EB", bg:"#EFF6FF", label:"情報Lv.2" },
+  3: { color:"#DC2626", bg:"#FEF2F2", label:"情報Lv.3" },
 };
 function QualityBadge({ q }) {
   const level = Math.min(3, Math.max(1, Math.round((q / 5) * 3) || 1));
