@@ -486,8 +486,9 @@ async function autoCollect() {
           messages: [{ role: "user", content: "「" + theme + "」をテーマに、パチスロファンが喜ぶ情報を3件生成してJSON配列で返してください。" }]
         })
       });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      if (data.error) throw new Error(data.error.message || "api error");
+      if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || JSON.stringify(data.error)));
 
       const allText = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
       const jsonMatch = allText.match(/\[[\s\S]*?\]/);
@@ -726,14 +727,15 @@ function ResearchTab({ posts }) {
       const lib = JSON.stringify(posts.map(p => ({ id:p.id, cat:p.cat, machine:p.machine, title:p.title, body:p.body, likes:p.internal?.likes?.length||0, quality:p.quality })));
       const system = "あなたはパチスロライブラリ「スロクリ」の調査アシスタントです。以下のライブラリデータとパチスロの知識を組み合わせて答えてください。【ライブラリデータ】" + lib + " 回答ルール: 質問に直接答える。ライブラリ内の関連投稿がある場合は文末に「関連投稿ID: [1,2,3]」を含める。ライブラリにない情報は（一般知識）と明記。300文字以内で簡潔に。";
       const res = await fetch("/api/claude", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:600, system, messages:msgs }) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      if (data.error) throw new Error();
+      if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || JSON.stringify(data.error)));
       const raw = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("") || "関連する情報が見つかりませんでした。";
       const idMatch = raw.match(/関連投稿ID[:：]\s*\[([^\]]+)\]/);
       const ids = idMatch ? idMatch[1].split(",").map(s=>parseInt(s.trim(),10)).filter(n=>!isNaN(n)) : [];
       const clean = raw.replace(/関連投稿ID[:：]\s*\[[^\]]*\]/g,"").trim();
       setMessages(prev => [...prev, { role:"assistant", content:clean, relIds:ids }]);
-    } catch { setMessages(prev => [...prev, { role:"assistant", content:"少し時間をおいてもう一度試してみてください。", relIds:[] }]); }
+    } catch(e) { setMessages(prev => [...prev, { role:"assistant", content:"エラーが発生しました: " + (e.message || "不明"), relIds:[] }]); }
     setLoading(false);
   }
 
