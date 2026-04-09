@@ -435,7 +435,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
                 <div style={{fontSize:14,fontWeight:500,color:"#333",marginBottom:4}}>{p.title}</div>
                 <div style={{fontSize:13,color:"#666",lineHeight:1.65,marginBottom:(p.internal?.imageUrl||p.url)?6:10}}>{p.body}</div>
                 {p.internal?.imageUrl && (
-                  <img src={p.internal.imageUrl} alt="" style={{width:"100%",borderRadius:8,marginBottom:6,objectFit:"cover",maxHeight:300}} />
+                  <img src={p.internal.imageUrl} alt="" style={{width:"100%",borderRadius:8,marginBottom:6,display:"block"}} />
                 )}
                 {p.url && (
                   <a href={p.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",marginBottom:10,textDecoration:"none",overflow:"hidden"}}>
