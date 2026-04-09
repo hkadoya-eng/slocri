@@ -198,6 +198,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
   const [eMachine, setEMachine] = useState("");
   const [eCat, setECat] = useState("bonus");
   const [eBody, setEBody] = useState("");
+  const [eUrl, setEUrl] = useState("");
+  const [eImage, setEImage] = useState(null);
+  const [eImagePreview, setEImagePreview] = useState(null);
+  const [eUploading, setEUploading] = useState(false);
   const [fUrl, setFUrl] = useState("");
   const [fImage, setFImage] = useState(null);
   const [fImagePreview, setFImagePreview] = useState(null);
@@ -250,17 +254,61 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
     setEMachine(p.machine);
     setECat(p.cat);
     setEBody(p.body);
+    setEUrl(p.url || "");
+    setEImage(null);
+    setEImagePreview(p.internal?.imageUrl || null);
+  }
+
+  function onEditImageChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const MAX = 1200, QUALITY = 0.85;
+    const img = new Image();
+    img.onload = () => {
+      let { width: w, height: h } = img;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      canvas.toBlob(blob => {
+        const resized = new File([blob], file.name, { type: "image/jpeg" });
+        setEImage(resized);
+        setEImagePreview(URL.createObjectURL(resized));
+      }, "image/jpeg", QUALITY);
+    };
+    img.src = URL.createObjectURL(file);
   }
 
   async function saveEdit(p) {
     const b = eBody.trim();
     if (!b || !eMachine.trim()) return;
-    await updatePost(p.id, {
-      machine: eMachine.trim(), cat: eCat, body: b,
-      title: b.length > 30 ? b.slice(0,30)+"..." : b,
-    });
-    setEditId(null);
-    showToast("更新しました");
+    try {
+      setEUploading(true);
+      let imageUrl = p.internal?.imageUrl || "";
+      if (eImage) {
+        const ext = eImage.name.split(".").pop();
+        const path = `posts/${Date.now()}.${ext}`;
+        const { data: upData, error: upErr } = await supabase.storage.from("images").upload(path, eImage);
+        if (upErr) throw new Error("画像アップロード失敗: " + upErr.message);
+        const { data: { publicUrl } } = supabase.storage.from("images").getPublicUrl(upData.path);
+        imageUrl = publicUrl;
+      }
+      await updatePost(p.id, {
+        machine: eMachine.trim(), cat: eCat, body: b,
+        title: b.length > 30 ? b.slice(0,30)+"..." : b,
+        url: eUrl.trim(),
+        internal: { ...p.internal, imageUrl },
+      });
+      setEditId(null);
+      showToast("更新しました");
+    } catch(e) {
+      alert(e.message || "更新に失敗しました");
+    } finally {
+      setEUploading(false);
+    }
   }
 
   async function submitPost() {
@@ -417,8 +465,20 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast }) {
                 </select>
                 <input value={eMachine} onChange={e => setEMachine(e.target.value)} placeholder="機種名" style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
                 <textarea value={eBody} onChange={e => setEBody(e.target.value)} style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:80,marginBottom:8,boxSizing:"border-box"}} />
+                <input value={eUrl} onChange={e => setEUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:13,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
+                <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,cursor:"pointer"}}>
+                  <div style={{padding:"6px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",fontSize:13,color:"#555",whiteSpace:"nowrap"}}>📷 画像を変更</div>
+                  <span style={{fontSize:12,color:"#aaa",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{eImage ? eImage.name : "未選択（自動リサイズあり）"}</span>
+                  <input type="file" accept="image/*" onChange={onEditImageChange} style={{display:"none"}} />
+                </label>
+                {eImagePreview && (
+                  <div style={{position:"relative",marginBottom:8}}>
+                    <img src={eImagePreview} alt="preview" style={{width:"100%",borderRadius:8,maxHeight:200,objectFit:"contain",background:"#f9f9f9"}} />
+                    <button onClick={() => { setEImage(null); setEImagePreview(null); }} style={{position:"absolute",top:6,right:6,background:"rgba(0,0,0,0.5)",color:"#fff",border:"none",borderRadius:"50%",width:22,height:22,cursor:"pointer",fontSize:13,lineHeight:1,padding:0}}>×</button>
+                  </div>
+                )}
                 <div style={{display:"flex",gap:8}}>
-                  <button onClick={() => saveEdit(p)} style={{flex:1,padding:"7px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:500,cursor:"pointer"}}>保存</button>
+                  <button onClick={() => saveEdit(p)} disabled={eUploading} style={{flex:1,padding:"7px 0",background:eUploading?"#aaa":"#2a9d3f",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:500,cursor:eUploading?"not-allowed":"pointer"}}>{eUploading?"アップロード中...":"保存"}</button>
                   <button onClick={() => setEditId(null)} style={{padding:"7px 14px",background:"#f0f0f0",color:"#666",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,cursor:"pointer"}}>キャンセル</button>
                 </div>
               </div>
