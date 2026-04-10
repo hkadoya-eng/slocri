@@ -97,48 +97,63 @@ function QualityBadge({ q }) {
   );
 }
 
-function Logo({ size = 64 }) {
-  const w = Math.round(size * (200 / 128));
+function Logo({ size = 68 }) {
+  const w = Math.round(size * (210 / 128));
   return (
-    <svg width={w} height={size} viewBox="0 0 200 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width={w} height={size} viewBox="0 0 210 128" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        {/* 楕円ボーダー: 赤→黒→青（KEY CREATIONロゴの配色） */}
-        <linearGradient id="slk-border" x1="30" y1="10" x2="170" y2="118" gradientUnits="userSpaceOnUse">
+        {/* 楕円ボーダー: 赤→黒→青 */}
+        <linearGradient id="slk-border" x1="25" y1="8" x2="185" y2="120" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="#CC1100"/>
-          <stop offset="42%" stopColor="#111111"/>
+          <stop offset="40%" stopColor="#0d0d0d"/>
           <stop offset="100%" stopColor="#1144CC"/>
         </linearGradient>
-        {/* KEYテキスト: 青グラデーション */}
-        <linearGradient id="slk-key" x1="65" y1="40" x2="135" y2="100" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#5599EE"/>
-          <stop offset="100%" stopColor="#002288"/>
+        {/* SLOT テキスト: 青グラデーション（斜め） */}
+        <linearGradient id="slk-slot" x1="40" y1="25" x2="165" y2="88" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#77AAFF"/>
+          <stop offset="55%" stopColor="#1155DD"/>
+          <stop offset="100%" stopColor="#001880"/>
         </linearGradient>
-        {/* SLOTテキストが沿う上部アーク */}
-        <path id="slk-arc" d="M 26,56 Q 100,4 174,56"/>
+        {/* KEY テキスト: 赤グラデーション */}
+        <linearGradient id="slk-key" x1="100" y1="78" x2="170" y2="108" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#FF4422"/>
+          <stop offset="100%" stopColor="#991100"/>
+        </linearGradient>
+        {/* 閃光クリップ（楕円内に収める） */}
+        <clipPath id="slk-clip">
+          <ellipse cx="105" cy="64" rx="91" ry="55"/>
+        </clipPath>
       </defs>
 
-      {/* 影 */}
-      <ellipse cx="102" cy="66" rx="91" ry="55" fill="rgba(0,0,0,0.1)"/>
-      {/* 楕円 白塗り */}
-      <ellipse cx="100" cy="64" rx="91" ry="55" fill="white"/>
-      {/* 赤アクセントアーク（左上 — KEY CREATIONロゴの赤い部分） */}
-      <path d="M 12,57 A 91,55 0 0 1 63,12" fill="none" stroke="#CC1100" strokeWidth="9" strokeLinecap="round"/>
+      {/* ドロップシャドウ */}
+      <ellipse cx="107" cy="67" rx="92" ry="56" fill="rgba(0,0,0,0.13)"/>
+      {/* 楕円白塗り */}
+      <ellipse cx="105" cy="64" rx="92" ry="56" fill="white"/>
+
+      {/* 楕円内の斜め閃光（2本） */}
+      <g clipPath="url(#slk-clip)" opacity="0.18">
+        <path d="M 148,10 L 72,118" stroke="#0033AA" strokeWidth="18" strokeLinecap="round"/>
+        <path d="M 168,10 L 92,118" stroke="#0033AA" strokeWidth="8" strokeLinecap="round"/>
+      </g>
+
+      {/* 赤アクセントアーク（左上） */}
+      <path d="M 14,58 A 92,56 0 0 1 66,11" fill="none" stroke="#CC1100" strokeWidth="11" strokeLinecap="round"/>
       {/* 楕円ボーダー */}
-      <ellipse cx="100" cy="64" rx="91" ry="55" fill="none" stroke="url(#slk-border)" strokeWidth="5.5"/>
+      <ellipse cx="105" cy="64" rx="92" ry="56" fill="none" stroke="url(#slk-border)" strokeWidth="6"/>
 
-      {/* 斜め閃光（オリジナルの稲妻ライン） */}
-      <path d="M 131,18 L 68,110" stroke="#111" strokeWidth="2.5" strokeLinecap="round" opacity="0.3"/>
-
-      {/* SLOT アーク文字 */}
-      <text fontFamily="'Arial','Helvetica',system-ui,sans-serif" fontSize="14" fontWeight="700"
-            letterSpacing="6" fill="#1a1a1a">
-        <textPath href="#slk-arc" startOffset="50%" textAnchor="middle">SLOT</textPath>
-      </text>
-
-      {/* KEY 大文字（中央・青グラデーション） */}
-      <text x="100" y="91" textAnchor="middle"
+      {/* ━ SLOT ━ メイン大文字（イタリック・青） */}
+      <text x="105" y="74" textAnchor="middle"
             fontFamily="'Arial Black','Impact','Helvetica Neue',system-ui,sans-serif"
-            fontSize="54" fontWeight="900" letterSpacing="-1.5"
+            fontSize="58" fontWeight="900" fontStyle="italic" letterSpacing="-2"
+            fill="url(#slk-slot)">SLOT</text>
+
+      {/* アクセントライン */}
+      <line x1="108" y1="82" x2="168" y2="82" stroke="url(#slk-key)" strokeWidth="1.5" opacity="0.8"/>
+
+      {/* KEY サブ文字（小・赤・右寄せ） */}
+      <text x="168" y="101" textAnchor="end"
+            fontFamily="'Arial Black','Impact','Helvetica Neue',system-ui,sans-serif"
+            fontSize="22" fontWeight="900" fontStyle="italic" letterSpacing="1"
             fill="url(#slk-key)">KEY</text>
     </svg>
   );
@@ -224,7 +239,7 @@ export default function App() {
   return (
     <div style={{padding:"12px",maxWidth:740,width:"100%",boxSizing:"border-box",margin:"0 auto",fontFamily:"sans-serif",textAlign:"left",overflowX:"hidden"}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1rem",paddingBottom:"0.8rem",borderBottom:"0.5px solid #ece9e5"}}>
-        <Logo size={64}/>
+        <Logo size={68}/>
         <span style={{fontSize:12,color:"#D85A30",background:"#FFF1EB",border:"0.5px solid #F0997B",borderRadius:20,padding:"4px 11px",fontWeight:600,letterSpacing:"0.2px"}}>{posts.length}件</span>
       </div>
 
