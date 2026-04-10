@@ -67,6 +67,31 @@ function levenshtein(a, b) {
   return d[m][n];
 }
 
+function relativeTime(ts) {
+  if (!ts) return "";
+  const diff = Date.now() - new Date(ts).getTime();
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return "たった今";
+  if (min < 60) return `${min}分前`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `${h}時間前`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}日前`;
+  const m = Math.floor(d / 30);
+  if (m < 12) return `${m}ヶ月前`;
+  return `${Math.floor(m / 12)}年前`;
+}
+
+const TEMPLATES = {
+  aimH:    "店名・機種・狙い目の根拠・おすすめ時間帯など",
+  memory:  "機種・収支・どんな展開だったか・感想など",
+  spec:    "天井・ゾーン・設定判別のポイントなど解析情報",
+  hall:    "気になった業界ニュースや動向・考察など",
+  episode: "思い出の機種・当時のエピソード・懐かしの演出など",
+  quote:   "原作との比較・演出の再現度・ファン目線の感想など",
+  bonus:   "演出名・信頼度の実態・体験した感想・ガセ煽りの実情など",
+};
+
 function blank() {
   return { likes: [], bookmarks: [], comments: [], bads: [] };
 }
@@ -377,6 +402,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const [replyTo, setReplyTo] = useState(null); // {postId, idx}
   const [replyText, setReplyText] = useState("");
   const [favMachines, setFavMachines] = useState(() => JSON.parse(localStorage.getItem("slotkey_favs") || "[]"));
+  const [fullscreenImg, setFullscreenImg] = useState(null);
 
   function toggleFavMachine(machine) {
     setFavMachines(prev => {
@@ -569,6 +595,12 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
 
   return (
     <div style={{minWidth:0}}>
+      {fullscreenImg && (
+        <div onClick={() => setFullscreenImg(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.92)",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",cursor:"zoom-out"}}>
+          <img src={fullscreenImg} alt="" style={{maxWidth:"100%",maxHeight:"100%",objectFit:"contain"}} onClick={e => e.stopPropagation()} />
+          <button onClick={() => setFullscreenImg(null)} style={{position:"absolute",top:16,right:16,background:"rgba(255,255,255,0.15)",border:"none",borderRadius:"50%",width:36,height:36,fontSize:20,color:"#fff",cursor:"pointer",lineHeight:1}}>×</button>
+        </div>
+      )}
       <div style={{marginBottom:"1.25rem"}}>
         <button onClick={() => setShowForm(v => !v)} style={{width:"100%",padding:"14px 0",background:showForm?"#E8ECF0":"linear-gradient(135deg,#E8622A,#C84420)",color:showForm?"#D85A30":"#fff",border:"none",borderRadius:14,fontSize:17,fontWeight:700,cursor:"pointer",letterSpacing:"0.5px",boxShadow:showForm?"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF":"0 4px 14px rgba(216,90,48,0.45), 3px 3px 8px rgba(0,0,0,0.12)",transition:"all 0.2s"}}>{showForm ? "− 投稿する" : "+ 投稿する"}</button>
         {showForm && (
@@ -580,7 +612,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
             <datalist id="machine-candidates">{[...new Map(posts.map(p=>[p.machine,(posts.filter(q=>q.machine===p.machine).length)])).entries()].sort((a,b)=>b[1]-a[1]).map(([name])=><option key={name} value={name}/>)}</datalist>
             {machineSuggestion&&<div style={{fontSize:14,color:"#666",marginTop:4,display:"flex",alignItems:"center",gap:6}}>もしかして:<button onClick={()=>{setFMachine(machineSuggestion);setMachineSuggestion(null);}} style={{fontSize:14,color:"#D85A30",background:"none",border:"none",cursor:"pointer",padding:0,fontWeight:500,textDecoration:"underline"}}>{machineSuggestion}</button><button onClick={()=>setMachineSuggestion(null)} style={{fontSize:13,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:0}}>✕</button></div>}</div></div>
             <div style={row}><span style={lbl}>カテゴリ</span><select value={fCat} onChange={e=>setFCat(e.target.value)} style={{...inp,color:CATS[fCat]?.color||"#555",fontWeight:700,background:CATS[fCat]?.bg||"#E8ECF0",boxShadow:`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF, inset 0 0 0 2px ${CATS[fCat]?.border||"#ddd"}`,fontSize:15}}><option value="aimH">お店狙い目</option><option value="memory">勝＆負エピ</option><option value="spec">機種情報</option><option value="hall">業界情報</option><option value="episode">昔の機種</option><option value="quote">版権ネタ</option><option value="bonus">演出・表現</option></select></div>
-            <div style={{...row,alignItems:"flex-start"}}><span style={{...lbl,paddingTop:10}}>本文</span><textarea value={fBody} onChange={e=>setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{...inp,resize:"vertical",minHeight:88}}/></div>
+            <div style={{...row,alignItems:"flex-start"}}><span style={{...lbl,paddingTop:10}}>本文</span><textarea value={fBody} onChange={e=>setFBody(e.target.value)} placeholder={TEMPLATES[fCat] || "自由に書いてください"} style={{...inp,resize:"vertical",minHeight:88}}/></div>
             {fCat==="aimH" && <div style={row}><span style={lbl}>店舗名</span><input value={fShopName} onChange={e=>setFShopName(e.target.value)} placeholder="例: ○○店（任意）" style={inp}/></div>}
             <div style={row}><span style={lbl}>URL</span><input value={fUrl} onChange={e=>setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{...inp,fontSize:15}}/></div>
             </>);})()}
@@ -696,6 +728,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <span style={{fontWeight:500,color:isOwn?"#D85A30":"#555",whiteSpace:"nowrap"}}>@{postAuthor}{isOwn&&<span style={{fontSize:12,marginLeft:3,color:"#D85A30"}}>（自分）</span>}</span>
                   <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0}}>機種: <span style={{color:"#333",fontWeight:500}}>{p.machine}</span></span>
                   {p.cat==="aimH" && p.internal?.shopName && <span style={{fontSize:12,padding:"1px 7px",borderRadius:10,background:"#FFF8E1",color:"#E65100",fontWeight:500,whiteSpace:"nowrap",flexShrink:0}}>🏪 {p.internal.shopName}</span>}
+                  <span style={{fontSize:12,color:"#bbb",whiteSpace:"nowrap",flexShrink:0,marginLeft:"auto"}}>{relativeTime(p.created_at)}</span>
                 </div>
                 <div style={{fontSize:16,fontWeight:500,color:"#333",marginBottom:4,overflowWrap:"anywhere"}}>{p.title}</div>
                 {(function CollapseBody() {
@@ -710,7 +743,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   );
                 })()}
                 {p.internal?.imageUrl && (
-                  <img src={p.internal.imageUrl} alt="" style={{width:"100%",maxHeight:360,objectFit:"contain",borderRadius:8,marginBottom:6,display:"block",background:"#f9f9f9"}} />
+                  <img src={p.internal.imageUrl} alt="" onClick={() => setFullscreenImg(p.internal.imageUrl)} style={{width:"100%",maxHeight:360,objectFit:"contain",borderRadius:8,marginBottom:6,display:"block",background:"#f9f9f9",cursor:"zoom-in"}} />
                 )}
                 {p.url && (
                   <a href={p.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",marginBottom:10,textDecoration:"none",overflow:"hidden",minWidth:0}}>
