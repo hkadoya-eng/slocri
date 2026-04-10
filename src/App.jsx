@@ -214,6 +214,17 @@ export default function App() {
     if (data) {
       setPosts(prev => [{ ...data, internal: data.internal || blank(), eng: data.eng || {} }, ...prev]);
       showToast("追加しました！");
+      // 手動投稿のみEdge Functionに通知トリガーを送る
+      if (item.source === "manual" || !item.source) {
+        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-push`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ record: data }),
+        }).catch(() => {});
+      }
     }
   }
 
