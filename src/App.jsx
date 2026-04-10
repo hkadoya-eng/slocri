@@ -1090,7 +1090,7 @@ function OverviewTab({ posts }) {
                           <td colSpan={5} style={{padding:"12px 14px",background:"#FFF8F5",borderBottom:"0.5px solid #F0997B"}}>
                             <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",marginBottom:6}}>
                               <CatBadge cat={p.cat}/>
-                              {AUTO_AUTHORS.includes(p.internal?.author||p.author) && p.quality ? <QualityBadge q={p.quality}/> : null}
+                              {AUTO_AUTHORS.includes(p.internal?.author||p.author) ? <QualityBadge q={p.quality || 1}/> : null}
                             </div>
                             <div style={{fontSize:13,color:"#aaa",marginBottom:4}}>@{p.internal?.author||p.author||"ゲスト"} · {p.machine}</div>
                             <div style={{fontSize:15,color:"#333",lineHeight:1.65,marginBottom:6,overflowWrap:"anywhere"}}>{p.body}</div>
