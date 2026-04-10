@@ -1,0 +1,18 @@
+{
+  "name": "SLOKEY",
+  "short_name": "SLOKEY",
+  "description": "パチスロ情報共有アプリ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#E8ECF0",
+  "theme_color": "#E8ECF0",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
