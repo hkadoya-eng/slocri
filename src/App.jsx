@@ -123,10 +123,7 @@ async function registerPush(userName) {
   try {
     const reg = await navigator.serviceWorker.register("/sw.js");
     await navigator.serviceWorker.ready;
-    const currentPerm = Notification.permission;
-    alert(`現在の通知許可状態: ${currentPerm}`);
     const perm = await Notification.requestPermission();
-    alert(`許可結果: ${perm}`);
     if (perm !== "granted") return null;
     const existing = await reg.pushManager.getSubscription();
     if (existing) return existing;
@@ -141,7 +138,6 @@ async function registerPush(userName) {
     return sub;
   } catch (e) {
     console.error("Push registration failed:", e);
-    alert("通知登録エラー: " + String(e));
     return null;
   }
 }
