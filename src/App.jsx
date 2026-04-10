@@ -97,16 +97,49 @@ function QualityBadge({ q }) {
   );
 }
 
-function Logo({ size = 36 }) {
-  const w = Math.round(size * 1.56);
+function Logo({ size = 64 }) {
+  const w = Math.round(size * (200 / 128));
   return (
-    <svg width={w} height={size} viewBox="0 0 50 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="1" y="1" width="14" height="30" rx="4" fill="#FFF1EB" stroke="#E8896A" strokeWidth="1.2"/>
-      <rect x="18" y="1" width="14" height="30" rx="4" fill="#FFF1EB" stroke="#E8896A" strokeWidth="1.2"/>
-      <rect x="35" y="1" width="14" height="30" rx="4" fill="#FFF1EB" stroke="#E8896A" strokeWidth="1.2"/>
-      <text x="8" y="22.5" textAnchor="middle" fontSize="15" fontWeight="700" fill="#D85A30" fontFamily="system-ui,sans-serif">7</text>
-      <text x="25" y="22.5" textAnchor="middle" fontSize="15" fontWeight="700" fill="#D85A30" fontFamily="system-ui,sans-serif">7</text>
-      <text x="42" y="22.5" textAnchor="middle" fontSize="15" fontWeight="700" fill="#D85A30" fontFamily="system-ui,sans-serif">7</text>
+    <svg width={w} height={size} viewBox="0 0 200 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        {/* 楕円ボーダー: 赤→黒→青（KEY CREATIONロゴの配色） */}
+        <linearGradient id="slk-border" x1="30" y1="10" x2="170" y2="118" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#CC1100"/>
+          <stop offset="42%" stopColor="#111111"/>
+          <stop offset="100%" stopColor="#1144CC"/>
+        </linearGradient>
+        {/* KEYテキスト: 青グラデーション */}
+        <linearGradient id="slk-key" x1="65" y1="40" x2="135" y2="100" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#5599EE"/>
+          <stop offset="100%" stopColor="#002288"/>
+        </linearGradient>
+        {/* SLOTテキストが沿う上部アーク */}
+        <path id="slk-arc" d="M 26,56 Q 100,4 174,56"/>
+      </defs>
+
+      {/* 影 */}
+      <ellipse cx="102" cy="66" rx="91" ry="55" fill="rgba(0,0,0,0.1)"/>
+      {/* 楕円 白塗り */}
+      <ellipse cx="100" cy="64" rx="91" ry="55" fill="white"/>
+      {/* 赤アクセントアーク（左上 — KEY CREATIONロゴの赤い部分） */}
+      <path d="M 12,57 A 91,55 0 0 1 63,12" fill="none" stroke="#CC1100" strokeWidth="9" strokeLinecap="round"/>
+      {/* 楕円ボーダー */}
+      <ellipse cx="100" cy="64" rx="91" ry="55" fill="none" stroke="url(#slk-border)" strokeWidth="5.5"/>
+
+      {/* 斜め閃光（オリジナルの稲妻ライン） */}
+      <path d="M 131,18 L 68,110" stroke="#111" strokeWidth="2.5" strokeLinecap="round" opacity="0.3"/>
+
+      {/* SLOT アーク文字 */}
+      <text fontFamily="'Arial','Helvetica',system-ui,sans-serif" fontSize="14" fontWeight="700"
+            letterSpacing="6" fill="#1a1a1a">
+        <textPath href="#slk-arc" startOffset="50%" textAnchor="middle">SLOT</textPath>
+      </text>
+
+      {/* KEY 大文字（中央・青グラデーション） */}
+      <text x="100" y="91" textAnchor="middle"
+            fontFamily="'Arial Black','Impact','Helvetica Neue',system-ui,sans-serif"
+            fontSize="54" fontWeight="900" letterSpacing="-1.5"
+            fill="url(#slk-key)">KEY</text>
     </svg>
   );
 }
@@ -190,14 +223,8 @@ export default function App() {
 
   return (
     <div style={{padding:"12px",maxWidth:740,width:"100%",boxSizing:"border-box",margin:"0 auto",fontFamily:"sans-serif",textAlign:"left",overflowX:"hidden"}}>
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1.1rem",paddingBottom:"0.9rem",borderBottom:"0.5px solid #ece9e5"}}>
-        <div style={{display:"flex",alignItems:"center",gap:10}}>
-          <Logo size={38}/>
-          <div>
-            <div style={{fontSize:17,fontWeight:700,letterSpacing:"-0.4px",color:"#1a1a1a",lineHeight:1.1}}>スロキー</div>
-            <div style={{fontSize:11,color:"#bbb",letterSpacing:"0.4px",marginTop:2}}>パチスロ情報まとめ</div>
-          </div>
-        </div>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1rem",paddingBottom:"0.8rem",borderBottom:"0.5px solid #ece9e5"}}>
+        <Logo size={64}/>
         <span style={{fontSize:12,color:"#D85A30",background:"#FFF1EB",border:"0.5px solid #F0997B",borderRadius:20,padding:"4px 11px",fontWeight:600,letterSpacing:"0.2px"}}>{posts.length}件</span>
       </div>
 
