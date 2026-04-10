@@ -73,7 +73,7 @@ function toggleArr(arr, uid) {
 function CatBadge({ cat }) {
   const c = CATS[cat];
   if (!c) return null;
-  return <span style={{fontSize:13,padding:"2px 8px",borderRadius:6,background:c.bg,color:c.color,border:`0.5px solid ${c.border}`,fontWeight:500,whiteSpace:"nowrap"}}>{c.label}</span>;
+  return <span style={{fontSize:13,padding:"2px 8px",borderRadius:6,background:"#E8ECF0",boxShadow:`inset 2px 2px 4px #C5C9D4, inset -1px -1px 3px #FFFFFF, inset 0 0 0 1.5px ${c.border}`,color:c.color,fontWeight:600,whiteSpace:"nowrap"}}>{c.label}</span>;
 }
 function SrcBadge({ src }) {
   if (!src || src === "manual" || src === "マニュアル" || src === "手動") return null;
@@ -468,10 +468,8 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
       <div style={{display:"flex",gap:5,marginBottom:"1rem",flexWrap:"wrap"}}>
         {["all","saved","aimH","memory","spec","hall","episode","quote","bonus"].map(k => {
           const on = filter === k;
-          const activeBg = k==="saved"?"#E6F1FB":"#FAECE7";
-          const activeColor = k==="saved"?"#185FA5":"#993C1D";
-          const activeBorder = k==="saved"?"#85B7EB":"#D85A30";
-          return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 12px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?activeColor:"#999",cursor:"pointer",fontWeight:on?600:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{k==="all"?"すべて":k==="saved"?"◈ 保存済み":CATS[k].label}</button>;
+          const activeColor = k==="all"?"#D85A30":k==="saved"?"#185FA5":CATS[k]?.color||"#D85A30";
+          return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 12px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?activeColor:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{k==="all"?"すべて":k==="saved"?"◈ 保存済み":CATS[k].label}</button>;
         })}
       </div>
 
