@@ -839,7 +839,7 @@ function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick }) {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-4-6", max_tokens: 600,
-          system: 'パチスロライブラリの収集アシスタントです。実在する機種名・具体的な情報のみ使用。JSON形式のみで返答: {"cat":"bonus|spec|quote|memory","source":"manual","machine":"機種名","title":"30文字以内","body":"30〜50文字の短くテンポよい説明","quality":3,"dupKey":"機種名_キー","eng":{}}',
+          system: 'パチスロライブラリの収集アシスタントです。実在する機種名・具体的な情報のみ使用。JSON形式のみで返答: {"cat":"bonus|spec|quote|memory","source":"manual","machine":"機種名","title":"30文字以内","body":"20〜40文字。リンクを押したくなる一言。「え、そうなの？」「知らなかった！」と思わせる煽り気味の短文。詳細はリンク先へ誘導するイメージ。","quality":3,"dupKey":"機種名_キー","eng":{}}',
           messages: [{ role: "user", content: userMsg }]
         })
       });
@@ -877,7 +877,7 @@ async function autoCollect() {
 ・qualityは情報の有力さ: 3=具体的な数字・固有名詞・確実な情報, 2=ある程度具体的, 1=一般的・曖昧な情報
 ・catはbonus=演出・ボーナス, spec=スペック・攻略, quote=名言・煽り文句, memory=思い出・エピソード
 ・実在する機種名を必ず使うこと。架空の機種は禁止。
-・bodyは30〜50文字の短くテンポよい文章にすること。具体的な数字・演出名・セリフを1つ入れてリアリティを出すこと。` + badContext;
+・bodyは20〜40文字の一言で終わらせること。「え、そうなの？」「知らなかった！」と読んだ人がリンクを押したくなる煽り気味の短文にすること。説明しすぎない。` + badContext;
 
       const res = await fetch("/api/claude", {
         method: "POST",
