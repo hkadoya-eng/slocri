@@ -16,9 +16,14 @@ create table if not exists notification_settings (
   updated_at timestamptz default now()
 );
 
+-- カウンター列追加（既存テーブルに追加する場合はこちら）
+alter table notification_settings
+  add column if not exists pending_count int default 0,
+  add column if not exists notify_threshold int default 3;
+
 -- 初期レコード挿入
-insert into notification_settings (id, enabled, maintenance_message)
-values (1, true, '')
+insert into notification_settings (id, enabled, maintenance_message, pending_count, notify_threshold)
+values (1, true, '', 0, 3)
 on conflict (id) do nothing;
 
 -- RLS: 誰でも購読を登録・削除できる

@@ -153,7 +153,7 @@ export default function App() {
   const [toast, setToast] = useState("");
   const [aiEnabled, setAiEnabled] = useState(true);
   const [pushEnabled, setPushEnabled] = useState(false);
-  const [notifSettings, setNotifSettings] = useState({ enabled: true, maintenance_message: "" });
+  const [notifSettings, setNotifSettings] = useState({ enabled: true, maintenance_message: "", pending_count: 0, notify_threshold: 3 });
   const [showNotifAdmin, setShowNotifAdmin] = useState(false);
 
   function goToFeedWithFilter(cat) { setFeedFilter(cat); setTab("feed"); }
@@ -170,7 +170,7 @@ export default function App() {
       });
     }
     // 通知設定取得
-    supabase.from("notification_settings").select("enabled,maintenance_message").eq("id", 1).single()
+    supabase.from("notification_settings").select("enabled,maintenance_message,pending_count,notify_threshold").eq("id", 1).single()
       .then(({ data }) => { if (data) setNotifSettings(data); });
   }, []);
 
@@ -277,13 +277,32 @@ export default function App() {
               {notifSettings.enabled ? "ON（配信中）" : "OFF（停止中）"}
             </button>
           </div>
+          {/* 閾値設定 */}
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+            <span style={{fontSize:14,color:"#555",whiteSpace:"nowrap"}}>通知タイミング</span>
+            <select value={notifSettings.notify_threshold ?? 3} onChange={e => setNotifSettings(s => ({ ...s, notify_threshold: Number(e.target.value) }))}
+              style={{fontSize:14,padding:"5px 8px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF",color:"#555"}}>
+              {[1,2,3,5,10].map(n => <option key={n} value={n}>{n}件ごと</option>)}
+            </select>
+            <span style={{fontSize:13,color:"#aaa"}}>溜まり中: {notifSettings.pending_count ?? 0}件</span>
+            <button onClick={async () => {
+              await supabase.from("notification_settings").update({ pending_count: 0, updated_at: new Date().toISOString() }).eq("id", 1);
+              setNotifSettings(s => ({ ...s, pending_count: 0 }));
+              showToast("カウントをリセットしました");
+            }} style={{fontSize:12,padding:"4px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"2px 2px 4px #C5C9D4, -2px -2px 4px #FFFFFF",color:"#999",cursor:"pointer"}}>リセット</button>
+          </div>
+          {/* メンテメッセージ */}
           <div style={{fontSize:13,color:"#888",marginBottom:6}}>メンテナンスメッセージ（空欄で非表示）</div>
           <div style={{display:"flex",gap:8}}>
             <input value={notifSettings.maintenance_message} onChange={e => setNotifSettings(s => ({ ...s, maintenance_message: e.target.value }))}
               placeholder="例: AI更新作業中のため投稿通知を停止しています"
               style={{flex:1,fontSize:14,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF"}}/>
             <button onClick={async () => {
-              await supabase.from("notification_settings").update({ maintenance_message: notifSettings.maintenance_message, updated_at: new Date().toISOString() }).eq("id", 1);
+              await supabase.from("notification_settings").update({
+                maintenance_message: notifSettings.maintenance_message,
+                notify_threshold: notifSettings.notify_threshold ?? 3,
+                updated_at: new Date().toISOString()
+              }).eq("id", 1);
               showToast("保存しました");
             }} style={{padding:"7px 14px",background:"#D85A30",color:"#fff",border:"none",borderRadius:10,fontSize:14,cursor:"pointer"}}>保存</button>
           </div>
