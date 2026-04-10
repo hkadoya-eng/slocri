@@ -182,14 +182,14 @@ export default function App() {
 
   return (
     <div style={{padding:"16px",maxWidth:740,width:"100%",boxSizing:"border-box",margin:"0 auto",fontFamily:"sans-serif",textAlign:"left",overflowX:"hidden",background:"#E8ECF0",minHeight:"100svh"}}>
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1.2rem",paddingBottom:"1rem"}}>
-        <Logo size={84}/>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.6rem"}}>
+        <Logo size={56}/>
         <span style={{fontSize:12,color:"#D85A30",background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",borderRadius:20,padding:"5px 14px",fontWeight:600,letterSpacing:"0.2px"}}>{posts.length}件</span>
       </div>
 
-      {toast && <div style={{background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",borderRadius:12,padding:"10px 16px",fontSize:15,color:"#3B6D11",fontWeight:500,marginBottom:14,textAlign:"center"}}>{toast}</div>}
+      {toast && <div style={{background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",borderRadius:12,padding:"10px 16px",fontSize:15,color:"#3B6D11",fontWeight:500,marginBottom:10,textAlign:"center"}}>{toast}</div>}
 
-      <div style={{display:"flex",gap:4,marginBottom:"1.3rem",background:"#E8ECF0",boxShadow:"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF",borderRadius:14,padding:5}}>
+      <div style={{display:"flex",gap:4,marginBottom:"0.8rem",background:"#E8ECF0",boxShadow:"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF",borderRadius:14,padding:5}}>
         {TABS.map(k => {
           const on = tab === k;
           return <button key={k} onClick={() => setTab(k)} style={{flex:1,padding:"9px 0",border:"none",borderRadius:10,fontSize:15,background:on?"#E0E4E8":"#E8ECF0",color:on?"#D85A30":"#888",cursor:"pointer",fontWeight:on?700:500,textAlign:"center",boxShadow:on?"inset 4px 4px 8px #B8BCC8, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.18s"}}>{LABELS[k]}</button>;
