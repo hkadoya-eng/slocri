@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(npm run:*)",
+      "Bash(node -e ':*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(node:*)",
+      "WebFetch(domain:fiveslot777.com)",
+      "WebFetch(domain:1geki.jp)",
+      "WebFetch(domain:pachinko-curation.com)",
+      "WebFetch(domain:www.pachibee.jp)",
+      "WebFetch(domain:www.pachinkovista.com)",
+      "WebFetch(domain:ana-slo.com)",
+      "WebFetch(domain:www.key-cre.co.jp)",
+      "WebFetch(domain:2023120514190211455676.onamaeweb.jp)",
+      "Bash(python3 -c ':*)",
+      "Bash(python -c ':*)",
+      "Bash(magick --version)",
+      "Bash(convert --version)",
+      "Bash(python3 -c \"import PIL\")",
+      "Bash(powershell:*)"
+    ]
+  }
+}

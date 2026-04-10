@@ -103,6 +103,48 @@ function Logo({ size = 84 }) {
   );
 }
 
+const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+
+function b64urlToUint8(b64) {
+  const b64std = b64.replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(b64std);
+  return Uint8Array.from(raw, c => c.charCodeAt(0));
+}
+
+async function registerPush(userName) {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) return null;
+  try {
+    const reg = await navigator.serviceWorker.register("/sw.js");
+    await navigator.serviceWorker.ready;
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") return null;
+    const existing = await reg.pushManager.getSubscription();
+    if (existing) return existing;
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: b64urlToUint8(VAPID_PUBLIC_KEY),
+    });
+    const { endpoint, keys } = sub.toJSON();
+    await supabase.from("push_subscriptions").upsert({
+      endpoint, p256dh: keys.p256dh, auth: keys.auth, user_name: userName,
+    }, { onConflict: "endpoint" });
+    return sub;
+  } catch (e) {
+    console.warn("Push registration failed:", e);
+    return null;
+  }
+}
+
+async function unregisterPush() {
+  if (!("serviceWorker" in navigator)) return;
+  const reg = await navigator.serviceWorker.getRegistration("/sw.js");
+  if (!reg) return;
+  const sub = await reg.pushManager.getSubscription();
+  if (!sub) return;
+  await supabase.from("push_subscriptions").delete().eq("endpoint", sub.endpoint);
+  await sub.unsubscribe();
+}
+
 export default function App() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -110,6 +152,9 @@ export default function App() {
   const [feedFilter, setFeedFilter] = useState("all");
   const [toast, setToast] = useState("");
   const [aiEnabled, setAiEnabled] = useState(true);
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [notifSettings, setNotifSettings] = useState({ enabled: true, maintenance_message: "" });
+  const [showNotifAdmin, setShowNotifAdmin] = useState(false);
 
   function goToFeedWithFilter(cat) { setFeedFilter(cat); setTab("feed"); }
   const nextId = useRef(1000);
@@ -117,6 +162,16 @@ export default function App() {
   useEffect(() => {
     loadPosts();
     fetch("/api/health").then(r => r.json()).then(d => setAiEnabled(!!d.aiEnabled)).catch(() => setAiEnabled(false));
+    // 現在の購読状態チェック
+    if ("serviceWorker" in navigator && "PushManager" in window) {
+      navigator.serviceWorker.getRegistration("/sw.js").then(reg => {
+        if (!reg) return;
+        reg.pushManager.getSubscription().then(sub => setPushEnabled(!!sub));
+      });
+    }
+    // 通知設定取得
+    supabase.from("notification_settings").select("enabled,maintenance_message").eq("id", 1).single()
+      .then(({ data }) => { if (data) setNotifSettings(data); });
   }, []);
 
   async function loadPosts() {
@@ -184,8 +239,56 @@ export default function App() {
     <div style={{padding:"16px",maxWidth:740,width:"100%",boxSizing:"border-box",margin:"0 auto",fontFamily:"sans-serif",textAlign:"left",overflowX:"hidden",background:"#E8ECF0",minHeight:"100svh"}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.6rem"}}>
         <Logo size={56}/>
-        <span style={{fontSize:12,color:"#D85A30",background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",borderRadius:20,padding:"5px 14px",fontWeight:600,letterSpacing:"0.2px"}}>{posts.length}件</span>
+        <div style={{display:"flex",alignItems:"center",gap:8}}>
+          {/* 通知ベルボタン */}
+          <button onClick={async () => {
+            if (pushEnabled) {
+              await unregisterPush();
+              setPushEnabled(false);
+              showToast("通知をオフにしました");
+            } else {
+              const sub = await registerPush(MY_NAME);
+              if (sub) { setPushEnabled(true); showToast("通知をオンにしました"); }
+              else showToast("通知の許可が必要です");
+            }
+          }} title={pushEnabled ? "通知ON（タップでオフ）" : "通知オフ（タップでオン）"}
+          style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:pushEnabled?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:pushEnabled?"#D85A30":"#aaa"}}>
+            {pushEnabled ? "🔔" : "🔕"}
+          </button>
+          {/* 管理者：通知設定パネル開閉 */}
+          <button onClick={() => setShowNotifAdmin(v => !v)} title="通知管理"
+          style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:28,height:28,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:"#aaa"}}>⚙</button>
+          <span style={{fontSize:12,color:"#D85A30",background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",borderRadius:20,padding:"5px 14px",fontWeight:600,letterSpacing:"0.2px"}}>{posts.length}件</span>
+        </div>
       </div>
+
+      {/* 管理者：通知ON/OFF・メンテナンスメッセージ制御 */}
+      {showNotifAdmin && (
+        <div style={{background:"#E8ECF0",boxShadow:"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF",borderRadius:14,padding:"14px 16px",marginBottom:10}}>
+          <div style={{fontSize:13,fontWeight:600,color:"#555",marginBottom:10}}>⚙ 通知管理（管理者）</div>
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+            <span style={{fontSize:14,color:"#555"}}>通知配信</span>
+            <button onClick={async () => {
+              const next = !notifSettings.enabled;
+              await supabase.from("notification_settings").update({ enabled: next, updated_at: new Date().toISOString() }).eq("id", 1);
+              setNotifSettings(s => ({ ...s, enabled: next }));
+              showToast(next ? "通知配信をONにしました" : "通知配信をOFFにしました");
+            }} style={{padding:"5px 16px",border:"none",borderRadius:20,fontSize:14,fontWeight:600,cursor:"pointer",background:notifSettings.enabled?"#2a9d3f":"#E8ECF0",color:notifSettings.enabled?"#fff":"#999",boxShadow:notifSettings.enabled?"none":"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF"}}>
+              {notifSettings.enabled ? "ON（配信中）" : "OFF（停止中）"}
+            </button>
+          </div>
+          <div style={{fontSize:13,color:"#888",marginBottom:6}}>メンテナンスメッセージ（空欄で非表示）</div>
+          <div style={{display:"flex",gap:8}}>
+            <input value={notifSettings.maintenance_message} onChange={e => setNotifSettings(s => ({ ...s, maintenance_message: e.target.value }))}
+              placeholder="例: AI更新作業中のため投稿通知を停止しています"
+              style={{flex:1,fontSize:14,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF"}}/>
+            <button onClick={async () => {
+              await supabase.from("notification_settings").update({ maintenance_message: notifSettings.maintenance_message, updated_at: new Date().toISOString() }).eq("id", 1);
+              showToast("保存しました");
+            }} style={{padding:"7px 14px",background:"#D85A30",color:"#fff",border:"none",borderRadius:10,fontSize:14,cursor:"pointer"}}>保存</button>
+          </div>
+        </div>
+      )}
 
       {toast && <div style={{background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",borderRadius:12,padding:"10px 16px",fontSize:15,color:"#3B6D11",fontWeight:500,marginBottom:10,textAlign:"center"}}>{toast}</div>}
 
