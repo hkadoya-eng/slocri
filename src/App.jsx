@@ -491,7 +491,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   }
 
   async function submitPost() {
-    if (!fMachine.trim() || !fBody.trim()) return;
+    if (!fBody.trim()) return;
     const b = fBody.trim();
     const authorName = fName.trim() || "ゲスト";
     if (authorName === "ゲスト") {
