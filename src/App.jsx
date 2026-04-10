@@ -97,64 +97,63 @@ function QualityBadge({ q }) {
   );
 }
 
-function Logo({ size = 68 }) {
-  const w = Math.round(size * (210 / 128));
+function Logo({ size = 72 }) {
+  const w = Math.round(size * (210 / 138));
   return (
-    <svg width={w} height={size} viewBox="0 0 210 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width={w} height={size} viewBox="0 0 210 138" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
         {/* 楕円ボーダー: 赤→黒→青 */}
-        <linearGradient id="slk-border" x1="25" y1="8" x2="185" y2="120" gradientUnits="userSpaceOnUse">
+        <linearGradient id="slk-border" x1="18" y1="42" x2="192" y2="90" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="#CC1100"/>
-          <stop offset="40%" stopColor="#0d0d0d"/>
+          <stop offset="38%" stopColor="#080808"/>
           <stop offset="100%" stopColor="#1144CC"/>
         </linearGradient>
-        {/* SLOT テキスト: 青グラデーション（斜め） */}
-        <linearGradient id="slk-slot" x1="40" y1="25" x2="165" y2="88" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#77AAFF"/>
-          <stop offset="55%" stopColor="#1155DD"/>
-          <stop offset="100%" stopColor="#001880"/>
+        {/* SLOT: 青グラデーション（斜め） */}
+        <linearGradient id="slk-slot" x1="30" y1="18" x2="175" y2="88" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#99CCFF"/>
+          <stop offset="45%" stopColor="#1155EE"/>
+          <stop offset="100%" stopColor="#001888"/>
         </linearGradient>
-        {/* KEY テキスト: 赤グラデーション */}
-        <linearGradient id="slk-key" x1="100" y1="78" x2="170" y2="108" gradientUnits="userSpaceOnUse">
+        {/* KEY: 赤グラデーション */}
+        <linearGradient id="slk-keyg" x1="95" y1="96" x2="185" y2="120" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="#FF4422"/>
-          <stop offset="100%" stopColor="#991100"/>
+          <stop offset="100%" stopColor="#881100"/>
         </linearGradient>
-        {/* 閃光クリップ（楕円内に収める） */}
+        {/* 楕円バンド内クリップ（閃光用） */}
         <clipPath id="slk-clip">
-          <ellipse cx="105" cy="64" rx="91" ry="55"/>
+          <ellipse cx="105" cy="67" rx="88" ry="28"/>
         </clipPath>
       </defs>
 
-      {/* ドロップシャドウ */}
-      <ellipse cx="107" cy="67" rx="92" ry="56" fill="rgba(0,0,0,0.13)"/>
-      {/* 楕円白塗り */}
-      <ellipse cx="105" cy="64" rx="92" ry="56" fill="white"/>
+      {/* 楕円バンド白塗り（平たい） */}
+      <ellipse cx="105" cy="67" rx="88" ry="28" fill="white"/>
 
-      {/* 楕円内の斜め閃光（2本） */}
-      <g clipPath="url(#slk-clip)" opacity="0.18">
-        <path d="M 148,10 L 72,118" stroke="#0033AA" strokeWidth="18" strokeLinecap="round"/>
-        <path d="M 168,10 L 92,118" stroke="#0033AA" strokeWidth="8" strokeLinecap="round"/>
+      {/* 楕円内の斜め速度線 */}
+      <g clipPath="url(#slk-clip)" opacity="0.14">
+        <path d="M 148,39 L 95,95" stroke="#0033BB" strokeWidth="24" strokeLinecap="round"/>
+        <path d="M 170,39 L 117,95" stroke="#0033BB" strokeWidth="10" strokeLinecap="round"/>
       </g>
 
       {/* 赤アクセントアーク（左上） */}
-      <path d="M 14,58 A 92,56 0 0 1 66,11" fill="none" stroke="#CC1100" strokeWidth="11" strokeLinecap="round"/>
-      {/* 楕円ボーダー */}
-      <ellipse cx="105" cy="64" rx="92" ry="56" fill="none" stroke="url(#slk-border)" strokeWidth="6"/>
+      <path d="M 17,60 A 88,28 0 0 1 47,41" fill="none" stroke="#CC1100" strokeWidth="10" strokeLinecap="round"/>
 
-      {/* ━ SLOT ━ メイン大文字（イタリック・青） */}
-      <text x="105" y="74" textAnchor="middle"
+      {/* 楕円ボーダー */}
+      <ellipse cx="105" cy="67" rx="88" ry="28" fill="none" stroke="url(#slk-border)" strokeWidth="6"/>
+
+      {/* ━ SLOT ━  楕円をはみ出す大きさ */}
+      <text x="106" y="78" textAnchor="middle"
             fontFamily="'Arial Black','Impact','Helvetica Neue',system-ui,sans-serif"
-            fontSize="58" fontWeight="900" fontStyle="italic" letterSpacing="-2"
+            fontSize="74" fontWeight="900" fontStyle="italic" letterSpacing="-2"
             fill="url(#slk-slot)">SLOT</text>
 
-      {/* アクセントライン */}
-      <line x1="108" y1="82" x2="168" y2="82" stroke="url(#slk-key)" strokeWidth="1.5" opacity="0.8"/>
+      {/* KEY との区切りライン */}
+      <line x1="110" y1="102" x2="182" y2="102" stroke="url(#slk-keyg)" strokeWidth="1.2" opacity="0.8"/>
 
-      {/* KEY サブ文字（小・赤・右寄せ） */}
-      <text x="168" y="101" textAnchor="end"
+      {/* KEY サブ */}
+      <text x="182" y="120" textAnchor="end"
             fontFamily="'Arial Black','Impact','Helvetica Neue',system-ui,sans-serif"
-            fontSize="22" fontWeight="900" fontStyle="italic" letterSpacing="1"
-            fill="url(#slk-key)">KEY</text>
+            fontSize="22" fontWeight="900" fontStyle="italic" letterSpacing="2"
+            fill="url(#slk-keyg)">KEY</text>
     </svg>
   );
 }
@@ -239,7 +238,7 @@ export default function App() {
   return (
     <div style={{padding:"12px",maxWidth:740,width:"100%",boxSizing:"border-box",margin:"0 auto",fontFamily:"sans-serif",textAlign:"left",overflowX:"hidden"}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1rem",paddingBottom:"0.8rem",borderBottom:"0.5px solid #ece9e5"}}>
-        <Logo size={68}/>
+        <Logo size={72}/>
         <span style={{fontSize:12,color:"#D85A30",background:"#FFF1EB",border:"0.5px solid #F0997B",borderRadius:20,padding:"4px 11px",fontWeight:600,letterSpacing:"0.2px"}}>{posts.length}件</span>
       </div>
 
