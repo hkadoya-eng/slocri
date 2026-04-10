@@ -108,7 +108,7 @@ function Logo({ size = 84 }) {
   );
 }
 
-const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+const VAPID_PUBLIC_KEY = "BLS4xYWrSHveQD3kkFS6hyGWbxSds9u5nschDHtkXgWK7pcw5zDmeMHKkHDuwzzOcC-h3CigylDQHdH9pkyJVY4";
 
 function b64urlToUint8(b64) {
   const b64std = b64.replace(/-/g, "+").replace(/_/g, "/");
@@ -135,7 +135,8 @@ async function registerPush(userName) {
     }, { onConflict: "endpoint" });
     return sub;
   } catch (e) {
-    console.warn("Push registration failed:", e);
+    console.error("Push registration failed:", e);
+    alert("通知登録エラー: " + String(e));
     return null;
   }
 }
