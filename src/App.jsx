@@ -722,7 +722,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
               <>
                 <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:6,gap:6}}>
                   <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",minWidth:0,flex:1}}><CatBadge cat={p.cat}/></div>
-                  {AUTO_AUTHORS.includes(p.internal?.author || p.author) && p.quality ? <QualityBadge q={p.quality}/> : null}
+                  {AUTO_AUTHORS.includes(p.internal?.author || p.author) ? <QualityBadge q={p.quality || 3}/> : null}
                 </div>
                 <div style={{fontSize:14,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
                   <span style={{fontWeight:500,color:isOwn?"#D85A30":"#555",whiteSpace:"nowrap"}}>@{postAuthor}{isOwn&&<span style={{fontSize:12,marginLeft:3,color:"#D85A30"}}>（自分）</span>}</span>
@@ -1026,7 +1026,7 @@ function OverviewTab({ posts }) {
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10,gap:6}}>
               <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",flex:1,minWidth:0}}>
                 <CatBadge cat={selectedPost.cat}/>
-                {AUTO_AUTHORS.includes(selectedPost.internal?.author||selectedPost.author) && selectedPost.quality ? <QualityBadge q={selectedPost.quality}/> : null}
+                {AUTO_AUTHORS.includes(selectedPost.internal?.author||selectedPost.author) ? <QualityBadge q={selectedPost.quality || 3}/> : null}
               </div>
               <button onClick={() => setSelectedPost(null)} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#aaa",padding:"0 4px",lineHeight:1,flexShrink:0}}>×</button>
             </div>
