@@ -368,9 +368,11 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const [eImagePreview, setEImagePreview] = useState(null);
   const [eUploading, setEUploading] = useState(false);
   const [fUrl, setFUrl] = useState("");
+  const [fShopName, setFShopName] = useState("");
   const [fImage, setFImage] = useState(null);
   const [fImagePreview, setFImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [shopFilter, setShopFilter] = useState("");
   const [expandedPosts, setExpandedPosts] = useState({});
   const [replyTo, setReplyTo] = useState(null); // {postId, idx}
   const [replyText, setReplyText] = useState("");
@@ -400,7 +402,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
     setMachineSuggestion(best);
   }
 
-  function resetForm() { setShowForm(false); setFMachine(""); setFCat("bonus"); setFBody(""); setFUrl(""); setFImage(null); setFImagePreview(null); }
+  function resetForm() { setShowForm(false); setFMachine(""); setFCat("bonus"); setFBody(""); setFUrl(""); setFShopName(""); setFImage(null); setFImagePreview(null); }
 
   function onImageChange(e) {
     const file = e.target.files[0];
@@ -513,7 +515,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         cat: fCat, source: "manual", machine: fMachine.trim(),
         title: b.length > 30 ? b.slice(0,30)+"..." : b,
         body: b, url: fUrl.trim(), quality: 3, dupKey: "", author: authorName, eng: {},
-        internal: { ...blank(), imageUrl },
+        internal: { ...blank(), imageUrl, shopName: fCat === "aimH" ? fShopName.trim() : "" },
       });
     } catch(e) {
       console.error("投稿エラー:", e);
@@ -560,6 +562,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
     if (filter === "saved") return (p.internal?.bookmarks||[]).indexOf(MY_UID) >= 0;
     if (filter === "fav") return favMachines.includes(p.machine);
     if (filter !== "all" && p.cat !== filter) return false;
+    if (filter === "aimH" && shopFilter && p.internal?.shopName !== shopFilter) return false;
     if (query.trim() && !(p.machine+p.title+p.body).toLowerCase().includes(query.toLowerCase())) return false;
     return true;
   }).sort((a,b) => sortBy === "internal" ? (b.internal?.likes?.length||0) - (a.internal?.likes?.length||0) : new Date(b.created_at) - new Date(a.created_at));
@@ -578,6 +581,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
             {machineSuggestion&&<div style={{fontSize:14,color:"#666",marginTop:4,display:"flex",alignItems:"center",gap:6}}>もしかして:<button onClick={()=>{setFMachine(machineSuggestion);setMachineSuggestion(null);}} style={{fontSize:14,color:"#D85A30",background:"none",border:"none",cursor:"pointer",padding:0,fontWeight:500,textDecoration:"underline"}}>{machineSuggestion}</button><button onClick={()=>setMachineSuggestion(null)} style={{fontSize:13,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:0}}>✕</button></div>}</div></div>
             <div style={row}><span style={lbl}>カテゴリ</span><select value={fCat} onChange={e=>setFCat(e.target.value)} style={{...inp,color:CATS[fCat]?.color||"#555",fontWeight:600}}><option value="aimH">お店狙い目</option><option value="memory">勝＆負エピ</option><option value="spec">機種情報</option><option value="hall">業界情報</option><option value="episode">昔の機種</option><option value="quote">版権ネタ</option><option value="bonus">演出・表現</option></select></div>
             <div style={{...row,alignItems:"flex-start"}}><span style={{...lbl,paddingTop:10}}>本文</span><textarea value={fBody} onChange={e=>setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{...inp,resize:"vertical",minHeight:88}}/></div>
+            {fCat==="aimH" && <div style={row}><span style={lbl}>店舗名</span><input value={fShopName} onChange={e=>setFShopName(e.target.value)} placeholder="例: ○○店（任意）" style={inp}/></div>}
             <div style={row}><span style={lbl}>URL</span><input value={fUrl} onChange={e=>setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{...inp,fontSize:15}}/></div>
             </>);})()}
             <div style={{display:"flex",alignItems:"flex-start",gap:8,marginBottom:10}}>
@@ -625,6 +629,20 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         })}
       </div>
 
+      {filter === "aimH" && (() => {
+        const shops = [...new Set(posts.filter(p => p.cat==="aimH" && p.internal?.shopName).map(p => p.internal.shopName))];
+        if (!shops.length) return null;
+        return (
+          <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap",alignItems:"center"}}>
+            <span style={{fontSize:13,color:"#aaa",flexShrink:0}}>店舗:</span>
+            {["", ...shops].map(s => (
+              <button key={s||"all"} onClick={() => setShopFilter(s)} style={{padding:"4px 12px",border:"none",borderRadius:16,fontSize:13,background:"#E8ECF0",color:shopFilter===s?"#E65100":"#999",fontWeight:shopFilter===s?600:400,cursor:"pointer",boxShadow:shopFilter===s?"inset 2px 2px 4px #C5C9D4, inset -2px -2px 4px #FFFFFF":"2px 2px 4px #C5C9D4, -2px -2px 4px #FFFFFF",whiteSpace:"nowrap"}}>
+                {s||"すべて"}
+              </button>
+            ))}
+          </div>
+        );
+      })()}
       {filtered.length === 0 && <div style={{textAlign:"center",padding:"2rem",color:"#aaa",fontSize:15}}>投稿がありません</div>}
 
       {filtered.map(p => {
@@ -677,6 +695,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                 <div style={{fontSize:14,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
                   <span style={{fontWeight:500,color:isOwn?"#D85A30":"#555",whiteSpace:"nowrap"}}>@{postAuthor}{isOwn&&<span style={{fontSize:12,marginLeft:3,color:"#D85A30"}}>（自分）</span>}</span>
                   <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0}}>機種: <span style={{color:"#333",fontWeight:500}}>{p.machine}</span></span>
+                  {p.cat==="aimH" && p.internal?.shopName && <span style={{fontSize:12,padding:"1px 7px",borderRadius:10,background:"#FFF8E1",color:"#E65100",fontWeight:500,whiteSpace:"nowrap",flexShrink:0}}>🏪 {p.internal.shopName}</span>}
                 </div>
                 <div style={{fontSize:16,fontWeight:500,color:"#333",marginBottom:4,overflowWrap:"anywhere"}}>{p.title}</div>
                 {(function CollapseBody() {
