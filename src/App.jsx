@@ -372,6 +372,8 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const [fImagePreview, setFImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [expandedPosts, setExpandedPosts] = useState({});
+  const [replyTo, setReplyTo] = useState(null); // {postId, idx}
+  const [replyText, setReplyText] = useState("");
   const [machineSuggestion, setMachineSuggestion] = useState(null);
 
   const machineNames = useMemo(() => [...new Set(posts.map(p => p.machine).filter(Boolean))], [posts]);
@@ -527,9 +529,18 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   }
   async function addComment(p) {
     if (!commentText.trim()) return;
-    const comments = [...(p.internal.comments || []), { uid: MY_UID, text: commentText.trim(), ts: "たった今" }];
+    const comments = [...(p.internal.comments || []), { uid: MY_UID, text: commentText.trim(), ts: "たった今", replies: [] }];
     await updatePost(p.id, { internal: { ...p.internal, comments } });
     setCommentText("");
+  }
+  async function addReply(p, commentIdx) {
+    if (!replyText.trim()) return;
+    const comments = [...(p.internal.comments || [])];
+    const c = { ...comments[commentIdx], replies: [...(comments[commentIdx].replies || []), { uid: MY_UID, text: replyText.trim(), ts: "たった今" }] };
+    comments[commentIdx] = c;
+    await updatePost(p.id, { internal: { ...p.internal, comments } });
+    setReplyText("");
+    setReplyTo(null);
   }
   async function handleDelete(id) {
     if (!window.confirm("削除しますか？")) return;
@@ -585,7 +596,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
 
       <div style={{display:"flex",gap:6,marginBottom:10}}>
         <div style={{position:"relative",flex:1}}>
-          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="キーワード検索..." style={{width:"100%",fontSize:16,padding:"8px 30px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"}} />
+          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="機種名・キーワードで検索..." style={{width:"100%",fontSize:16,padding:"8px 30px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"}} />
           <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",fontSize:15,color:"#aaa",pointerEvents:"none"}}>⌕</span>
           {query && <button onClick={() => setQuery("")} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:16,color:"#aaa",padding:0}}>×</button>}
         </div>
@@ -691,17 +702,36 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <button onClick={() => toggleBM(p)} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:iBM?"#185FA5":"#999",fontSize:13,cursor:"pointer",fontWeight:iBM?600:400,whiteSpace:"nowrap",boxShadow:iBM?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>◈</span><span>保存</span><span style={{fontSize:12}}>{(p.internal?.bookmarks||[]).length}</span></button>
                   <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:isOpen?"#3C3489":"#999",fontSize:13,cursor:"pointer",fontWeight:isOpen?600:400,whiteSpace:"nowrap",boxShadow:isOpen?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>💬</span><span>コメント</span><span style={{fontSize:12}}>{(p.internal?.comments||[]).length}</span></button>
                   {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => toggleBad(p)} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:isBad?"#c62828":"#bbb",fontSize:13,cursor:"pointer",fontWeight:isBad?600:400,whiteSpace:"nowrap",boxShadow:isBad?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>🚫</span><span>NG</span></button>; })()}
+                  <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`【SLOKEY】${p.machine} - ${p.title}\n#パチスロ #SLOKEY`)}&url=${encodeURIComponent(window.location.origin)}`} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",padding:"5px 10px",border:"none",borderRadius:20,background:"#E8ECF0",color:"#333",fontSize:13,textDecoration:"none",whiteSpace:"nowrap",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",marginLeft:"auto"}}>𝕏</a>
+                  <a href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(window.location.origin)}&text=${encodeURIComponent(`【SLOKEY】${p.machine} - ${p.title}`)}`} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",padding:"5px 10px",border:"none",borderRadius:20,background:"#E8ECF0",color:"#06C755",fontSize:13,textDecoration:"none",whiteSpace:"nowrap",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontWeight:600}}>LINE</a>
                   {isOwn && <>
-                    <button onClick={() => startEdit(p)} style={{marginLeft:"auto",background:"#E8ECF0",border:"none",borderRadius:20,fontSize:13,color:"#888",cursor:"pointer",padding:"5px 12px",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>編集</button>
+                    <button onClick={() => startEdit(p)} style={{background:"#E8ECF0",border:"none",borderRadius:20,fontSize:13,color:"#888",cursor:"pointer",padding:"5px 12px",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>編集</button>
                     <button onClick={() => handleDelete(p.id)} style={{background:"#E8ECF0",border:"none",borderRadius:20,fontSize:13,color:"#e57373",cursor:"pointer",padding:"5px 12px",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>削除</button>
                   </>}
                 </div>
                 {isOpen && (
                   <div style={{marginTop:10}}>
                     {(p.internal?.comments||[]).map((c,i) => (
-                      <div key={i} style={{display:"flex",gap:8,marginBottom:8}}>
-                        <div style={{width:24,height:24,borderRadius:"50%",background:c.uid===MY_UID?"#FAECE7":"#f0f0f0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:c.uid===MY_UID?"#993C1D":"#888",flexShrink:0,fontWeight:500}}>{c.uid===MY_UID?"自":"他"}</div>
-                        <div style={{flex:1,background:"#E8ECF0",borderRadius:10,boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",padding:"6px 10px",fontSize:15,color:"#333",lineHeight:1.5}}>{c.text}<span style={{fontSize:13,color:"#aaa",marginLeft:8}}>{c.ts}</span></div>
+                      <div key={i} style={{marginBottom:10}}>
+                        <div style={{display:"flex",gap:8}}>
+                          <div style={{width:24,height:24,borderRadius:"50%",background:c.uid===MY_UID?"#FAECE7":"#f0f0f0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:c.uid===MY_UID?"#993C1D":"#888",flexShrink:0,fontWeight:500}}>{c.uid===MY_UID?"自":"他"}</div>
+                          <div style={{flex:1}}>
+                            <div style={{background:"#E8ECF0",borderRadius:10,boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",padding:"6px 10px",fontSize:15,color:"#333",lineHeight:1.5}}>{c.text}<span style={{fontSize:13,color:"#aaa",marginLeft:8}}>{c.ts}</span></div>
+                            <button onClick={() => { setReplyTo(replyTo?.postId===p.id&&replyTo?.idx===i?null:{postId:p.id,idx:i}); setReplyText(""); }} style={{fontSize:12,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:"2px 4px"}}>↩ 返信</button>
+                          </div>
+                        </div>
+                        {(c.replies||[]).map((r,j) => (
+                          <div key={j} style={{display:"flex",gap:6,marginTop:6,paddingLeft:32}}>
+                            <div style={{width:20,height:20,borderRadius:"50%",background:r.uid===MY_UID?"#FAECE7":"#f0f0f0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,color:r.uid===MY_UID?"#993C1D":"#888",flexShrink:0,fontWeight:500}}>{r.uid===MY_UID?"自":"他"}</div>
+                            <div style={{flex:1,background:"#E8ECF0",borderRadius:10,boxShadow:"inset 2px 2px 4px #C5C9D4, inset -2px -2px 4px #FFFFFF",padding:"5px 8px",fontSize:14,color:"#333",lineHeight:1.5}}>{r.text}<span style={{fontSize:12,color:"#aaa",marginLeft:8}}>{r.ts}</span></div>
+                          </div>
+                        ))}
+                        {replyTo?.postId===p.id && replyTo?.idx===i && (
+                          <div style={{display:"flex",gap:6,marginTop:6,paddingLeft:32}}>
+                            <input value={replyText} onChange={e=>setReplyText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"){e.preventDefault();addReply(p,i);}}} placeholder="返信を入力… (Enter)" style={{flex:1,fontSize:14,padding:"5px 8px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF"}} autoFocus />
+                            <button onClick={()=>addReply(p,i)} style={{padding:"5px 12px",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:14,cursor:"pointer"}}>送信</button>
+                          </div>
+                        )}
                       </div>
                     ))}
                     <div style={{display:"flex",gap:6}}>
