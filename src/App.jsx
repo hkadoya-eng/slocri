@@ -721,7 +721,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
             ) : (
               <>
                 <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:6,gap:6}}>
-                  <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",minWidth:0,flex:1}}><CatBadge cat={p.cat}/><SrcBadge src={p.source}/></div>
+                  <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",minWidth:0,flex:1}}><CatBadge cat={p.cat}/></div>
                   {AUTO_AUTHORS.includes(p.internal?.author || p.author) && p.quality ? <QualityBadge q={p.quality}/> : null}
                 </div>
                 <div style={{fontSize:14,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
@@ -1026,7 +1026,6 @@ function OverviewTab({ posts }) {
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10,gap:6}}>
               <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",flex:1,minWidth:0}}>
                 <CatBadge cat={selectedPost.cat}/>
-                <SrcBadge src={selectedPost.source}/>
                 {AUTO_AUTHORS.includes(selectedPost.internal?.author||selectedPost.author) && selectedPost.quality ? <QualityBadge q={selectedPost.quality}/> : null}
               </div>
               <button onClick={() => setSelectedPost(null)} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#aaa",padding:"0 4px",lineHeight:1,flexShrink:0}}>×</button>
@@ -1081,7 +1080,7 @@ function OverviewTab({ posts }) {
                     <React.Fragment key={p.id}>
                       <tr onClick={() => setExpandedRankId(isExp ? null : p.id)} style={{background:isExp?"#FFF8F5":i%2===0?"#fff":"#fafafa",cursor:"pointer"}}>
                         <td style={{...td,textAlign:"center",fontWeight:500,fontSize:14,color:i<3?"#D85A30":"#aaa"}}>{i+1}</td>
-                        <td style={{...td,maxWidth:0}}><div style={{fontWeight:500,fontSize:15,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</div><div style={{fontSize:13,color:"#888",marginTop:1,display:"flex",gap:4}}><SrcBadge src={p.source}/><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.machine}</span></div></td>
+                        <td style={{...td,maxWidth:0}}><div style={{fontWeight:500,fontSize:15,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</div><div style={{fontSize:13,color:"#888",marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.machine}</div></td>
                         <td style={td}><CatBadge cat={p.cat}/></td>
                         <td style={{...td,textAlign:"right",fontWeight:500,color:"#D85A30"}}>{p.internal?.likes?.length||0}</td>
                         <td style={{...td,textAlign:"center",color:isExp?"#D85A30":"#aaa",fontSize:12}}>{isExp?"▲":"▼"}</td>
@@ -1090,7 +1089,7 @@ function OverviewTab({ posts }) {
                         <tr>
                           <td colSpan={5} style={{padding:"12px 14px",background:"#FFF8F5",borderBottom:"0.5px solid #F0997B"}}>
                             <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",marginBottom:6}}>
-                              <CatBadge cat={p.cat}/><SrcBadge src={p.source}/>
+                              <CatBadge cat={p.cat}/>
                               {AUTO_AUTHORS.includes(p.internal?.author||p.author) && p.quality ? <QualityBadge q={p.quality}/> : null}
                             </div>
                             <div style={{fontSize:13,color:"#aaa",marginBottom:4}}>@{p.internal?.author||p.author||"ゲスト"} · {p.machine}</div>
@@ -1280,7 +1279,7 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
             };
             return (
               <div key={p.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"10px 14px",marginBottom:8}}>
-                <div style={{display:"flex",gap:5,marginBottom:4,alignItems:"center"}}><CatBadge cat={p.cat}/><SrcBadge src={p.source}/></div>
+                <div style={{display:"flex",gap:5,marginBottom:4,alignItems:"center"}}><CatBadge cat={p.cat}/></div>
                 <div style={{fontSize:14,color:"#888",marginBottom:3}}>{p.machine}</div>
                 <div style={{fontSize:15,fontWeight:500,color:"#333",marginBottom:3}}>{p.title}</div>
                 <div style={{fontSize:14,color:"#666",lineHeight:1.6,marginBottom:8,overflowWrap:"anywhere"}}>{p.body}</div>
