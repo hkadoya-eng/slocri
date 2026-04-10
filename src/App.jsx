@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { supabase } from "./supabase";
 
 const CATS = {
@@ -175,7 +175,7 @@ export default function App() {
   const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"リサーチ" };
 
   return (
-    <div style={{padding:"12px",maxWidth:740,margin:"0 auto",fontFamily:"sans-serif",textAlign:"left"}}>
+    <div style={{padding:"12px",maxWidth:740,width:"100%",boxSizing:"border-box",margin:"0 auto",fontFamily:"sans-serif",textAlign:"left",overflowX:"hidden"}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1rem"}}>
         <div style={{fontSize:20,fontWeight:500}}><span style={{color:"#D85A30"}}>▶</span> スロキー</div>
         <span style={{fontSize:14,color:"#888"}}>{posts.length}件</span>
@@ -398,7 +398,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   }).sort((a,b) => sortBy === "internal" ? (b.internal?.likes?.length||0) - (a.internal?.likes?.length||0) : new Date(b.created_at) - new Date(a.created_at));
 
   return (
-    <div>
+    <div style={{minWidth:0}}>
       <div style={{marginBottom:"1.25rem"}}>
         <button onClick={() => setShowForm(v => !v)} style={{width:"100%",padding:"11px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:12,fontSize:16,fontWeight:500,cursor:"pointer"}}>{showForm ? "− 投稿する" : "+ 投稿する"}</button>
         {showForm && (
@@ -522,14 +522,14 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <span style={{fontWeight:500,color:isOwn?"#D85A30":"#555",whiteSpace:"nowrap"}}>@{postAuthor}{isOwn&&<span style={{fontSize:12,marginLeft:3,color:"#D85A30"}}>（自分）</span>}</span>
                   <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0}}>機種: <span style={{color:"#333",fontWeight:500}}>{p.machine}</span></span>
                 </div>
-                <div style={{fontSize:16,fontWeight:500,color:"#333",marginBottom:4}}>{p.title}</div>
+                <div style={{fontSize:16,fontWeight:500,color:"#333",marginBottom:4,overflowWrap:"anywhere"}}>{p.title}</div>
                 {(function CollapseBody() {
                   const LIMIT = 60;
                   const isLong = p.body.length > LIMIT;
                   const isExpanded = !!expandedPosts[p.id];
                   return (
                     <div style={{marginBottom:(p.internal?.imageUrl||p.url)?6:10}}>
-                      <div style={{fontSize:15,color:"#666",lineHeight:1.65}}>{isLong && !isExpanded ? p.body.slice(0, LIMIT) + "…" : p.body}</div>
+                      <div style={{fontSize:15,color:"#666",lineHeight:1.65,overflowWrap:"anywhere"}}>{isLong && !isExpanded ? p.body.slice(0, LIMIT) + "…" : p.body}</div>
                       {isLong && <button onClick={() => setExpandedPosts(prev => ({...prev, [p.id]: !prev[p.id]}))} style={{fontSize:14,color:"#D85A30",background:"none",border:"none",padding:"2px 0",cursor:"pointer",fontWeight:500}}>{isExpanded ? "折りたたむ" : "もっと見る"}</button>}
                     </div>
                   );
@@ -754,6 +754,8 @@ function OverviewTab({ posts }) {
   const [rankBy, setRankBy] = useState("likes");
   const [selM, setSelM] = useState(null);
   const [query, setQuery] = useState("");
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [expandedRankId, setExpandedRankId] = useState(null);
 
   const machines = useMemo(() => {
     const m = {};
@@ -790,6 +792,35 @@ function OverviewTab({ posts }) {
 
   return (
     <div>
+      {selectedPost && (
+        <div onClick={() => setSelectedPost(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+          <div onClick={e => e.stopPropagation()} style={{background:"#fff",borderRadius:"16px 16px 0 0",padding:"16px",width:"100%",maxWidth:740,maxHeight:"80vh",overflowY:"auto",boxSizing:"border-box"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10,gap:6}}>
+              <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",flex:1,minWidth:0}}>
+                <CatBadge cat={selectedPost.cat}/>
+                <SrcBadge src={selectedPost.source}/>
+                {AUTO_AUTHORS.includes(selectedPost.internal?.author||selectedPost.author) && selectedPost.quality ? <QualityBadge q={selectedPost.quality}/> : null}
+              </div>
+              <button onClick={() => setSelectedPost(null)} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#aaa",padding:"0 4px",lineHeight:1,flexShrink:0}}>×</button>
+            </div>
+            <div style={{fontSize:14,color:"#888",marginBottom:4,display:"flex",gap:8,flexWrap:"wrap"}}>
+              <span style={{fontWeight:500,color:"#555"}}>@{selectedPost.internal?.author||selectedPost.author||"ゲスト"}</span>
+              <span>機種: <span style={{color:"#333",fontWeight:500}}>{selectedPost.machine}</span></span>
+            </div>
+            <div style={{fontSize:16,fontWeight:500,color:"#333",marginBottom:6,overflowWrap:"anywhere"}}>{selectedPost.title}</div>
+            <div style={{fontSize:15,color:"#666",lineHeight:1.65,marginBottom:8,overflowWrap:"anywhere"}}>{selectedPost.body}</div>
+            {selectedPost.internal?.imageUrl && (
+              <img src={selectedPost.internal.imageUrl} alt="" style={{width:"100%",maxHeight:300,objectFit:"contain",borderRadius:8,marginBottom:8,display:"block",background:"#f9f9f9"}} />
+            )}
+            {selectedPost.url && (
+              <a href={selectedPost.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",textDecoration:"none",overflow:"hidden",marginBottom:8}}>
+                <span style={{fontSize:14,color:"#888",flexShrink:0}}>🔗</span>
+                <span style={{fontSize:14,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0}}>{selectedPost.url}</span>
+              </a>
+            )}
+          </div>
+        </div>
+      )}
       <div className="scroll-x" style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"nowrap"}}>
         {[["rank","ランキング"],["machine","機種別"],["cat","カテゴリ分布"]].map(([k,l]) => {
           const on = view===k;
@@ -816,15 +847,39 @@ function OverviewTab({ posts }) {
               <colgroup><col style={{width:30}}/><col/><col style={{width:96}}/><col style={{width:36}}/><col style={{width:42}}/></colgroup>
               <thead><tr style={{background:"#f9f9f9"}}><th style={{...th,textAlign:"center"}}>#</th><th style={th}>タイトル・機種</th><th style={th}>カテゴリ</th><th style={{...th,textAlign:"right"}}>♥</th><th style={{...th,textAlign:"center"}}>品質</th></tr></thead>
               <tbody>
-                {ranked.map((p,i) => (
-                  <tr key={p.id} style={{background:i%2===0?"#fff":"#fafafa"}}>
-                    <td style={{...td,textAlign:"center",fontWeight:500,fontSize:14,color:i<3?"#D85A30":"#aaa"}}>{i+1}</td>
-                    <td style={{...td,maxWidth:0}}><div style={{fontWeight:500,fontSize:15,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</div><div style={{fontSize:13,color:"#888",marginTop:1,display:"flex",gap:4}}><SrcBadge src={p.source}/><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.machine}</span></div></td>
-                    <td style={td}><CatBadge cat={p.cat}/></td>
-                    <td style={{...td,textAlign:"right",fontWeight:500,color:"#D85A30"}}>{p.internal?.likes?.length||0}</td>
-                    <td style={{...td,textAlign:"center"}}>{p.source==="AI生成"&&p.quality?<QualityBadge q={p.quality}/>:"-"}</td>
-                  </tr>
-                ))}
+                {ranked.map((p,i) => {
+                  const isExp = expandedRankId === p.id;
+                  return (
+                    <React.Fragment key={p.id}>
+                      <tr onClick={() => setExpandedRankId(isExp ? null : p.id)} style={{background:isExp?"#FFF8F5":i%2===0?"#fff":"#fafafa",cursor:"pointer"}}>
+                        <td style={{...td,textAlign:"center",fontWeight:500,fontSize:14,color:i<3?"#D85A30":"#aaa"}}>{i+1}</td>
+                        <td style={{...td,maxWidth:0}}><div style={{fontWeight:500,fontSize:15,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</div><div style={{fontSize:13,color:"#888",marginTop:1,display:"flex",gap:4}}><SrcBadge src={p.source}/><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.machine}</span></div></td>
+                        <td style={td}><CatBadge cat={p.cat}/></td>
+                        <td style={{...td,textAlign:"right",fontWeight:500,color:"#D85A30"}}>{p.internal?.likes?.length||0}</td>
+                        <td style={{...td,textAlign:"center",color:isExp?"#D85A30":"#aaa",fontSize:12}}>{isExp?"▲":"▼"}</td>
+                      </tr>
+                      {isExp && (
+                        <tr>
+                          <td colSpan={5} style={{padding:"12px 14px",background:"#FFF8F5",borderBottom:"0.5px solid #F0997B"}}>
+                            <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",marginBottom:6}}>
+                              <CatBadge cat={p.cat}/><SrcBadge src={p.source}/>
+                              {AUTO_AUTHORS.includes(p.internal?.author||p.author) && p.quality ? <QualityBadge q={p.quality}/> : null}
+                            </div>
+                            <div style={{fontSize:13,color:"#aaa",marginBottom:4}}>@{p.internal?.author||p.author||"ゲスト"} · {p.machine}</div>
+                            <div style={{fontSize:15,color:"#333",lineHeight:1.65,marginBottom:6,overflowWrap:"anywhere"}}>{p.body}</div>
+                            {p.internal?.imageUrl && <img src={p.internal.imageUrl} alt="" style={{width:"100%",maxHeight:260,objectFit:"contain",borderRadius:8,marginBottom:6,display:"block",background:"#f9f9f9"}}/>}
+                            {p.url && (
+                              <a href={p.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",textDecoration:"none"}}>
+                                <span style={{fontSize:13,color:"#888",flexShrink:0}}>🔗</span>
+                                <span style={{fontSize:13,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0}}>{p.url}</span>
+                              </a>
+                            )}
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -854,7 +909,7 @@ function OverviewTab({ posts }) {
             <div>
               <div style={{fontSize:15,fontWeight:500,color:"#333",marginBottom:8}}>{selM} の投稿一覧</div>
               {posts.filter(p => p.machine===selM).sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0)).map(p => (
-                <div key={p.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"10px 14px",marginBottom:8}}>
+                <div key={p.id} onClick={() => setSelectedPost(p)} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"10px 14px",marginBottom:8,cursor:"pointer"}}>
                   <div style={{display:"flex",gap:5,marginBottom:4,alignItems:"center"}}><CatBadge cat={p.cat}/><span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500}}>♥ {p.internal?.likes?.length||0}</span></div>
                   <div style={{fontSize:15,fontWeight:500,color:"#333",marginBottom:3}}>{p.title}</div>
                   <div style={{fontSize:14,color:"#666",lineHeight:1.6}}>{p.body}</div>
@@ -875,7 +930,7 @@ function OverviewTab({ posts }) {
               </div>
               <div style={{height:5,background:"#f0f0f0",borderRadius:3,marginBottom:8,overflow:"hidden"}}><div style={{height:"100%",width:c.pct+"%",background:c.color,borderRadius:3,opacity:.7}}/></div>
               <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"#888",marginBottom:8}}><span>全体 {c.pct}%</span><span>♥ 合計 {c.likes}</span></div>
-              {c.top && <div style={{background:c.bg,borderRadius:8,padding:"6px 8px"}}><div style={{fontSize:12,color:c.color,marginBottom:2,fontWeight:500}}>最多いいね</div><div style={{fontSize:14,color:"#333",fontWeight:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.top.title}</div><div style={{fontSize:13,color:"#666",marginTop:1}}>{c.top.machine} · ♥ {c.top.internal?.likes?.length||0}</div></div>}
+              {c.top && <div onClick={() => setSelectedPost(c.top)} style={{background:c.bg,borderRadius:8,padding:"6px 8px",cursor:"pointer"}}><div style={{fontSize:12,color:c.color,marginBottom:2,fontWeight:500}}>最多いいね</div><div style={{fontSize:14,color:"#333",fontWeight:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.top.title}</div><div style={{fontSize:13,color:"#666",marginTop:1}}>{c.top.machine} · ♥ {c.top.internal?.likes?.length||0}</div></div>}
             </div>
           ))}
         </div>
@@ -923,7 +978,7 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
   }
 
   return (
-    <div>
+    <div style={{minWidth:0}}>
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem"}}>
         {[["browse","絞り込み"],["chat","チャット"]].map(([k,l]) => {
           const on = mode===k;
@@ -966,11 +1021,11 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
         <div>
           <div style={{marginBottom:12}}>
             <div style={{display:"flex",gap:8,marginBottom:6}}>
-              <select value={filter.machine} onChange={e => setFilter(f=>({...f,machine:e.target.value}))} style={{flex:1,fontSize:15,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#333",minWidth:0}}>
+              <select value={filter.machine} onChange={e => setFilter(f=>({...f,machine:e.target.value}))} style={{flex:1,fontSize:15,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#333",minWidth:0,width:0}}>
                 <option value="">すべての機種</option>
                 {machines.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
-              <select value={filter.cat} onChange={e => setFilter(f=>({...f,cat:e.target.value}))} style={{flex:1,fontSize:15,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#333",minWidth:0}}>
+              <select value={filter.cat} onChange={e => setFilter(f=>({...f,cat:e.target.value}))} style={{flex:1,fontSize:15,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#333",minWidth:0,width:0}}>
                 <option value="">すべてのカテゴリ</option>
                 <option value="aimH">お店狙い目</option>
                 <option value="memory">勝＆負エピ</option>
@@ -997,7 +1052,7 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
                 <div style={{display:"flex",gap:5,marginBottom:4,alignItems:"center"}}><CatBadge cat={p.cat}/><SrcBadge src={p.source}/></div>
                 <div style={{fontSize:14,color:"#888",marginBottom:3}}>{p.machine}</div>
                 <div style={{fontSize:15,fontWeight:500,color:"#333",marginBottom:3}}>{p.title}</div>
-                <div style={{fontSize:14,color:"#666",lineHeight:1.6,marginBottom:8}}>{p.body}</div>
+                <div style={{fontSize:14,color:"#666",lineHeight:1.6,marginBottom:8,overflowWrap:"anywhere"}}>{p.body}</div>
                 <button onClick={toggleLike} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iLiked?"#F0997B":"#ddd"}`,borderRadius:8,background:iLiked?"#FAECE7":"#f9f9f9",color:iLiked?"#993C1D":"#888",fontSize:14,cursor:"pointer",fontWeight:iLiked?500:400}}>♥ {(p.internal?.likes||[]).length}</button>
               </div>
             );
