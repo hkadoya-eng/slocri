@@ -848,7 +848,7 @@ function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick }) {
       if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || JSON.stringify(data.error)));
       const txt = (data.content||[]).filter(b => b.type==="text").map(b => b.text).join("");
       const parsed = JSON.parse(txt.replace(/```json|```/g,"").trim());
-      const item = { cat:parsed.cat||"memory", source:parsed.source||"manual", machine:parsed.machine||input.trim(), title:parsed.title||"無題", body:parsed.body||input.slice(0,150), url:"", quality:parsed.quality||3, dupKey:parsed.dupKey||"", eng:parsed.eng||{}, internal:blank() };
+      const item = { cat:parsed.cat||"memory", source:parsed.source||"manual", machine:parsed.machine||input.trim(), title:parsed.title||"無題", body:parsed.body||input.slice(0,150), url:"", quality:parsed.quality||3, dupKey:parsed.dupKey||"", eng:parsed.eng||{}, author:randomAuthor(), internal:blank() };
       setStatus("");
       if (isDup(item)) { pending.current=item; setDupModal({ item, dups:posts.filter(p=>p.dup_key===item.dupKey) }); setInput(""); }
       else { await addPost(item); setInput(""); }
