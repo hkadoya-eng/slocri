@@ -98,66 +98,8 @@ function QualityBadge({ q }) {
 }
 
 function Logo({ size = 84 }) {
-  const cx = 110, cy = 118, r = 62;
-  const vw = 220, vh = 196;
-  const w = Math.round(size * (vw / vh));
   return (
-    <svg width={w} height={size} viewBox={`0 0 ${vw} ${vh}`} fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        {/* 円バッジ: ダーク青ラジアル */}
-        <radialGradient id="slk-circle" cx="38%" cy="30%" r="75%">
-          <stop offset="0%" stopColor="#1E4EC0"/>
-          <stop offset="100%" stopColor="#050D3A"/>
-        </radialGradient>
-        {/* SLOT: 白〜オレンジ（暗い円背景に映える） */}
-        <linearGradient id="slk-slot" x1="28" y1="20" x2="188" y2="90" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#FFFFFF"/>
-          <stop offset="52%" stopColor="#FFE0AA"/>
-          <stop offset="100%" stopColor="#FF7700"/>
-        </linearGradient>
-        {/* KEY: オレンジ〜赤茶 */}
-        <linearGradient id="slk-keyg" x1="92" y1="144" x2="168" y2="170" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#FFAA33"/>
-          <stop offset="100%" stopColor="#CC4400"/>
-        </linearGradient>
-        {/* 影テキスト用クリップ */}
-        <clipPath id="slk-circ">
-          <circle cx={cx} cy={cy} r={r}/>
-        </clipPath>
-      </defs>
-
-      {/* ━━ 同心円バッジ（ripple風） ━━ */}
-      {/* メイン塗り */}
-      <circle cx={cx} cy={cy} r={r} fill="url(#slk-circle)"/>
-      {/* 同心円リング（内側から） */}
-      {[52, 42, 32, 22, 12].map(dr => (
-        <circle key={dr} cx={cx} cy={cy} r={dr}
-                fill="none" stroke="#2A50CC" strokeWidth="1.4" opacity="0.5"/>
-      ))}
-      {/* 赤アクセントアーク（左上・KEY CREATIONオマージュ） */}
-      <path d="M 50,110 A 62,62 0 0 0 86,60"
-            fill="none" stroke="#CC2200" strokeWidth="10" strokeLinecap="round"/>
-      {/* 外枠リング */}
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#1A44CC" strokeWidth="5"/>
-
-      {/* ━━ SLOT（円を突き破る） ━━ */}
-      {/* 影（暗め・オフセット） */}
-      <text x={cx + 3} y="92" textAnchor="middle"
-            fontFamily="'Barlow Condensed','Arial Black',Impact,sans-serif"
-            fontSize="84" fontWeight="800" fontStyle="italic" letterSpacing="-1"
-            fill="#000820" opacity="0.35">SLOT</text>
-      {/* メイン */}
-      <text x={cx} y="89" textAnchor="middle"
-            fontFamily="'Barlow Condensed','Arial Black',Impact,sans-serif"
-            fontSize="84" fontWeight="800" fontStyle="italic" letterSpacing="-1"
-            fill="url(#slk-slot)">SLOT</text>
-
-      {/* ━━ KEY（円内・Tの右下） ━━ */}
-      <text x="154" y="158" textAnchor="end"
-            fontFamily="'Barlow Condensed','Arial Black',Impact,sans-serif"
-            fontSize="23" fontWeight="800" fontStyle="italic" letterSpacing="2"
-            fill="url(#slk-keyg)">KEY</text>
-    </svg>
+    <img src="/logo.png" alt="SLOKEY" height={size} style={{display:"block",objectFit:"contain"}}/>
   );
 }
 
