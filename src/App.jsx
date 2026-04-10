@@ -406,7 +406,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   return (
     <div style={{minWidth:0}}>
       <div style={{marginBottom:"1.25rem"}}>
-        <button onClick={() => setShowForm(v => !v)} style={{width:"100%",padding:"12px 0",background:"#E8ECF0",color:"#D85A30",border:"none",borderRadius:14,fontSize:16,fontWeight:700,cursor:"pointer",boxShadow:showForm?"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF":"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF",transition:"all 0.2s"}}>{showForm ? "− 投稿する" : "+ 投稿する"}</button>
+        <button onClick={() => setShowForm(v => !v)} style={{width:"100%",padding:"14px 0",background:showForm?"#E8ECF0":"linear-gradient(135deg,#E8622A,#C84420)",color:showForm?"#D85A30":"#fff",border:"none",borderRadius:14,fontSize:17,fontWeight:700,cursor:"pointer",letterSpacing:"0.5px",boxShadow:showForm?"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF":"0 4px 14px rgba(216,90,48,0.45), 3px 3px 8px rgba(0,0,0,0.12)",transition:"all 0.2s"}}>{showForm ? "− 投稿する" : "+ 投稿する"}</button>
         {showForm && (
           <div style={{background:"#E8ECF0",boxShadow:"6px 6px 12px #C5C9D4, -6px -6px 12px #FFFFFF",borderRadius:16,padding:"16px",marginTop:12}}>
             <div style={{fontSize:15,fontWeight:500,marginBottom:10}}>新規投稿</div>
