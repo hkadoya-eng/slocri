@@ -117,11 +117,16 @@ function b64urlToUint8(b64) {
 }
 
 async function registerPush(userName) {
-  if (!("serviceWorker" in navigator) || !("PushManager" in window)) return null;
+  if (!("serviceWorker" in navigator)) { alert("このブラウザはService Workerに対応していません"); return null; }
+  if (!("PushManager" in window)) { alert("このブラウザはPush通知に対応していません"); return null; }
+  if (!("Notification" in window)) { alert("このブラウザはNotificationに対応していません"); return null; }
   try {
     const reg = await navigator.serviceWorker.register("/sw.js");
     await navigator.serviceWorker.ready;
+    const currentPerm = Notification.permission;
+    alert(`現在の通知許可状態: ${currentPerm}`);
     const perm = await Notification.requestPermission();
+    alert(`許可結果: ${perm}`);
     if (perm !== "granted") return null;
     const existing = await reg.pushManager.getSubscription();
     if (existing) return existing;
