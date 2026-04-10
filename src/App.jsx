@@ -1052,57 +1052,39 @@ function OverviewTab({ posts }) {
       )}
 
       {view==="machine" && (
-        <div>
-          <div className="scroll-x" style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,marginBottom:12}}>
-            <table style={{width:"100%",borderCollapse:"collapse",tableLayout:"fixed",minWidth:340}}>
-              <colgroup><col/><col style={{width:40}}/><col style={{width:48}}/><col style={{width:120}}/></colgroup>
-              <thead><tr style={{background:"#f9f9f9"}}><th style={th}>機種名</th><th style={{...th,textAlign:"right"}}>件数</th><th style={{...th,textAlign:"right"}}>♥</th><th style={th}>カテゴリ構成</th></tr></thead>
-              <tbody>
-                {machines.map((m,i) => {
-                  const sel = selM===m.name;
-                  return <tr key={m.name} onClick={() => setSelM(sel?null:m.name)} style={{background:sel?"#FAECE7":i%2===0?"#fff":"#fafafa",cursor:"pointer"}}>
-                    <td style={{...td,fontWeight:sel?500:400,color:sel?"#993C1D":"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:0}}>{m.name}</td>
-                    <td style={{...td,textAlign:"right",fontSize:14,color:"#888"}}>{m.count}</td>
-                    <td style={{...td,textAlign:"right",fontWeight:500,color:"#D85A30"}}>{m.likes}</td>
-                    <td style={td}><div style={{display:"flex",gap:2,flexWrap:"wrap"}}>{Object.entries(m.cats).map(([k,v]) => <span key={k} style={{fontSize:12,padding:"1px 5px",borderRadius:10,background:CATS[k]?.bg,color:CATS[k]?.color,fontWeight:500}}>{CATS[k]?.label.slice(0,3)} {v}</span>)}</div></td>
-                  </tr>;
-                })}
-              </tbody>
-            </table>
-          </div>
-          {selM && (
-            <div>
-              <div style={{fontSize:15,fontWeight:500,color:"#333",marginBottom:8}}>{selM} の投稿一覧（{posts.filter(p=>p.machine===selM).length}件）</div>
-              {posts.filter(p => p.machine===selM).sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0)).map(p => {
-                const isExp = expandedMachineId === p.id;
+        <div className="scroll-x" style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12}}>
+          <table style={{width:"100%",borderCollapse:"collapse",tableLayout:"fixed",minWidth:340}}>
+            <colgroup><col/><col style={{width:40}}/><col style={{width:48}}/><col style={{width:36}}/></colgroup>
+            <thead><tr style={{background:"#f9f9f9"}}><th style={th}>機種名</th><th style={{...th,textAlign:"right"}}>件数</th><th style={{...th,textAlign:"right"}}>♥</th><th style={th}></th></tr></thead>
+            <tbody>
+              {machines.map((m,i) => {
+                const sel = selM===m.name;
+                const machinePosts = sel ? posts.filter(p=>p.machine===m.name).sort((a,b)=>(b.internal?.likes?.length||0)-(a.internal?.likes?.length||0)) : [];
                 return (
-                  <div key={p.id} style={{background:"#fff",border:`0.5px solid ${isExp?"#F0997B":"#eee"}`,borderRadius:12,marginBottom:8,overflow:"hidden"}}>
-                    <div onClick={() => setExpandedMachineId(isExp ? null : p.id)} style={{padding:"12px 14px",cursor:"pointer"}}>
-                      <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",marginBottom:4}}>
-                        <CatBadge cat={p.cat}/><SrcBadge src={p.source}/>
-                        <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥ {p.internal?.likes?.length||0}</span>
-                        <span style={{fontSize:12,color:isExp?"#D85A30":"#aaa"}}>{isExp?"▲":"▼"}</span>
-                      </div>
-                      <div style={{fontSize:15,fontWeight:500,color:"#333",overflowWrap:"anywhere"}}>{p.title}</div>
-                    </div>
-                    {isExp && (
-                      <div style={{padding:"0 14px 12px",borderTop:"0.5px solid #f0e8e8"}}>
-                        <div style={{fontSize:13,color:"#aaa",marginBottom:6,paddingTop:10}}>@{p.internal?.author||p.author||"ゲスト"}</div>
-                        <div style={{fontSize:14,color:"#666",lineHeight:1.65,marginBottom:8,overflowWrap:"anywhere"}}>{p.body}</div>
-                        {p.internal?.imageUrl && <img src={p.internal.imageUrl} alt="" style={{width:"100%",maxHeight:260,objectFit:"contain",borderRadius:8,marginBottom:8,display:"block",background:"#f9f9f9"}}/>}
-                        {p.url && (
-                          <a href={p.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",textDecoration:"none",overflow:"hidden"}}>
-                            <span style={{fontSize:13,color:"#888",flexShrink:0}}>🔗</span>
-                            <span style={{fontSize:13,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0}}>{p.url}</span>
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                  <React.Fragment key={m.name}>
+                    <tr onClick={() => setSelM(sel?null:m.name)} style={{background:sel?"#FAECE7":i%2===0?"#fff":"#fafafa",cursor:"pointer"}}>
+                      <td style={{...td,fontWeight:sel?600:400,color:sel?"#993C1D":"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:0}}>{m.name}</td>
+                      <td style={{...td,textAlign:"right",fontSize:14,color:"#888"}}>{m.count}</td>
+                      <td style={{...td,textAlign:"right",fontWeight:500,color:"#D85A30"}}>{m.likes}</td>
+                      <td style={{...td,textAlign:"center",fontSize:12,color:sel?"#993C1D":"#aaa"}}>{sel?"▲":"▼"}</td>
+                    </tr>
+                    {sel && machinePosts.map(p => (
+                      <tr key={p.id} onClick={() => setSelectedPost(p)} style={{background:"#FFF8F5",cursor:"pointer"}}>
+                        <td colSpan={4} style={{padding:"8px 14px 10px",borderBottom:"0.5px solid #F0E0D8",borderLeft:"3px solid #F0997B"}}>
+                          <div style={{display:"flex",gap:5,alignItems:"center",marginBottom:4}}>
+                            <CatBadge cat={p.cat}/>
+                            <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥ {p.internal?.likes?.length||0}</span>
+                          </div>
+                          <div style={{fontSize:15,fontWeight:500,color:"#333",overflowWrap:"anywhere",marginBottom:2}}>{p.title}</div>
+                          <div style={{fontSize:13,color:"#888",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.body.slice(0,60)}{p.body.length>60?"…":""}</div>
+                        </td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
                 );
               })}
-            </div>
-          )}
+            </tbody>
+          </table>
         </div>
       )}
 
