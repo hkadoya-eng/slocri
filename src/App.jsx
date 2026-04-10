@@ -97,6 +97,20 @@ function QualityBadge({ q }) {
   );
 }
 
+function Logo({ size = 36 }) {
+  const w = Math.round(size * 1.56);
+  return (
+    <svg width={w} height={size} viewBox="0 0 50 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="1" width="14" height="30" rx="4" fill="#FFF1EB" stroke="#E8896A" strokeWidth="1.2"/>
+      <rect x="18" y="1" width="14" height="30" rx="4" fill="#FFF1EB" stroke="#E8896A" strokeWidth="1.2"/>
+      <rect x="35" y="1" width="14" height="30" rx="4" fill="#FFF1EB" stroke="#E8896A" strokeWidth="1.2"/>
+      <text x="8" y="22.5" textAnchor="middle" fontSize="15" fontWeight="700" fill="#D85A30" fontFamily="system-ui,sans-serif">7</text>
+      <text x="25" y="22.5" textAnchor="middle" fontSize="15" fontWeight="700" fill="#D85A30" fontFamily="system-ui,sans-serif">7</text>
+      <text x="42" y="22.5" textAnchor="middle" fontSize="15" fontWeight="700" fill="#D85A30" fontFamily="system-ui,sans-serif">7</text>
+    </svg>
+  );
+}
+
 export default function App() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -176,17 +190,23 @@ export default function App() {
 
   return (
     <div style={{padding:"12px",maxWidth:740,width:"100%",boxSizing:"border-box",margin:"0 auto",fontFamily:"sans-serif",textAlign:"left",overflowX:"hidden"}}>
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1rem"}}>
-        <div style={{fontSize:20,fontWeight:500}}><span style={{color:"#D85A30"}}>▶</span> スロキー</div>
-        <span style={{fontSize:14,color:"#888"}}>{posts.length}件</span>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1.1rem",paddingBottom:"0.9rem",borderBottom:"0.5px solid #ece9e5"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <Logo size={38}/>
+          <div>
+            <div style={{fontSize:17,fontWeight:700,letterSpacing:"-0.4px",color:"#1a1a1a",lineHeight:1.1}}>スロキー</div>
+            <div style={{fontSize:11,color:"#bbb",letterSpacing:"0.4px",marginTop:2}}>パチスロ情報まとめ</div>
+          </div>
+        </div>
+        <span style={{fontSize:12,color:"#D85A30",background:"#FFF1EB",border:"0.5px solid #F0997B",borderRadius:20,padding:"4px 11px",fontWeight:600,letterSpacing:"0.2px"}}>{posts.length}件</span>
       </div>
 
       {toast && <div style={{background:"#EAF3DE",border:"0.5px solid #97C459",borderRadius:8,padding:"8px 16px",fontSize:15,color:"#3B6D11",fontWeight:500,marginBottom:12,textAlign:"center"}}>{toast}</div>}
 
-      <div style={{display:"flex",gap:4,marginBottom:"1.25rem",borderBottom:"0.5px solid #ddd",paddingBottom:"0.75rem"}}>
+      <div style={{display:"flex",gap:3,marginBottom:"1.25rem",background:"#F0EDE8",borderRadius:10,padding:3}}>
         {TABS.map(k => {
           const on = tab === k;
-          return <button key={k} onClick={() => setTab(k)} style={{flex:1,padding:"7px 0",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:15,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,textAlign:"center"}}>{LABELS[k]}</button>;
+          return <button key={k} onClick={() => setTab(k)} style={{flex:1,padding:"7px 0",border:"none",borderRadius:8,fontSize:15,background:on?"#fff":"transparent",color:on?"#993C1D":"#999",cursor:"pointer",fontWeight:on?600:400,textAlign:"center",boxShadow:on?"0 1px 3px rgba(0,0,0,0.1)":"none",transition:"all 0.15s"}}>{LABELS[k]}</button>;
         })}
       </div>
 
