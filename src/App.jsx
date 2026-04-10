@@ -39,7 +39,12 @@ const AUTO_THEMES = [
   "ミリオンゴッドシリーズの伝説的な出来事",
   "人気パチスロの面白い思い出エピソード",
 ];
-const MY_UID = "me";
+function getOrCreateUID() {
+  let uid = localStorage.getItem("slotkey_uid");
+  if (!uid) { uid = crypto.randomUUID(); localStorage.setItem("slotkey_uid", uid); }
+  return uid;
+}
+const MY_UID = getOrCreateUID();
 const MY_NAME = localStorage.getItem("slotkey_name") || "ゲスト";
 
 function fmtNum(n) {
