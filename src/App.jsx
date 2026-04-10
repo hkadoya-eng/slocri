@@ -512,7 +512,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         imageUrl = publicUrl;
       }
       await addPost({
-        cat: fCat, source: "manual", machine: fMachine.trim(),
+        cat: fCat, source: "manual", machine: fMachine.trim() || "全般",
         title: b.length > 30 ? b.slice(0,30)+"..." : b,
         body: b, url: fUrl.trim(), quality: 3, dupKey: "", author: authorName, eng: {},
         internal: { ...blank(), imageUrl, shopName: fCat === "aimH" ? fShopName.trim() : "" },
