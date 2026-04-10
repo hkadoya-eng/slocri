@@ -192,7 +192,7 @@ export default function App() {
       <div style={{display:"flex",gap:4,marginBottom:"1.3rem",background:"#E8ECF0",boxShadow:"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF",borderRadius:14,padding:5}}>
         {TABS.map(k => {
           const on = tab === k;
-          return <button key={k} onClick={() => setTab(k)} style={{flex:1,padding:"8px 0",border:"none",borderRadius:10,fontSize:15,background:"#E8ECF0",color:on?"#D85A30":"#999",cursor:"pointer",fontWeight:on?700:400,textAlign:"center",boxShadow:on?"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF":"none",transition:"all 0.2s"}}>{LABELS[k]}</button>;
+          return <button key={k} onClick={() => setTab(k)} style={{flex:1,padding:"9px 0",border:"none",borderRadius:10,fontSize:15,background:on?"#E0E4E8":"#E8ECF0",color:on?"#D85A30":"#888",cursor:"pointer",fontWeight:on?700:500,textAlign:"center",boxShadow:on?"inset 4px 4px 8px #B8BCC8, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.18s"}}>{LABELS[k]}</button>;
         })}
       </div>
 
