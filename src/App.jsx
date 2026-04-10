@@ -907,12 +907,24 @@ function OverviewTab({ posts }) {
           </div>
           {selM && (
             <div>
-              <div style={{fontSize:15,fontWeight:500,color:"#333",marginBottom:8}}>{selM} の投稿一覧</div>
+              <div style={{fontSize:15,fontWeight:500,color:"#333",marginBottom:8}}>{selM} の投稿一覧（{posts.filter(p=>p.machine===selM).length}件）</div>
               {posts.filter(p => p.machine===selM).sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0)).map(p => (
-                <div key={p.id} onClick={() => setSelectedPost(p)} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"10px 14px",marginBottom:8,cursor:"pointer"}}>
-                  <div style={{display:"flex",gap:5,marginBottom:4,alignItems:"center"}}><CatBadge cat={p.cat}/><span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500}}>♥ {p.internal?.likes?.length||0}</span></div>
-                  <div style={{fontSize:15,fontWeight:500,color:"#333",marginBottom:3}}>{p.title}</div>
-                  <div style={{fontSize:14,color:"#666",lineHeight:1.6}}>{p.body}</div>
+                <div key={p.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"12px 14px",marginBottom:8}}>
+                  <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",marginBottom:6}}>
+                    <CatBadge cat={p.cat}/><SrcBadge src={p.source}/>
+                    {AUTO_AUTHORS.includes(p.internal?.author||p.author) && p.quality ? <QualityBadge q={p.quality}/> : null}
+                    <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥ {p.internal?.likes?.length||0}</span>
+                  </div>
+                  <div style={{fontSize:13,color:"#aaa",marginBottom:4}}>@{p.internal?.author||p.author||"ゲスト"}</div>
+                  <div style={{fontSize:15,fontWeight:500,color:"#333",marginBottom:6,overflowWrap:"anywhere"}}>{p.title}</div>
+                  <div style={{fontSize:14,color:"#666",lineHeight:1.65,marginBottom:6,overflowWrap:"anywhere"}}>{p.body}</div>
+                  {p.internal?.imageUrl && <img src={p.internal.imageUrl} alt="" style={{width:"100%",maxHeight:260,objectFit:"contain",borderRadius:8,marginBottom:6,display:"block",background:"#f9f9f9"}}/>}
+                  {p.url && (
+                    <a href={p.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",textDecoration:"none",overflow:"hidden"}}>
+                      <span style={{fontSize:13,color:"#888",flexShrink:0}}>🔗</span>
+                      <span style={{fontSize:13,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0}}>{p.url}</span>
+                    </a>
+                  )}
                 </div>
               ))}
             </div>
