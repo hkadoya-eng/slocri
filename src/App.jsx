@@ -239,18 +239,18 @@ export default function App() {
   const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"リサーチ" };
 
   return (
-    <div style={{padding:"12px",maxWidth:740,width:"100%",boxSizing:"border-box",margin:"0 auto",fontFamily:"sans-serif",textAlign:"left",overflowX:"hidden"}}>
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1rem",paddingBottom:"0.8rem",borderBottom:"0.5px solid #ece9e5"}}>
+    <div style={{padding:"16px",maxWidth:740,width:"100%",boxSizing:"border-box",margin:"0 auto",fontFamily:"sans-serif",textAlign:"left",overflowX:"hidden",background:"#E8ECF0",minHeight:"100svh"}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"1.2rem",paddingBottom:"1rem"}}>
         <Logo size={84}/>
-        <span style={{fontSize:12,color:"#D85A30",background:"#FFF1EB",border:"0.5px solid #F0997B",borderRadius:20,padding:"4px 11px",fontWeight:600,letterSpacing:"0.2px"}}>{posts.length}件</span>
+        <span style={{fontSize:12,color:"#D85A30",background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",borderRadius:20,padding:"5px 14px",fontWeight:600,letterSpacing:"0.2px"}}>{posts.length}件</span>
       </div>
 
-      {toast && <div style={{background:"#EAF3DE",border:"0.5px solid #97C459",borderRadius:8,padding:"8px 16px",fontSize:15,color:"#3B6D11",fontWeight:500,marginBottom:12,textAlign:"center"}}>{toast}</div>}
+      {toast && <div style={{background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",borderRadius:12,padding:"10px 16px",fontSize:15,color:"#3B6D11",fontWeight:500,marginBottom:14,textAlign:"center"}}>{toast}</div>}
 
-      <div style={{display:"flex",gap:3,marginBottom:"1.25rem",background:"#F0EDE8",borderRadius:10,padding:3}}>
+      <div style={{display:"flex",gap:4,marginBottom:"1.3rem",background:"#E8ECF0",boxShadow:"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF",borderRadius:14,padding:5}}>
         {TABS.map(k => {
           const on = tab === k;
-          return <button key={k} onClick={() => setTab(k)} style={{flex:1,padding:"7px 0",border:"none",borderRadius:8,fontSize:15,background:on?"#fff":"transparent",color:on?"#993C1D":"#999",cursor:"pointer",fontWeight:on?600:400,textAlign:"center",boxShadow:on?"0 1px 3px rgba(0,0,0,0.1)":"none",transition:"all 0.15s"}}>{LABELS[k]}</button>;
+          return <button key={k} onClick={() => setTab(k)} style={{flex:1,padding:"8px 0",border:"none",borderRadius:10,fontSize:15,background:"#E8ECF0",color:on?"#D85A30":"#999",cursor:"pointer",fontWeight:on?700:400,textAlign:"center",boxShadow:on?"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF":"none",transition:"all 0.2s"}}>{LABELS[k]}</button>;
         })}
       </div>
 
@@ -464,12 +464,12 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   return (
     <div style={{minWidth:0}}>
       <div style={{marginBottom:"1.25rem"}}>
-        <button onClick={() => setShowForm(v => !v)} style={{width:"100%",padding:"11px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:12,fontSize:16,fontWeight:500,cursor:"pointer"}}>{showForm ? "− 投稿する" : "+ 投稿する"}</button>
+        <button onClick={() => setShowForm(v => !v)} style={{width:"100%",padding:"12px 0",background:"#E8ECF0",color:"#D85A30",border:"none",borderRadius:14,fontSize:16,fontWeight:700,cursor:"pointer",boxShadow:showForm?"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF":"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF",transition:"all 0.2s"}}>{showForm ? "− 投稿する" : "+ 投稿する"}</button>
         {showForm && (
-          <div style={{background:"#fff",border:"0.5px solid #ddd",borderRadius:12,padding:"12px"}}>
+          <div style={{background:"#E8ECF0",boxShadow:"6px 6px 12px #C5C9D4, -6px -6px 12px #FFFFFF",borderRadius:16,padding:"16px",marginTop:12}}>
             <div style={{fontSize:15,fontWeight:500,marginBottom:10}}>新規投稿</div>
-            <input value={fName} onChange={e => setFName(e.target.value)} placeholder="名前（例: ゲスト）" style={{width:"100%",fontSize:16,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
-            <input value={fMachine} onChange={e => { setFMachine(e.target.value); setMachineSuggestion(null); }} onBlur={e => checkMachineName(e.target.value)} placeholder="機種名（例: バジリスク絆2）" list="machine-candidates" style={{width:"100%",fontSize:16,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:machineSuggestion?4:8,boxSizing:"border-box"}} />
+            <input value={fName} onChange={e => setFName(e.target.value)} placeholder="名前（例: ゲスト）" style={{width:"100%",fontSize:16,padding:"9px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}} />
+            <input value={fMachine} onChange={e => { setFMachine(e.target.value); setMachineSuggestion(null); }} onBlur={e => checkMachineName(e.target.value)} placeholder="機種名（例: バジリスク絆2）" list="machine-candidates" style={{width:"100%",fontSize:16,padding:"9px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:machineSuggestion?4:8,boxSizing:"border-box"}} />
             <datalist id="machine-candidates">
               {[...new Map(posts.map(p => [p.machine, (posts.filter(q => q.machine === p.machine).length)])).entries()]
                 .sort((a,b) => b[1]-a[1]).map(([name]) => <option key={name} value={name} />)}
@@ -481,7 +481,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                 <button onClick={() => setMachineSuggestion(null)} style={{fontSize:13,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:0}}>✕</button>
               </div>
             )}
-            <select value={fCat} onChange={e => setFCat(e.target.value)} style={{width:"100%",fontSize:16,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}}>
+            <select value={fCat} onChange={e => setFCat(e.target.value)} style={{width:"100%",fontSize:16,padding:"9px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}}>
               <option value="aimH">お店狙い目</option>
               <option value="memory">勝＆負エピ</option>
               <option value="spec">機種情報</option>
@@ -490,10 +490,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
               <option value="quote">版権ネタ</option>
               <option value="bonus">演出・表現</option>
             </select>
-            <textarea value={fBody} onChange={e => setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{width:"100%",fontSize:16,padding:"9px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:88,marginBottom:8,boxSizing:"border-box"}} />
-            <input value={fUrl} onChange={e => setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:15,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
+            <textarea value={fBody} onChange={e => setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{width:"100%",fontSize:16,padding:"9px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",resize:"vertical",minHeight:88,marginBottom:8,boxSizing:"border-box"}} />
+            <input value={fUrl} onChange={e => setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}} />
             <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,cursor:"pointer"}}>
-              <div style={{padding:"7px 14px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",fontSize:15,color:"#555",whiteSpace:"nowrap"}}>📷 画像を選ぶ</div>
+              <div style={{padding:"7px 14px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",fontSize:15,color:"#555",whiteSpace:"nowrap"}}>📷 画像を選ぶ</div>
               <span style={{fontSize:14,color:"#aaa",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{fImage ? fImage.name : "未選択（自動リサイズあり）"}</span>
               <input type="file" accept="image/*" onChange={onImageChange} style={{display:"none"}} />
             </label>
@@ -513,11 +513,11 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
 
       <div style={{display:"flex",gap:6,marginBottom:10}}>
         <div style={{position:"relative",flex:1}}>
-          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="キーワード検索..." style={{width:"100%",fontSize:16,padding:"8px 30px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",boxSizing:"border-box"}} />
+          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="キーワード検索..." style={{width:"100%",fontSize:16,padding:"8px 30px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"}} />
           <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",fontSize:15,color:"#aaa",pointerEvents:"none"}}>⌕</span>
           {query && <button onClick={() => setQuery("")} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:16,color:"#aaa",padding:0}}>×</button>}
         </div>
-        <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={{fontSize:14,padding:"8px 6px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666",flexShrink:0}}>
+        <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={{fontSize:14,padding:"8px 6px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666",flexShrink:0}}>
           <option value="new">新着順</option>
           <option value="internal">評価順</option>
         </select>
@@ -529,7 +529,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
           const activeBg = k==="saved"?"#E6F1FB":"#FAECE7";
           const activeColor = k==="saved"?"#185FA5":"#993C1D";
           const activeBorder = k==="saved"?"#85B7EB":"#D85A30";
-          return <button key={k} onClick={() => updateFilter(k)} style={{padding:"4px 10px",border:`0.5px solid ${on?activeBorder:"#ddd"}`,borderRadius:8,fontSize:13,background:on?activeBg:"#fff",color:on?activeColor:"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{k==="all"?"すべて":k==="saved"?"◈ 保存済み":CATS[k].label}</button>;
+          return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 12px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?activeColor:"#999",cursor:"pointer",fontWeight:on?600:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{k==="all"?"すべて":k==="saved"?"◈ 保存済み":CATS[k].label}</button>;
         })}
       </div>
 
@@ -545,10 +545,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         const isOwn = currentName !== "ゲスト" && postAuthor === currentName;
         const isEditing = editId === p.id;
         return (
-          <div key={p.id} style={{background:"#fff",border:`0.5px solid ${isOwn?"#F0997B":"#eee"}`,borderRadius:12,padding:"10px 12px",marginBottom:8,overflow:"hidden",minWidth:0}}>
+          <div key={p.id} style={{background:"#E8ECF0",border:"none",boxShadow:isOwn?"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF, inset 0 0 0 2px #F0997B":"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF",borderRadius:16,padding:"14px",marginBottom:12,overflow:"hidden",minWidth:0}}>
             {isEditing ? (
               <div>
-                <select value={eCat} onChange={e => setECat(e.target.value)} style={{width:"100%",fontSize:15,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}}>
+                <select value={eCat} onChange={e => setECat(e.target.value)} style={{width:"100%",fontSize:15,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}}>
                   <option value="aimH">お店狙い目</option>
                   <option value="memory">勝＆負エピ</option>
                   <option value="spec">機種情報</option>
@@ -557,11 +557,11 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <option value="quote">版権ネタ</option>
                   <option value="bonus">演出・表現</option>
                 </select>
-                <input value={eMachine} onChange={e => setEMachine(e.target.value)} placeholder="機種名" style={{width:"100%",fontSize:15,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
-                <textarea value={eBody} onChange={e => setEBody(e.target.value)} style={{width:"100%",fontSize:15,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:80,marginBottom:8,boxSizing:"border-box"}} />
-                <input value={eUrl} onChange={e => setEUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:15,padding:"7px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",marginBottom:8,boxSizing:"border-box"}} />
+                <input value={eMachine} onChange={e => setEMachine(e.target.value)} placeholder="機種名" style={{width:"100%",fontSize:15,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}} />
+                <textarea value={eBody} onChange={e => setEBody(e.target.value)} style={{width:"100%",fontSize:15,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",resize:"vertical",minHeight:80,marginBottom:8,boxSizing:"border-box"}} />
+                <input value={eUrl} onChange={e => setEUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:15,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}} />
                 <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,cursor:"pointer"}}>
-                  <div style={{padding:"6px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",fontSize:15,color:"#555",whiteSpace:"nowrap"}}>📷 画像を変更</div>
+                  <div style={{padding:"6px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",fontSize:15,color:"#555",whiteSpace:"nowrap"}}>📷 画像を変更</div>
                   <span style={{fontSize:14,color:"#aaa",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{eImage ? eImage.name : "未選択（自動リサイズあり）"}</span>
                   <input type="file" accept="image/*" onChange={onEditImageChange} style={{display:"none"}} />
                 </label>
@@ -609,21 +609,21 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                 )}
 
                 {(hasEng || p.source !== "manual") && (
-                  <div style={{background:"#f9f9f9",borderRadius:8,padding:"6px 10px",marginBottom:10,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+                  <div style={{background:"#E8ECF0",borderRadius:10,boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",padding:"6px 10px",marginBottom:10,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
                     <span style={{fontSize:13,color:"#aaa"}}>外部</span>
                     {engDefs.map(d => { const v=fmtNum(p.eng?.[d.key]); if(!v)return null; return <span key={d.key} style={{fontSize:14,display:"flex",alignItems:"center",gap:3}}><span style={{color:"#aaa"}}>{d.icon}</span><span style={{fontWeight:500,color:"#333"}}>{v}</span><span style={{fontSize:13,color:"#aaa"}}>{d.label}</span></span>; })}
                     {!hasEng && <span style={{fontSize:13,color:"#aaa"}}>数値なし</span>}
                   </div>
                 )}
 
-                <div style={{borderTop:"0.5px solid #eee",paddingTop:8,display:"flex",alignItems:"center",gap:4,flexWrap:"wrap"}}>
-                  <button onClick={() => toggleLike(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:`0.5px solid ${iLiked?"#F0997B":"#ddd"}`,borderRadius:8,background:iLiked?"#FAECE7":"#f9f9f9",color:iLiked?"#993C1D":"#888",fontSize:13,cursor:"pointer",fontWeight:iLiked?500:400,whiteSpace:"nowrap"}}>♥ いいね {(p.internal?.likes||[]).length}</button>
-                  <button onClick={() => toggleBM(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:`0.5px solid ${iBM?"#85B7EB":"#ddd"}`,borderRadius:8,background:iBM?"#E6F1FB":"#f9f9f9",color:iBM?"#185FA5":"#888",fontSize:13,cursor:"pointer",whiteSpace:"nowrap"}}>◈ 保存 {(p.internal?.bookmarks||[]).length}</button>
-                  <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:`0.5px solid ${isOpen?"#AFA9EC":"#ddd"}`,borderRadius:8,background:isOpen?"#EEEDFE":"#f9f9f9",color:isOpen?"#3C3489":"#888",fontSize:13,cursor:"pointer",whiteSpace:"nowrap"}}>◎ コメント {(p.internal?.comments||[]).length}</button>
-                  {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => toggleBad(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:`0.5px solid ${isBad?"#e57373":"#ddd"}`,borderRadius:8,background:isBad?"#FFEBEE":"#f9f9f9",color:isBad?"#c62828":"#bbb",fontSize:13,cursor:"pointer",fontWeight:isBad?500:400,whiteSpace:"nowrap"}}>✕ bad {(p.internal?.bads||[]).length||""}</button>; })()}
+                <div style={{paddingTop:10,marginTop:8,borderTop:"1px solid rgba(197,201,212,0.4)",display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+                  <button onClick={() => toggleLike(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 11px",border:"none",borderRadius:20,background:"#E8ECF0",color:iLiked?"#D85A30":"#999",fontSize:13,cursor:"pointer",fontWeight:iLiked?600:400,whiteSpace:"nowrap",boxShadow:iLiked?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>♥ {(p.internal?.likes||[]).length}</button>
+                  <button onClick={() => toggleBM(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 11px",border:"none",borderRadius:20,background:"#E8ECF0",color:iBM?"#185FA5":"#999",fontSize:13,cursor:"pointer",whiteSpace:"nowrap",boxShadow:iBM?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>◈ {(p.internal?.bookmarks||[]).length}</button>
+                  <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 11px",border:"none",borderRadius:20,background:"#E8ECF0",color:isOpen?"#3C3489":"#999",fontSize:13,cursor:"pointer",whiteSpace:"nowrap",boxShadow:isOpen?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>◎ {(p.internal?.comments||[]).length}</button>
+                  {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => toggleBad(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 11px",border:"none",borderRadius:20,background:"#E8ECF0",color:isBad?"#c62828":"#bbb",fontSize:13,cursor:"pointer",whiteSpace:"nowrap",boxShadow:isBad?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>✕</button>; })()}
                   {isOwn && <>
-                    <button onClick={() => startEdit(p)} style={{marginLeft:"auto",background:"none",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,color:"#888",cursor:"pointer",padding:"4px 10px"}}>編集</button>
-                    <button onClick={() => handleDelete(p.id)} style={{background:"none",border:"0.5px solid #ddd",borderRadius:8,fontSize:13,color:"#e57373",cursor:"pointer",padding:"4px 10px"}}>削除</button>
+                    <button onClick={() => startEdit(p)} style={{marginLeft:"auto",background:"#E8ECF0",border:"none",borderRadius:20,fontSize:13,color:"#888",cursor:"pointer",padding:"5px 12px",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>編集</button>
+                    <button onClick={() => handleDelete(p.id)} style={{background:"#E8ECF0",border:"none",borderRadius:20,fontSize:13,color:"#e57373",cursor:"pointer",padding:"5px 12px",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>削除</button>
                   </>}
                 </div>
                 {isOpen && (
@@ -631,11 +631,11 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                     {(p.internal?.comments||[]).map((c,i) => (
                       <div key={i} style={{display:"flex",gap:8,marginBottom:8}}>
                         <div style={{width:24,height:24,borderRadius:"50%",background:c.uid===MY_UID?"#FAECE7":"#f0f0f0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:c.uid===MY_UID?"#993C1D":"#888",flexShrink:0,fontWeight:500}}>{c.uid===MY_UID?"自":"他"}</div>
-                        <div style={{flex:1,background:"#f9f9f9",borderRadius:8,padding:"6px 10px",fontSize:15,color:"#333",lineHeight:1.5}}>{c.text}<span style={{fontSize:13,color:"#aaa",marginLeft:8}}>{c.ts}</span></div>
+                        <div style={{flex:1,background:"#E8ECF0",borderRadius:10,boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",padding:"6px 10px",fontSize:15,color:"#333",lineHeight:1.5}}>{c.text}<span style={{fontSize:13,color:"#aaa",marginLeft:8}}>{c.ts}</span></div>
                       </div>
                     ))}
                     <div style={{display:"flex",gap:6}}>
-                      <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => { if(e.key==="Enter"){e.preventDefault();addComment(p);}}} placeholder="コメントを入力… (Enter)" style={{flex:1,fontSize:15,padding:"6px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9"}} />
+                      <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => { if(e.key==="Enter"){e.preventDefault();addComment(p);}}} placeholder="コメントを入力… (Enter)" style={{flex:1,fontSize:15,padding:"6px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF"}} />
                       <button onClick={() => addComment(p)} style={{padding:"6px 14px",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:15,cursor:"pointer"}}>送信</button>
                     </div>
                   </div>
@@ -788,7 +788,7 @@ async function autoCollect() {
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:"1.25rem"}}>
         {["aimH","memory","spec","hall","episode","quote","bonus"].map(k => (
-          <div key={k} onClick={() => onCatClick?.(k)} style={{background:"#f9f9f9",borderRadius:8,padding:"8px 10px",cursor:"pointer",border:`0.5px solid ${CATS[k].border}`,transition:"background 0.1s"}}
+          <div key={k} onClick={() => onCatClick?.(k)} style={{background:"#E8ECF0",borderRadius:10,boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",padding:"8px 10px",cursor:"pointer",border:`0.5px solid ${CATS[k].border}`,transition:"background 0.1s"}}
             onMouseEnter={e=>e.currentTarget.style.background=CATS[k].bg}
             onMouseLeave={e=>e.currentTarget.style.background="#f9f9f9"}>
             <div style={{fontSize:22,fontWeight:500,color:"#333"}}>{counts[k]}</div>
@@ -799,15 +799,15 @@ async function autoCollect() {
 
       <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"1rem",marginBottom:12}}>
         <div style={{fontSize:14,color:"#888",marginBottom:8}}>機種名・テキストを入力すると編集部AIが自動分類・要約して登録します</div>
-        <textarea value={input} onChange={e => setInput(e.target.value)} style={{width:"100%",fontSize:15,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",minHeight:72,marginBottom:8,boxSizing:"border-box"}} placeholder="機種名やメモを入力" />
+        <textarea value={input} onChange={e => setInput(e.target.value)} style={{width:"100%",fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",resize:"vertical",minHeight:72,marginBottom:8,boxSizing:"border-box"}} placeholder="機種名やメモを入力" />
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <span style={{fontSize:14,color:"#3B6D11",fontWeight:500}}>{status}</span>
           <button onClick={collect} disabled={!aiEnabled||loading} title={!aiEnabled?"APIキーが未設定です":""} style={{padding:"7px 18px",background:(!aiEnabled||loading)?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:15,fontWeight:500,cursor:(!aiEnabled||loading)?"not-allowed":"pointer"}}>{loading?"解析中...":"編集部AIで収集 ↗"}</button>
         </div>
       </div>
       <div style={{display:"flex",gap:6,justifyContent:"flex-end"}}>
-        <button onClick={exportCSV} style={{fontSize:14,padding:"5px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666",cursor:"pointer"}}>CSV出力</button>
-        <button onClick={exportJSON} style={{fontSize:14,padding:"5px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666",cursor:"pointer"}}>JSON出力</button>
+        <button onClick={exportCSV} style={{fontSize:14,padding:"5px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666",cursor:"pointer"}}>CSV出力</button>
+        <button onClick={exportJSON} style={{fontSize:14,padding:"5px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666",cursor:"pointer"}}>JSON出力</button>
       </div>
     </div>
   );
@@ -897,11 +897,11 @@ function OverviewTab({ posts }) {
         <div>
           <div style={{display:"flex",gap:8,marginBottom:10}}>
             <div style={{position:"relative",flex:1}}>
-              <input value={query} onChange={e => setQuery(e.target.value)} placeholder="絞り込み..." style={{width:"100%",fontSize:15,padding:"6px 28px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",boxSizing:"border-box"}} />
+              <input value={query} onChange={e => setQuery(e.target.value)} placeholder="絞り込み..." style={{width:"100%",fontSize:15,padding:"6px 28px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"}} />
               <span style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",fontSize:15,color:"#aaa",pointerEvents:"none"}}>⌕</span>
               {query && <button onClick={() => setQuery("")} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:15,color:"#aaa",padding:0}}>×</button>}
             </div>
-            <select value={rankBy} onChange={e => setRankBy(e.target.value)} style={{fontSize:14,padding:"6px 8px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666"}}>
+            <select value={rankBy} onChange={e => setRankBy(e.target.value)} style={{fontSize:14,padding:"6px 8px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666"}}>
               <option value="likes">社内いいね順</option>
               <option value="bookmarks">ブックマーク順</option>
               <option value="quality">品質スコア順</option>
@@ -1107,11 +1107,11 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
         <div>
           <div style={{marginBottom:12}}>
             <div style={{display:"flex",gap:8,marginBottom:6}}>
-              <select value={filter.machine} onChange={e => setFilter(f=>({...f,machine:e.target.value}))} style={{flex:1,fontSize:15,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#333",minWidth:0,width:0}}>
+              <select value={filter.machine} onChange={e => setFilter(f=>({...f,machine:e.target.value}))} style={{flex:1,fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#333",minWidth:0,width:0}}>
                 <option value="">すべての機種</option>
                 {machines.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
-              <select value={filter.cat} onChange={e => setFilter(f=>({...f,cat:e.target.value}))} style={{flex:1,fontSize:15,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#333",minWidth:0,width:0}}>
+              <select value={filter.cat} onChange={e => setFilter(f=>({...f,cat:e.target.value}))} style={{flex:1,fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#333",minWidth:0,width:0}}>
                 <option value="">すべてのカテゴリ</option>
                 <option value="aimH">お店狙い目</option>
                 <option value="memory">勝＆負エピ</option>
@@ -1124,7 +1124,7 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
             </div>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
               <span style={{fontSize:14,color:"#aaa"}}>{filteredPosts.length}件</span>
-              {(filter.machine||filter.cat) && <button onClick={() => setFilter({machine:"",cat:""})} style={{fontSize:14,padding:"5px 12px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",color:"#666",cursor:"pointer"}}>リセット</button>}
+              {(filter.machine||filter.cat) && <button onClick={() => setFilter({machine:"",cat:""})} style={{fontSize:14,padding:"5px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666",cursor:"pointer"}}>リセット</button>}
             </div>
           </div>
           {filteredPosts.map(p => {
