@@ -374,6 +374,15 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const [expandedPosts, setExpandedPosts] = useState({});
   const [replyTo, setReplyTo] = useState(null); // {postId, idx}
   const [replyText, setReplyText] = useState("");
+  const [favMachines, setFavMachines] = useState(() => JSON.parse(localStorage.getItem("slotkey_favs") || "[]"));
+
+  function toggleFavMachine(machine) {
+    setFavMachines(prev => {
+      const next = prev.includes(machine) ? prev.filter(m => m !== machine) : [...prev, machine];
+      localStorage.setItem("slotkey_favs", JSON.stringify(next));
+      return next;
+    });
+  }
   const [machineSuggestion, setMachineSuggestion] = useState(null);
 
   const machineNames = useMemo(() => [...new Set(posts.map(p => p.machine).filter(Boolean))], [posts]);
@@ -549,6 +558,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
 
   const filtered = posts.filter(p => {
     if (filter === "saved") return (p.internal?.bookmarks||[]).indexOf(MY_UID) >= 0;
+    if (filter === "fav") return favMachines.includes(p.machine);
     if (filter !== "all" && p.cat !== filter) return false;
     if (query.trim() && !(p.machine+p.title+p.body).toLowerCase().includes(query.toLowerCase())) return false;
     return true;
@@ -607,10 +617,11 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
       </div>
 
       <div style={{display:"flex",gap:5,marginBottom:"1rem",flexWrap:"wrap"}}>
-        {["all","saved","aimH","memory","spec","hall","episode","quote","bonus"].map(k => {
+        {["all","fav","saved","aimH","memory","spec","hall","episode","quote","bonus"].map(k => {
           const on = filter === k;
-          const activeColor = k==="all"?"#D85A30":k==="saved"?"#185FA5":CATS[k]?.color||"#D85A30";
-          return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 12px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?activeColor:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{k==="all"?"すべて":k==="saved"?"◈ 保存済み":CATS[k].label}</button>;
+          const activeColor = k==="all"?"#D85A30":k==="fav"?"#E8B000":k==="saved"?"#185FA5":CATS[k]?.color||"#D85A30";
+          const label = k==="all"?"すべて":k==="fav"?`★ 注目台${favMachines.length>0?" ("+favMachines.length+")":""}`:k==="saved"?"◈ 保存済み":CATS[k].label;
+          return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 12px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?activeColor:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{label}</button>;
         })}
       </div>
 
@@ -666,6 +677,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                 <div style={{fontSize:14,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
                   <span style={{fontWeight:500,color:isOwn?"#D85A30":"#555",whiteSpace:"nowrap"}}>@{postAuthor}{isOwn&&<span style={{fontSize:12,marginLeft:3,color:"#D85A30"}}>（自分）</span>}</span>
                   <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0}}>機種: <span style={{color:"#333",fontWeight:500}}>{p.machine}</span></span>
+                  <button onClick={e => { e.stopPropagation(); toggleFavMachine(p.machine); }} title={favMachines.includes(p.machine)?"注目台から外す":"注目台に追加"} style={{background:"none",border:"none",cursor:"pointer",fontSize:16,padding:"0 2px",color:favMachines.includes(p.machine)?"#E8B000":"#ccc",lineHeight:1,flexShrink:0}}>{favMachines.includes(p.machine)?"★":"☆"}</button>
                 </div>
                 <div style={{fontSize:16,fontWeight:500,color:"#333",marginBottom:4,overflowWrap:"anywhere"}}>{p.title}</div>
                 {(function CollapseBody() {
