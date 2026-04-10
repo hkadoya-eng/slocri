@@ -410,30 +410,15 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         {showForm && (
           <div style={{background:"#E8ECF0",boxShadow:"6px 6px 12px #C5C9D4, -6px -6px 12px #FFFFFF",borderRadius:16,padding:"16px",marginTop:12}}>
             <div style={{fontSize:15,fontWeight:500,marginBottom:10}}>新規投稿</div>
-            <input value={fName} onChange={e => setFName(e.target.value)} placeholder="名前（例: ゲスト）" style={{width:"100%",fontSize:16,padding:"9px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}} />
-            <input value={fMachine} onChange={e => { setFMachine(e.target.value); setMachineSuggestion(null); }} onBlur={e => checkMachineName(e.target.value)} placeholder="機種名（例: バジリスク絆2）" list="machine-candidates" style={{width:"100%",fontSize:16,padding:"9px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:machineSuggestion?4:8,boxSizing:"border-box"}} />
-            <datalist id="machine-candidates">
-              {[...new Map(posts.map(p => [p.machine, (posts.filter(q => q.machine === p.machine).length)])).entries()]
-                .sort((a,b) => b[1]-a[1]).map(([name]) => <option key={name} value={name} />)}
-            </datalist>
-            {machineSuggestion && (
-              <div style={{fontSize:14,color:"#666",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
-                もしかして:
-                <button onClick={() => { setFMachine(machineSuggestion); setMachineSuggestion(null); }} style={{fontSize:14,color:"#D85A30",background:"none",border:"none",cursor:"pointer",padding:0,fontWeight:500,textDecoration:"underline"}}>{machineSuggestion}</button>
-                <button onClick={() => setMachineSuggestion(null)} style={{fontSize:13,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:0}}>✕</button>
-              </div>
-            )}
-            <select value={fCat} onChange={e => setFCat(e.target.value)} style={{width:"100%",fontSize:16,padding:"9px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}}>
-              <option value="aimH">お店狙い目</option>
-              <option value="memory">勝＆負エピ</option>
-              <option value="spec">機種情報</option>
-              <option value="hall">業界情報</option>
-              <option value="episode">昔の機種</option>
-              <option value="quote">版権ネタ</option>
-              <option value="bonus">演出・表現</option>
-            </select>
-            <textarea value={fBody} onChange={e => setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{width:"100%",fontSize:16,padding:"9px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",resize:"vertical",minHeight:88,marginBottom:8,boxSizing:"border-box"}} />
-            <input value={fUrl} onChange={e => setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}} />
+            {(()=>{const lbl={fontSize:13,color:"#888",whiteSpace:"nowrap",minWidth:52,paddingTop:2};const row={display:"flex",alignItems:"flex-start",gap:8,marginBottom:8};const inp={flex:1,fontSize:16,padding:"9px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"};return(<>
+            <div style={row}><span style={lbl}>名前</span><input value={fName} onChange={e=>setFName(e.target.value)} placeholder="例: ゲスト" style={inp}/></div>
+            <div style={row}><span style={lbl}>機種名</span><div style={{flex:1}}><input value={fMachine} onChange={e=>{setFMachine(e.target.value);setMachineSuggestion(null);}} onBlur={e=>checkMachineName(e.target.value)} placeholder="例: バジリスク絆2" list="machine-candidates" style={{...inp,width:"100%",marginBottom:machineSuggestion?4:0}}/>
+            <datalist id="machine-candidates">{[...new Map(posts.map(p=>[p.machine,(posts.filter(q=>q.machine===p.machine).length)])).entries()].sort((a,b)=>b[1]-a[1]).map(([name])=><option key={name} value={name}/>)}</datalist>
+            {machineSuggestion&&<div style={{fontSize:14,color:"#666",marginTop:4,display:"flex",alignItems:"center",gap:6}}>もしかして:<button onClick={()=>{setFMachine(machineSuggestion);setMachineSuggestion(null);}} style={{fontSize:14,color:"#D85A30",background:"none",border:"none",cursor:"pointer",padding:0,fontWeight:500,textDecoration:"underline"}}>{machineSuggestion}</button><button onClick={()=>setMachineSuggestion(null)} style={{fontSize:13,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:0}}>✕</button></div>}</div></div>
+            <div style={row}><span style={lbl}>カテゴリ</span><select value={fCat} onChange={e=>setFCat(e.target.value)} style={{...inp,color:CATS[fCat]?.color||"#555",fontWeight:600}}><option value="aimH">お店狙い目</option><option value="memory">勝＆負エピ</option><option value="spec">機種情報</option><option value="hall">業界情報</option><option value="episode">昔の機種</option><option value="quote">版権ネタ</option><option value="bonus">演出・表現</option></select></div>
+            <div style={{...row,alignItems:"flex-start"}}><span style={{...lbl,paddingTop:10}}>本文</span><textarea value={fBody} onChange={e=>setFBody(e.target.value)} placeholder="演出の感想、名言、思い出など自由に書いてください" style={{...inp,resize:"vertical",minHeight:88}}/></div>
+            <div style={row}><span style={lbl}>URL</span><input value={fUrl} onChange={e=>setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{...inp,fontSize:15}}/></div>
+            </>);})()}
             <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,cursor:"pointer"}}>
               <div style={{padding:"7px 14px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",fontSize:15,color:"#555",whiteSpace:"nowrap"}}>📷 画像を選ぶ</div>
               <span style={{fontSize:14,color:"#aaa",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{fImage ? fImage.name : "未選択（自動リサイズあり）"}</span>
