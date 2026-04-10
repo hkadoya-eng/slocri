@@ -116,7 +116,7 @@ function Logo({ size = 76 }) {
           <stop offset="100%" stopColor="#001880"/>
         </linearGradient>
         {/* KEY テキスト: 赤グラデーション */}
-        <linearGradient id="slk-keyg" x1="160" y1="94" x2="242" y2="124" gradientUnits="userSpaceOnUse">
+        <linearGradient id="slk-keyg" x1="140" y1="72" x2="196" y2="90" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="#FF4422"/>
           <stop offset="100%" stopColor="#880E00"/>
         </linearGradient>
@@ -162,11 +162,10 @@ function Logo({ size = 76 }) {
             fontSize="78" fontWeight="800" fontStyle="italic" letterSpacing="-1"
             fill="url(#slk-slot)">SLOT</text>
 
-      {/* ━━ KEY テキスト ━━ */}
-      <line x1="166" y1="100" x2="242" y2="100" stroke="url(#slk-keyg)" strokeWidth="1.3" opacity="0.7"/>
-      <text x="242" y="122" textAnchor="end"
+      {/* ━━ KEY テキスト（楕円内・Tの右下） ━━ */}
+      <text x="191" y="87" textAnchor="end"
             fontFamily="'Barlow Condensed','Arial Black',Impact,sans-serif"
-            fontSize="26" fontWeight="800" fontStyle="italic" letterSpacing="3"
+            fontSize="21" fontWeight="800" fontStyle="italic" letterSpacing="2"
             fill="url(#slk-keyg)">KEY</text>
     </svg>
   );
