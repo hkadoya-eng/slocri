@@ -1018,7 +1018,7 @@ function OverviewTab({ posts }) {
 
   const machines = useMemo(() => {
     const m = {};
-    posts.forEach(p => {
+    posts.filter(p => p.cat !== "fun").forEach(p => {
       if (!m[p.machine]) m[p.machine] = { name:p.machine, count:0, likes:0, cats:{} };
       m[p.machine].count++;
       m[p.machine].likes += (p.internal?.likes?.length||0);
