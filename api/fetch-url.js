@@ -20,6 +20,9 @@ export default async function handler(req, res) {
 
     if (!title) throw new Error("タイトル取得失敗");
 
+    const blocked = ["cloudflare", "just a moment", "attention required", "access denied", "403", "bot"].some(w => title.toLowerCase().includes(w));
+    if (blocked) throw new Error("ページを取得できません");
+
     return res.status(200).json({ body: title });
   } catch (err) {
     return res.status(200).json({ body: "", error: err.message });
