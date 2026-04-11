@@ -367,7 +367,7 @@ export default function App() {
 
       {!loading && tab === "feed"     && <FeedTab     posts={posts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} />}
       {!loading && tab === "collect"  && <CollectTab  posts={posts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
-      {!loading && tab === "overview" && <OverviewTab posts={posts} />}
+      {!loading && tab === "overview" && <OverviewTab posts={posts} updatePost={updatePost} />}
       {!loading && tab === "research" && <ResearchTab posts={posts} aiEnabled={aiEnabled} updatePost={updatePost} />}
     </div>
   );
@@ -1102,7 +1102,7 @@ async function autoCollect() {
   );
 }
 
-function OverviewTab({ posts }) {
+function OverviewTab({ posts, updatePost }) {
   const [view, setView] = useState("rank");
   const [rankBy, setRankBy] = useState("likes");
   const [selM, setSelM] = useState(null);
@@ -1178,6 +1178,30 @@ function OverviewTab({ posts }) {
                 <span style={{fontSize:14,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0}}>{selectedPost.url}</span>
               </a>
             )}
+            {AUTO_AUTHORS.includes(selectedPost.internal?.author||selectedPost.author) && (
+              <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10}}>
+                <span style={{fontSize:13,color:"#aaa"}}>情報LV:</span>
+                {[[3,"Lv.1"],[4,"Lv.2"],[5,"Lv.3"]].map(([q,l]) => {
+                  const on = (selectedPost.quality||3) === q;
+                  return <button key={q} onClick={() => { updatePost(selectedPost.id, { quality: q }); setSelectedPost(p => ({...p, quality: q})); }} style={{padding:"3px 10px",border:"none",borderRadius:8,fontSize:13,fontWeight:on?600:400,background:on?"#D85A30":"#f0f0f0",color:on?"#fff":"#aaa",cursor:"pointer"}}>{l}</button>;
+                })}
+              </div>
+            )}
+            {(() => {
+              const related = posts.filter(p => p.id !== selectedPost.id && p.machine === selectedPost.machine && p.machine !== "全般").sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0)).slice(0,3);
+              if (!related.length) return null;
+              return (
+                <div style={{marginTop:4}}>
+                  <div style={{fontSize:13,color:"#aaa",marginBottom:6}}>同じ機種の投稿</div>
+                  {related.map(p => (
+                    <div key={p.id} onClick={() => setSelectedPost(p)} style={{background:"#f9f9f9",borderRadius:10,padding:"8px 12px",marginBottom:6,cursor:"pointer",border:"0.5px solid #eee"}}>
+                      <div style={{display:"flex",gap:5,alignItems:"center",marginBottom:3}}><CatBadge cat={p.cat}/><span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500}}>♥ {p.internal?.likes?.length||0}</span></div>
+                      <div style={{fontSize:14,fontWeight:500,color:"#333",overflowWrap:"anywhere"}}>{p.title}</div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}
