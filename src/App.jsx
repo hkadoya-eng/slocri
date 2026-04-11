@@ -380,7 +380,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const [commentText, setCommentText] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [fMachine, setFMachine] = useState("");
-  const [fCat, setFCat] = useState("bonus");
+  const [fCat, setFCat] = useState("spec");
   const [fBody, setFBody] = useState("");
   const [fName, setFName] = useState(MY_NAME);
   const [currentName, setCurrentName] = useState(() => localStorage.getItem("slotkey_name") || "ゲスト");
