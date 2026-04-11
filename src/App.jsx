@@ -413,6 +413,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const [favMachines, setFavMachines] = useState(() => JSON.parse(localStorage.getItem("slotkey_favs") || "[]"));
   const [fullscreenImg, setFullscreenImg] = useState(null);
   const [shareOpen, setShareOpen] = useState(null);
+  const [editOpen, setEditOpen] = useState(null);
 
   useEffect(() => {
     if (directPost) {
@@ -430,6 +431,13 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, [shareOpen]);
+
+  useEffect(() => {
+    if (!editOpen) return;
+    const close = () => setEditOpen(null);
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, [editOpen]);
 
   function toggleFavMachine(machine) {
     setFavMachines(prev => {
@@ -858,7 +866,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <button onClick={() => toggleBM(p)} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:iBM?"#185FA5":"#999",fontSize:13,cursor:"pointer",fontWeight:iBM?600:400,whiteSpace:"nowrap",boxShadow:iBM?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>🔖</span><span>保存</span></button>
                   {!p.machine?.includes("全般") && (() => { const isFav=favMachines.includes(p.machine); return <button onClick={()=>toggleFavMachine(p.machine)} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:isFav?"#E8B000":"#999",fontSize:13,cursor:"pointer",fontWeight:isFav?600:400,whiteSpace:"nowrap",boxShadow:isFav?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>{isFav?"★":"☆"}</span><span>注目台</span></button>; })()}
                   <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:isOpen?"#3C3489":"#999",fontSize:13,cursor:"pointer",fontWeight:isOpen?600:400,whiteSpace:"nowrap",boxShadow:isOpen?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>💬</span><span>コメント</span><span style={{fontSize:12}}>{(p.internal?.comments||[]).length}</span></button>
-                  {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => toggleBad(p)} title="NG" style={{padding:"5px 10px",border:"none",borderRadius:20,background:"#E8ECF0",color:isBad?"#c62828":"#bbb",fontSize:14,cursor:"pointer",boxShadow:isBad?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>🚫</button>; })()}
+                  {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => toggleBad(p)} title="低品質・不適切な投稿として報告" style={{display:"flex",alignItems:"center",gap:4,padding:"5px 10px",border:"none",borderRadius:20,background:"#E8ECF0",color:isBad?"#c62828":"#bbb",fontSize:13,cursor:"pointer",whiteSpace:"nowrap",boxShadow:isBad?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span style={{fontSize:14}}>🚫</span><span>NG報告</span></button>; })()}
                   <div style={{marginLeft:"auto",position:"relative"}}>
                     <button onClick={e => { e.stopPropagation(); setShareOpen(shareOpen===p.id?null:p.id); }} style={{padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:"#888",fontSize:13,cursor:"pointer",whiteSpace:"nowrap",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>シェア ↗</button>
                     {shareOpen===p.id && (
@@ -869,10 +877,17 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                       </div>
                     )}
                   </div>
-                  {isOwn && <>
-                    <button onClick={() => startEdit(p)} style={{background:"#E8ECF0",border:"none",borderRadius:20,fontSize:13,color:"#888",cursor:"pointer",padding:"5px 12px",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>編集</button>
-                    <button onClick={() => handleDelete(p.id)} style={{background:"#E8ECF0",border:"none",borderRadius:20,fontSize:13,color:"#e57373",cursor:"pointer",padding:"5px 12px",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>削除</button>
-                  </>}
+                  {isOwn && (
+                    <div style={{position:"relative"}}>
+                      <button onClick={e => { e.stopPropagation(); setEditOpen(editOpen===p.id?null:p.id); }} style={{padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:"#888",fontSize:13,cursor:"pointer",whiteSpace:"nowrap",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>編集 ▾</button>
+                      {editOpen===p.id && (
+                        <div onClick={e => e.stopPropagation()} style={{position:"absolute",right:0,bottom:"calc(100% + 6px)",background:"#fff",borderRadius:12,boxShadow:"0 4px 16px rgba(0,0,0,0.15)",padding:8,display:"flex",flexDirection:"column",gap:4,minWidth:130,zIndex:100}}>
+                          <button onClick={() => { startEdit(p); setEditOpen(null); }} style={{padding:"8px 12px",border:"none",borderRadius:8,background:"#f5f5f5",color:"#555",fontSize:14,cursor:"pointer",textAlign:"left"}}>✏️ 編集する</button>
+                          <button onClick={() => { handleDelete(p.id); setEditOpen(null); }} style={{padding:"8px 12px",border:"none",borderRadius:8,background:"#fff0f0",color:"#c62828",fontSize:14,cursor:"pointer",textAlign:"left"}}>🗑️ 削除する</button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 {isOpen && (
                   <div style={{marginTop:10}}>
