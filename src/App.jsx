@@ -984,6 +984,7 @@ function OverviewTab({ posts }) {
   const [selectedPost, setSelectedPost] = useState(null);
   const [expandedRankId, setExpandedRankId] = useState(null);
   const [expandedMachineId, setExpandedMachineId] = useState(null);
+  const [expandedCat, setExpandedCat] = useState(null);
 
   const machines = useMemo(() => {
     const m = {};
@@ -1151,18 +1152,41 @@ function OverviewTab({ posts }) {
       )}
 
       {view==="cat" && (
-        <div style={{display:"grid",gridTemplateColumns:"repeat(2,minmax(0,1fr))",gap:10}}>
-          {catDist.map(c => (
-            <div key={c.key} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"10px 12px"}}>
-              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
-                <span style={{fontSize:15,fontWeight:500,color:c.color}}>{c.label}</span>
-                <span style={{fontSize:20,fontWeight:500,color:"#333"}}>{c.cnt}<span style={{fontSize:14,color:"#aaa",marginLeft:2}}>件</span></span>
+        <div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(2,minmax(0,1fr))",gap:10,marginBottom:10}}>
+            {catDist.map(c => {
+              const isExp = expandedCat === c.key;
+              return (
+                <div key={c.key} onClick={() => setExpandedCat(isExp ? null : c.key)} style={{background:isExp?"#FFF8F5":"#fff",border:`0.5px solid ${isExp?"#F0997B":"#eee"}`,borderRadius:12,padding:"10px 12px",cursor:"pointer"}}>
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+                    <span style={{fontSize:15,fontWeight:500,color:c.color}}>{c.label}</span>
+                    <span style={{fontSize:20,fontWeight:500,color:"#333"}}>{c.cnt}<span style={{fontSize:14,color:"#aaa",marginLeft:2}}>件</span></span>
+                  </div>
+                  <div style={{height:5,background:"#f0f0f0",borderRadius:3,marginBottom:8,overflow:"hidden"}}><div style={{height:"100%",width:c.pct+"%",background:c.color,borderRadius:3,opacity:.7}}/></div>
+                  <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"#888"}}><span>全体 {c.pct}%</span><span>♥ {c.likes}</span></div>
+                  <div style={{marginTop:6,fontSize:12,color:isExp?"#993C1D":"#aaa",textAlign:"right"}}>{isExp?"▲ 閉じる":`▼ ${c.cnt}件を見る`}</div>
+                </div>
+              );
+            })}
+          </div>
+          {expandedCat && (() => {
+            const catPosts = posts.filter(p => p.cat === expandedCat).sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0));
+            return (
+              <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,overflow:"hidden"}}>
+                {catPosts.map((p,i) => (
+                  <div key={p.id} onClick={e => { e.stopPropagation(); setSelectedPost(p); }} style={{padding:"10px 14px",borderBottom:i<catPosts.length-1?"0.5px solid #eee":"none",cursor:"pointer",background:i%2===0?"#fff":"#fafafa"}}>
+                    <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:3}}>
+                      <span style={{fontSize:12,color:"#bbb",minWidth:20}}>#{i+1}</span>
+                      <CatBadge cat={p.cat}/>
+                      <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥ {p.internal?.likes?.length||0}</span>
+                    </div>
+                    <div style={{fontSize:15,fontWeight:500,color:"#333",overflowWrap:"anywhere",marginBottom:2,paddingLeft:26}}>{p.title}</div>
+                    <div style={{fontSize:13,color:"#888",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",paddingLeft:26}}>{p.machine} · {p.body.slice(0,50)}{p.body.length>50?"…":""}</div>
+                  </div>
+                ))}
               </div>
-              <div style={{height:5,background:"#f0f0f0",borderRadius:3,marginBottom:8,overflow:"hidden"}}><div style={{height:"100%",width:c.pct+"%",background:c.color,borderRadius:3,opacity:.7}}/></div>
-              <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"#888",marginBottom:8}}><span>全体 {c.pct}%</span><span>♥ 合計 {c.likes}</span></div>
-              {c.top && <div onClick={() => setSelectedPost(c.top)} style={{background:c.bg,borderRadius:8,padding:"6px 8px",cursor:"pointer"}}><div style={{fontSize:12,color:c.color,marginBottom:2,fontWeight:500}}>最多いいね</div><div style={{fontSize:14,color:"#333",fontWeight:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.top.title}</div><div style={{fontSize:13,color:"#666",marginTop:1}}>{c.top.machine} · ♥ {c.top.internal?.likes?.length||0}</div></div>}
-            </div>
-          ))}
+            );
+          })()}
         </div>
       )}
     </div>
