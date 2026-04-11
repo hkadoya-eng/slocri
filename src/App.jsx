@@ -634,6 +634,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const filtered = posts.filter(p => {
     if (filter === "saved") return (p.internal?.bookmarks||[]).indexOf(MY_UID) >= 0;
     if (filter === "fav") return favMachines.includes(p.machine);
+    if (filter === "img") return !!p.internal?.imageUrl;
     if (filter !== "all" && p.cat !== filter) return false;
     if (filter === "aimH" && shopFilter && p.internal?.shopName !== shopFilter) return false;
     if (query.trim() && !(p.machine+p.title+p.body).toLowerCase().includes(query.toLowerCase())) return false;
@@ -699,10 +700,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
       </div>
 
       <div style={{display:"flex",gap:5,marginBottom:"1rem",flexWrap:"wrap"}}>
-        {["all","fav","aimH","memory","spec","hall","episode","quote","bonus","fun"].map(k => {
+        {["all","fav","img","aimH","memory","spec","hall","episode","quote","bonus","fun"].map(k => {
           const on = filter === k;
-          const activeColor = k==="all"?"#D85A30":k==="fav"?"#E8B000":CATS[k]?.color||"#D85A30";
-          const label = k==="all"?"すべて":k==="fav"?`★ 注目台${favMachines.length>0?" ("+favMachines.length+")":""}`:CATS[k].label;
+          const activeColor = k==="all"?"#D85A30":k==="fav"?"#E8B000":k==="img"?"#6B3FA0":CATS[k]?.color||"#D85A30";
+          const label = k==="all"?"すべて":k==="fav"?`★ 注目台${favMachines.length>0?" ("+favMachines.length+")":""}`:k==="img"?"🖼 画像":CATS[k].label;
           return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 12px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?activeColor:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{label}</button>;
         })}
       </div>
@@ -723,7 +724,33 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
       })()}
       {filtered.length === 0 && <div style={{textAlign:"center",padding:"2rem",color:"#aaa",fontSize:15}}>投稿がありません</div>}
 
-      {filtered.map(p => {
+      {filter === "img" && filtered.length > 0 && (
+        <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:12}}>
+          {filtered.map(p => (
+            <div key={p.id} onClick={() => setExpandedPosts(prev => ({...prev, [p.id]: !prev[p.id]}))} style={{borderRadius:12,overflow:"hidden",background:"#E8ECF0",boxShadow:"3px 3px 8px #C5C9D4, -3px -3px 8px #FFFFFF",cursor:"pointer",position:"relative"}}>
+              <img src={p.internal.imageUrl} alt="" style={{width:"100%",aspectRatio:"1",objectFit:"cover",display:"block"}}/>
+              <div style={{padding:"6px 8px"}}>
+                <div style={{display:"flex",gap:4,alignItems:"center",marginBottom:3}}><CatBadge cat={p.cat}/></div>
+                <div style={{fontSize:13,fontWeight:500,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</div>
+                <div style={{fontSize:12,color:"#aaa",marginTop:2}}>{p.machine}</div>
+              </div>
+              {expandedPosts[p.id] && (
+                <div onClick={e => e.stopPropagation()} style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.75)",display:"flex",flexDirection:"column",justifyContent:"flex-end",padding:10,borderRadius:12}}>
+                  <div style={{fontSize:13,color:"#fff",fontWeight:500,marginBottom:4,overflowWrap:"anywhere"}}>{p.title}</div>
+                  <div style={{fontSize:12,color:"rgba(255,255,255,0.8)",lineHeight:1.5,marginBottom:8,display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{p.body}</div>
+                  <div style={{display:"flex",gap:6}}>
+                    <button onClick={() => toggleLike(p)} style={{flex:1,padding:"5px 0",border:"none",borderRadius:8,background:(p.internal?.likes||[]).indexOf(MY_UID)>=0?"#D85A30":"rgba(255,255,255,0.2)",color:"#fff",fontSize:13,cursor:"pointer"}}>♥ {(p.internal?.likes||[]).length}</button>
+                    <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}?post=${p.id}`); showToast("リンクをコピーしました"); }} style={{padding:"5px 10px",border:"none",borderRadius:8,background:"rgba(255,255,255,0.2)",color:"#fff",fontSize:13,cursor:"pointer"}}>🔗</button>
+                    <button onClick={() => setFullscreenImg(p.internal.imageUrl)} style={{padding:"5px 10px",border:"none",borderRadius:8,background:"rgba(255,255,255,0.2)",color:"#fff",fontSize:13,cursor:"pointer"}}>⛶</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {filter !== "img" && filtered.map(p => {
         const engDefs = ENG_DEFS[p.source] || [];
         const hasEng = engDefs.some(d => fmtNum(p.eng?.[d.key]));
         const iLiked = (p.internal?.likes || []).indexOf(MY_UID) >= 0;
