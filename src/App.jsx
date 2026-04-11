@@ -699,13 +699,25 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         </select>
       </div>
 
-      <div style={{display:"flex",gap:5,marginBottom:"1rem",flexWrap:"wrap"}}>
-        {["all","fav","saved","img","aimH","memory","spec","hall","episode","quote","bonus","fun"].map(k => {
-          const on = filter === k;
-          const activeColor = k==="all"?"#D85A30":k==="fav"?"#E8B000":k==="saved"?"#185FA5":k==="img"?"#6B3FA0":CATS[k]?.color||"#D85A30";
-          const label = k==="all"?"すべて":k==="fav"?`★ 注目台${favMachines.length>0?" ("+favMachines.length+")":""}`:k==="saved"?"🔖 保存済み":k==="img"?"🖼 画像":CATS[k].label;
-          return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 12px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?activeColor:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{label}</button>;
-        })}
+      <div style={{marginBottom:"1rem"}}>
+        <div style={{display:"flex",gap:5,marginBottom:6,flexWrap:"wrap"}}>
+          {[
+            ["all","すべて","#D85A30"],
+            ["saved","🔖 保存済み","#185FA5"],
+            ["fav",`★ 注目台${favMachines.length>0?" ("+favMachines.length+")":""}`, "#E8B000"],
+            ["img","🖼 画像","#6B3FA0"],
+          ].map(([k,label,activeColor]) => {
+            const on = filter === k;
+            return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 12px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?activeColor:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{label}</button>;
+          })}
+        </div>
+        <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center"}}>
+          <span style={{fontSize:11,color:"#bbb",whiteSpace:"nowrap",paddingTop:1}}>カテゴリ</span>
+          {["aimH","memory","spec","hall","episode","quote","bonus","fun"].map(k => {
+            const on = filter === k;
+            return <button key={k} onClick={() => updateFilter(k)} style={{padding:"5px 10px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?CATS[k].color:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{CATS[k].label}</button>;
+          })}
+        </div>
       </div>
 
       {filter === "aimH" && (() => {
