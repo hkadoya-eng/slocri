@@ -1169,24 +1169,21 @@ function OverviewTab({ posts }) {
               );
             })}
           </div>
-          {expandedCat && (() => {
-            const catPosts = posts.filter(p => p.cat === expandedCat).sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0));
-            return (
-              <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,overflow:"hidden"}}>
-                {catPosts.map((p,i) => (
-                  <div key={p.id} onClick={e => { e.stopPropagation(); setSelectedPost(p); }} style={{padding:"10px 14px",borderBottom:i<catPosts.length-1?"0.5px solid #eee":"none",cursor:"pointer",background:i%2===0?"#fff":"#fafafa"}}>
-                    <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:3}}>
-                      <span style={{fontSize:12,color:"#bbb",minWidth:20}}>#{i+1}</span>
-                      <CatBadge cat={p.cat}/>
-                      <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥ {p.internal?.likes?.length||0}</span>
-                    </div>
-                    <div style={{fontSize:15,fontWeight:500,color:"#333",overflowWrap:"anywhere",marginBottom:2,paddingLeft:26}}>{p.title}</div>
-                    <div style={{fontSize:13,color:"#888",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",paddingLeft:26}}>{p.machine} · {p.body.slice(0,50)}{p.body.length>50?"…":""}</div>
+          {expandedCat && (
+            <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,overflow:"hidden"}}>
+              {posts.filter(p => p.cat === expandedCat).sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0)).map((p,i,arr) => (
+                <div key={p.id} onClick={e => { e.stopPropagation(); setSelectedPost(p); }} style={{padding:"10px 14px",borderBottom:i<arr.length-1?"0.5px solid #eee":"none",cursor:"pointer",background:i%2===0?"#fff":"#fafafa"}}>
+                  <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:3}}>
+                    <span style={{fontSize:12,color:"#bbb",minWidth:20}}>#{i+1}</span>
+                    <CatBadge cat={p.cat}/>
+                    <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥ {p.internal?.likes?.length||0}</span>
                   </div>
-                ))}
-              </div>
-            );
-          })()}
+                  <div style={{fontSize:15,fontWeight:500,color:"#333",overflowWrap:"anywhere",marginBottom:2,paddingLeft:26}}>{p.title}</div>
+                  <div style={{fontSize:13,color:"#888",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",paddingLeft:26}}>{p.machine} · {p.body.slice(0,50)}{p.body.length>50?"…":""}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
