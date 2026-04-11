@@ -366,7 +366,7 @@ export default function App() {
       {loading && <div style={{textAlign:"center",padding:"2rem",color:"#888"}}>読み込み中...</div>}
 
       {!loading && tab === "feed"     && <FeedTab     posts={posts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} />}
-      {!loading && tab === "collect"  && <CollectTab  posts={posts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} />}
+      {!loading && tab === "collect"  && <CollectTab  posts={posts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
       {!loading && tab === "overview" && <OverviewTab posts={posts} />}
       {!loading && tab === "research" && <ResearchTab posts={posts} aiEnabled={aiEnabled} updatePost={updatePost} />}
     </div>
@@ -843,13 +843,72 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   );
 }
 
-function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick }) {
+function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick, loadPosts }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [autoLoading, setAutoLoading] = useState(false);
   const [status, setStatus] = useState("");
   const [dupModal, setDupModal] = useState(null);
+  const [csvPreview, setCsvPreview] = useState(null);
+  const [csvImporting, setCsvImporting] = useState(false);
+  const csvRef = useRef(null);
   const pending = useRef(null);
+
+  function parseCsv(text) {
+    const lines = text.trim().split("\n").filter(l => l.trim());
+    if (lines.length < 2) return null;
+    const headers = lines[0].split(",").map(h => h.trim());
+    const required = ["cat","machine","title","body"];
+    if (!required.every(r => headers.includes(r))) return null;
+    return lines.slice(1).map(line => {
+      // CSVのカンマ区切りを正しく処理（ダブルクォート考慮）
+      const vals = [];
+      let cur = "", inQ = false;
+      for (let i = 0; i < line.length; i++) {
+        if (line[i] === '"') { inQ = !inQ; }
+        else if (line[i] === ',' && !inQ) { vals.push(cur.trim()); cur = ""; }
+        else cur += line[i];
+      }
+      vals.push(cur.trim());
+      const row = {};
+      headers.forEach((h, i) => { row[h] = vals[i] || ""; });
+      return row;
+    });
+  }
+
+  function onCsvFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const rows = parseCsv(ev.target.result);
+      if (!rows) { showToast("CSVフォーマットが正しくありません"); return; }
+      const dupKeys = new Set(posts.map(p => p.dup_key).filter(Boolean));
+      const preview = rows.map(r => ({ ...r, _dup: r.dup_key && dupKeys.has(r.dup_key) }));
+      setCsvPreview(preview);
+    };
+    reader.readAsText(file, "utf-8");
+    e.target.value = "";
+  }
+
+  async function importCsv() {
+    if (!csvPreview) return;
+    setCsvImporting(true);
+    const rows = csvPreview.filter(r => !r._dup);
+    const records = rows.map(r => ({
+      cat: r.cat || "spec", source: r.source || "WebSearch",
+      machine: r.machine || "全般", title: r.title, body: r.body,
+      url: r.url || "", quality: Number(r.quality) || 3,
+      dup_key: r.dup_key || "", author: r.author || "編集部AI", eng: {},
+      internal: { likes:[], bookmarks:[], bads:[], comments:[], author: r.author || "編集部AI", imageUrl:"", shopName:"" },
+    }));
+    const { error } = await supabase.from("posts").insert(records);
+    setCsvImporting(false);
+    setCsvPreview(null);
+    if (error) { showToast("インポートに失敗しました"); return; }
+    showToast(`${records.length}件インポート完了`);
+    loadPosts();
+  }
 
   const counts = {};
   ["aimH","memory","spec","hall","episode","quote","bonus","fun"].forEach(k => { counts[k] = posts.filter(p => p.cat===k).length; });
@@ -1000,9 +1059,45 @@ async function autoCollect() {
         </div>
       </div>
       <div style={{display:"flex",gap:6,justifyContent:"flex-end"}}>
+        <input ref={csvRef} type="file" accept=".csv" style={{display:"none"}} onChange={onCsvFile}/>
+        <button onClick={() => csvRef.current?.click()} style={{fontSize:14,padding:"5px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#185FA5",cursor:"pointer",fontWeight:500}}>CSVインポート</button>
         <button onClick={exportCSV} style={{fontSize:14,padding:"5px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666",cursor:"pointer"}}>CSV出力</button>
         <button onClick={exportJSON} style={{fontSize:14,padding:"5px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666",cursor:"pointer"}}>JSON出力</button>
       </div>
+
+      {csvPreview && (
+        <div onClick={() => setCsvPreview(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+          <div onClick={e => e.stopPropagation()} style={{background:"#E8ECF0",borderRadius:"16px 16px 0 0",padding:16,width:"100%",maxWidth:740,maxHeight:"80vh",overflowY:"auto",boxSizing:"border-box"}}>
+            <div style={{fontSize:15,fontWeight:600,marginBottom:10,color:"#333"}}>CSVインポート確認</div>
+            {(() => {
+              const newRows = csvPreview.filter(r => !r._dup);
+              const dupRows = csvPreview.filter(r => r._dup);
+              return <>
+                <div style={{fontSize:13,color:"#888",marginBottom:10}}>
+                  <span style={{color:"#3B6D11",fontWeight:500}}>新規 {newRows.length}件</span>
+                  {dupRows.length > 0 && <span style={{color:"#aaa",marginLeft:8}}>重複スキップ {dupRows.length}件</span>}
+                </div>
+                <div style={{background:"#fff",borderRadius:10,overflow:"hidden",marginBottom:12}}>
+                  {csvPreview.map((r, i) => (
+                    <div key={i} style={{padding:"8px 12px",borderBottom:"0.5px solid #f0f0f0",opacity:r._dup?0.4:1,display:"flex",gap:8,alignItems:"center"}}>
+                      {r._dup && <span style={{fontSize:11,color:"#aaa",flexShrink:0}}>重複</span>}
+                      <CatBadge cat={r.cat}/>
+                      <span style={{fontSize:13,color:"#555",flexShrink:0}}>{r.machine}</span>
+                      <span style={{fontSize:13,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.title}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{display:"flex",gap:8}}>
+                  <button onClick={() => setCsvPreview(null)} style={{flex:1,padding:"10px 0",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:15,color:"#888",cursor:"pointer"}}>キャンセル</button>
+                  <button onClick={importCsv} disabled={csvImporting||newRows.length===0} style={{flex:2,padding:"10px 0",border:"none",borderRadius:10,background:newRows.length===0?"#ccc":"#185FA5",color:"#fff",fontSize:15,fontWeight:600,cursor:newRows.length===0?"not-allowed":"pointer"}}>
+                    {csvImporting ? "インポート中..." : `${newRows.length}件をインポート`}
+                  </button>
+                </div>
+              </>;
+            })()}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
