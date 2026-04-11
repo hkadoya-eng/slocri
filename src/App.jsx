@@ -700,10 +700,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
       </div>
 
       <div style={{display:"flex",gap:5,marginBottom:"1rem",flexWrap:"wrap"}}>
-        {["all","fav","img","aimH","memory","spec","hall","episode","quote","bonus","fun"].map(k => {
+        {["all","fav","saved","img","aimH","memory","spec","hall","episode","quote","bonus","fun"].map(k => {
           const on = filter === k;
-          const activeColor = k==="all"?"#D85A30":k==="fav"?"#E8B000":k==="img"?"#6B3FA0":CATS[k]?.color||"#D85A30";
-          const label = k==="all"?"すべて":k==="fav"?`★ 注目台${favMachines.length>0?" ("+favMachines.length+")":""}`:k==="img"?"🖼 画像":CATS[k].label;
+          const activeColor = k==="all"?"#D85A30":k==="fav"?"#E8B000":k==="saved"?"#185FA5":k==="img"?"#6B3FA0":CATS[k]?.color||"#D85A30";
+          const label = k==="all"?"すべて":k==="fav"?`★ 注目台${favMachines.length>0?" ("+favMachines.length+")":""}`:k==="saved"?"🔖 保存済み":k==="img"?"🖼 画像":CATS[k].label;
           return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 12px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?activeColor:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{label}</button>;
         })}
       </div>
@@ -835,6 +835,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
 
                 <div style={{paddingTop:10,marginTop:8,borderTop:"1px solid rgba(197,201,212,0.4)",display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
                   <button onClick={() => toggleLike(p)} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:iLiked?"#D85A30":"#999",fontSize:13,cursor:"pointer",fontWeight:iLiked?600:400,whiteSpace:"nowrap",boxShadow:iLiked?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>♥</span><span>いいね</span><span style={{fontSize:12}}>{(p.internal?.likes||[]).length}</span></button>
+                  <button onClick={() => toggleBM(p)} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:iBM?"#185FA5":"#999",fontSize:13,cursor:"pointer",fontWeight:iBM?600:400,whiteSpace:"nowrap",boxShadow:iBM?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>🔖</span><span>保存</span></button>
                   {(() => { const isFav=favMachines.includes(p.machine); return <button onClick={()=>toggleFavMachine(p.machine)} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:isFav?"#E8B000":"#999",fontSize:13,cursor:"pointer",fontWeight:isFav?600:400,whiteSpace:"nowrap",boxShadow:isFav?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>{isFav?"★":"☆"}</span><span>注目台</span></button>; })()}
                   <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:isOpen?"#3C3489":"#999",fontSize:13,cursor:"pointer",fontWeight:isOpen?600:400,whiteSpace:"nowrap",boxShadow:isOpen?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>💬</span><span>コメント</span><span style={{fontSize:12}}>{(p.internal?.comments||[]).length}</span></button>
                   {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => toggleBad(p)} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:isBad?"#c62828":"#bbb",fontSize:13,cursor:"pointer",fontWeight:isBad?600:400,whiteSpace:"nowrap",boxShadow:isBad?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>🚫</span><span>NG</span></button>; })()}
