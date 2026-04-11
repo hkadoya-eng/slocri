@@ -528,6 +528,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
       });
       const data = await res.json();
       if (data.body) setFBody(data.body);
+      if (data.machine && !fMachine.trim()) setFMachine(data.machine);
     } catch(e) {
       // 取得失敗時はそのまま（フォールバックは投稿時に適用）
     } finally {
