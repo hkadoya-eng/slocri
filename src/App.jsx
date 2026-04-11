@@ -188,6 +188,7 @@ export default function App() {
   const [pushEnabled, setPushEnabled] = useState(false);
   const [notifSettings, setNotifSettings] = useState({ enabled: true, maintenance_message: "", pending_count: 0, notify_threshold: 3 });
   const [showNotifAdmin, setShowNotifAdmin] = useState(false);
+  const [directPost, setDirectPost] = useState(null);
 
   function goToFeedWithFilter(cat) { setFeedFilter(cat); setTab("feed"); }
   const nextId = useRef(1000);
@@ -214,11 +215,15 @@ export default function App() {
       .select("*")
       .order("created_at", { ascending: false });
     if (!error && data) {
-      setPosts(data.map(p => ({
-        ...p,
-        internal: p.internal || blank(),
-        eng: p.eng || {},
-      })));
+      const mapped = data.map(p => ({ ...p, internal: p.internal || blank(), eng: p.eng || {} }));
+      setPosts(mapped);
+      // ?post=ID で直リンクを処理
+      const urlParam = new URLSearchParams(window.location.search).get("post");
+      if (urlParam) {
+        const target = mapped.find(p => String(p.id) === urlParam);
+        if (target) { setTab("feed"); setFeedFilter("all"); setTimeout(() => setDirectPost(target), 100); }
+        window.history.replaceState({}, "", window.location.pathname);
+      }
     }
     setLoading(false);
   }
@@ -365,7 +370,7 @@ export default function App() {
 
       {loading && <div style={{textAlign:"center",padding:"2rem",color:"#888"}}>読み込み中...</div>}
 
-      {!loading && tab === "feed"     && <FeedTab     posts={posts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} />}
+      {!loading && tab === "feed"     && <FeedTab     posts={posts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} directPost={directPost} onDirectPostClear={() => setDirectPost(null)} />}
       {!loading && tab === "collect"  && <CollectTab  posts={posts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
       {!loading && tab === "overview" && <OverviewTab posts={posts} updatePost={updatePost} />}
       {!loading && tab === "research" && <ResearchTab posts={posts} aiEnabled={aiEnabled} updatePost={updatePost} />}
@@ -373,7 +378,7 @@ export default function App() {
   );
 }
 
-function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFilter = "all", onFilterChange }) {
+function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFilter = "all", onFilterChange, directPost, onDirectPostClear }) {
   const [filter, setFilter] = useState(initialFilter);
   function updateFilter(v) { setFilter(v); onFilterChange?.(v); }
   const [query, setQuery] = useState("");
@@ -407,6 +412,16 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const [replyText, setReplyText] = useState("");
   const [favMachines, setFavMachines] = useState(() => JSON.parse(localStorage.getItem("slotkey_favs") || "[]"));
   const [fullscreenImg, setFullscreenImg] = useState(null);
+
+  useEffect(() => {
+    if (directPost) {
+      setExpandedPosts(prev => ({ ...prev, [directPost.id]: true }));
+      onDirectPostClear?.();
+      setTimeout(() => {
+        document.getElementById(`post-${directPost.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 200);
+    }
+  }, [directPost]);
 
   function toggleFavMachine(machine) {
     setFavMachines(prev => {
@@ -718,7 +733,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         const isOwn = currentName !== "ゲスト" && postAuthor === currentName;
         const isEditing = editId === p.id;
         return (
-          <div key={p.id} style={{background:"#E8ECF0",border:"none",boxShadow:isOwn?"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF, inset 0 0 0 2px #F0997B":"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF",borderRadius:16,padding:"14px",marginBottom:12,overflow:"hidden",minWidth:0}}>
+          <div key={p.id} id={`post-${p.id}`} style={{background:"#E8ECF0",border:"none",boxShadow:isOwn?"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF, inset 0 0 0 2px #F0997B":"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF",borderRadius:16,padding:"14px",marginBottom:12,overflow:"hidden",minWidth:0}}>
             {isEditing ? (
               <div>
                 <select value={eCat} onChange={e => setECat(e.target.value)} style={{width:"100%",fontSize:15,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}}>
@@ -796,7 +811,8 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   {(() => { const isFav=favMachines.includes(p.machine); return <button onClick={()=>toggleFavMachine(p.machine)} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:isFav?"#E8B000":"#999",fontSize:13,cursor:"pointer",fontWeight:isFav?600:400,whiteSpace:"nowrap",boxShadow:isFav?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>{isFav?"★":"☆"}</span><span>注目台</span></button>; })()}
                   <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:isOpen?"#3C3489":"#999",fontSize:13,cursor:"pointer",fontWeight:isOpen?600:400,whiteSpace:"nowrap",boxShadow:isOpen?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>💬</span><span>コメント</span><span style={{fontSize:12}}>{(p.internal?.comments||[]).length}</span></button>
                   {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => toggleBad(p)} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:isBad?"#c62828":"#bbb",fontSize:13,cursor:"pointer",fontWeight:isBad?600:400,whiteSpace:"nowrap",boxShadow:isBad?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>🚫</span><span>NG</span></button>; })()}
-                  <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`【SLOKEY】${p.machine} - ${p.title}\n#パチスロ #SLOKEY`)}&url=${encodeURIComponent(window.location.origin)}`} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",padding:"5px 10px",border:"none",borderRadius:20,background:"#E8ECF0",color:"#333",fontSize:13,textDecoration:"none",whiteSpace:"nowrap",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",marginLeft:"auto"}}>𝕏</a>
+                  <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}?post=${p.id}`); showToast("リンクをコピーしました"); }} style={{display:"flex",alignItems:"center",padding:"5px 10px",border:"none",borderRadius:20,background:"#E8ECF0",color:"#888",fontSize:13,cursor:"pointer",whiteSpace:"nowrap",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",marginLeft:"auto"}}>🔗</button>
+                  <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`【SLOKEY】${p.machine} - ${p.title}\n#パチスロ #SLOKEY`)}&url=${encodeURIComponent(`${window.location.origin}?post=${p.id}`)}`} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",padding:"5px 10px",border:"none",borderRadius:20,background:"#E8ECF0",color:"#333",fontSize:13,textDecoration:"none",whiteSpace:"nowrap",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>𝕏</a>
                   <a href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(window.location.origin)}&text=${encodeURIComponent(`【SLOKEY】${p.machine} - ${p.title}`)}`} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",padding:"5px 10px",border:"none",borderRadius:20,background:"#E8ECF0",color:"#06C755",fontSize:13,textDecoration:"none",whiteSpace:"nowrap",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontWeight:600}}>LINE</a>
                   {isOwn && <>
                     <button onClick={() => startEdit(p)} style={{background:"#E8ECF0",border:"none",borderRadius:20,fontSize:13,color:"#888",cursor:"pointer",padding:"5px 12px",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>編集</button>
