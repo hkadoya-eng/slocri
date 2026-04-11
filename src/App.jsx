@@ -530,20 +530,25 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
       if (data.body) {
         setFBody(data.body);
         if (!fMachine.trim()) {
-          fetch("/api/claude", {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              model: "claude-haiku-4-5-20251001", max_tokens: 30,
-              messages: [{ role: "user", content: `以下のタイトルからパチスロ・パチンコの機種名だけを抽出してください。機種名が不明な場合は空文字を返してください。機種名のみ返してください。\n\nタイトル: ${data.body}` }]
-            })
-          }).then(r => r.json()).then(d => {
-            const machine = d.content?.[0]?.text?.trim() || "";
+          try {
+            const cr = await fetch("/api/claude", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                model: "claude-haiku-4-5-20251001", max_tokens: 30,
+                messages: [{ role: "user", content: `以下のタイトルからパチスロ・パチンコの機種名だけを抽出してください。機種名が不明な場合は空文字を返してください。機種名のみ返してください。\n\nタイトル: ${data.body}` }]
+              })
+            });
+            const cd = await cr.json();
+            console.log("[機種名取得]", cd);
+            const machine = cd.content?.[0]?.text?.trim() || "";
             if (machine) setFMachine(machine);
-          }).catch(() => {});
+          } catch(e) {
+            console.error("[機種名取得エラー]", e);
+          }
         }
       }
     } catch(e) {
-      // 取得失敗時はそのまま
+      console.error("[URL取得エラー]", e);
     } finally {
       setFBodyFetching(false);
     }
