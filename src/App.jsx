@@ -393,6 +393,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const [eImagePreview, setEImagePreview] = useState(null);
   const [eUploading, setEUploading] = useState(false);
   const [fUrl, setFUrl] = useState("");
+  const [fBodyFetching, setFBodyFetching] = useState(false);
   const [fShopName, setFShopName] = useState("");
   const [fImage, setFImage] = useState(null);
   const [fImagePreview, setFImagePreview] = useState(null);
@@ -516,9 +517,31 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
     }
   }
 
+  async function fetchBodyFromUrl() {
+    const url = fUrl.trim();
+    if (!url) return;
+    setFBodyFetching(true);
+    try {
+      const res = await fetch("/api/fetch-url", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url })
+      });
+      const data = await res.json();
+      if (data.body) setFBody(data.body);
+    } catch(e) {
+      // 取得失敗時はそのまま（フォールバックは投稿時に適用）
+    } finally {
+      setFBodyFetching(false);
+    }
+  }
+
   async function submitPost() {
-    if (!fBody.trim()) return;
-    const b = fBody.trim();
+    let b = fBody.trim();
+    if (!b) {
+      if (fImage) b = "画像投稿";
+      else if (fUrl.trim()) b = "引用投稿";
+      else return;
+    }
     const authorName = fName.trim() || "ゲスト";
     if (authorName === "ゲスト") {
       const ok = window.confirm("名前が「ゲスト」のまま投稿すると、あとから編集・削除できません。\nこのまま投稿しますか？");
@@ -612,9 +635,9 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
             <datalist id="machine-candidates">{[...new Map(posts.map(p=>[p.machine,(posts.filter(q=>q.machine===p.machine).length)])).entries()].sort((a,b)=>b[1]-a[1]).map(([name])=><option key={name} value={name}/>)}</datalist>
             {machineSuggestion&&<div style={{fontSize:14,color:"#666",marginTop:4,display:"flex",alignItems:"center",gap:6}}>もしかして:<button onClick={()=>{setFMachine(machineSuggestion);setMachineSuggestion(null);}} style={{fontSize:14,color:"#D85A30",background:"none",border:"none",cursor:"pointer",padding:0,fontWeight:500,textDecoration:"underline"}}>{machineSuggestion}</button><button onClick={()=>setMachineSuggestion(null)} style={{fontSize:13,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:0}}>✕</button></div>}</div></div>
             <div style={row}><span style={lbl}>カテゴリ</span><select value={fCat} onChange={e=>setFCat(e.target.value)} style={{...inp,color:CATS[fCat]?.color||"#555",fontWeight:700,background:CATS[fCat]?.bg||"#E8ECF0",boxShadow:`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF, inset 0 0 0 2px ${CATS[fCat]?.border||"#ddd"}`,fontSize:15}}><option value="aimH">お店狙い目</option><option value="memory">勝＆負エピ</option><option value="spec">機種情報</option><option value="hall">業界情報</option><option value="episode">昔の機種</option><option value="quote">版権ネタ</option><option value="bonus">演出・表現</option></select></div>
-            <div style={{...row,alignItems:"flex-start"}}><span style={{...lbl,paddingTop:10}}>本文</span><textarea value={fBody} onChange={e=>setFBody(e.target.value)} placeholder={TEMPLATES[fCat] || "自由に書いてください"} style={{...inp,resize:"vertical",minHeight:88}}/></div>
+            <div style={row}><span style={lbl}>URL</span><div style={{flex:1,display:"flex",gap:6,alignItems:"center"}}><input value={fUrl} onChange={e=>setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{...inp,flex:1,fontSize:15,minWidth:0}}/>{fUrl.trim()&&<button type="button" onClick={fetchBodyFromUrl} disabled={fBodyFetching} style={{padding:"8px 10px",border:"none",borderRadius:10,background:fBodyFetching?"#ddd":"#E8ECF0",boxShadow:fBodyFetching?"none":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:13,color:fBodyFetching?"#aaa":"#555",cursor:fBodyFetching?"default":"pointer",whiteSpace:"nowrap",flexShrink:0}}>{fBodyFetching?"取得中…":"本文取得"}</button>}</div></div>
+            <div style={{...row,alignItems:"flex-start"}}><span style={{...lbl,paddingTop:10}}>本文<br/><span style={{fontSize:11,color:"#bbb",fontWeight:400}}>任意</span></span><textarea value={fBody} onChange={e=>setFBody(e.target.value)} placeholder={fBodyFetching?"取得中...":(TEMPLATES[fCat]||"URLから自動取得、または手動入力")} disabled={fBodyFetching} style={{...inp,resize:"vertical",minHeight:88,opacity:fBodyFetching?0.6:1}}/></div>
             {fCat==="aimH" && <div style={row}><span style={lbl}>店舗名</span><input value={fShopName} onChange={e=>setFShopName(e.target.value)} placeholder="例: ○○店（任意）" style={inp}/></div>}
-            <div style={row}><span style={lbl}>URL</span><input value={fUrl} onChange={e=>setFUrl(e.target.value)} placeholder="引用元URL（任意）" style={{...inp,fontSize:15}}/></div>
             </>);})()}
             <div style={{display:"flex",alignItems:"flex-start",gap:8,marginBottom:10}}>
               <span style={{fontSize:13,color:"#888",whiteSpace:"nowrap",minWidth:52,paddingTop:9}}>画像</span>
