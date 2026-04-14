@@ -762,9 +762,9 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
             ["img","🖼 画像","#6B3FA0"],
           ].map(([k,label,activeColor]) => {
             const on = filter === k;
-            return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 12px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?activeColor:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{label}</button>;
+            return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 9px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?activeColor:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{label}</button>;
           })}
-          {(() => { const on = CAT_KEYS.includes(filter); return <button onClick={() => setShowCats(v => !v)} style={{padding:"6px 12px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?"#D85A30":showCats?"#555":"#999",cursor:"pointer",fontWeight:on||showCats?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on||showCats?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>カテゴリ {showCats?"▲":"▼"}</button>; })()}
+          {(() => { const on = CAT_KEYS.includes(filter); return <button onClick={() => setShowCats(v => !v)} style={{padding:"6px 9px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?"#D85A30":showCats?"#555":"#999",cursor:"pointer",fontWeight:on||showCats?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on||showCats?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>カテゴリ {showCats?"▲":"▼"}</button>; })()}
         </div>
         {showCats && (
           <div className="scroll-x" style={{display:"flex",gap:5,paddingBottom:2}}>
