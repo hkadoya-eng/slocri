@@ -414,7 +414,9 @@ export default function App() {
 
 function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFilter = "all", onFilterChange, directPost, onDirectPostClear }) {
   const [filter, setFilter] = useState(initialFilter);
-  function updateFilter(v) { setFilter(v); onFilterChange?.(v); }
+  const CAT_KEYS = ["aimH","memory","spec","hall","episode","quote","bonus","fun"];
+  const [showCats, setShowCats] = useState(() => CAT_KEYS.includes(initialFilter));
+  function updateFilter(v) { setFilter(v); onFilterChange?.(v); if (!CAT_KEYS.includes(v)) setShowCats(false); }
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("new");
   const [commentOpen, setCommentOpen] = useState(null);
@@ -762,14 +764,16 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
             const on = filter === k;
             return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 12px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?activeColor:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{label}</button>;
           })}
+          {(() => { const on = CAT_KEYS.includes(filter); return <button onClick={() => setShowCats(v => !v)} style={{padding:"6px 12px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?"#D85A30":showCats?"#555":"#999",cursor:"pointer",fontWeight:on||showCats?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on||showCats?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>カテゴリ {showCats?"▲":"▼"}</button>; })()}
         </div>
-        <div className="scroll-x" style={{display:"flex",gap:5,alignItems:"center",paddingBottom:2}}>
-          <span style={{fontSize:11,color:"#bbb",whiteSpace:"nowrap",flexShrink:0}}>カテゴリ</span>
-          {["aimH","memory","spec","hall","episode","quote","bonus","fun"].map(k => {
-            const on = filter === k;
-            return <button key={k} onClick={() => updateFilter(k)} style={{padding:"5px 10px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?CATS[k].color:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{CATS[k].label}</button>;
-          })}
-        </div>
+        {showCats && (
+          <div className="scroll-x" style={{display:"flex",gap:5,paddingBottom:2}}>
+            {CAT_KEYS.map(k => {
+              const on = filter === k;
+              return <button key={k} onClick={() => updateFilter(k)} style={{padding:"5px 10px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?CATS[k].color:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{CATS[k].label}</button>;
+            })}
+          </div>
+        )}
       </div>
 
       {filter === "aimH" && (() => {
