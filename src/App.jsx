@@ -403,39 +403,44 @@ export default function App() {
         </div>
       )}
 
-      {/* アプリについてパネル */}
-      {showLanding && (
-        <div style={{background:"#E8ECF0",boxShadow:"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF",borderRadius:14,padding:"16px",marginBottom:10}}>
-          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
-            <img src="/logo.png" alt="SLOKEY" style={{height:40,objectFit:"contain"}}/>
-            <div>
-              <div style={{fontSize:15,fontWeight:700,color:"#333"}}>スロ好きのネタまとめ</div>
-              <div style={{fontSize:12,color:"#aaa"}}>パチスロ・パチンコ情報共有ライブラリ</div>
-            </div>
-          </div>
-          <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:14}}>
-            {[
-              ["🎰","スペック・演出・設定判別","玄人向けの深い情報が集まる"],
-              ["🏪","ホール・業界の裏話","設定師目線の情報も"],
-              ["💬","コメント・いいね","気になるネタに反応できる"],
-            ].map(([icon,title,sub]) => (
-              <div key={title} style={{display:"flex",alignItems:"center",gap:10,background:"#E8ECF0",borderRadius:12,padding:"10px 12px",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>
-                <span style={{fontSize:20,flexShrink:0}}>{icon}</span>
+      {/* アプリについてパネル（高さ0ラッパーで下コンテンツを動かさない） */}
+      <div style={{position:"relative",height:0,overflow:"visible",zIndex:150}}>
+        {showLanding && (
+          <>
+            <div onClick={() => setShowLanding(false)} style={{position:"fixed",inset:0,zIndex:0}}/>
+            <div style={{position:"absolute",top:0,left:0,right:0,background:"#E8ECF0",boxShadow:"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF, 0 8px 16px rgba(0,0,0,0.08)",borderRadius:14,padding:"16px",zIndex:1}}>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
+                <img src="/logo.png" alt="SLOKEY" style={{height:40,objectFit:"contain"}}/>
                 <div>
-                  <div style={{fontSize:13,fontWeight:600,color:"#333"}}>{title}</div>
-                  <div style={{fontSize:12,color:"#aaa"}}>{sub}</div>
+                  <div style={{fontSize:15,fontWeight:700,color:"#333"}}>スロ好きのネタまとめ</div>
+                  <div style={{fontSize:12,color:"#aaa"}}>パチスロ・パチンコ情報共有ライブラリ</div>
                 </div>
               </div>
-            ))}
-          </div>
-          {!localStorage.getItem("slokey_visited") && (
-            <button onClick={() => { localStorage.setItem("slokey_visited","1"); setShowLanding(false); }}
-              style={{width:"100%",padding:"12px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer",letterSpacing:"1px"}}>
-              はじめる →
-            </button>
-          )}
-        </div>
-      )}
+              <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:14}}>
+                {[
+                  ["🎰","スペック・演出・設定判別","玄人向けの深い情報が集まる"],
+                  ["🏪","ホール・業界の裏話","設定師目線の情報も"],
+                  ["💬","コメント・いいね","気になるネタに反応できる"],
+                ].map(([icon,title,sub]) => (
+                  <div key={title} style={{display:"flex",alignItems:"center",gap:10,background:"#E8ECF0",borderRadius:12,padding:"10px 12px",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>
+                    <span style={{fontSize:20,flexShrink:0}}>{icon}</span>
+                    <div>
+                      <div style={{fontSize:13,fontWeight:600,color:"#333"}}>{title}</div>
+                      <div style={{fontSize:12,color:"#aaa"}}>{sub}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {!localStorage.getItem("slokey_visited") && (
+                <button onClick={() => { localStorage.setItem("slokey_visited","1"); setShowLanding(false); }}
+                  style={{width:"100%",padding:"12px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer",letterSpacing:"1px"}}>
+                  はじめる →
+                </button>
+              )}
+            </div>
+          </>
+        )}
+      </div>
 
       {/* 設定パネル */}
       {showNotifAdmin && (
