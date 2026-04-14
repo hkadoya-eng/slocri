@@ -1289,6 +1289,7 @@ function OverviewTab({ posts, updatePost }) {
   const [expandedRankId, setExpandedRankId] = useState(null);
   const [expandedMachineId, setExpandedMachineId] = useState(null);
   const [expandedCat, setExpandedCat] = useState(null);
+  const [expandedAuthor, setExpandedAuthor] = useState(null);
 
   const machines = useMemo(() => {
     const m = {};
@@ -1325,6 +1326,18 @@ function OverviewTab({ posts, updatePost }) {
         return (b.quality||0)-(a.quality||0);
       });
   }, [posts, rankBy, query]);
+
+  const authorRank = useMemo(() => {
+    const a = {};
+    posts.forEach(p => {
+      const name = p.internal?.author || p.author || "ゲスト";
+      if (!a[name]) a[name] = { name, count:0, likes:0, top:null };
+      a[name].count++;
+      a[name].likes += (p.internal?.likes?.length || 0);
+      if (!a[name].top || (p.internal?.likes?.length||0) > (a[name].top.internal?.likes?.length||0)) a[name].top = p;
+    });
+    return Object.values(a).sort((a,b) => b.likes - a.likes || b.count - a.count);
+  }, [posts]);
 
   const th = { fontSize:13, color:"#888", padding:"6px 10px", textAlign:"left", fontWeight:500, borderBottom:"0.5px solid #eee", whiteSpace:"nowrap" };
   const td = { fontSize:15, padding:"7px 10px", color:"#333", borderBottom:"0.5px solid #eee", verticalAlign:"middle" };
@@ -1384,7 +1397,7 @@ function OverviewTab({ posts, updatePost }) {
         </div>
       )}
       <div className="scroll-x" style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"nowrap"}}>
-        {[["rank","ランキング"],["machine","機種別"],["cat","カテゴリ分布"]].map(([k,l]) => {
+        {[["rank","ランキング"],["machine","機種別"],["cat","カテゴリ分布"],["author","投稿者"]].map(([k,l]) => {
           const on = view===k;
           return <button key={k} onClick={() => { setView(k); setSelM(null); setQuery(""); }} style={{padding:"5px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:14,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{l}</button>;
         })}
@@ -1518,6 +1531,38 @@ function OverviewTab({ posts, updatePost }) {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {view==="author" && (
+        <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,overflow:"hidden"}}>
+          {authorRank.map((a,i) => {
+            const isExp = expandedAuthor === a.name;
+            const medal = i===0?"🥇":i===1?"🥈":i===2?"🥉":null;
+            return (
+              <React.Fragment key={a.name}>
+                <div onClick={() => setExpandedAuthor(isExp ? null : a.name)}
+                  style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",borderBottom:"0.5px solid #eee",cursor:"pointer",background:isExp?"#FFF8F5":i%2===0?"#fff":"#fafafa"}}>
+                  <span style={{fontSize:14,fontWeight:600,color:i<3?"#D85A30":"#bbb",minWidth:28,textAlign:"center"}}>{medal||`${i+1}`}</span>
+                  <span style={{flex:1,fontSize:15,fontWeight:500,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>@{a.name}</span>
+                  <span style={{fontSize:13,color:"#888",whiteSpace:"nowrap"}}>{a.count}件</span>
+                  <span style={{fontSize:13,color:"#D85A30",fontWeight:500,whiteSpace:"nowrap",minWidth:36,textAlign:"right"}}>♥ {a.likes}</span>
+                  <span style={{fontSize:12,color:isExp?"#D85A30":"#bbb"}}>{isExp?"▲":"▼"}</span>
+                </div>
+                {isExp && a.top && (
+                  <div onClick={() => setSelectedPost(a.top)} style={{padding:"10px 14px 12px",borderBottom:"0.5px solid #eee",background:"#FFF8F5",cursor:"pointer",borderLeft:"3px solid #F0997B"}}>
+                    <div style={{fontSize:12,color:"#aaa",marginBottom:4}}>最多いいね投稿</div>
+                    <div style={{display:"flex",gap:5,alignItems:"center",marginBottom:4}}>
+                      <CatBadge cat={a.top.cat}/>
+                      <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500}}>♥ {a.top.internal?.likes?.length||0}</span>
+                    </div>
+                    <div style={{fontSize:15,fontWeight:500,color:"#333",overflowWrap:"anywhere"}}>{a.top.title}</div>
+                    <div style={{fontSize:13,color:"#888",marginTop:2}}>{a.top.machine}</div>
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
         </div>
       )}
     </div>
