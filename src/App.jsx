@@ -403,44 +403,6 @@ export default function App() {
         </div>
       )}
 
-      {/* アプリについてパネル（高さ0ラッパーで下コンテンツを動かさない） */}
-      <div style={{position:"relative",height:0,overflow:"visible",zIndex:150}}>
-        {showLanding && (
-          <>
-            <div onClick={() => setShowLanding(false)} style={{position:"fixed",inset:0,zIndex:0}}/>
-            <div style={{position:"absolute",top:0,left:0,right:0,background:"#E8ECF0",boxShadow:"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF, 0 8px 16px rgba(0,0,0,0.08)",borderRadius:14,padding:"16px",zIndex:1}}>
-              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
-                <img src="/logo.png" alt="SLOKEY" style={{height:40,objectFit:"contain"}}/>
-                <div>
-                  <div style={{fontSize:15,fontWeight:700,color:"#333"}}>スロ好きのネタまとめ</div>
-                  <div style={{fontSize:12,color:"#aaa"}}>パチスロ・パチンコ情報共有ライブラリ</div>
-                </div>
-              </div>
-              <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:14}}>
-                {[
-                  ["🎰","スペック・演出・設定判別","玄人向けの深い情報が集まる"],
-                  ["🏪","ホール・業界の裏話","設定師目線の情報も"],
-                  ["💬","コメント・いいね","気になるネタに反応できる"],
-                ].map(([icon,title,sub]) => (
-                  <div key={title} style={{display:"flex",alignItems:"center",gap:10,background:"#E8ECF0",borderRadius:12,padding:"10px 12px",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>
-                    <span style={{fontSize:20,flexShrink:0}}>{icon}</span>
-                    <div>
-                      <div style={{fontSize:13,fontWeight:600,color:"#333"}}>{title}</div>
-                      <div style={{fontSize:12,color:"#aaa"}}>{sub}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {!localStorage.getItem("slokey_visited") && (
-                <button onClick={() => { localStorage.setItem("slokey_visited","1"); setShowLanding(false); }}
-                  style={{width:"100%",padding:"12px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer",letterSpacing:"1px"}}>
-                  はじめる →
-                </button>
-              )}
-            </div>
-          </>
-        )}
-      </div>
 
       {/* 設定パネル */}
       {showNotifAdmin && (
@@ -469,9 +431,27 @@ export default function App() {
           )}
           {/* アプリについて */}
           <button onClick={() => setShowLanding(v => !v)}
-            style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:showLanding?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:14,color:showLanding?"#D85A30":"#555",cursor:"pointer",textAlign:"left",width:"100%"}}>
+            style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:14,color:"#555",cursor:"pointer",textAlign:"left",width:"100%"}}>
             <span>ℹ</span><span style={{flex:1}}>このアプリについて</span><span style={{fontSize:12,color:"#bbb"}}>{showLanding?"▲":"▼"}</span>
           </button>
+          {showLanding && (
+            <div style={{padding:"8px 14px 4px",display:"flex",flexDirection:"column",gap:6}}>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                <img src="/logo.png" alt="SLOKEY" style={{height:32,objectFit:"contain"}}/>
+                <div style={{fontSize:13,fontWeight:700,color:"#333"}}>スロ好きのネタまとめ</div>
+              </div>
+              {[
+                ["🎰","スペック・演出・設定判別","玄人向けの深い情報が集まる"],
+                ["🏪","ホール・業界の裏話","設定師目線の情報も"],
+                ["💬","コメント・いいね","気になるネタに反応できる"],
+              ].map(([icon,title,sub]) => (
+                <div key={title} style={{display:"flex",alignItems:"center",gap:8}}>
+                  <span style={{fontSize:16,flexShrink:0}}>{icon}</span>
+                  <span style={{fontSize:13,color:"#444"}}>{title}<span style={{color:"#aaa",fontSize:12}}> — {sub}</span></span>
+                </div>
+              ))}
+            </div>
+          )}
           {/* 区切り */}
           <div style={{height:"0.5px",background:"#C5C9D4",margin:"6px 0"}}/>
           {/* 通知管理アコーディオン */}
