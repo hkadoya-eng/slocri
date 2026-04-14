@@ -196,6 +196,7 @@ export default function App() {
   const touchStartYRef = useRef(0);
   const [showLanding, setShowLanding] = useState(() => !localStorage.getItem("slokey_visited"));
   const [installPrompt, setInstallPrompt] = useState(null);
+  const [showIOSSteps, setShowIOSSteps] = useState(false);
 
   function goToFeedWithFilter(cat) { setFeedFilter(cat); setTab("feed"); }
   const nextId = useRef(1000);
@@ -432,78 +433,67 @@ export default function App() {
 
       {/* 設定パネル */}
       {showNotifAdmin && (
-        <div style={{background:"#E8ECF0",boxShadow:"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF",borderRadius:14,padding:"14px 16px",marginBottom:10}}>
-          {/* ホーム画面に追加 */}
-          <div style={{fontSize:12,color:"#aaa",fontWeight:500,marginBottom:8}}>ホーム画面に追加</div>
+        <div style={{background:"#E8ECF0",boxShadow:"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF",borderRadius:14,padding:"10px 12px",marginBottom:10,display:"flex",flexDirection:"column",gap:2}}>
+          {/* Android追加 */}
           {installPrompt && (
-            <button onClick={async () => {
-              installPrompt.prompt();
-              const { outcome } = await installPrompt.userChoice;
-              if (outcome === "accepted") setInstallPrompt(null);
-            }} style={{width:"100%",padding:"10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:14,fontWeight:600,color:"#D85A30",cursor:"pointer",marginBottom:8,textAlign:"left"}}>
-              📲 Androidでホーム画面に追加
+            <button onClick={async () => { installPrompt.prompt(); const {outcome} = await installPrompt.userChoice; if (outcome==="accepted") setInstallPrompt(null); }}
+              style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:14,color:"#D85A30",fontWeight:600,cursor:"pointer",textAlign:"left",width:"100%"}}>
+              <span>📲</span><span>Androidでホームに追加</span>
             </button>
           )}
-          <div style={{background:"#E8ECF0",borderRadius:12,padding:"10px 12px",boxShadow:"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF",marginBottom:14}}>
-            <div style={{fontSize:13,fontWeight:600,color:"#555",marginBottom:8}}>🍎 iOSでの追加方法（Safari専用）</div>
-            {[
-              ["1","Safariで開く","Chrome等では追加できません"],
-              ["2","下部の共有ボタン □↑ をタップ",""],
-              ["3","「ホーム画面に追加」を選ぶ","下にスクロールすると出ます"],
-              ["4","「追加」をタップして完了",""],
-            ].map(([n,t,s]) => (
-              <div key={n} style={{display:"flex",gap:8,alignItems:"flex-start",marginBottom:6}}>
-                <span style={{background:"#D85A30",color:"#fff",borderRadius:"50%",width:18,height:18,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,flexShrink:0,marginTop:1}}>{n}</span>
-                <div style={{fontSize:13,color:"#444"}}>{t}{s && <span style={{color:"#aaa",fontSize:12}}> — {s}</span>}</div>
-              </div>
-            ))}
-          </div>
+          {/* iOSアコーディオン */}
+          <button onClick={() => setShowIOSSteps(v => !v)}
+            style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:14,color:"#555",cursor:"pointer",textAlign:"left",width:"100%"}}>
+            <span>🍎</span><span style={{flex:1}}>iOSでホームに追加する方法</span><span style={{fontSize:12,color:"#bbb"}}>{showIOSSteps?"▲":"▼"}</span>
+          </button>
+          {showIOSSteps && (
+            <div style={{padding:"8px 14px 4px",display:"flex",flexDirection:"column",gap:6}}>
+              {[["1","Safariで開く（Chrome不可）"],["2","下部の □↑ をタップ"],["3","「ホーム画面に追加」を選ぶ"],["4","「追加」をタップして完了"]].map(([n,t]) => (
+                <div key={n} style={{display:"flex",gap:8,alignItems:"center"}}>
+                  <span style={{background:"#D85A30",color:"#fff",borderRadius:"50%",width:18,height:18,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,flexShrink:0}}>{n}</span>
+                  <span style={{fontSize:13,color:"#555"}}>{t}</span>
+                </div>
+              ))}
+            </div>
+          )}
           {/* アプリについて */}
           <button onClick={() => { setShowNotifAdmin(false); setShowLanding(true); }}
-            style={{width:"100%",padding:"10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:14,color:"#555",cursor:"pointer",marginBottom:14,textAlign:"left"}}>
-            ℹ このアプリについて
+            style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:14,color:"#555",cursor:"pointer",textAlign:"left",width:"100%"}}>
+            <span>ℹ</span><span>このアプリについて</span>
           </button>
           {/* 区切り */}
-          <div style={{height:"0.5px",background:"#C5C9D4",marginBottom:12}}/>
-          {/* 通知管理（管理者） */}
-          <div style={{fontSize:12,color:"#aaa",fontWeight:500,marginBottom:8}}>通知管理（管理者）</div>
-          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-            <span style={{fontSize:14,color:"#555"}}>通知配信</span>
+          <div style={{height:"0.5px",background:"#C5C9D4",margin:"6px 0"}}/>
+          {/* 通知管理 */}
+          <div style={{fontSize:11,color:"#bbb",padding:"0 4px",marginBottom:2}}>通知管理（管理者）</div>
+          <div style={{display:"flex",alignItems:"center",gap:8,padding:"4px 4px"}}>
+            <span style={{fontSize:13,color:"#555",flex:1}}>通知配信</span>
             <button onClick={async () => {
               const next = !notifSettings.enabled;
               await supabase.from("notification_settings").update({ enabled: next, updated_at: new Date().toISOString() }).eq("id", 1);
               setNotifSettings(s => ({ ...s, enabled: next }));
               showToast(next ? "通知配信をONにしました" : "通知配信をOFFにしました");
-            }} style={{padding:"5px 16px",border:"none",borderRadius:20,fontSize:14,fontWeight:600,cursor:"pointer",background:notifSettings.enabled?"#2a9d3f":"#E8ECF0",color:notifSettings.enabled?"#fff":"#999",boxShadow:notifSettings.enabled?"none":"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF"}}>
-              {notifSettings.enabled ? "ON（配信中）" : "OFF（停止中）"}
+            }} style={{padding:"4px 14px",border:"none",borderRadius:20,fontSize:13,fontWeight:600,cursor:"pointer",background:notifSettings.enabled?"#2a9d3f":"#E8ECF0",color:notifSettings.enabled?"#fff":"#999",boxShadow:notifSettings.enabled?"none":"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF"}}>
+              {notifSettings.enabled ? "ON" : "OFF"}
             </button>
-          </div>
-          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-            <span style={{fontSize:14,color:"#555",whiteSpace:"nowrap"}}>通知タイミング</span>
             <select value={notifSettings.notify_threshold ?? 3} onChange={e => setNotifSettings(s => ({ ...s, notify_threshold: Number(e.target.value) }))}
-              style={{fontSize:14,padding:"5px 8px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF",color:"#555"}}>
+              style={{fontSize:13,padding:"4px 6px",border:"none",borderRadius:8,background:"#E8ECF0",boxShadow:"inset 2px 2px 4px #C5C9D4, inset -2px -2px 4px #FFFFFF",color:"#555"}}>
               {[1,2,3,5,10].map(n => <option key={n} value={n}>{n}件ごと</option>)}
             </select>
-            <span style={{fontSize:13,color:"#aaa"}}>溜まり中: {notifSettings.pending_count ?? 0}件</span>
+            <span style={{fontSize:12,color:"#aaa",whiteSpace:"nowrap"}}>{notifSettings.pending_count ?? 0}件</span>
             <button onClick={async () => {
               await supabase.from("notification_settings").update({ pending_count: 0, updated_at: new Date().toISOString() }).eq("id", 1);
               setNotifSettings(s => ({ ...s, pending_count: 0 }));
-              showToast("カウントをリセットしました");
-            }} style={{fontSize:12,padding:"4px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"2px 2px 4px #C5C9D4, -2px -2px 4px #FFFFFF",color:"#999",cursor:"pointer"}}>リセット</button>
+              showToast("リセットしました");
+            }} style={{fontSize:12,padding:"4px 8px",border:"none",borderRadius:8,background:"#E8ECF0",boxShadow:"2px 2px 4px #C5C9D4, -2px -2px 4px #FFFFFF",color:"#999",cursor:"pointer",whiteSpace:"nowrap"}}>リセット</button>
           </div>
-          <div style={{fontSize:13,color:"#888",marginBottom:6}}>メンテナンスメッセージ（空欄で非表示）</div>
-          <div style={{display:"flex",gap:8}}>
+          <div style={{display:"flex",gap:6,padding:"4px 0"}}>
             <input value={notifSettings.maintenance_message} onChange={e => setNotifSettings(s => ({ ...s, maintenance_message: e.target.value }))}
-              placeholder="例: AI更新作業中のため投稿通知を停止しています"
-              style={{flex:1,fontSize:14,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF"}}/>
+              placeholder="メンテナンスメッセージ（空欄で非表示）"
+              style={{flex:1,fontSize:13,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF"}}/>
             <button onClick={async () => {
-              await supabase.from("notification_settings").update({
-                maintenance_message: notifSettings.maintenance_message,
-                notify_threshold: notifSettings.notify_threshold ?? 3,
-                updated_at: new Date().toISOString()
-              }).eq("id", 1);
+              await supabase.from("notification_settings").update({ maintenance_message: notifSettings.maintenance_message, notify_threshold: notifSettings.notify_threshold ?? 3, updated_at: new Date().toISOString() }).eq("id", 1);
               showToast("保存しました");
-            }} style={{padding:"7px 14px",background:"#D85A30",color:"#fff",border:"none",borderRadius:10,fontSize:14,cursor:"pointer"}}>保存</button>
+            }} style={{padding:"7px 12px",background:"#D85A30",color:"#fff",border:"none",borderRadius:10,fontSize:13,cursor:"pointer"}}>保存</button>
           </div>
         </div>
       )}
