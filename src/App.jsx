@@ -570,6 +570,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const [fullscreenImg, setFullscreenImg] = useState(null);
   const [shareOpen, setShareOpen] = useState(null);
   const [editOpen, setEditOpen] = useState(null);
+  const [machineModal, setMachineModal] = useState(null);
 
   useEffect(() => {
     if (directPost) {
@@ -821,6 +822,48 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
           <button onClick={() => setFullscreenImg(null)} style={{position:"absolute",top:16,right:16,background:"rgba(255,255,255,0.15)",border:"none",borderRadius:"50%",width:36,height:36,fontSize:20,color:"#fff",cursor:"pointer",lineHeight:1}}>×</button>
         </div>
       )}
+      {/* 機種別まとめモーダル */}
+      {machineModal && (() => {
+        const mPosts = posts.filter(p => p.machine === machineModal).sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0));
+        return (
+          <>
+            <div onClick={() => setMachineModal(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:198}}/>
+            <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:199,background:"#E8ECF0",borderRadius:"20px 20px 0 0",maxHeight:"88vh",display:"flex",flexDirection:"column",maxWidth:740,margin:"0 auto"}}>
+              <div style={{padding:"12px 16px 0",flexShrink:0}}>
+                <div style={{width:40,height:4,background:"#C5C9D4",borderRadius:2,margin:"0 auto 14px"}}/>
+                <div style={{display:"flex",alignItems:"flex-start",gap:8,marginBottom:14}}>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:18,fontWeight:700,color:"#333"}}>{machineModal}</div>
+                    <div style={{fontSize:13,color:"#aaa",marginTop:2}}>{mPosts.length}件の投稿</div>
+                  </div>
+                  <button onClick={() => setMachineModal(null)} style={{background:"none",border:"none",fontSize:22,color:"#bbb",cursor:"pointer",padding:"0 4px",lineHeight:1,flexShrink:0}}>×</button>
+                </div>
+              </div>
+              <div style={{overflowY:"auto",padding:"0 16px 40px",flex:1}}>
+                {mPosts.map(p => (
+                  <div key={p.id} style={{background:"#fff",borderRadius:12,padding:"12px 14px",marginBottom:10,border:"0.5px solid #eee"}}>
+                    <div style={{display:"flex",gap:5,alignItems:"center",marginBottom:6}}>
+                      <CatBadge cat={p.cat}/>
+                      {AUTO_AUTHORS.includes(p.internal?.author||p.author) ? <QualityBadge q={p.quality||1}/> : null}
+                      <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥ {p.internal?.likes?.length||0}</span>
+                    </div>
+                    <div style={{fontSize:15,fontWeight:600,color:"#333",marginBottom:4,overflowWrap:"anywhere"}}>{p.title}</div>
+                    <div style={{fontSize:14,color:"#666",lineHeight:1.65,overflowWrap:"anywhere"}}>{p.body}</div>
+                    {p.url && (
+                      <a href={p.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:5,marginTop:8,fontSize:13,color:"#185FA5",textDecoration:"none",overflow:"hidden"}}>
+                        <span style={{flexShrink:0}}>🔗</span>
+                        <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.url}</span>
+                      </a>
+                    )}
+                  </div>
+                ))}
+                {mPosts.length === 0 && <div style={{textAlign:"center",color:"#aaa",padding:"32px 0"}}>投稿がありません</div>}
+              </div>
+            </div>
+          </>
+        );
+      })()}
+
       {/* FAB */}
       <button onClick={() => setShowForm(v => !v)} style={{position:"fixed",bottom:24,right:20,zIndex:210,width:56,height:56,borderRadius:"50%",background:showForm?"#E8ECF0":"linear-gradient(135deg,#E8622A,#C84420)",color:showForm?"#D85A30":"#fff",border:"none",fontSize:26,cursor:"pointer",boxShadow:showForm?"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF":"0 4px 16px rgba(216,90,48,0.5)",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s"}}>{showForm?"×":"＋"}</button>
 
@@ -990,7 +1033,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                 </div>
                 <div style={{fontSize:14,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
                   <span style={{fontWeight:500,color:isOwn?"#D85A30":"#555",whiteSpace:"nowrap"}}>@{postAuthor}{isOwn&&<span style={{fontSize:12,marginLeft:3,color:"#D85A30"}}>（自分）</span>}</span>
-                  <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0}}>機種: <span style={{color:"#333",fontWeight:500}}>{p.machine}</span></span>
+                  <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0}}>機種: <span onClick={e => { e.stopPropagation(); setMachineModal(p.machine); }} style={{color:"#185FA5",fontWeight:500,cursor:"pointer",textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:2}}>{p.machine}</span></span>
                   {p.cat==="aimH" && p.internal?.shopName && <span style={{fontSize:12,padding:"1px 7px",borderRadius:10,background:"#FFF8E1",color:"#E65100",fontWeight:500,whiteSpace:"nowrap",flexShrink:0}}>🏪 {p.internal.shopName}</span>}
                   <span style={{fontSize:12,color:"#bbb",whiteSpace:"nowrap",flexShrink:0,marginLeft:"auto"}}>{relativeTime(p.created_at)}</span>
                 </div>
@@ -1034,9 +1077,9 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                       <button onClick={e => { e.stopPropagation(); setShareOpen(shareOpen===p.id?null:p.id); }} style={{padding:"5px 10px",border:"none",borderRadius:20,background:"#E8ECF0",color:"#888",fontSize:13,cursor:"pointer",whiteSpace:"nowrap",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>シェア ↗</button>
                       {shareOpen===p.id && (
                         <div onClick={e => e.stopPropagation()} style={{position:"absolute",right:0,bottom:"calc(100% + 6px)",background:"#fff",borderRadius:12,boxShadow:"0 4px 16px rgba(0,0,0,0.15)",padding:8,display:"flex",flexDirection:"column",gap:4,minWidth:150,zIndex:100}}>
-                          <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}?post=${p.id}`); showToast("リンクをコピーしました"); setShareOpen(null); }} style={{padding:"8px 12px",border:"none",borderRadius:8,background:"#f5f5f5",color:"#555",fontSize:14,cursor:"pointer",textAlign:"left"}}>🔗 リンクをコピー</button>
-                          <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`【SLOKEY】${p.machine} - ${p.title}\n#パチスロ #SLOKEY`)}&url=${encodeURIComponent(`${window.location.origin}?post=${p.id}`)}`} target="_blank" rel="noopener noreferrer" onClick={() => setShareOpen(null)} style={{padding:"8px 12px",borderRadius:8,background:"#f5f5f5",color:"#333",fontSize:14,textDecoration:"none",display:"block"}}>𝕏 でシェア</a>
-                          <a href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(`${window.location.origin}?post=${p.id}`)}&text=${encodeURIComponent(`【SLOKEY】${p.machine} - ${p.title}`)}`} target="_blank" rel="noopener noreferrer" onClick={() => setShareOpen(null)} style={{padding:"8px 12px",borderRadius:8,background:"#f5f5f5",color:"#06C755",fontSize:14,fontWeight:600,textDecoration:"none",display:"block"}}>LINE でシェア</a>
+                          <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/api/og?post=${p.id}`); showToast("リンクをコピーしました"); setShareOpen(null); }} style={{padding:"8px 12px",border:"none",borderRadius:8,background:"#f5f5f5",color:"#555",fontSize:14,cursor:"pointer",textAlign:"left"}}>🔗 リンクをコピー</button>
+                          <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`【SLOKEY】${p.machine} - ${p.title}\n#パチスロ #SLOKEY`)}&url=${encodeURIComponent(`${window.location.origin}/api/og?post=${p.id}`)}`} target="_blank" rel="noopener noreferrer" onClick={() => setShareOpen(null)} style={{padding:"8px 12px",borderRadius:8,background:"#f5f5f5",color:"#333",fontSize:14,textDecoration:"none",display:"block"}}>𝕏 でシェア</a>
+                          <a href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(`${window.location.origin}/api/og?post=${p.id}`)}&text=${encodeURIComponent(`【SLOKEY】${p.machine} - ${p.title}`)}`} target="_blank" rel="noopener noreferrer" onClick={() => setShareOpen(null)} style={{padding:"8px 12px",borderRadius:8,background:"#f5f5f5",color:"#06C755",fontSize:14,fontWeight:600,textDecoration:"none",display:"block"}}>LINE でシェア</a>
                           {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => { toggleBad(p); setShareOpen(null); }} style={{padding:"8px 12px",border:"none",borderRadius:8,background:isBad?"#fff0f0":"#f5f5f5",color:isBad?"#c62828":"#999",fontSize:14,cursor:"pointer",textAlign:"left"}}>🚫 {isBad?"NG解除":"NG報告"}</button>; })()}
                         </div>
                       )}
