@@ -342,7 +342,6 @@ export default function App() {
           {/* 管理者：通知設定パネル開閉 */}
           <button onClick={() => setShowNotifAdmin(v => !v)} title="通知管理"
           style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:28,height:28,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:"#aaa"}}>⚙</button>
-          <button onClick={loadPosts} title="更新" style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:"#888"}}>↺</button>
           <span style={{fontSize:12,color:"#D85A30",background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",borderRadius:20,padding:"5px 14px",fontWeight:600,letterSpacing:"0.2px"}}>{posts.length}件</span>
         </div>
       </div>
