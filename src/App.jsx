@@ -752,21 +752,22 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
       </div>
 
       <div style={{marginBottom:"1rem"}}>
-        <div className="scroll-x" style={{display:"flex",gap:5,paddingBottom:4}}>
-          <span style={{fontSize:11,color:"#bbb",whiteSpace:"nowrap",flexShrink:0,alignSelf:"center",paddingRight:2}}>{posts.length}件</span>
+        <div className="scroll-x" style={{display:"flex",gap:5,paddingBottom:6}}>
           {[
             ["all","すべて","#D85A30"],
-            ["saved","🔖","#185FA5"],
-            ["fav",`★${favMachines.length>0?"("+favMachines.length+")":""}`, "#E8B000"],
-            ["img","🖼","#6B3FA0"],
+            ["saved","🔖 保存済み","#185FA5"],
+            ["fav",`★ 注目台${favMachines.length>0?" ("+favMachines.length+")":""}`, "#E8B000"],
+            ["img","🖼 画像","#6B3FA0"],
           ].map(([k,label,activeColor]) => {
             const on = filter === k;
             return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 12px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?activeColor:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{label}</button>;
           })}
-          <div style={{width:1,background:"#CCC",flexShrink:0,margin:"4px 2px"}}/>
+        </div>
+        <div className="scroll-x" style={{display:"flex",gap:5,alignItems:"center",paddingBottom:2}}>
+          <span style={{fontSize:11,color:"#bbb",whiteSpace:"nowrap",flexShrink:0}}>カテゴリ</span>
           {["aimH","memory","spec","hall","episode","quote","bonus","fun"].map(k => {
             const on = filter === k;
-            return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 10px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?CATS[k].color:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{CATS[k].label}</button>;
+            return <button key={k} onClick={() => updateFilter(k)} style={{padding:"5px 10px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?CATS[k].color:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{CATS[k].label}</button>;
           })}
         </div>
       </div>
