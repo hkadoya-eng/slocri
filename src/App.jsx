@@ -324,35 +324,6 @@ export default function App() {
   const TABS = ["feed","collect","overview","research"];
   const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"リサーチ" };
 
-  if (showLanding) return (
-    <div style={{position:"fixed",inset:0,background:"#E8ECF0",zIndex:500,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"24px",fontFamily:"sans-serif",textAlign:"center"}}>
-      <button onClick={() => setShowLanding(false)} style={{position:"absolute",top:16,right:16,background:"none",border:"none",fontSize:22,color:"#bbb",cursor:"pointer",padding:8}}>×</button>
-      <img src="/logo.png" alt="SLOKEY" style={{height:80,marginBottom:20,objectFit:"contain"}}/>
-      <div style={{fontSize:22,fontWeight:700,color:"#333",marginBottom:8,letterSpacing:"0.5px"}}>スロ好きのネタまとめ</div>
-      <div style={{fontSize:15,color:"#888",marginBottom:32,lineHeight:1.7}}>パチスロ・パチンコの最新情報を<br/>スロ好きが集めて共有するライブラリ</div>
-      <div style={{display:"flex",flexDirection:"column",gap:12,width:"100%",maxWidth:320,marginBottom:36}}>
-        {[
-          ["🎰","スペック・演出・設定判別","玄人向けの深い情報が集まる"],
-          ["🏪","ホール・業界の裏話","設定師目線の情報も"],
-          ["💬","コメント・いいね","気になるネタに反応できる"],
-        ].map(([icon,title,sub]) => (
-          <div key={title} style={{display:"flex",alignItems:"center",gap:12,background:"#E8ECF0",borderRadius:14,padding:"12px 14px",boxShadow:"4px 4px 8px #C5C9D4, -4px -4px 8px #FFFFFF",textAlign:"left"}}>
-            <span style={{fontSize:24,flexShrink:0}}>{icon}</span>
-            <div>
-              <div style={{fontSize:14,fontWeight:600,color:"#333"}}>{title}</div>
-              <div style={{fontSize:12,color:"#aaa"}}>{sub}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-      <button onClick={() => { localStorage.setItem("slokey_visited","1"); setShowLanding(false); }}
-        style={{width:"100%",maxWidth:320,padding:"14px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:14,fontSize:17,fontWeight:700,cursor:"pointer",boxShadow:"4px 4px 10px #C5C9D4, -2px -2px 6px #FFFFFF",letterSpacing:"1px"}}>
-        はじめる →
-      </button>
-      <div style={{marginTop:14,fontSize:12,color:"#bbb"}}>次回からは表示されません</div>
-    </div>
-  );
-
   return (
     <div style={{padding:"16px",maxWidth:740,width:"100%",boxSizing:"border-box",margin:"0 auto",fontFamily:"sans-serif",textAlign:"left",overflowX:"hidden",background:"#E8ECF0",minHeight:"100svh"}}>
       {pullIndicator > 0 && (
@@ -432,6 +403,40 @@ export default function App() {
         </div>
       )}
 
+      {/* アプリについてパネル */}
+      {showLanding && (
+        <div style={{background:"#E8ECF0",boxShadow:"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF",borderRadius:14,padding:"16px",marginBottom:10}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
+            <img src="/logo.png" alt="SLOKEY" style={{height:40,objectFit:"contain"}}/>
+            <div>
+              <div style={{fontSize:15,fontWeight:700,color:"#333"}}>スロ好きのネタまとめ</div>
+              <div style={{fontSize:12,color:"#aaa"}}>パチスロ・パチンコ情報共有ライブラリ</div>
+            </div>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:14}}>
+            {[
+              ["🎰","スペック・演出・設定判別","玄人向けの深い情報が集まる"],
+              ["🏪","ホール・業界の裏話","設定師目線の情報も"],
+              ["💬","コメント・いいね","気になるネタに反応できる"],
+            ].map(([icon,title,sub]) => (
+              <div key={title} style={{display:"flex",alignItems:"center",gap:10,background:"#E8ECF0",borderRadius:12,padding:"10px 12px",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>
+                <span style={{fontSize:20,flexShrink:0}}>{icon}</span>
+                <div>
+                  <div style={{fontSize:13,fontWeight:600,color:"#333"}}>{title}</div>
+                  <div style={{fontSize:12,color:"#aaa"}}>{sub}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          {!localStorage.getItem("slokey_visited") && (
+            <button onClick={() => { localStorage.setItem("slokey_visited","1"); setShowLanding(false); }}
+              style={{width:"100%",padding:"12px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer",letterSpacing:"1px"}}>
+              はじめる →
+            </button>
+          )}
+        </div>
+      )}
+
       {/* 設定パネル */}
       {showNotifAdmin && (
         <div style={{background:"#E8ECF0",boxShadow:"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF",borderRadius:14,padding:"10px 12px",marginBottom:10,display:"flex",flexDirection:"column",gap:2}}>
@@ -458,9 +463,9 @@ export default function App() {
             </div>
           )}
           {/* アプリについて */}
-          <button onClick={() => { setShowNotifAdmin(false); setShowLanding(true); }}
-            style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:14,color:"#555",cursor:"pointer",textAlign:"left",width:"100%"}}>
-            <span>ℹ</span><span>このアプリについて</span>
+          <button onClick={() => { setShowNotifAdmin(false); setShowLanding(v => !v); }}
+            style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:showLanding?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:14,color:showLanding?"#D85A30":"#555",cursor:"pointer",textAlign:"left",width:"100%"}}>
+            <span>ℹ</span><span style={{flex:1}}>このアプリについて</span><span style={{fontSize:12,color:"#bbb"}}>{showLanding?"▲":"▼"}</span>
           </button>
           {/* 区切り */}
           <div style={{height:"0.5px",background:"#C5C9D4",margin:"6px 0"}}/>
