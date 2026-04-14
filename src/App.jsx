@@ -350,7 +350,22 @@ export default function App() {
       </div>
       {showSites && (
         <div style={{background:"#E8ECF0",boxShadow:"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF",borderRadius:14,padding:"12px 14px",marginBottom:10}}>
-          <div style={{fontSize:12,color:"#aaa",marginBottom:8,fontWeight:500}}>おすすめサイト</div>
+          {/* SNS上段 */}
+          <div style={{fontSize:12,color:"#aaa",marginBottom:6,fontWeight:500}}>SNS</div>
+          <div style={{display:"flex",gap:6,marginBottom:12}}>
+            {[
+              {label:"𝕏 #スマスロ",  url:"https://x.com/search?q=%23スマスロ&f=live",       color:"#000"},
+              {label:"▶ YouTube",    url:"https://www.youtube.com/results?search_query=スマスロ", color:"#FF0000"},
+              {label:"♪ TikTok",    url:"https://www.tiktok.com/search?q=スマスロ",           color:"#010101"},
+            ].map(({label,url,color}) => (
+              <a key={url} href={url} target="_blank" rel="noopener noreferrer"
+                style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:4,padding:"9px 6px",borderRadius:10,background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",textDecoration:"none",color,fontSize:13,fontWeight:600,whiteSpace:"nowrap"}}>
+                {label}
+              </a>
+            ))}
+          </div>
+          {/* サイト下段 */}
+          <div style={{fontSize:12,color:"#aaa",marginBottom:6,fontWeight:500}}>サイト</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
             {[
               {label:"一撃",         url:"https://1geki.jp/"},
