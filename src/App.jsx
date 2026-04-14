@@ -213,7 +213,7 @@ export default function App() {
       if (dy > 0) { pullYRef.current = Math.min(dy * 0.5, 64); setPullIndicator(pullYRef.current); }
     };
     const onTouchEnd = () => {
-      if (pullYRef.current >= 55) loadPosts();
+      if (pullYRef.current >= 55) { loadPosts(); setShowSites(false); setShowNotifAdmin(false); setShowLanding(false); }
       pullYRef.current = 0;
       setPullIndicator(0);
     };
