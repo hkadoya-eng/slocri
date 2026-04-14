@@ -189,9 +189,37 @@ export default function App() {
   const [notifSettings, setNotifSettings] = useState({ enabled: true, maintenance_message: "", pending_count: 0, notify_threshold: 3 });
   const [showNotifAdmin, setShowNotifAdmin] = useState(false);
   const [directPost, setDirectPost] = useState(null);
+  const [pullIndicator, setPullIndicator] = useState(0);
+  const pullYRef = useRef(0);
+  const touchStartYRef = useRef(0);
 
   function goToFeedWithFilter(cat) { setFeedFilter(cat); setTab("feed"); }
   const nextId = useRef(1000);
+
+  useEffect(() => {
+    const onTouchStart = e => {
+      touchStartYRef.current = e.touches[0].clientY;
+      pullYRef.current = 0;
+    };
+    const onTouchMove = e => {
+      if (window.scrollY > 5) { pullYRef.current = 0; setPullIndicator(0); return; }
+      const dy = e.touches[0].clientY - touchStartYRef.current;
+      if (dy > 0) { pullYRef.current = Math.min(dy * 0.5, 64); setPullIndicator(pullYRef.current); }
+    };
+    const onTouchEnd = () => {
+      if (pullYRef.current >= 55) loadPosts();
+      pullYRef.current = 0;
+      setPullIndicator(0);
+    };
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchmove", onTouchMove, { passive: true });
+    document.addEventListener("touchend", onTouchEnd);
+    return () => {
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchmove", onTouchMove);
+      document.removeEventListener("touchend", onTouchEnd);
+    };
+  }, []);
 
   useEffect(() => {
     loadPosts();
@@ -286,6 +314,12 @@ export default function App() {
 
   return (
     <div style={{padding:"16px",maxWidth:740,width:"100%",boxSizing:"border-box",margin:"0 auto",fontFamily:"sans-serif",textAlign:"left",overflowX:"hidden",background:"#E8ECF0",minHeight:"100svh"}}>
+      {pullIndicator > 0 && (
+        <div style={{position:"fixed",top:0,left:0,right:0,zIndex:300,display:"flex",justifyContent:"center",alignItems:"center",gap:6,padding:"10px 0",background:"#E8ECF0",boxShadow:"0 2px 8px rgba(0,0,0,0.08)",fontSize:13,color:pullIndicator>=55?"#2a9d3f":"#aaa",transition:"color 0.15s"}}>
+          <span style={{display:"inline-block",transform:`rotate(${pullIndicator>=55?180:0}deg)`,transition:"transform 0.2s"}}>↓</span>
+          {pullIndicator >= 55 ? "放して更新" : "引いて更新"}
+        </div>
+      )}
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.6rem"}}>
         <Logo size={56}/>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
@@ -307,8 +341,6 @@ export default function App() {
           {/* 管理者：通知設定パネル開閉 */}
           <button onClick={() => setShowNotifAdmin(v => !v)} title="通知管理"
           style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:28,height:28,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:"#aaa"}}>⚙</button>
-          <button onClick={loadPosts} title="更新" style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:18,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:"#888"}}>↺</button>
-          <span style={{fontSize:12,color:"#D85A30",background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",borderRadius:20,padding:"5px 14px",fontWeight:600,letterSpacing:"0.2px"}}>{posts.length}件</span>
         </div>
       </div>
 
@@ -665,8 +697,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
           <button onClick={() => setFullscreenImg(null)} style={{position:"absolute",top:16,right:16,background:"rgba(255,255,255,0.15)",border:"none",borderRadius:"50%",width:36,height:36,fontSize:20,color:"#fff",cursor:"pointer",lineHeight:1}}>×</button>
         </div>
       )}
-      <div style={{marginBottom:"1.25rem"}}>
-        <button onClick={() => setShowForm(v => !v)} style={{width:"100%",padding:"14px 0",background:showForm?"#E8ECF0":"linear-gradient(135deg,#E8622A,#C84420)",color:showForm?"#D85A30":"#fff",border:"none",borderRadius:14,fontSize:17,fontWeight:700,cursor:"pointer",letterSpacing:"0.5px",boxShadow:showForm?"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF":"0 4px 14px rgba(216,90,48,0.45), 3px 3px 8px rgba(0,0,0,0.12)",transition:"all 0.2s"}}>{showForm ? "− 投稿する" : "+ 投稿する"}</button>
+      {/* FAB */}
+      <button onClick={() => { setShowForm(v => !v); if (!showForm) window.scrollTo({top:0,behavior:"smooth"}); }} style={{position:"fixed",bottom:24,right:20,zIndex:200,width:56,height:56,borderRadius:"50%",background:showForm?"#E8ECF0":"linear-gradient(135deg,#E8622A,#C84420)",color:showForm?"#D85A30":"#fff",border:"none",fontSize:26,cursor:"pointer",boxShadow:showForm?"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF":"0 4px 16px rgba(216,90,48,0.5)",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s"}}>{showForm?"×":"＋"}</button>
+
+      <div style={{marginBottom: showForm ? "1.25rem" : 0}}>
         {showForm && (
           <div style={{background:"#E8ECF0",boxShadow:"6px 6px 12px #C5C9D4, -6px -6px 12px #FFFFFF",borderRadius:16,padding:"16px",marginTop:12}}>
             <div style={{fontSize:15,fontWeight:500,marginBottom:10}}>新規投稿</div>
@@ -716,22 +750,21 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
       </div>
 
       <div style={{marginBottom:"1rem"}}>
-        <div style={{display:"flex",gap:5,marginBottom:6,flexWrap:"wrap"}}>
+        <div className="scroll-x" style={{display:"flex",gap:5,paddingBottom:4}}>
+          <span style={{fontSize:11,color:"#bbb",whiteSpace:"nowrap",flexShrink:0,alignSelf:"center",paddingRight:2}}>{posts.length}件</span>
           {[
             ["all","すべて","#D85A30"],
-            ["saved","🔖 保存済み","#185FA5"],
-            ["fav",`★ 注目台${favMachines.length>0?" ("+favMachines.length+")":""}`, "#E8B000"],
-            ["img","🖼 画像","#6B3FA0"],
+            ["saved","🔖","#185FA5"],
+            ["fav",`★${favMachines.length>0?"("+favMachines.length+")":""}`, "#E8B000"],
+            ["img","🖼","#6B3FA0"],
           ].map(([k,label,activeColor]) => {
             const on = filter === k;
             return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 12px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?activeColor:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{label}</button>;
           })}
-        </div>
-        <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center"}}>
-          <span style={{fontSize:11,color:"#bbb",whiteSpace:"nowrap",paddingTop:1}}>カテゴリ</span>
+          <div style={{width:1,background:"#CCC",flexShrink:0,margin:"4px 2px"}}/>
           {["aimH","memory","spec","hall","episode","quote","bonus","fun"].map(k => {
             const on = filter === k;
-            return <button key={k} onClick={() => updateFilter(k)} style={{padding:"5px 10px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?CATS[k].color:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{CATS[k].label}</button>;
+            return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 10px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?CATS[k].color:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{CATS[k].label}</button>;
           })}
         </div>
       </div>
