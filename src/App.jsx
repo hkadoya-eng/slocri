@@ -196,6 +196,7 @@ export default function App() {
   const touchStartYRef = useRef(0);
   const [showLanding, setShowLanding] = useState(() => !localStorage.getItem("slokey_visited"));
   const [installPrompt, setInstallPrompt] = useState(null);
+  const [showIOSGuide, setShowIOSGuide] = useState(false);
 
   function goToFeedWithFilter(cat) { setFeedFilter(cat); setTab("feed"); }
   const nextId = useRef(1000);
@@ -324,6 +325,7 @@ export default function App() {
 
   if (showLanding) return (
     <div style={{position:"fixed",inset:0,background:"#E8ECF0",zIndex:500,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"24px",fontFamily:"sans-serif",textAlign:"center"}}>
+      <button onClick={() => setShowLanding(false)} style={{position:"absolute",top:16,right:16,background:"none",border:"none",fontSize:22,color:"#bbb",cursor:"pointer",padding:8}}>×</button>
       <img src="/logo.png" alt="SLOKEY" style={{height:80,marginBottom:20,objectFit:"contain"}}/>
       <div style={{fontSize:22,fontWeight:700,color:"#333",marginBottom:8,letterSpacing:"0.5px"}}>スロ好きのネタまとめ</div>
       <div style={{fontSize:15,color:"#888",marginBottom:32,lineHeight:1.7}}>パチスロ・パチンコの最新情報を<br/>スロ好きが集めて共有するライブラリ</div>
@@ -366,9 +368,13 @@ export default function App() {
               installPrompt.prompt();
               const { outcome } = await installPrompt.userChoice;
               if (outcome === "accepted") setInstallPrompt(null);
-            }} title="ホーム画面に追加"
+            }} title="ホーム画面に追加（Android）"
             style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:17,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:"#D85A30"}}>📲</button>
           )}
+          <button onClick={() => setShowIOSGuide(v => !v)} title="iOSホーム画面に追加する方法"
+          style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:16,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:showIOSGuide?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:showIOSGuide?"#D85A30":"#aaa"}}>🍎</button>
+          <button onClick={() => setShowLanding(true)} title="このアプリについて"
+          style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:15,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:"#aaa"}}>ℹ</button>
           <button onClick={() => setShowSites(v => !v)} title="おすすめサイト"
           style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:17,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:showSites?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:showSites?"#D85A30":"#aaa"}}>🔗</button>
           {/* 通知ベルボタン */}
@@ -434,6 +440,29 @@ export default function App() {
               </a>
             ))}
           </div>
+        </div>
+      )}
+
+      {showIOSGuide && (
+        <div style={{background:"#E8ECF0",boxShadow:"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF",borderRadius:14,padding:"16px",marginBottom:10}}>
+          <div style={{fontSize:14,fontWeight:700,color:"#333",marginBottom:14,textAlign:"center"}}>🍎 iOSでホーム画面に追加する方法</div>
+          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+            {[
+              ["1","Safariで開く","Chromeや他のブラウザでは追加できません"],
+              ["2","下部の共有ボタンをタップ","画面下中央の □↑ アイコン"],
+              ["3","「ホーム画面に追加」を選ぶ","下にスクロールすると出てきます"],
+              ["4","「追加」をタップ","名前はそのままでOK"],
+            ].map(([n,title,sub]) => (
+              <div key={n} style={{display:"flex",alignItems:"flex-start",gap:12,background:"#E8ECF0",borderRadius:12,padding:"10px 12px",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>
+                <span style={{background:"#D85A30",color:"#fff",borderRadius:"50%",width:22,height:22,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,flexShrink:0,marginTop:1}}>{n}</span>
+                <div>
+                  <div style={{fontSize:14,fontWeight:600,color:"#333"}}>{title}</div>
+                  <div style={{fontSize:12,color:"#888",marginTop:2}}>{sub}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{marginTop:12,fontSize:12,color:"#aaa",textAlign:"center"}}>追加後はアプリのように全画面で使えます</div>
         </div>
       )}
 
