@@ -84,13 +84,14 @@ function relativeTime(ts) {
 }
 
 const TEMPLATES = {
-  aimH:    "店名・機種・狙い目の根拠・おすすめ時間帯など",
-  memory:  "機種・収支・どんな展開だったか・感想など",
-  spec:    "天井・ゾーン・設定判別のポイントなど解析情報",
-  hall:    "気になった業界ニュースや動向・考察など",
-  episode: "思い出の機種・当時のエピソード・懐かしの演出など",
-  quote:   "原作との比較・演出の再現度・ファン目線の感想など",
-  bonus:   "演出名・信頼度の実態・体験した感想・ガセ煽りの実情など",
+  aimH:    "どの台を狙った？根拠は？",
+  memory:  "どんな展開だった？",
+  spec:    "天井・ゾーン・設定判別のポイントなど",
+  hall:    "ホール・メーカー・業界の話題",
+  episode: "その機種の思い出・特徴など",
+  quote:   "原作・キャラ・楽曲などについて",
+  bonus:   "演出の法則・好きなシーンなど",
+  fun:     "なんでも",
 };
 
 function blank() {
@@ -702,11 +703,14 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         </div>
       )}
       {/* FAB */}
-      <button onClick={() => { setShowForm(v => !v); if (!showForm) window.scrollTo({top:0,behavior:"smooth"}); }} style={{position:"fixed",bottom:24,right:20,zIndex:200,width:56,height:56,borderRadius:"50%",background:showForm?"#E8ECF0":"linear-gradient(135deg,#E8622A,#C84420)",color:showForm?"#D85A30":"#fff",border:"none",fontSize:26,cursor:"pointer",boxShadow:showForm?"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF":"0 4px 16px rgba(216,90,48,0.5)",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s"}}>{showForm?"×":"＋"}</button>
+      <button onClick={() => setShowForm(v => !v)} style={{position:"fixed",bottom:24,right:20,zIndex:210,width:56,height:56,borderRadius:"50%",background:showForm?"#E8ECF0":"linear-gradient(135deg,#E8622A,#C84420)",color:showForm?"#D85A30":"#fff",border:"none",fontSize:26,cursor:"pointer",boxShadow:showForm?"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF":"0 4px 16px rgba(216,90,48,0.5)",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.2s"}}>{showForm?"×":"＋"}</button>
 
-      <div style={{marginBottom: showForm ? "1.25rem" : 0}}>
-        {showForm && (
-          <div style={{background:"#E8ECF0",boxShadow:"6px 6px 12px #C5C9D4, -6px -6px 12px #FFFFFF",borderRadius:16,padding:"16px",marginTop:12}}>
+      {/* ボトムシート */}
+      {showForm && (
+        <>
+          <div onClick={() => { setShowForm(false); resetForm(); }} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:198}} />
+          <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:199,background:"#E8ECF0",borderRadius:"20px 20px 0 0",maxHeight:"85vh",overflowY:"auto",padding:"12px 16px 32px",boxSizing:"border-box",boxShadow:"0 -4px 24px rgba(0,0,0,0.18)"}}>
+            <div style={{width:40,height:4,background:"#C5C9D4",borderRadius:2,margin:"0 auto 14px"}}/>
             <div style={{fontSize:15,fontWeight:500,marginBottom:10}}>新規投稿</div>
             {(()=>{const lbl={fontSize:13,color:"#888",whiteSpace:"nowrap",minWidth:52,paddingTop:2};const row={display:"flex",alignItems:"flex-start",gap:8,marginBottom:8};const inp={flex:1,fontSize:16,padding:"9px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"};return(<>
             <div style={row}><span style={lbl}>名前</span><input value={fName} onChange={e=>setFName(e.target.value)} placeholder="例: ゲスト" style={inp}/></div>
@@ -738,8 +742,8 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
               <button onClick={resetForm} style={{padding:"9px 16px",background:"#f0f0f0",color:"#666",border:"0.5px solid #ddd",borderRadius:8,fontSize:15,cursor:"pointer"}}>キャンセル</button>
             </div>
           </div>
-        )}
-      </div>
+        </>
+      )}
 
       <div style={{display:"flex",gap:6,marginBottom:10}}>
         <div style={{position:"relative",flex:1}}>
