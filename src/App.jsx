@@ -196,7 +196,6 @@ export default function App() {
   const touchStartYRef = useRef(0);
   const [showLanding, setShowLanding] = useState(() => !localStorage.getItem("slokey_visited"));
   const [installPrompt, setInstallPrompt] = useState(null);
-  const [showIOSGuide, setShowIOSGuide] = useState(false);
 
   function goToFeedWithFilter(cat) { setFeedFilter(cat); setTab("feed"); }
   const nextId = useRef(1000);
@@ -363,18 +362,6 @@ export default function App() {
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.6rem"}}>
         <Logo size={56}/>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
-          {installPrompt && (
-            <button onClick={async () => {
-              installPrompt.prompt();
-              const { outcome } = await installPrompt.userChoice;
-              if (outcome === "accepted") setInstallPrompt(null);
-            }} title="ホーム画面に追加（Android）"
-            style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:17,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:"#D85A30"}}>📲</button>
-          )}
-          <button onClick={() => setShowIOSGuide(v => !v)} title="iOSホーム画面に追加する方法"
-          style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:16,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:showIOSGuide?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:showIOSGuide?"#D85A30":"#aaa"}}>🍎</button>
-          <button onClick={() => setShowLanding(true)} title="このアプリについて"
-          style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:15,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:"#aaa"}}>ℹ</button>
           <button onClick={() => setShowSites(v => !v)} title="おすすめサイト"
           style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:17,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:showSites?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:showSites?"#D85A30":"#aaa"}}>🔗</button>
           {/* 通知ベルボタン */}
@@ -443,33 +430,43 @@ export default function App() {
         </div>
       )}
 
-      {showIOSGuide && (
-        <div style={{background:"#E8ECF0",boxShadow:"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF",borderRadius:14,padding:"16px",marginBottom:10}}>
-          <div style={{fontSize:14,fontWeight:700,color:"#333",marginBottom:14,textAlign:"center"}}>🍎 iOSでホーム画面に追加する方法</div>
-          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+      {/* 設定パネル */}
+      {showNotifAdmin && (
+        <div style={{background:"#E8ECF0",boxShadow:"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF",borderRadius:14,padding:"14px 16px",marginBottom:10}}>
+          {/* ホーム画面に追加 */}
+          <div style={{fontSize:12,color:"#aaa",fontWeight:500,marginBottom:8}}>ホーム画面に追加</div>
+          {installPrompt && (
+            <button onClick={async () => {
+              installPrompt.prompt();
+              const { outcome } = await installPrompt.userChoice;
+              if (outcome === "accepted") setInstallPrompt(null);
+            }} style={{width:"100%",padding:"10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:14,fontWeight:600,color:"#D85A30",cursor:"pointer",marginBottom:8,textAlign:"left"}}>
+              📲 Androidでホーム画面に追加
+            </button>
+          )}
+          <div style={{background:"#E8ECF0",borderRadius:12,padding:"10px 12px",boxShadow:"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF",marginBottom:14}}>
+            <div style={{fontSize:13,fontWeight:600,color:"#555",marginBottom:8}}>🍎 iOSでの追加方法（Safari専用）</div>
             {[
-              ["1","Safariで開く","Chromeや他のブラウザでは追加できません"],
-              ["2","下部の共有ボタンをタップ","画面下中央の □↑ アイコン"],
-              ["3","「ホーム画面に追加」を選ぶ","下にスクロールすると出てきます"],
-              ["4","「追加」をタップ","名前はそのままでOK"],
-            ].map(([n,title,sub]) => (
-              <div key={n} style={{display:"flex",alignItems:"flex-start",gap:12,background:"#E8ECF0",borderRadius:12,padding:"10px 12px",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>
-                <span style={{background:"#D85A30",color:"#fff",borderRadius:"50%",width:22,height:22,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:700,flexShrink:0,marginTop:1}}>{n}</span>
-                <div>
-                  <div style={{fontSize:14,fontWeight:600,color:"#333"}}>{title}</div>
-                  <div style={{fontSize:12,color:"#888",marginTop:2}}>{sub}</div>
-                </div>
+              ["1","Safariで開く","Chrome等では追加できません"],
+              ["2","下部の共有ボタン □↑ をタップ",""],
+              ["3","「ホーム画面に追加」を選ぶ","下にスクロールすると出ます"],
+              ["4","「追加」をタップして完了",""],
+            ].map(([n,t,s]) => (
+              <div key={n} style={{display:"flex",gap:8,alignItems:"flex-start",marginBottom:6}}>
+                <span style={{background:"#D85A30",color:"#fff",borderRadius:"50%",width:18,height:18,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,flexShrink:0,marginTop:1}}>{n}</span>
+                <div style={{fontSize:13,color:"#444"}}>{t}{s && <span style={{color:"#aaa",fontSize:12}}> — {s}</span>}</div>
               </div>
             ))}
           </div>
-          <div style={{marginTop:12,fontSize:12,color:"#aaa",textAlign:"center"}}>追加後はアプリのように全画面で使えます</div>
-        </div>
-      )}
-
-      {/* 管理者：通知ON/OFF・メンテナンスメッセージ制御 */}
-      {showNotifAdmin && (
-        <div style={{background:"#E8ECF0",boxShadow:"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF",borderRadius:14,padding:"14px 16px",marginBottom:10}}>
-          <div style={{fontSize:13,fontWeight:600,color:"#555",marginBottom:10}}>⚙ 通知管理（管理者）</div>
+          {/* アプリについて */}
+          <button onClick={() => { setShowNotifAdmin(false); setShowLanding(true); }}
+            style={{width:"100%",padding:"10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:14,color:"#555",cursor:"pointer",marginBottom:14,textAlign:"left"}}>
+            ℹ このアプリについて
+          </button>
+          {/* 区切り */}
+          <div style={{height:"0.5px",background:"#C5C9D4",marginBottom:12}}/>
+          {/* 通知管理（管理者） */}
+          <div style={{fontSize:12,color:"#aaa",fontWeight:500,marginBottom:8}}>通知管理（管理者）</div>
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
             <span style={{fontSize:14,color:"#555"}}>通知配信</span>
             <button onClick={async () => {
@@ -481,7 +478,6 @@ export default function App() {
               {notifSettings.enabled ? "ON（配信中）" : "OFF（停止中）"}
             </button>
           </div>
-          {/* 閾値設定 */}
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
             <span style={{fontSize:14,color:"#555",whiteSpace:"nowrap"}}>通知タイミング</span>
             <select value={notifSettings.notify_threshold ?? 3} onChange={e => setNotifSettings(s => ({ ...s, notify_threshold: Number(e.target.value) }))}
@@ -495,7 +491,6 @@ export default function App() {
               showToast("カウントをリセットしました");
             }} style={{fontSize:12,padding:"4px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"2px 2px 4px #C5C9D4, -2px -2px 4px #FFFFFF",color:"#999",cursor:"pointer"}}>リセット</button>
           </div>
-          {/* メンテメッセージ */}
           <div style={{fontSize:13,color:"#888",marginBottom:6}}>メンテナンスメッセージ（空欄で非表示）</div>
           <div style={{display:"flex",gap:8}}>
             <input value={notifSettings.maintenance_message} onChange={e => setNotifSettings(s => ({ ...s, maintenance_message: e.target.value }))}
