@@ -866,28 +866,30 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:isOpen?"#3C3489":"#999",fontSize:13,cursor:"pointer",fontWeight:isOpen?600:400,whiteSpace:"nowrap",boxShadow:isOpen?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>💬</span><span>コメント</span><span style={{fontSize:12}}>{(p.internal?.comments||[]).length}</span></button>
                   <button onClick={() => toggleBM(p)} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:iBM?"#185FA5":"#999",fontSize:13,cursor:"pointer",fontWeight:iBM?600:400,whiteSpace:"nowrap",boxShadow:iBM?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>🔖</span><span>保存</span></button>
                   {!p.machine?.includes("全般") && (() => { const isFav=favMachines.includes(p.machine); return <button onClick={()=>toggleFavMachine(p.machine)} title={isFav?"注目台から外す":"この機種を注目台に追加"} style={{padding:"5px 10px",border:"none",borderRadius:20,background:"#E8ECF0",color:isFav?"#E8B000":"#999",fontSize:16,cursor:"pointer",lineHeight:1,boxShadow:isFav?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>{isFav?"★":"☆"}</button>; })()}
-                  <div style={{marginLeft:"auto",position:"relative"}}>
-                    <button onClick={e => { e.stopPropagation(); setShareOpen(shareOpen===p.id?null:p.id); }} style={{padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:"#888",fontSize:13,cursor:"pointer",whiteSpace:"nowrap",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>シェア ↗</button>
-                    {shareOpen===p.id && (
-                      <div onClick={e => e.stopPropagation()} style={{position:"absolute",right:0,bottom:"calc(100% + 6px)",background:"#fff",borderRadius:12,boxShadow:"0 4px 16px rgba(0,0,0,0.15)",padding:8,display:"flex",flexDirection:"column",gap:4,minWidth:150,zIndex:100}}>
-                        <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}?post=${p.id}`); showToast("リンクをコピーしました"); setShareOpen(null); }} style={{padding:"8px 12px",border:"none",borderRadius:8,background:"#f5f5f5",color:"#555",fontSize:14,cursor:"pointer",textAlign:"left"}}>🔗 リンクをコピー</button>
-                        <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`【SLOKEY】${p.machine} - ${p.title}\n#パチスロ #SLOKEY`)}&url=${encodeURIComponent(`${window.location.origin}?post=${p.id}`)}`} target="_blank" rel="noopener noreferrer" onClick={() => setShareOpen(null)} style={{padding:"8px 12px",borderRadius:8,background:"#f5f5f5",color:"#333",fontSize:14,textDecoration:"none",display:"block"}}>𝕏 でシェア</a>
-                        <a href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(`${window.location.origin}?post=${p.id}`)}&text=${encodeURIComponent(`【SLOKEY】${p.machine} - ${p.title}`)}`} target="_blank" rel="noopener noreferrer" onClick={() => setShareOpen(null)} style={{padding:"8px 12px",borderRadius:8,background:"#f5f5f5",color:"#06C755",fontSize:14,fontWeight:600,textDecoration:"none",display:"block"}}>LINE でシェア</a>
-                        {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => { toggleBad(p); setShareOpen(null); }} style={{padding:"8px 12px",border:"none",borderRadius:8,background:isBad?"#fff0f0":"#f5f5f5",color:isBad?"#c62828":"#999",fontSize:14,cursor:"pointer",textAlign:"left"}}>🚫 {isBad?"NG解除":"NG報告"}</button>; })()}
-                      </div>
-                    )}
-                  </div>
-                  {isOwn && (
+                  <div style={{marginLeft:"auto",display:"flex",gap:6}}>
                     <div style={{position:"relative"}}>
-                      <button onClick={e => { e.stopPropagation(); setEditOpen(editOpen===p.id?null:p.id); }} style={{padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:"#888",fontSize:13,cursor:"pointer",whiteSpace:"nowrap",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>編集 ▾</button>
-                      {editOpen===p.id && (
-                        <div onClick={e => e.stopPropagation()} style={{position:"absolute",right:0,bottom:"calc(100% + 6px)",background:"#fff",borderRadius:12,boxShadow:"0 4px 16px rgba(0,0,0,0.15)",padding:8,display:"flex",flexDirection:"column",gap:4,minWidth:130,zIndex:100}}>
-                          <button onClick={() => { startEdit(p); setEditOpen(null); }} style={{padding:"8px 12px",border:"none",borderRadius:8,background:"#f5f5f5",color:"#555",fontSize:14,cursor:"pointer",textAlign:"left"}}>✏️ 編集する</button>
-                          <button onClick={() => { handleDelete(p.id); setEditOpen(null); }} style={{padding:"8px 12px",border:"none",borderRadius:8,background:"#fff0f0",color:"#c62828",fontSize:14,cursor:"pointer",textAlign:"left"}}>🗑️ 削除する</button>
+                      <button onClick={e => { e.stopPropagation(); setShareOpen(shareOpen===p.id?null:p.id); }} style={{padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:"#888",fontSize:13,cursor:"pointer",whiteSpace:"nowrap",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>シェア ↗</button>
+                      {shareOpen===p.id && (
+                        <div onClick={e => e.stopPropagation()} style={{position:"absolute",right:0,bottom:"calc(100% + 6px)",background:"#fff",borderRadius:12,boxShadow:"0 4px 16px rgba(0,0,0,0.15)",padding:8,display:"flex",flexDirection:"column",gap:4,minWidth:150,zIndex:100}}>
+                          <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}?post=${p.id}`); showToast("リンクをコピーしました"); setShareOpen(null); }} style={{padding:"8px 12px",border:"none",borderRadius:8,background:"#f5f5f5",color:"#555",fontSize:14,cursor:"pointer",textAlign:"left"}}>🔗 リンクをコピー</button>
+                          <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`【SLOKEY】${p.machine} - ${p.title}\n#パチスロ #SLOKEY`)}&url=${encodeURIComponent(`${window.location.origin}?post=${p.id}`)}`} target="_blank" rel="noopener noreferrer" onClick={() => setShareOpen(null)} style={{padding:"8px 12px",borderRadius:8,background:"#f5f5f5",color:"#333",fontSize:14,textDecoration:"none",display:"block"}}>𝕏 でシェア</a>
+                          <a href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(`${window.location.origin}?post=${p.id}`)}&text=${encodeURIComponent(`【SLOKEY】${p.machine} - ${p.title}`)}`} target="_blank" rel="noopener noreferrer" onClick={() => setShareOpen(null)} style={{padding:"8px 12px",borderRadius:8,background:"#f5f5f5",color:"#06C755",fontSize:14,fontWeight:600,textDecoration:"none",display:"block"}}>LINE でシェア</a>
+                          {(() => { const isBad=(p.internal?.bads||[]).indexOf(MY_UID)>=0; return <button onClick={() => { toggleBad(p); setShareOpen(null); }} style={{padding:"8px 12px",border:"none",borderRadius:8,background:isBad?"#fff0f0":"#f5f5f5",color:isBad?"#c62828":"#999",fontSize:14,cursor:"pointer",textAlign:"left"}}>🚫 {isBad?"NG解除":"NG報告"}</button>; })()}
                         </div>
                       )}
                     </div>
-                  )}
+                    {isOwn && (
+                      <div style={{position:"relative"}}>
+                        <button onClick={e => { e.stopPropagation(); setEditOpen(editOpen===p.id?null:p.id); }} style={{padding:"5px 12px",border:"none",borderRadius:20,background:"#E8ECF0",color:"#888",fontSize:13,cursor:"pointer",whiteSpace:"nowrap",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>編集 ▾</button>
+                        {editOpen===p.id && (
+                          <div onClick={e => e.stopPropagation()} style={{position:"absolute",right:0,bottom:"calc(100% + 6px)",background:"#fff",borderRadius:12,boxShadow:"0 4px 16px rgba(0,0,0,0.15)",padding:8,display:"flex",flexDirection:"column",gap:4,minWidth:130,zIndex:100}}>
+                            <button onClick={() => { startEdit(p); setEditOpen(null); }} style={{padding:"8px 12px",border:"none",borderRadius:8,background:"#f5f5f5",color:"#555",fontSize:14,cursor:"pointer",textAlign:"left"}}>✏️ 編集する</button>
+                            <button onClick={() => { handleDelete(p.id); setEditOpen(null); }} style={{padding:"8px 12px",border:"none",borderRadius:8,background:"#fff0f0",color:"#c62828",fontSize:14,cursor:"pointer",textAlign:"left"}}>🗑️ 削除する</button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {isOpen && (
                   <div style={{marginTop:10}}>
