@@ -194,6 +194,8 @@ export default function App() {
   const [pullIndicator, setPullIndicator] = useState(0);
   const pullYRef = useRef(0);
   const touchStartYRef = useRef(0);
+  const [showLanding, setShowLanding] = useState(() => !localStorage.getItem("slokey_visited"));
+  const [installPrompt, setInstallPrompt] = useState(null);
 
   function goToFeedWithFilter(cat) { setFeedFilter(cat); setTab("feed"); }
   const nextId = useRef(1000);
@@ -221,6 +223,12 @@ export default function App() {
       document.removeEventListener("touchmove", onTouchMove);
       document.removeEventListener("touchend", onTouchEnd);
     };
+  }, []);
+
+  useEffect(() => {
+    const handler = e => { e.preventDefault(); setInstallPrompt(e); };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
   useEffect(() => {
@@ -314,6 +322,34 @@ export default function App() {
   const TABS = ["feed","collect","overview","research"];
   const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"リサーチ" };
 
+  if (showLanding) return (
+    <div style={{position:"fixed",inset:0,background:"#E8ECF0",zIndex:500,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"24px",fontFamily:"sans-serif",textAlign:"center"}}>
+      <img src="/logo.png" alt="SLOKEY" style={{height:80,marginBottom:20,objectFit:"contain"}}/>
+      <div style={{fontSize:22,fontWeight:700,color:"#333",marginBottom:8,letterSpacing:"0.5px"}}>スロ好きのネタまとめ</div>
+      <div style={{fontSize:15,color:"#888",marginBottom:32,lineHeight:1.7}}>パチスロ・パチンコの最新情報を<br/>スロ好きが集めて共有するライブラリ</div>
+      <div style={{display:"flex",flexDirection:"column",gap:12,width:"100%",maxWidth:320,marginBottom:36}}>
+        {[
+          ["🎰","スペック・演出・設定判別","玄人向けの深い情報が集まる"],
+          ["🏪","ホール・業界の裏話","設定師目線の情報も"],
+          ["💬","コメント・いいね","気になるネタに反応できる"],
+        ].map(([icon,title,sub]) => (
+          <div key={title} style={{display:"flex",alignItems:"center",gap:12,background:"#E8ECF0",borderRadius:14,padding:"12px 14px",boxShadow:"4px 4px 8px #C5C9D4, -4px -4px 8px #FFFFFF",textAlign:"left"}}>
+            <span style={{fontSize:24,flexShrink:0}}>{icon}</span>
+            <div>
+              <div style={{fontSize:14,fontWeight:600,color:"#333"}}>{title}</div>
+              <div style={{fontSize:12,color:"#aaa"}}>{sub}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button onClick={() => { localStorage.setItem("slokey_visited","1"); setShowLanding(false); }}
+        style={{width:"100%",maxWidth:320,padding:"14px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:14,fontSize:17,fontWeight:700,cursor:"pointer",boxShadow:"4px 4px 10px #C5C9D4, -2px -2px 6px #FFFFFF",letterSpacing:"1px"}}>
+        はじめる →
+      </button>
+      <div style={{marginTop:14,fontSize:12,color:"#bbb"}}>次回からは表示されません</div>
+    </div>
+  );
+
   return (
     <div style={{padding:"16px",maxWidth:740,width:"100%",boxSizing:"border-box",margin:"0 auto",fontFamily:"sans-serif",textAlign:"left",overflowX:"hidden",background:"#E8ECF0",minHeight:"100svh"}}>
       {pullIndicator > 0 && (
@@ -325,6 +361,14 @@ export default function App() {
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.6rem"}}>
         <Logo size={56}/>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
+          {installPrompt && (
+            <button onClick={async () => {
+              installPrompt.prompt();
+              const { outcome } = await installPrompt.userChoice;
+              if (outcome === "accepted") setInstallPrompt(null);
+            }} title="ホーム画面に追加"
+            style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:17,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:"#D85A30"}}>📲</button>
+          )}
           <button onClick={() => setShowSites(v => !v)} title="おすすめサイト"
           style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:17,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:showSites?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:showSites?"#D85A30":"#aaa"}}>🔗</button>
           {/* 通知ベルボタン */}
