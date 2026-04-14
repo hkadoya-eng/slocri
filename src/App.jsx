@@ -744,6 +744,32 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         </>
       )}
 
+      {/* おすすめサイト */}
+      <div style={{marginBottom:10}}>
+        <div className="scroll-x" style={{display:"flex",gap:5,paddingBottom:2}}>
+          {[
+            {label:"一撃",        url:"https://1geki.jp/"},
+            {label:"ぱちタウン",  url:"https://p-town.dmm.com/"},
+            {label:"ちょんぼり",  url:"https://chonborista.com"},
+            {label:"スロ板RUSH",  url:"https://fiveslot777.com/"},
+            {label:"パチ７",      url:"https://pachiseven.jp"},
+            {label:"スロログ",    url:"https://slotlog.net"},
+            {label:"爆裂アンテナ",url:"https://pachisoku.com/"},
+            {label:"P-WORLD",     url:"https://www.p-world.co.jp/"},
+            {label:"ハズセ",      url:"https://hazuse.com/"},
+            {label:"パチビー",    url:"https://www.pachibee.jp/"},
+            {label:"パチビスタ",  url:"https://www.pachinkovista.com/"},
+            {label:"パチキュレ",  url:"https://pachinko-curation.com/"},
+            {label:"2chまとめ",   url:"https://2chmatome.biz/pachisuro"},
+            {label:"フルスロ",    url:"https://parlourfullslotl.com/"},
+          ].map(({label,url}) => (
+            <a key={label+url} href={url} target="_blank" rel="noopener noreferrer" style={{padding:"5px 10px",border:"none",borderRadius:10,fontSize:12,background:"#E8ECF0",color:"#555",cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,textDecoration:"none",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",display:"inline-flex",alignItems:"center",gap:3}}>
+              <span style={{fontSize:10,color:"#aaa"}}>↗</span>{label}
+            </a>
+          ))}
+        </div>
+      </div>
+
       <div style={{display:"flex",gap:6,marginBottom:10}}>
         <div style={{position:"relative",flex:1}}>
           <input value={query} onChange={e => setQuery(e.target.value)} placeholder="機種名・キーワードで検索..." style={{width:"100%",fontSize:16,padding:"8px 30px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"}} />
