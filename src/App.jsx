@@ -189,6 +189,7 @@ export default function App() {
   const [pushEnabled, setPushEnabled] = useState(false);
   const [notifSettings, setNotifSettings] = useState({ enabled: true, maintenance_message: "", pending_count: 0, notify_threshold: 3 });
   const [showNotifAdmin, setShowNotifAdmin] = useState(false);
+  const [showSites, setShowSites] = useState(false);
   const [directPost, setDirectPost] = useState(null);
   const [pullIndicator, setPullIndicator] = useState(0);
   const pullYRef = useRef(0);
@@ -342,9 +343,40 @@ export default function App() {
           {/* 管理者：通知設定パネル開閉 */}
           <button onClick={() => setShowNotifAdmin(v => !v)} title="通知管理"
           style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:28,height:28,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:"#aaa"}}>⚙</button>
+          <button onClick={() => setShowSites(v => !v)} title="おすすめサイト"
+          style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:17,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:showSites?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:showSites?"#D85A30":"#aaa"}}>🔗</button>
           <span style={{fontSize:12,color:"#D85A30",background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",borderRadius:20,padding:"5px 14px",fontWeight:600,letterSpacing:"0.2px"}}>{posts.length}件</span>
         </div>
       </div>
+      {showSites && (
+        <div style={{background:"#E8ECF0",boxShadow:"inset 4px 4px 8px #C5C9D4, inset -4px -4px 8px #FFFFFF",borderRadius:14,padding:"12px 14px",marginBottom:10}}>
+          <div style={{fontSize:12,color:"#aaa",marginBottom:8,fontWeight:500}}>おすすめサイト</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+            {[
+              {label:"一撃",         url:"https://1geki.jp/"},
+              {label:"DMMぱちタウン",url:"https://p-town.dmm.com/"},
+              {label:"ちょんぼりすた",url:"https://chonborista.com"},
+              {label:"スロ板RUSH",   url:"https://fiveslot777.com/"},
+              {label:"パチ７",       url:"https://pachiseven.jp"},
+              {label:"パチスロログ", url:"https://slotlog.net"},
+              {label:"爆裂アンテナ", url:"https://pachisoku.com/"},
+              {label:"P-WORLD",      url:"https://www.p-world.co.jp/"},
+              {label:"ハズセ",       url:"https://hazuse.com/"},
+              {label:"パチビー",     url:"https://www.pachibee.jp/"},
+              {label:"パチンコビスタ",url:"https://www.pachinkovista.com/"},
+              {label:"パチキュレーション",url:"https://pachinko-curation.com/"},
+              {label:"2chまとめ",    url:"https://2chmatome.biz/pachisuro"},
+              {label:"フルスロットル",url:"https://parlourfullslotl.com/"},
+            ].map(({label,url}) => (
+              <a key={url} href={url} target="_blank" rel="noopener noreferrer"
+                style={{display:"flex",alignItems:"center",gap:6,padding:"8px 10px",borderRadius:10,background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",textDecoration:"none",color:"#444",fontSize:13}}>
+                <span style={{fontSize:11,color:"#aaa",flexShrink:0}}>↗</span>
+                <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{label}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 管理者：通知ON/OFF・メンテナンスメッセージ制御 */}
       {showNotifAdmin && (
@@ -744,33 +776,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         </>
       )}
 
-      {/* おすすめサイト */}
-      <div style={{marginBottom:10}}>
-        <div className="scroll-x" style={{display:"flex",gap:5,paddingBottom:2}}>
-          {[
-            {label:"一撃",        url:"https://1geki.jp/"},
-            {label:"ぱちタウン",  url:"https://p-town.dmm.com/"},
-            {label:"ちょんぼり",  url:"https://chonborista.com"},
-            {label:"スロ板RUSH",  url:"https://fiveslot777.com/"},
-            {label:"パチ７",      url:"https://pachiseven.jp"},
-            {label:"スロログ",    url:"https://slotlog.net"},
-            {label:"爆裂アンテナ",url:"https://pachisoku.com/"},
-            {label:"P-WORLD",     url:"https://www.p-world.co.jp/"},
-            {label:"ハズセ",      url:"https://hazuse.com/"},
-            {label:"パチビー",    url:"https://www.pachibee.jp/"},
-            {label:"パチビスタ",  url:"https://www.pachinkovista.com/"},
-            {label:"パチキュレ",  url:"https://pachinko-curation.com/"},
-            {label:"2chまとめ",   url:"https://2chmatome.biz/pachisuro"},
-            {label:"フルスロ",    url:"https://parlourfullslotl.com/"},
-          ].map(({label,url}) => (
-            <a key={label+url} href={url} target="_blank" rel="noopener noreferrer" style={{padding:"5px 10px",border:"none",borderRadius:10,fontSize:12,background:"#E8ECF0",color:"#555",cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,textDecoration:"none",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",display:"inline-flex",alignItems:"center",gap:3}}>
-              <span style={{fontSize:10,color:"#aaa"}}>↗</span>{label}
-            </a>
-          ))}
-        </div>
-      </div>
-
-      <div style={{display:"flex",gap:6,marginBottom:10}}>
+<div style={{display:"flex",gap:6,marginBottom:10}}>
         <div style={{position:"relative",flex:1}}>
           <input value={query} onChange={e => setQuery(e.target.value)} placeholder="機種名・キーワードで検索..." style={{width:"100%",fontSize:16,padding:"8px 30px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"}} />
           <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",fontSize:15,color:"#aaa",pointerEvents:"none"}}>⌕</span>
