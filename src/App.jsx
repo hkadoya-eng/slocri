@@ -325,6 +325,8 @@ export default function App() {
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.6rem"}}>
         <Logo size={56}/>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
+          <button onClick={() => setShowSites(v => !v)} title="おすすめサイト"
+          style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:17,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:showSites?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:showSites?"#D85A30":"#aaa"}}>🔗</button>
           {/* 通知ベルボタン */}
           <button onClick={async () => {
             if (pushEnabled) {
@@ -343,8 +345,6 @@ export default function App() {
           {/* 管理者：通知設定パネル開閉 */}
           <button onClick={() => setShowNotifAdmin(v => !v)} title="通知管理"
           style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:28,height:28,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:"#aaa"}}>⚙</button>
-          <button onClick={() => setShowSites(v => !v)} title="おすすめサイト"
-          style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:17,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:showSites?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:showSites?"#D85A30":"#aaa"}}>🔗</button>
           <span style={{fontSize:12,color:"#D85A30",background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",borderRadius:20,padding:"5px 14px",fontWeight:600,letterSpacing:"0.2px"}}>{posts.length}件</span>
         </div>
       </div>
