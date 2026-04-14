@@ -463,7 +463,7 @@ export default function App() {
             </div>
           )}
           {/* アプリについて */}
-          <button onClick={() => { setShowNotifAdmin(false); setShowLanding(v => !v); }}
+          <button onClick={() => setShowLanding(v => !v)}
             style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:showLanding?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:14,color:showLanding?"#D85A30":"#555",cursor:"pointer",textAlign:"left",width:"100%"}}>
             <span>ℹ</span><span style={{flex:1}}>このアプリについて</span><span style={{fontSize:12,color:"#bbb"}}>{showLanding?"▲":"▼"}</span>
           </button>
