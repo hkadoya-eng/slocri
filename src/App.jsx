@@ -1577,39 +1577,44 @@ function OverviewTab({ posts, updatePost }) {
       )}
 
       {view==="machine" && (
-        <div className="scroll-x" style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12}}>
-          <table style={{width:"100%",borderCollapse:"collapse",tableLayout:"fixed",minWidth:340}}>
-            <colgroup><col/><col style={{width:40}}/><col style={{width:48}}/><col style={{width:36}}/></colgroup>
-            <thead><tr style={{background:"#f9f9f9"}}><th style={th}>機種名</th><th style={{...th,textAlign:"right"}}>件数</th><th style={{...th,textAlign:"right"}}>♥</th><th style={th}></th></tr></thead>
-            <tbody>
-              {machines.map((m,i) => {
-                const sel = selM===m.name;
-                const machinePosts = sel ? posts.filter(p=>p.machine===m.name).sort((a,b)=>(b.internal?.likes?.length||0)-(a.internal?.likes?.length||0)) : [];
-                return (
-                  <React.Fragment key={m.name}>
-                    <tr onClick={() => setSelM(sel?null:m.name)} style={{background:sel?"#FAECE7":i%2===0?"#fff":"#fafafa",cursor:"pointer"}}>
+        <div>
+          <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,overflow:"hidden"}}>
+            <table style={{width:"100%",borderCollapse:"collapse",tableLayout:"fixed"}}>
+              <colgroup><col/><col style={{width:40}}/><col style={{width:48}}/><col style={{width:36}}/></colgroup>
+              <thead><tr style={{background:"#f9f9f9"}}><th style={th}>機種名</th><th style={{...th,textAlign:"right"}}>件数</th><th style={{...th,textAlign:"right"}}>♥</th><th style={th}></th></tr></thead>
+              <tbody>
+                {machines.map((m,i) => {
+                  const sel = selM===m.name;
+                  return (
+                    <tr key={m.name} onClick={() => setSelM(sel?null:m.name)} style={{background:sel?"#FAECE7":i%2===0?"#fff":"#fafafa",cursor:"pointer"}}>
                       <td style={{...td,fontWeight:sel?600:400,color:sel?"#993C1D":"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:0}}>{m.name}</td>
                       <td style={{...td,textAlign:"right",fontSize:14,color:"#888"}}>{m.count}</td>
                       <td style={{...td,textAlign:"right",fontWeight:500,color:"#D85A30"}}>{m.likes}</td>
                       <td style={{...td,textAlign:"center",fontSize:12,color:sel?"#993C1D":"#aaa"}}>{sel?"▲":"▼"}</td>
                     </tr>
-                    {sel && machinePosts.map(p => (
-                      <tr key={p.id} onClick={() => setSelectedPost(p)} style={{background:"#FFF8F5",cursor:"pointer"}}>
-                        <td colSpan={4} style={{padding:"8px 14px 10px",borderBottom:"0.5px solid #F0E0D8",borderLeft:"3px solid #F0997B"}}>
-                          <div style={{display:"flex",gap:5,alignItems:"center",marginBottom:4}}>
-                            <CatBadge cat={p.cat}/>
-                            <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥ {p.internal?.likes?.length||0}</span>
-                          </div>
-                          <div style={{fontSize:15,fontWeight:500,color:"#333",overflowWrap:"anywhere",marginBottom:2}}>{p.title}</div>
-                          <div style={{fontSize:13,color:"#888",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.body.slice(0,60)}{p.body.length>60?"…":""}</div>
-                        </td>
-                      </tr>
-                    ))}
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
-          </table>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {selM && (() => {
+            const machinePosts = posts.filter(p=>p.machine===selM).sort((a,b)=>(b.internal?.likes?.length||0)-(a.internal?.likes?.length||0));
+            return (
+              <div style={{marginTop:12}}>
+                <div style={{fontSize:14,fontWeight:600,color:"#993C1D",marginBottom:8,paddingLeft:4}}>{selM}の投稿 ({machinePosts.length}件)</div>
+                {machinePosts.map(p => (
+                  <div key={p.id} onClick={() => setSelectedPost(p)} style={{background:"#fff",borderRadius:10,padding:"10px 14px",marginBottom:8,cursor:"pointer",border:"0.5px solid #eee",borderLeft:"3px solid #F0997B"}}>
+                    <div style={{display:"flex",gap:5,alignItems:"center",marginBottom:4}}>
+                      <CatBadge cat={p.cat}/>
+                      <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥ {p.internal?.likes?.length||0}</span>
+                    </div>
+                    <div style={{fontSize:15,fontWeight:500,color:"#333",overflowWrap:"anywhere",marginBottom:2}}>{p.title}</div>
+                    <div style={{fontSize:13,color:"#888",overflowWrap:"anywhere"}}>{p.body.slice(0,80)}{p.body.length>80?"…":""}</div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
         </div>
       )}
 
