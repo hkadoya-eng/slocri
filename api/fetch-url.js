@@ -25,7 +25,22 @@ export default async function handler(req, res) {
 
     const ogImageMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
                       || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
-    const ogImage = ogImageMatch ? ogImageMatch[1].trim() : "";
+    let ogImage = ogImageMatch ? ogImageMatch[1].trim() : "";
+
+    if (ogImage) {
+      // 相対URLを絶対URLに変換
+      if (ogImage.startsWith("//")) {
+        ogImage = "https:" + ogImage;
+      } else if (ogImage.startsWith("/")) {
+        const base = new URL(url);
+        ogImage = base.origin + ogImage;
+      } else if (!ogImage.startsWith("http")) {
+        const base = new URL(url);
+        ogImage = base.origin + "/" + ogImage;
+      }
+      // http → https に変換（mixed content対策）
+      ogImage = ogImage.replace(/^http:\/\//i, "https://");
+    }
 
     return res.status(200).json({ body: title, ogImage });
   } catch (err) {

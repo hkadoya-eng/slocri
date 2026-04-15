@@ -1040,7 +1040,12 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                 )}
                 {p.url && p.internal?.ogImageUrl && !p.internal?.imageUrl ? (
                   <a href={p.url} target="_blank" rel="noopener noreferrer" style={{display:"block",borderRadius:10,overflow:"hidden",marginBottom:10,textDecoration:"none",border:"0.5px solid #ddd"}}>
-                    <img src={p.internal.ogImageUrl} alt="" style={{width:"100%",height:160,objectFit:"cover",display:"block"}} onError={e=>{e.target.style.display="none";}}/>
+                    <div style={{position:"relative",height:160,background:"#e8e4dc",flexShrink:0}}>
+                      <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                        <span style={{fontSize:36,opacity:0.3}}>🔗</span>
+                      </div>
+                      <img src={p.internal.ogImageUrl} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}} onError={e=>{e.target.style.display="none";}}/>
+                    </div>
                     <div style={{display:"flex",alignItems:"center",gap:6,padding:"6px 10px",background:"#f4f3ec",overflow:"hidden"}}>
                       <span style={{fontSize:13,color:"#888",flexShrink:0}}>🔗</span>
                       <span style={{fontSize:13,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1}}>{p.url}</span>
