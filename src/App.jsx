@@ -1407,6 +1407,7 @@ function OverviewTab({ posts, updatePost }) {
   const hasNext = postIdx < postList.length - 1 && postList.length > 1;
   const modalScrollRef = React.useRef(null);
   React.useEffect(() => { modalScrollRef.current?.scrollTo(0, 0); }, [selectedPost?.id]);
+  const [expandedMachinePostId, setExpandedMachinePostId] = useState(null);
   const [expandedRankId, setExpandedRankId] = useState(null);
   const [expandedMachineId, setExpandedMachineId] = useState(null);
   const [expandedCat, setExpandedCat] = useState(null);
@@ -1618,14 +1619,44 @@ function OverviewTab({ posts, updatePost }) {
                   <span style={{width:36,textAlign:"center",fontSize:12,color:sel?"#993C1D":"#aaa",flexShrink:0}}>{sel?"▲":"▼"}</span>
                 </div>
                 {sel && (
-                  <div style={{background:"#FFF8F5",borderBottom:"0.5px solid #F0E0D8",padding:"10px 10px 4px"}}>
-                    {mPosts.map(mp => (
-                      <div key={mp.id} onClick={() => { setPostList(mPosts); setSelectedPost(mp); }} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",marginBottom:6,cursor:"pointer",borderRadius:8,background:"#fff",border:"0.5px solid #eee",borderLeft:"3px solid #F0997B"}}>
-                        <CatBadge cat={mp.cat}/>
-                        <span style={{flex:1,fontSize:14,fontWeight:600,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{mp.title}</span>
-                        <span style={{fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥{mp.internal?.likes?.length||0}</span>
-                      </div>
-                    ))}
+                  <div style={{background:"#FFF8F5",borderBottom:"0.5px solid #F0E0D8",padding:"6px 10px 4px"}}>
+                    {mPosts.map(mp => {
+                      const isExpMP = expandedMachinePostId === mp.id;
+                      return (
+                        <div key={mp.id} style={{marginBottom:6,borderRadius:8,background:"#fff",border:"0.5px solid #eee",borderLeft:`3px solid ${isExpMP?"#D85A30":"#F0997B"}`,overflow:"hidden"}}>
+                          <div onClick={() => setExpandedMachinePostId(isExpMP ? null : mp.id)} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",cursor:"pointer"}}>
+                            <CatBadge cat={mp.cat}/>
+                            <span style={{flex:1,fontSize:14,fontWeight:600,color:isExpMP?"#993C1D":"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{mp.title}</span>
+                            <span style={{fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥{mp.internal?.likes?.length||0}</span>
+                            <span style={{fontSize:11,color:"#aaa",flexShrink:0}}>{isExpMP?"▲":"▼"}</span>
+                          </div>
+                          {isExpMP && (
+                            <div style={{padding:"0 12px 12px",borderTop:"0.5px solid #f0f0f0"}}>
+                              <div style={{fontSize:13,color:"#aaa",margin:"8px 0 4px"}}>@{mp.internal?.author||mp.author||"ゲスト"}</div>
+                              <div style={{fontSize:15,color:"#444",lineHeight:1.65,overflowWrap:"anywhere",marginBottom:8}}>{mp.body}</div>
+                              {mp.internal?.imageUrl && <img src={mp.internal.imageUrl} alt="" style={{width:"100%",maxHeight:260,objectFit:"contain",borderRadius:8,marginBottom:8,display:"block",background:"#f9f9f9"}}/>}
+                              {mp.url && mp.internal?.ogImageUrl && !mp.internal?.imageUrl ? (
+                                <a href={mp.url} target="_blank" rel="noopener noreferrer" style={{display:"block",borderRadius:10,overflow:"hidden",marginBottom:8,textDecoration:"none",border:"0.5px solid #ddd"}}>
+                                  <div style={{position:"relative",height:120,background:"#e8e4dc"}}>
+                                    <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:28,opacity:0.3}}>🔗</span></div>
+                                    <img src={mp.internal.ogImageUrl} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}} onError={e=>{e.target.style.display="none";}}/>
+                                  </div>
+                                  <div style={{display:"flex",alignItems:"center",gap:6,padding:"5px 10px",background:"#f4f3ec",overflow:"hidden"}}>
+                                    <span style={{fontSize:12,color:"#888",flexShrink:0}}>🔗</span>
+                                    <span style={{fontSize:12,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1}}>{mp.url}</span>
+                                  </div>
+                                </a>
+                              ) : mp.url ? (
+                                <a href={mp.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",marginBottom:8,textDecoration:"none",overflow:"hidden"}}>
+                                  <span style={{fontSize:13,color:"#888",flexShrink:0}}>🔗</span>
+                                  <span style={{fontSize:13,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0}}>{mp.url}</span>
+                                </a>
+                              ) : null}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </React.Fragment>
