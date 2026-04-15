@@ -1472,65 +1472,64 @@ function OverviewTab({ posts, updatePost }) {
       {selectedPost && (
         <div onClick={() => setSelectedPost(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
           <div onClick={e => e.stopPropagation()} style={{background:"#fff",borderRadius:"16px 16px 0 0",width:"100%",maxWidth:740,maxHeight:"80vh",display:"flex",flexDirection:"column",boxSizing:"border-box"}}>
-            {/* 固定ヘッダー（ナビ） */}
+            {/* 上部バー：カテゴリ＋閉じる */}
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 16px 8px",borderBottom:"0.5px solid #eee",flexShrink:0}}>
-              <div style={{display:"flex",alignItems:"center",gap:6}}>
+              <div style={{display:"flex",gap:5,alignItems:"center"}}>
                 <CatBadge cat={selectedPost.cat}/>
                 {AUTO_AUTHORS.includes(selectedPost.internal?.author||selectedPost.author) ? <QualityBadge q={selectedPost.quality || 1}/> : null}
               </div>
-              <div style={{display:"flex",alignItems:"center",gap:6}}>
-                {postList.length > 1 && (
-                  <>
-                    <button onClick={() => setSelectedPost(postList[postIdx-1])} disabled={!hasPrev} style={{background:"#E8ECF0",border:"none",borderRadius:8,padding:"5px 12px",fontSize:18,cursor:hasPrev?"pointer":"default",color:hasPrev?"#555":"#ccc",boxShadow:hasPrev?"2px 2px 4px #C5C9D4,-2px -2px 4px #FFFFFF":"none",lineHeight:1}}>‹</button>
-                    <span style={{fontSize:13,color:"#aaa",minWidth:36,textAlign:"center"}}>{postIdx+1}/{postList.length}</span>
-                    <button onClick={() => setSelectedPost(postList[postIdx+1])} disabled={!hasNext} style={{background:"#E8ECF0",border:"none",borderRadius:8,padding:"5px 12px",fontSize:18,cursor:hasNext?"pointer":"default",color:hasNext?"#555":"#ccc",boxShadow:hasNext?"2px 2px 4px #C5C9D4,-2px -2px 4px #FFFFFF":"none",lineHeight:1}}>›</button>
-                  </>
-                )}
-                <button onClick={() => setSelectedPost(null)} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#aaa",padding:"0 4px",lineHeight:1,marginLeft:4}}>×</button>
-              </div>
+              <button onClick={() => setSelectedPost(null)} style={{background:"none",border:"none",fontSize:22,cursor:"pointer",color:"#aaa",padding:"0 4px",lineHeight:1}}>×</button>
             </div>
             {/* スクロールエリア */}
-            <div ref={modalScrollRef} style={{overflowY:"auto",padding:"12px 16px 24px",flex:1}}>
-            <div style={{fontSize:14,color:"#888",marginBottom:4,display:"flex",gap:8,flexWrap:"wrap"}}>
-              <span style={{fontWeight:500,color:"#555"}}>@{selectedPost.internal?.author||selectedPost.author||"ゲスト"}</span>
-              <span>機種: <span style={{color:"#333",fontWeight:500}}>{selectedPost.machine}</span></span>
+            <div ref={modalScrollRef} style={{overflowY:"auto",padding:"12px 16px 16px",flex:1,minHeight:0}}>
+              <div style={{fontSize:14,color:"#888",marginBottom:4,display:"flex",gap:8,flexWrap:"wrap"}}>
+                <span style={{fontWeight:500,color:"#555"}}>@{selectedPost.internal?.author||selectedPost.author||"ゲスト"}</span>
+                <span>機種: <span style={{color:"#333",fontWeight:500}}>{selectedPost.machine}</span></span>
+              </div>
+              <div style={{fontSize:16,fontWeight:500,color:"#333",marginBottom:6,overflowWrap:"anywhere"}}>{selectedPost.title}</div>
+              <div style={{fontSize:15,color:"#666",lineHeight:1.65,marginBottom:8,overflowWrap:"anywhere"}}>{selectedPost.body}</div>
+              {selectedPost.internal?.imageUrl && (
+                <img src={selectedPost.internal.imageUrl} alt="" style={{width:"100%",maxHeight:300,objectFit:"contain",borderRadius:8,marginBottom:8,display:"block",background:"#f9f9f9"}} />
+              )}
+              {selectedPost.url && (
+                <a href={selectedPost.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",textDecoration:"none",overflow:"hidden",marginBottom:8}}>
+                  <span style={{fontSize:14,color:"#888",flexShrink:0}}>🔗</span>
+                  <span style={{fontSize:14,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0}}>{selectedPost.url}</span>
+                </a>
+              )}
+              {AUTO_AUTHORS.includes(selectedPost.internal?.author||selectedPost.author) && (
+                <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10}}>
+                  <span style={{fontSize:13,color:"#aaa"}}>情報LV:</span>
+                  {[[3,"Lv.1"],[4,"Lv.2"],[5,"Lv.3"]].map(([q,l]) => {
+                    const on = (selectedPost.quality||3) === q;
+                    return <button key={q} onClick={() => { updatePost(selectedPost.id, { quality: q }); setSelectedPost(p => ({...p, quality: q})); }} style={{padding:"3px 10px",border:"none",borderRadius:8,fontSize:13,fontWeight:on?600:400,background:on?"#D85A30":"#f0f0f0",color:on?"#fff":"#aaa",cursor:"pointer"}}>{l}</button>;
+                  })}
+                </div>
+              )}
+              {(() => {
+                const related = posts.filter(p => p.id !== selectedPost.id && p.machine === selectedPost.machine && p.machine !== "全般").sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0)).slice(0,3);
+                if (!related.length) return null;
+                return (
+                  <div style={{marginTop:4}}>
+                    <div style={{fontSize:13,color:"#aaa",marginBottom:6}}>同じ機種の投稿</div>
+                    {related.map(p => (
+                      <div key={p.id} onClick={() => setSelectedPost(p)} style={{background:"#f9f9f9",borderRadius:10,padding:"8px 12px",marginBottom:6,cursor:"pointer",border:"0.5px solid #eee"}}>
+                        <div style={{display:"flex",gap:5,alignItems:"center",marginBottom:3}}><CatBadge cat={p.cat}/><span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500}}>♥ {p.internal?.likes?.length||0}</span></div>
+                        <div style={{fontSize:14,fontWeight:500,color:"#333",overflowWrap:"anywhere"}}>{p.title}</div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
-            <div style={{fontSize:16,fontWeight:500,color:"#333",marginBottom:6,overflowWrap:"anywhere"}}>{selectedPost.title}</div>
-            <div style={{fontSize:15,color:"#666",lineHeight:1.65,marginBottom:8,overflowWrap:"anywhere"}}>{selectedPost.body}</div>
-            {selectedPost.internal?.imageUrl && (
-              <img src={selectedPost.internal.imageUrl} alt="" style={{width:"100%",maxHeight:300,objectFit:"contain",borderRadius:8,marginBottom:8,display:"block",background:"#f9f9f9"}} />
-            )}
-            {selectedPost.url && (
-              <a href={selectedPost.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",textDecoration:"none",overflow:"hidden",marginBottom:8}}>
-                <span style={{fontSize:14,color:"#888",flexShrink:0}}>🔗</span>
-                <span style={{fontSize:14,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0}}>{selectedPost.url}</span>
-              </a>
-            )}
-            {AUTO_AUTHORS.includes(selectedPost.internal?.author||selectedPost.author) && (
-              <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10}}>
-                <span style={{fontSize:13,color:"#aaa"}}>情報LV:</span>
-                {[[3,"Lv.1"],[4,"Lv.2"],[5,"Lv.3"]].map(([q,l]) => {
-                  const on = (selectedPost.quality||3) === q;
-                  return <button key={q} onClick={() => { updatePost(selectedPost.id, { quality: q }); setSelectedPost(p => ({...p, quality: q})); }} style={{padding:"3px 10px",border:"none",borderRadius:8,fontSize:13,fontWeight:on?600:400,background:on?"#D85A30":"#f0f0f0",color:on?"#fff":"#aaa",cursor:"pointer"}}>{l}</button>;
-                })}
+            {/* 下部固定ナビバー */}
+            {postList.length > 1 && (
+              <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,padding:"10px 16px",borderTop:"0.5px solid #eee",flexShrink:0,background:"#fff"}}>
+                <button onClick={() => setSelectedPost(postList[postIdx-1])} disabled={!hasPrev} style={{background:"#E8ECF0",border:"none",borderRadius:10,padding:"8px 20px",fontSize:20,cursor:hasPrev?"pointer":"default",color:hasPrev?"#555":"#ccc",boxShadow:hasPrev?"3px 3px 6px #C5C9D4,-3px -3px 6px #FFFFFF":"none",lineHeight:1}}>‹</button>
+                <span style={{fontSize:14,color:"#aaa",minWidth:48,textAlign:"center"}}>{postIdx+1} / {postList.length}</span>
+                <button onClick={() => setSelectedPost(postList[postIdx+1])} disabled={!hasNext} style={{background:"#E8ECF0",border:"none",borderRadius:10,padding:"8px 20px",fontSize:20,cursor:hasNext?"pointer":"default",color:hasNext?"#555":"#ccc",boxShadow:hasNext?"3px 3px 6px #C5C9D4,-3px -3px 6px #FFFFFF":"none",lineHeight:1}}>›</button>
               </div>
             )}
-            {(() => {
-              const related = posts.filter(p => p.id !== selectedPost.id && p.machine === selectedPost.machine && p.machine !== "全般").sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0)).slice(0,3);
-              if (!related.length) return null;
-              return (
-                <div style={{marginTop:4}}>
-                  <div style={{fontSize:13,color:"#aaa",marginBottom:6}}>同じ機種の投稿</div>
-                  {related.map(p => (
-                    <div key={p.id} onClick={() => setSelectedPost(p)} style={{background:"#f9f9f9",borderRadius:10,padding:"8px 12px",marginBottom:6,cursor:"pointer",border:"0.5px solid #eee"}}>
-                      <div style={{display:"flex",gap:5,alignItems:"center",marginBottom:3}}><CatBadge cat={p.cat}/><span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500}}>♥ {p.internal?.likes?.length||0}</span></div>
-                      <div style={{fontSize:14,fontWeight:500,color:"#333",overflowWrap:"anywhere"}}>{p.title}</div>
-                    </div>
-                  ))}
-                </div>
-              );
-            })()}
-            </div>{/* スクロールエリア終了 */}
           </div>
         </div>
       )}
