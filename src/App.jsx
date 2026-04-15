@@ -1400,6 +1400,7 @@ function OverviewTab({ posts, updatePost }) {
   const [rankBy, setRankBy] = useState("likes");
   const [selM, setSelM] = useState(null);
   const [query, setQuery] = useState("");
+  const machinePostsRef = React.useRef(null);
   const [selectedPost, setSelectedPost] = useState(null);
   const [postList, setPostList] = useState([]);
   const postIdx = postList.findIndex(p => p.id === selectedPost?.id);
@@ -1599,7 +1600,7 @@ function OverviewTab({ posts, updatePost }) {
                 {machines.map((m,i) => {
                   const sel = selM===m.name;
                   return (
-                    <tr key={m.name} onClick={() => setSelM(sel?null:m.name)} style={{background:sel?"#FAECE7":i%2===0?"#fff":"#fafafa",cursor:"pointer"}}>
+                    <tr key={m.name} onClick={() => { const next = sel?null:m.name; setSelM(next); if(next) setTimeout(()=>machinePostsRef.current?.scrollIntoView({behavior:"smooth",block:"start"}),50); }} style={{background:sel?"#FAECE7":i%2===0?"#fff":"#fafafa",cursor:"pointer"}}>
                       <td style={{...td,fontWeight:sel?600:400,color:sel?"#993C1D":"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:0}}>{m.name}</td>
                       <td style={{...td,textAlign:"right",fontSize:14,color:"#888"}}>{m.count}</td>
                       <td style={{...td,textAlign:"right",fontWeight:500,color:"#D85A30"}}>{m.likes}</td>
@@ -1611,7 +1612,7 @@ function OverviewTab({ posts, updatePost }) {
             </table>
           </div>
           {selM && (
-            <div style={{marginTop:12}}>
+            <div ref={machinePostsRef} style={{marginTop:12}}>
               <div style={{fontSize:14,fontWeight:600,color:"#993C1D",marginBottom:8,paddingLeft:4}}>{selM}の投稿 ({machinePosts.length}件)</div>
               {machinePosts.map(mp => (
                 <div key={mp.id} onClick={() => { setPostList(machinePosts); setSelectedPost(mp); }} style={{background:"#fff",borderRadius:10,padding:"10px 14px",marginBottom:8,cursor:"pointer",border:"0.5px solid #eee",borderLeft:"3px solid #F0997B"}}>
