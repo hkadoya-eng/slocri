@@ -1401,6 +1401,7 @@ function OverviewTab({ posts, updatePost }) {
   const [selM, setSelM] = useState(null);
   const [query, setQuery] = useState("");
   const [selectedPost, setSelectedPost] = useState(null);
+  const [postList, setPostList] = useState([]);
   const [expandedRankId, setExpandedRankId] = useState(null);
   const [expandedMachineId, setExpandedMachineId] = useState(null);
   const [expandedCat, setExpandedCat] = useState(null);
@@ -1459,7 +1460,12 @@ function OverviewTab({ posts, updatePost }) {
 
   return (
     <div>
-      {selectedPost && (
+      {selectedPost && (() => {
+        const idx = postList.findIndex(p => p.id === selectedPost.id);
+        const hasList = postList.length > 1;
+        const hasPrev = hasList && idx > 0;
+        const hasNext = hasList && idx < postList.length - 1;
+        return (
         <div onClick={() => setSelectedPost(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
           <div onClick={e => e.stopPropagation()} style={{background:"#fff",borderRadius:"16px 16px 0 0",padding:"16px",width:"100%",maxWidth:740,maxHeight:"80vh",overflowY:"auto",boxSizing:"border-box"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10,gap:6}}>
@@ -1467,7 +1473,12 @@ function OverviewTab({ posts, updatePost }) {
                 <CatBadge cat={selectedPost.cat}/>
                 {AUTO_AUTHORS.includes(selectedPost.internal?.author||selectedPost.author) ? <QualityBadge q={selectedPost.quality || 1}/> : null}
               </div>
-              <button onClick={() => setSelectedPost(null)} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#aaa",padding:"0 4px",lineHeight:1,flexShrink:0}}>×</button>
+              <div style={{display:"flex",alignItems:"center",gap:4,flexShrink:0}}>
+                {hasList && <span style={{fontSize:13,color:"#aaa"}}>{idx+1}/{postList.length}</span>}
+                {hasPrev && <button onClick={() => setSelectedPost(postList[idx-1])} style={{background:"#E8ECF0",border:"none",borderRadius:8,padding:"4px 10px",fontSize:16,cursor:"pointer",color:"#555",boxShadow:"2px 2px 4px #C5C9D4,-2px -2px 4px #FFFFFF"}}>‹</button>}
+                {hasNext && <button onClick={() => setSelectedPost(postList[idx+1])} style={{background:"#E8ECF0",border:"none",borderRadius:8,padding:"4px 10px",fontSize:16,cursor:"pointer",color:"#555",boxShadow:"2px 2px 4px #C5C9D4,-2px -2px 4px #FFFFFF"}}>›</button>}
+                <button onClick={() => setSelectedPost(null)} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#aaa",padding:"0 4px",lineHeight:1}}>×</button>
+              </div>
             </div>
             <div style={{fontSize:14,color:"#888",marginBottom:4,display:"flex",gap:8,flexWrap:"wrap"}}>
               <span style={{fontWeight:500,color:"#555"}}>@{selectedPost.internal?.author||selectedPost.author||"ゲスト"}</span>
@@ -1510,7 +1521,8 @@ function OverviewTab({ posts, updatePost }) {
             })()}
           </div>
         </div>
-      )}
+        );
+      })()}
       <div className="scroll-x" style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"nowrap"}}>
         {[["rank","ランキング"],["machine","機種別"],["cat","カテゴリ分布"],["author","投稿者"]].map(([k,l]) => {
           const on = view===k;
@@ -1603,7 +1615,7 @@ function OverviewTab({ posts, updatePost }) {
               <div style={{marginTop:12}}>
                 <div style={{fontSize:14,fontWeight:600,color:"#993C1D",marginBottom:8,paddingLeft:4}}>{selM}の投稿 ({machinePosts.length}件)</div>
                 {machinePosts.map(p => (
-                  <div key={p.id} onClick={() => setSelectedPost(p)} style={{background:"#fff",borderRadius:10,padding:"10px 14px",marginBottom:8,cursor:"pointer",border:"0.5px solid #eee",borderLeft:"3px solid #F0997B"}}>
+                  <div key={p.id} onClick={() => { setPostList(machinePosts); setSelectedPost(p); }} style={{background:"#fff",borderRadius:10,padding:"10px 14px",marginBottom:8,cursor:"pointer",border:"0.5px solid #eee",borderLeft:"3px solid #F0997B"}}>
                     <div style={{display:"flex",gap:5,alignItems:"center",marginBottom:4}}>
                       <CatBadge cat={p.cat}/>
                       <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥ {p.internal?.likes?.length||0}</span>
