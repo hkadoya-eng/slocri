@@ -23,7 +23,11 @@ export default async function handler(req, res) {
     const blocked = ["cloudflare", "just a moment", "attention required", "access denied", "403", "bot"].some(w => title.toLowerCase().includes(w));
     if (blocked) throw new Error("ページを取得できません");
 
-    return res.status(200).json({ body: title });
+    const ogImageMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
+                      || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+    const ogImage = ogImageMatch ? ogImageMatch[1].trim() : "";
+
+    return res.status(200).json({ body: title, ogImage });
   } catch (err) {
     return res.status(200).json({ body: "", error: err.message });
   }
