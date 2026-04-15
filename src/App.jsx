@@ -1410,6 +1410,10 @@ function OverviewTab({ posts, updatePost }) {
   const [expandedCat, setExpandedCat] = useState(null);
   const [expandedAuthor, setExpandedAuthor] = useState(null);
 
+  const machinePosts = useMemo(() =>
+    selM ? posts.filter(p => p.machine === selM).sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0)) : []
+  , [posts, selM]);
+
   const machines = useMemo(() => {
     const m = {};
     posts.filter(p => p.cat !== "fun").forEach(p => {
@@ -1606,24 +1610,21 @@ function OverviewTab({ posts, updatePost }) {
               </tbody>
             </table>
           </div>
-          {selM && (() => {
-            const machinePosts = posts.filter(p=>p.machine===selM).sort((a,b)=>(b.internal?.likes?.length||0)-(a.internal?.likes?.length||0));
-            return (
-              <div style={{marginTop:12}}>
-                <div style={{fontSize:14,fontWeight:600,color:"#993C1D",marginBottom:8,paddingLeft:4}}>{selM}の投稿 ({machinePosts.length}件)</div>
-                {machinePosts.map(p => (
-                  <div key={p.id} onClick={() => { setPostList(machinePosts); setSelectedPost(p); }} style={{background:"#fff",borderRadius:10,padding:"10px 14px",marginBottom:8,cursor:"pointer",border:"0.5px solid #eee",borderLeft:"3px solid #F0997B"}}>
-                    <div style={{display:"flex",gap:5,alignItems:"center",marginBottom:4}}>
-                      <CatBadge cat={p.cat}/>
-                      <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥ {p.internal?.likes?.length||0}</span>
-                    </div>
-                    <div style={{fontSize:15,fontWeight:500,color:"#333",overflowWrap:"anywhere",marginBottom:2}}>{p.title}</div>
-                    <div style={{fontSize:13,color:"#888",overflowWrap:"anywhere"}}>{p.body.slice(0,80)}{p.body.length>80?"…":""}</div>
+          {selM && (
+            <div style={{marginTop:12}}>
+              <div style={{fontSize:14,fontWeight:600,color:"#993C1D",marginBottom:8,paddingLeft:4}}>{selM}の投稿 ({machinePosts.length}件)</div>
+              {machinePosts.map(mp => (
+                <div key={mp.id} onClick={() => { setPostList(machinePosts); setSelectedPost(mp); }} style={{background:"#fff",borderRadius:10,padding:"10px 14px",marginBottom:8,cursor:"pointer",border:"0.5px solid #eee",borderLeft:"3px solid #F0997B"}}>
+                  <div style={{display:"flex",gap:5,alignItems:"center",marginBottom:4}}>
+                    <CatBadge cat={mp.cat}/>
+                    <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥ {mp.internal?.likes?.length||0}</span>
                   </div>
-                ))}
-              </div>
-            );
-          })()}
+                  <div style={{fontSize:15,fontWeight:500,color:"#333",overflowWrap:"anywhere",marginBottom:2}}>{mp.title}</div>
+                  <div style={{fontSize:13,color:"#888",overflowWrap:"anywhere"}}>{mp.body.slice(0,80)}{mp.body.length>80?"…":""}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
