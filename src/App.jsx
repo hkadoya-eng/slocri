@@ -1611,13 +1611,10 @@ function OverviewTab({ posts, updatePost }) {
                 {sel && (
                   <div style={{background:"#FFF8F5",borderBottom:"0.5px solid #F0E0D8",padding:"10px 10px 4px"}}>
                     {mPosts.map(mp => (
-                      <div key={mp.id} onClick={() => { setPostList(mPosts); setSelectedPost(mp); }} style={{background:"#fff",borderRadius:10,padding:"10px 14px",marginBottom:8,cursor:"pointer",border:"0.5px solid #eee",borderLeft:"3px solid #F0997B"}}>
-                        <div style={{display:"flex",gap:5,alignItems:"center",marginBottom:4}}>
-                          <CatBadge cat={mp.cat}/>
-                          <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥ {mp.internal?.likes?.length||0}</span>
-                        </div>
-                        <div style={{fontSize:15,fontWeight:500,color:"#333",overflowWrap:"anywhere",marginBottom:2}}>{mp.title}</div>
-                        <div style={{fontSize:13,color:"#888",overflowWrap:"anywhere"}}>{mp.body.slice(0,80)}{mp.body.length>80?"…":""}</div>
+                      <div key={mp.id} onClick={() => { setPostList(mPosts); setSelectedPost(mp); }} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",marginBottom:6,cursor:"pointer",borderRadius:8,background:"#fff",border:"0.5px solid #eee",borderLeft:"3px solid #F0997B"}}>
+                        <CatBadge cat={mp.cat}/>
+                        <span style={{flex:1,fontSize:14,fontWeight:600,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{mp.title}</span>
+                        <span style={{fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥{mp.internal?.likes?.length||0}</span>
                       </div>
                     ))}
                   </div>
