@@ -1405,6 +1405,8 @@ function OverviewTab({ posts, updatePost }) {
   const postIdx = postList.findIndex(p => p.id === selectedPost?.id);
   const hasPrev = postIdx > 0;
   const hasNext = postIdx < postList.length - 1 && postList.length > 1;
+  const modalScrollRef = React.useRef(null);
+  React.useEffect(() => { modalScrollRef.current?.scrollTo(0, 0); }, [selectedPost?.id]);
   const [expandedRankId, setExpandedRankId] = useState(null);
   const [expandedMachineId, setExpandedMachineId] = useState(null);
   const [expandedCat, setExpandedCat] = useState(null);
@@ -1469,19 +1471,26 @@ function OverviewTab({ posts, updatePost }) {
     <div>
       {selectedPost && (
         <div onClick={() => setSelectedPost(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
-          <div onClick={e => e.stopPropagation()} style={{background:"#fff",borderRadius:"16px 16px 0 0",padding:"16px",width:"100%",maxWidth:740,maxHeight:"80vh",overflowY:"auto",boxSizing:"border-box"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10,gap:6}}>
-              <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",flex:1,minWidth:0}}>
+          <div onClick={e => e.stopPropagation()} style={{background:"#fff",borderRadius:"16px 16px 0 0",width:"100%",maxWidth:740,maxHeight:"80vh",display:"flex",flexDirection:"column",boxSizing:"border-box"}}>
+            {/* 固定ヘッダー（ナビ） */}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 16px 8px",borderBottom:"0.5px solid #eee",flexShrink:0}}>
+              <div style={{display:"flex",alignItems:"center",gap:6}}>
                 <CatBadge cat={selectedPost.cat}/>
                 {AUTO_AUTHORS.includes(selectedPost.internal?.author||selectedPost.author) ? <QualityBadge q={selectedPost.quality || 1}/> : null}
               </div>
-              <div style={{display:"flex",alignItems:"center",gap:4,flexShrink:0}}>
-                {postList.length > 1 && <span style={{fontSize:13,color:"#aaa"}}>{postIdx+1}/{postList.length}</span>}
-                {hasPrev && <button onClick={() => setSelectedPost(postList[postIdx-1])} style={{background:"#E8ECF0",border:"none",borderRadius:8,padding:"4px 10px",fontSize:16,cursor:"pointer",color:"#555",boxShadow:"2px 2px 4px #C5C9D4,-2px -2px 4px #FFFFFF"}}>‹</button>}
-                {hasNext && <button onClick={() => setSelectedPost(postList[postIdx+1])} style={{background:"#E8ECF0",border:"none",borderRadius:8,padding:"4px 10px",fontSize:16,cursor:"pointer",color:"#555",boxShadow:"2px 2px 4px #C5C9D4,-2px -2px 4px #FFFFFF"}}>›</button>}
-                <button onClick={() => setSelectedPost(null)} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#aaa",padding:"0 4px",lineHeight:1}}>×</button>
+              <div style={{display:"flex",alignItems:"center",gap:6}}>
+                {postList.length > 1 && (
+                  <>
+                    <button onClick={() => setSelectedPost(postList[postIdx-1])} disabled={!hasPrev} style={{background:"#E8ECF0",border:"none",borderRadius:8,padding:"5px 12px",fontSize:18,cursor:hasPrev?"pointer":"default",color:hasPrev?"#555":"#ccc",boxShadow:hasPrev?"2px 2px 4px #C5C9D4,-2px -2px 4px #FFFFFF":"none",lineHeight:1}}>‹</button>
+                    <span style={{fontSize:13,color:"#aaa",minWidth:36,textAlign:"center"}}>{postIdx+1}/{postList.length}</span>
+                    <button onClick={() => setSelectedPost(postList[postIdx+1])} disabled={!hasNext} style={{background:"#E8ECF0",border:"none",borderRadius:8,padding:"5px 12px",fontSize:18,cursor:hasNext?"pointer":"default",color:hasNext?"#555":"#ccc",boxShadow:hasNext?"2px 2px 4px #C5C9D4,-2px -2px 4px #FFFFFF":"none",lineHeight:1}}>›</button>
+                  </>
+                )}
+                <button onClick={() => setSelectedPost(null)} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"#aaa",padding:"0 4px",lineHeight:1,marginLeft:4}}>×</button>
               </div>
             </div>
+            {/* スクロールエリア */}
+            <div ref={modalScrollRef} style={{overflowY:"auto",padding:"12px 16px 24px",flex:1}}>
             <div style={{fontSize:14,color:"#888",marginBottom:4,display:"flex",gap:8,flexWrap:"wrap"}}>
               <span style={{fontWeight:500,color:"#555"}}>@{selectedPost.internal?.author||selectedPost.author||"ゲスト"}</span>
               <span>機種: <span style={{color:"#333",fontWeight:500}}>{selectedPost.machine}</span></span>
@@ -1521,6 +1530,7 @@ function OverviewTab({ posts, updatePost }) {
                 </div>
               );
             })()}
+            </div>{/* スクロールエリア終了 */}
           </div>
         </div>
       )}
