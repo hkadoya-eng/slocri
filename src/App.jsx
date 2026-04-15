@@ -1400,7 +1400,6 @@ function OverviewTab({ posts, updatePost }) {
   const [rankBy, setRankBy] = useState("likes");
   const [selM, setSelM] = useState(null);
   const [query, setQuery] = useState("");
-  const machinePostsRef = React.useRef(null);
   const [selectedPost, setSelectedPost] = useState(null);
   const [postList, setPostList] = useState([]);
   const postIdx = postList.findIndex(p => p.id === selectedPost?.id);
@@ -1591,41 +1590,41 @@ function OverviewTab({ posts, updatePost }) {
       )}
 
       {view==="machine" && (
-        <div>
-          <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,overflow:"hidden"}}>
-            <table style={{width:"100%",borderCollapse:"collapse",tableLayout:"fixed"}}>
-              <colgroup><col/><col style={{width:40}}/><col style={{width:48}}/><col style={{width:36}}/></colgroup>
-              <thead><tr style={{background:"#f9f9f9"}}><th style={th}>機種名</th><th style={{...th,textAlign:"right"}}>件数</th><th style={{...th,textAlign:"right"}}>♥</th><th style={th}></th></tr></thead>
-              <tbody>
-                {machines.map((m,i) => {
-                  const sel = selM===m.name;
-                  return (
-                    <tr key={m.name} onClick={() => { const next = sel?null:m.name; setSelM(next); if(next) setTimeout(()=>machinePostsRef.current?.scrollIntoView({behavior:"smooth",block:"start"}),50); }} style={{background:sel?"#FAECE7":i%2===0?"#fff":"#fafafa",cursor:"pointer"}}>
-                      <td style={{...td,fontWeight:sel?600:400,color:sel?"#993C1D":"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:0}}>{m.name}</td>
-                      <td style={{...td,textAlign:"right",fontSize:14,color:"#888"}}>{m.count}</td>
-                      <td style={{...td,textAlign:"right",fontWeight:500,color:"#D85A30"}}>{m.likes}</td>
-                      <td style={{...td,textAlign:"center",fontSize:12,color:sel?"#993C1D":"#aaa"}}>{sel?"▲":"▼"}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+        <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,overflow:"hidden"}}>
+          <div style={{display:"flex",padding:"6px 10px",background:"#f9f9f9",borderBottom:"0.5px solid #eee"}}>
+            <span style={{...th,flex:1,padding:0}}>機種名</span>
+            <span style={{...th,width:40,textAlign:"right",padding:0}}>件数</span>
+            <span style={{...th,width:48,textAlign:"right",padding:0}}>♥</span>
+            <span style={{width:36}}/>
           </div>
-          {selM && (
-            <div ref={machinePostsRef} style={{marginTop:12}}>
-              <div style={{fontSize:14,fontWeight:600,color:"#993C1D",marginBottom:8,paddingLeft:4}}>{selM}の投稿 ({machinePosts.length}件)</div>
-              {machinePosts.map(mp => (
-                <div key={mp.id} onClick={() => { setPostList(machinePosts); setSelectedPost(mp); }} style={{background:"#fff",borderRadius:10,padding:"10px 14px",marginBottom:8,cursor:"pointer",border:"0.5px solid #eee",borderLeft:"3px solid #F0997B"}}>
-                  <div style={{display:"flex",gap:5,alignItems:"center",marginBottom:4}}>
-                    <CatBadge cat={mp.cat}/>
-                    <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥ {mp.internal?.likes?.length||0}</span>
-                  </div>
-                  <div style={{fontSize:15,fontWeight:500,color:"#333",overflowWrap:"anywhere",marginBottom:2}}>{mp.title}</div>
-                  <div style={{fontSize:13,color:"#888",overflowWrap:"anywhere"}}>{mp.body.slice(0,80)}{mp.body.length>80?"…":""}</div>
+          {machines.map((m,i) => {
+            const sel = selM===m.name;
+            const mPosts = sel ? machinePosts : [];
+            return (
+              <React.Fragment key={m.name}>
+                <div onClick={() => setSelM(sel?null:m.name)} style={{display:"flex",alignItems:"center",padding:"7px 10px",background:sel?"#FAECE7":i%2===0?"#fff":"#fafafa",cursor:"pointer",borderBottom:"0.5px solid #eee"}}>
+                  <span style={{flex:1,fontSize:15,fontWeight:sel?600:400,color:sel?"#993C1D":"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0}}>{m.name}</span>
+                  <span style={{width:40,textAlign:"right",fontSize:14,color:"#888",flexShrink:0}}>{m.count}</span>
+                  <span style={{width:48,textAlign:"right",fontSize:15,fontWeight:500,color:"#D85A30",flexShrink:0}}>{m.likes}</span>
+                  <span style={{width:36,textAlign:"center",fontSize:12,color:sel?"#993C1D":"#aaa",flexShrink:0}}>{sel?"▲":"▼"}</span>
                 </div>
-              ))}
-            </div>
-          )}
+                {sel && (
+                  <div style={{background:"#FFF8F5",borderBottom:"0.5px solid #F0E0D8",padding:"10px 10px 4px"}}>
+                    {mPosts.map(mp => (
+                      <div key={mp.id} onClick={() => { setPostList(mPosts); setSelectedPost(mp); }} style={{background:"#fff",borderRadius:10,padding:"10px 14px",marginBottom:8,cursor:"pointer",border:"0.5px solid #eee",borderLeft:"3px solid #F0997B"}}>
+                        <div style={{display:"flex",gap:5,alignItems:"center",marginBottom:4}}>
+                          <CatBadge cat={mp.cat}/>
+                          <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥ {mp.internal?.likes?.length||0}</span>
+                        </div>
+                        <div style={{fontSize:15,fontWeight:500,color:"#333",overflowWrap:"anywhere",marginBottom:2}}>{mp.title}</div>
+                        <div style={{fontSize:13,color:"#888",overflowWrap:"anywhere"}}>{mp.body.slice(0,80)}{mp.body.length>80?"…":""}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
         </div>
       )}
 
