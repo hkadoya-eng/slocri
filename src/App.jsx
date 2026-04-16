@@ -392,6 +392,10 @@ export default function App() {
               {label:"パチキュレーション",url:"https://pachinko-curation.com/"},
               {label:"2chまとめ",    url:"https://2chmatome.biz/pachisuro"},
               {label:"フルスロットル",url:"https://parlourfullslotl.com/"},
+              {label:"みんスロ",     url:"https://minslo.com/"},
+              {label:"すろぱちくえすと",url:"https://www.slopachi-quest.com/"},
+              {label:"期待値見える化",url:"https://slotjin.com/"},
+              {label:"みんぱち",     url:"https://minpachi.com/"},
             ].map(({label,url}) => (
               <a key={url} href={url} target="_blank" rel="noopener noreferrer"
                 style={{display:"flex",alignItems:"center",gap:6,padding:"8px 10px",borderRadius:10,background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",textDecoration:"none",color:"#444",fontSize:13}}>
