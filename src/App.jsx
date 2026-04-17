@@ -1059,6 +1059,9 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                 </div>
                 <div style={{fontSize:16,fontWeight:500,color:"#333",marginBottom:4,overflowWrap:"anywhere"}}>{p.title}</div>
                 {(function CollapseBody() {
+                  const hasImage = !!(p.internal?.imageUrl || p.internal?.ogImageUrl);
+                  const isAuto = AUTO_AUTHORS.includes(postAuthor);
+                  if (isAuto && hasImage) return null;
                   const LIMIT = 60;
                   const isLong = p.body.length > LIMIT;
                   const isExpanded = !!expandedPosts[p.id];
