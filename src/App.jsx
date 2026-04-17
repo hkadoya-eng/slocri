@@ -1793,8 +1793,17 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
   const analyzeMachines = useMemo(() => {
     const m = {};
     posts.filter(p => p.cat !== "fun" && p.machine !== "全般").forEach(p => { m[p.machine] = (m[p.machine]||0)+1; });
-    return Object.entries(m).filter(([,c])=>c>=3).sort((a,b)=>b[1]-a[1]).map(([name])=>name);
+    return Object.entries(m).filter(([,c])=>c>=3).sort((a,b)=>b[1]-a[1]).map(([name,count])=>({name,count}));
   }, [posts]);
+
+  const analyzeMachineStatuses = useMemo(() => {
+    return analyzeMachines.map(({name,count}) => {
+      const data = lookupAnalysis(name);
+      if (!data) return {name,count,status:"unanalyzed"};
+      if (count >= data.postCount + 3) return {name,count,status:"stale",stored:data.postCount};
+      return {name,count,status:"ok",stored:data.postCount};
+    });
+  }, [analyzeMachines]);
 
   function lookupAnalysis(machineName) {
     if (MACHINE_ANALYSIS[machineName]) return MACHINE_ANALYSIS[machineName];
@@ -1937,11 +1946,33 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
       {mode==="analyze" && (
         <div>
           <div style={{fontSize:13,color:"#aaa",marginBottom:10}}>投稿データをもとに手動分析した結果です。「〇〇を分析して」と声をかけると追加できます。</div>
+          {(() => {
+            const needsAttn = analyzeMachineStatuses.filter(s => s.status!=="ok");
+            if (!needsAttn.length) return null;
+            return (
+              <div style={{marginBottom:14,background:"#fff",border:"0.5px solid #eee",borderRadius:12,overflow:"hidden"}}>
+                <div style={{padding:"8px 14px",borderBottom:"0.5px solid #eee",fontSize:13,fontWeight:600,color:"#555"}}>要対応の機種</div>
+                {needsAttn.map(s => (
+                  <div key={s.name} onClick={() => { setAnalyzeM(s.name); setAnalyzeResult(null); }}
+                    style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 14px",borderBottom:"0.5px solid #f5f5f5",cursor:"pointer",background:analyzeM===s.name?"#FAECE7":"#fff"}}>
+                    <span style={{fontSize:14,color:"#333",flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.name}</span>
+                    {s.status==="unanalyzed"
+                      ? <span style={{fontSize:12,color:"#777",background:"#F0F0F0",borderRadius:6,padding:"2px 8px",flexShrink:0,marginLeft:8}}>📊 未分析（{s.count}件）</span>
+                      : <span style={{fontSize:12,color:"#C55A00",background:"#FFF3E0",borderRadius:6,padding:"2px 8px",flexShrink:0,marginLeft:8}}>⚠️ +{s.count - s.stored}件追加あり</span>
+                    }
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
           <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center"}}>
             <select value={analyzeM} onChange={e => { setAnalyzeM(e.target.value); setAnalyzeResult(null); }}
               style={{flex:1,fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:analyzeM?"#333":"#aaa",minWidth:0}}>
               <option value="">機種を選択（3件以上）</option>
-              {analyzeMachines.map(m => <option key={m} value={m}>{m}</option>)}
+              {analyzeMachineStatuses.map(({name,count,status,stored}) => {
+                const prefix = status==="unanalyzed" ? `📊 未分析（${count}件）` : status==="stale" ? `⚠️ +${count-stored}件` : `✓`;
+                return <option key={name} value={name}>{prefix} {name}</option>;
+              })}
             </select>
             <button onClick={analyze} disabled={!analyzeM}
               style={{padding:"8px 16px",border:"none",borderRadius:10,background:!analyzeM?"#ccc":"#D85A30",color:"#fff",fontSize:15,fontWeight:500,cursor:!analyzeM?"not-allowed":"pointer",whiteSpace:"nowrap",flexShrink:0}}>
