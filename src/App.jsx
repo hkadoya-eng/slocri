@@ -1780,11 +1780,40 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState({ machine:"", cat:"" });
   const bottomRef = useRef(null);
+  const [analyzeM, setAnalyzeM] = useState("");
+  const [analyzeResult, setAnalyzeResult] = useState(null);
+  const [analyzeLoading, setAnalyzeLoading] = useState(false);
 
   useEffect(() => { if(bottomRef.current) bottomRef.current.scrollIntoView({behavior:"smooth"}); }, [messages]);
 
   const machines = useMemo(() => { const seen={},r=[]; posts.forEach(p=>{if(!seen[p.machine]){seen[p.machine]=true;r.push(p.machine);}}); return r; }, [posts]);
   const filteredPosts = posts.filter(p => (!filter.machine||p.machine===filter.machine)&&(!filter.cat||p.cat===filter.cat)).sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0));
+
+  const analyzeMachines = useMemo(() => {
+    const m = {};
+    posts.filter(p => p.cat !== "fun" && p.machine !== "全般").forEach(p => { m[p.machine] = (m[p.machine]||0)+1; });
+    return Object.entries(m).filter(([,c])=>c>=3).sort((a,b)=>b[1]-a[1]).map(([name])=>name);
+  }, [posts]);
+
+  async function analyze() {
+    if (!analyzeM) return;
+    setAnalyzeLoading(true);
+    setAnalyzeResult(null);
+    try {
+      const mp = posts.filter(p => p.machine === analyzeM && p.cat !== "fun");
+      const lib = mp.map(p => `[${CATS[p.cat]?.label||p.cat}] ${p.title}：${p.body}`).join("\n");
+      const system = `あなたはパチスロ機種の分析アシスタントです。以下の「${analyzeM}」に関する投稿（計${mp.length}件）を分析し、この機種の良いところと悪いところをまとめてください。\n【投稿データ】\n${lib}\n出力形式（JSONのみ。前後に余計な文章は不要）:\n{"pros":["良い点1","良い点2",...],"cons":["悪い点1","悪い点2",...],"summary":"一言まとめ（20文字以内）"}\n良い点・悪い点はそれぞれ最大5件。投稿の記述に根拠のある内容のみ記載。`;
+      const res = await fetch("/api/claude", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:600, system, messages:[{role:"user",content:`「${analyzeM}」の良い点・悪い点を分析してください`}] }) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.error) throw new Error(typeof data.error==="string"?data.error:(data.error.message||"APIエラー"));
+      const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+      const jm = text.match(/\{[\s\S]*\}/);
+      if (!jm) throw new Error("解析失敗");
+      setAnalyzeResult({ ...JSON.parse(jm[0]), machine:analyzeM, count:mp.length });
+    } catch(e) { setAnalyzeResult({ error: e.message||"不明なエラー" }); }
+    setAnalyzeLoading(false);
+  }
 
   const SUGG = ["社内いいねが多い投稿の共通点を教えて","企画ネタになりそうな思い出エピソードをまとめて","北斗天昇の一番盛り上がる演出は？","バジ絆2のBCが続きやすいゾーンってどこ？"];
 
@@ -1814,7 +1843,7 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
   return (
     <div style={{minWidth:0}}>
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem"}}>
-        {[["browse","絞り込み"],["gap","ギャップ表"],["chat","チャット"]].map(([k,l]) => {
+        {[["browse","絞り込み"],["gap","ギャップ表"],["analyze","機種分析"],["chat","チャット"]].map(([k,l]) => {
           const on = mode===k;
           return <button key={k} onClick={() => setMode(k)} style={{padding:"5px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:14,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap"}}>{l}</button>;
         })}
@@ -1908,6 +1937,49 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
           </div>
         );
       })()}
+
+      {mode==="analyze" && (
+        <div>
+          <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center"}}>
+            <select value={analyzeM} onChange={e => { setAnalyzeM(e.target.value); setAnalyzeResult(null); }}
+              style={{flex:1,fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:analyzeM?"#333":"#aaa",minWidth:0}}>
+              <option value="">機種を選択（3件以上）</option>
+              {analyzeMachines.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+            <button onClick={analyze} disabled={!analyzeM||analyzeLoading||!aiEnabled}
+              style={{padding:"8px 16px",border:"none",borderRadius:10,background:(!analyzeM||analyzeLoading||!aiEnabled)?"#ccc":"#D85A30",color:"#fff",fontSize:15,fontWeight:500,cursor:(!analyzeM||analyzeLoading||!aiEnabled)?"not-allowed":"pointer",whiteSpace:"nowrap",flexShrink:0}}>
+              {analyzeLoading?"分析中...":"分析する"}
+            </button>
+          </div>
+          {!aiEnabled && <div style={{fontSize:14,color:"#e57373",marginBottom:8,padding:"6px 10px",background:"#fff5f5",borderRadius:8,border:"0.5px solid #e57373"}}>APIキーが未設定のため利用できません</div>}
+          {analyzeResult && !analyzeResult.error && (
+            <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:14,overflow:"hidden"}}>
+              <div style={{padding:"12px 16px",borderBottom:"0.5px solid #eee",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                <div style={{fontWeight:600,fontSize:16,color:"#333"}}>{analyzeResult.machine}</div>
+                <div style={{fontSize:13,color:"#aaa"}}>{analyzeResult.count}件の投稿から分析</div>
+              </div>
+              {analyzeResult.summary && (
+                <div style={{padding:"10px 16px",background:"#FAECE7",borderBottom:"0.5px solid #eee",fontSize:14,color:"#993C1D",fontWeight:500}}>{analyzeResult.summary}</div>
+              )}
+              <div style={{padding:"12px 16px",borderBottom:"0.5px solid #eee"}}>
+                <div style={{fontSize:14,fontWeight:600,color:"#2E7D32",marginBottom:8}}>👍 良いところ</div>
+                {(analyzeResult.pros||[]).length > 0
+                  ? (analyzeResult.pros||[]).map((p,i) => <div key={i} style={{display:"flex",gap:8,marginBottom:6,alignItems:"flex-start"}}><span style={{color:"#2E7D32",fontWeight:700,flexShrink:0}}>・</span><span style={{fontSize:14,color:"#333",lineHeight:1.6}}>{p}</span></div>)
+                  : <div style={{fontSize:14,color:"#aaa"}}>該当なし</div>}
+              </div>
+              <div style={{padding:"12px 16px"}}>
+                <div style={{fontSize:14,fontWeight:600,color:"#C62828",marginBottom:8}}>👎 悪いところ</div>
+                {(analyzeResult.cons||[]).length > 0
+                  ? (analyzeResult.cons||[]).map((c,i) => <div key={i} style={{display:"flex",gap:8,marginBottom:6,alignItems:"flex-start"}}><span style={{color:"#C62828",fontWeight:700,flexShrink:0}}>・</span><span style={{fontSize:14,color:"#333",lineHeight:1.6}}>{c}</span></div>)
+                  : <div style={{fontSize:14,color:"#aaa"}}>該当なし</div>}
+              </div>
+            </div>
+          )}
+          {analyzeResult?.error && (
+            <div style={{fontSize:14,color:"#e57373",padding:"10px 14px",background:"#fff5f5",borderRadius:10,border:"0.5px solid #e57373"}}>エラー: {analyzeResult.error}</div>
+          )}
+        </div>
+      )}
 
       {mode==="browse" && (
         <div>
