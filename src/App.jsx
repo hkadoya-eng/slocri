@@ -1787,6 +1787,7 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
   const [analyzeM, setAnalyzeM] = useState("");
   const [analyzeResult, setAnalyzeResult] = useState(null);
   const [analyzeLoading, setAnalyzeLoading] = useState(false);
+  const [rankSort, setRankSort] = useState("posts");
 
   useEffect(() => { if(bottomRef.current) bottomRef.current.scrollIntoView({behavior:"smooth"}); }, [messages]);
 
@@ -1851,11 +1852,65 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
   return (
     <div style={{minWidth:0}}>
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem"}}>
-        {[["browse","絞り込み"],["gap","ギャップ表"],["analyze","機種分析"],["chat","チャット"]].map(([k,l]) => {
+        {[["browse","絞り込み"],["rank","ランキング"],["gap","ギャップ表"],["analyze","機種分析"],["chat","チャット"]].map(([k,l]) => {
           const on = mode===k;
           return <button key={k} onClick={() => setMode(k)} style={{padding:"5px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:14,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap"}}>{l}</button>;
         })}
       </div>
+
+      {mode==="rank" && (() => {
+        const TWO_WEEKS = Date.now() - 14 * 24 * 60 * 60 * 1000;
+        const machineMap = {};
+        posts.filter(p => p.machine && p.machine !== "全般").forEach(p => {
+          if (!machineMap[p.machine]) machineMap[p.machine] = { posts:0, likes:0, quality:[], recent:0 };
+          const m = machineMap[p.machine];
+          m.posts++;
+          m.likes += (p.internal?.likes?.length || 0);
+          if (p.quality) m.quality.push(p.quality);
+          if (p.created_at && new Date(p.created_at).getTime() > TWO_WEEKS) m.recent++;
+        });
+        const rows = Object.entries(machineMap).map(([name, d]) => ({
+          name,
+          posts: d.posts,
+          likes: d.likes,
+          quality: d.quality.length ? Math.round(d.quality.reduce((a,b)=>a+b,0) / d.quality.length * 10) / 10 : null,
+          recent: d.recent,
+        }));
+        const SORTS = [["posts","投稿数"],["likes","いいね"],["quality","品質"],["recent","直近2週"]];
+        const sorted = [...rows].sort((a,b) => {
+          if (rankSort === "quality") return (b.quality||0) - (a.quality||0);
+          return b[rankSort] - a[rankSort];
+        });
+        return (
+          <div>
+            <div style={{display:"flex",gap:6,marginBottom:14,flexWrap:"wrap"}}>
+              {SORTS.map(([k,l]) => {
+                const on = rankSort===k;
+                return <button key={k} onClick={() => setRankSort(k)} style={{padding:"5px 14px",border:`0.5px solid ${on?"#185FA5":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#E6F1FB":"#fff",color:on?"#185FA5":"#888",cursor:"pointer",fontWeight:on?600:400}}>{l}</button>;
+              })}
+            </div>
+            <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:14,overflow:"hidden"}}>
+              <div style={{display:"grid",gridTemplateColumns:"28px 1fr 44px 44px 52px 52px",padding:"6px 12px",background:"#E8ECF0",fontSize:12,color:"#888",fontWeight:500,gap:4,alignItems:"center"}}>
+                <span>#</span><span>機種</span><span style={{textAlign:"right"}}>投稿</span><span style={{textAlign:"right"}}>いいね</span><span style={{textAlign:"right"}}>品質</span><span style={{textAlign:"right"}}>直近2週</span>
+              </div>
+              {sorted.map((r,i) => {
+                const isTop = i === 0;
+                const medal = i===0?"🥇":i===1?"🥈":i===2?"🥉":null;
+                return (
+                  <div key={r.name} style={{display:"grid",gridTemplateColumns:"28px 1fr 44px 44px 52px 52px",padding:"9px 12px",borderTop:"0.5px solid #f0f0f0",background:isTop?"#FFFDE7":"#fff",fontSize:14,gap:4,alignItems:"center"}}>
+                    <span style={{fontSize:15}}>{medal || <span style={{color:"#bbb",fontSize:12}}>{i+1}</span>}</span>
+                    <span style={{fontWeight:isTop?600:400,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",fontSize:13}}>{r.name}</span>
+                    <span style={{textAlign:"right",color:rankSort==="posts"?"#185FA5":"#555",fontWeight:rankSort==="posts"?600:400}}>{r.posts}</span>
+                    <span style={{textAlign:"right",color:rankSort==="likes"?"#185FA5":"#555",fontWeight:rankSort==="likes"?600:400}}>{r.likes}</span>
+                    <span style={{textAlign:"right",color:rankSort==="quality"?"#185FA5":"#555",fontWeight:rankSort==="quality"?600:400}}>{r.quality ?? "—"}</span>
+                    <span style={{textAlign:"right",color:rankSort==="recent"?"#185FA5":"#555",fontWeight:rankSort==="recent"?600:400}}>{r.recent > 0 ? `+${r.recent}` : "—"}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {mode==="chat" && (
         <div>
