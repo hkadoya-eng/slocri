@@ -1814,7 +1814,7 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
   return (
     <div style={{minWidth:0}}>
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem"}}>
-        {[["browse","絞り込み"],["chat","チャット"]].map(([k,l]) => {
+        {[["browse","絞り込み"],["gap","ギャップ表"],["chat","チャット"]].map(([k,l]) => {
           const on = mode===k;
           return <button key={k} onClick={() => setMode(k)} style={{padding:"5px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:14,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap"}}>{l}</button>;
         })}
@@ -1850,6 +1850,64 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
           {messages.length>0 && <button onClick={() => setMessages([])} style={{marginTop:6,background:"none",border:"none",fontSize:14,color:"#aaa",cursor:"pointer",padding:0}}>会話をリセット</button>}
         </div>
       )}
+
+      {mode==="gap" && (() => {
+        const GAP_CATS = ["spec","aimH","memory","bonus","episode","quote","hall"];
+        const CAT_SHORT = { spec:"機種情報", aimH:"狙い目", memory:"勝負エピ", bonus:"演出", episode:"昔の機種", quote:"版権", hall:"業界" };
+        const machineMap = {};
+        posts.filter(p => p.cat !== "fun" && p.machine !== "全般").forEach(p => {
+          if (!machineMap[p.machine]) machineMap[p.machine] = {};
+          machineMap[p.machine][p.cat] = (machineMap[p.machine][p.cat] || 0) + 1;
+        });
+        const machineList = Object.entries(machineMap)
+          .map(([name, cats]) => ({ name, total: Object.values(cats).reduce((a,b)=>a+b,0), cats }))
+          .sort((a,b) => b.total - a.total);
+        const totalGaps = machineList.reduce((sum,m) => sum + GAP_CATS.filter(k=>!m.cats[k]).length, 0);
+        return (
+          <div>
+            <div style={{fontSize:14,color:"#888",marginBottom:10}}>
+              {machineList.length}機種 × {GAP_CATS.length}カテゴリ ／ ギャップ <span style={{color:"#C62828",fontWeight:600}}>{totalGaps}個</span>
+            </div>
+            <div style={{fontSize:12,color:"#aaa",marginBottom:8,display:"flex",gap:12}}>
+              <span><span style={{color:"#C62828",fontWeight:600}}>✕</span> 未収録</span>
+              <span><span style={{color:"#E65100",fontWeight:600}}>1</span> 1件のみ</span>
+              <span><span style={{color:"#2E7D32",fontWeight:600}}>2+</span> 充足</span>
+            </div>
+            <div className="scroll-x" style={{overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
+              <table style={{borderCollapse:"collapse",fontSize:13,whiteSpace:"nowrap"}}>
+                <thead>
+                  <tr>
+                    <th style={{padding:"6px 10px",background:"#E8ECF0",fontWeight:500,color:"#555",textAlign:"left",position:"sticky",left:0,zIndex:2,borderRight:"0.5px solid #C5C9D4",minWidth:100}}>機種</th>
+                    {GAP_CATS.map(k => (
+                      <th key={k} style={{padding:"6px 8px",background:"#E8ECF0",fontWeight:500,color:CATS[k].color,textAlign:"center",minWidth:54,borderLeft:"0.5px solid #C5C9D4"}}>{CAT_SHORT[k]}</th>
+                    ))}
+                    <th style={{padding:"6px 8px",background:"#E8ECF0",fontWeight:500,color:"#555",textAlign:"center",borderLeft:"0.5px solid #C5C9D4"}}>計</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {machineList.map(m => (
+                    <tr key={m.name}>
+                      <td style={{padding:"5px 10px",background:"#fff",fontWeight:500,color:"#333",position:"sticky",left:0,zIndex:1,borderBottom:"0.5px solid #eee",borderRight:"0.5px solid #C5C9D4",fontSize:13}}>{m.name}</td>
+                      {GAP_CATS.map(k => {
+                        const cnt = m.cats[k] || 0;
+                        const bg = cnt===0?"#FDECEA":cnt===1?"#FFF8E1":"#F0F9F0";
+                        const col = cnt===0?"#C62828":cnt===1?"#E65100":"#2E7D32";
+                        return (
+                          <td key={k} onClick={() => { setFilter({machine:m.name,cat:k}); setMode("browse"); }}
+                            style={{padding:"5px 8px",textAlign:"center",background:bg,color:col,fontWeight:cnt===0?600:400,cursor:"pointer",borderBottom:"0.5px solid #eee",borderLeft:"0.5px solid #eee"}}>
+                            {cnt===0?"✕":cnt}
+                          </td>
+                        );
+                      })}
+                      <td style={{padding:"5px 8px",textAlign:"center",background:"#f5f5f5",color:"#555",fontWeight:500,borderBottom:"0.5px solid #eee",borderLeft:"0.5px solid #C5C9D4"}}>{m.total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })()}
 
       {mode==="browse" && (
         <div>
