@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { supabase } from "./supabase";
+import MACHINE_ANALYSIS from "./machineAnalysis.json";
 
 const CATS = {
   aimH:    { label:"お店狙い目",   bg:"#FFF8E1", color:"#E65100", border:"#FFB74D" },
@@ -1795,24 +1796,19 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
     return Object.entries(m).filter(([,c])=>c>=3).sort((a,b)=>b[1]-a[1]).map(([name])=>name);
   }, [posts]);
 
-  async function analyze() {
+  function lookupAnalysis(machineName) {
+    if (MACHINE_ANALYSIS[machineName]) return MACHINE_ANALYSIS[machineName];
+    return Object.values(MACHINE_ANALYSIS).find(v => (v.aliases||[]).includes(machineName)) || null;
+  }
+
+  function analyze() {
     if (!analyzeM) return;
-    setAnalyzeLoading(true);
-    setAnalyzeResult(null);
-    try {
-      const mp = posts.filter(p => p.machine === analyzeM && p.cat !== "fun");
-      const lib = mp.map(p => `[${CATS[p.cat]?.label||p.cat}] ${p.title}：${p.body}`).join("\n");
-      const system = `あなたはパチスロ機種の分析アシスタントです。以下の「${analyzeM}」に関する投稿（計${mp.length}件）を分析し、この機種の良いところと悪いところをまとめてください。\n【投稿データ】\n${lib}\n出力形式（JSONのみ。前後に余計な文章は不要）:\n{"pros":["良い点1","良い点2",...],"cons":["悪い点1","悪い点2",...],"summary":"一言まとめ（20文字以内）"}\n良い点・悪い点はそれぞれ最大5件。投稿の記述に根拠のある内容のみ記載。`;
-      const res = await fetch("/api/claude", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:600, system, messages:[{role:"user",content:`「${analyzeM}」の良い点・悪い点を分析してください`}] }) });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (data.error) throw new Error(typeof data.error==="string"?data.error:(data.error.message||"APIエラー"));
-      const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
-      const jm = text.match(/\{[\s\S]*\}/);
-      if (!jm) throw new Error("解析失敗");
-      setAnalyzeResult({ ...JSON.parse(jm[0]), machine:analyzeM, count:mp.length });
-    } catch(e) { setAnalyzeResult({ error: e.message||"不明なエラー" }); }
-    setAnalyzeLoading(false);
+    const data = lookupAnalysis(analyzeM);
+    if (data) {
+      setAnalyzeResult({ ...data, machine: analyzeM });
+    } else {
+      setAnalyzeResult({ error: "この機種の分析データはまだありません。投稿が蓄積されたら追加予定です。" });
+    }
   }
 
   const SUGG = ["社内いいねが多い投稿の共通点を教えて","企画ネタになりそうな思い出エピソードをまとめて","北斗天昇の一番盛り上がる演出は？","バジ絆2のBCが続きやすいゾーンってどこ？"];
@@ -1940,23 +1936,23 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
 
       {mode==="analyze" && (
         <div>
+          <div style={{fontSize:13,color:"#aaa",marginBottom:10}}>投稿データをもとに手動分析した結果です。「〇〇を分析して」と声をかけると追加できます。</div>
           <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center"}}>
             <select value={analyzeM} onChange={e => { setAnalyzeM(e.target.value); setAnalyzeResult(null); }}
               style={{flex:1,fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:analyzeM?"#333":"#aaa",minWidth:0}}>
               <option value="">機種を選択（3件以上）</option>
               {analyzeMachines.map(m => <option key={m} value={m}>{m}</option>)}
             </select>
-            <button onClick={analyze} disabled={!analyzeM||analyzeLoading||!aiEnabled}
-              style={{padding:"8px 16px",border:"none",borderRadius:10,background:(!analyzeM||analyzeLoading||!aiEnabled)?"#ccc":"#D85A30",color:"#fff",fontSize:15,fontWeight:500,cursor:(!analyzeM||analyzeLoading||!aiEnabled)?"not-allowed":"pointer",whiteSpace:"nowrap",flexShrink:0}}>
-              {analyzeLoading?"分析中...":"分析する"}
+            <button onClick={analyze} disabled={!analyzeM}
+              style={{padding:"8px 16px",border:"none",borderRadius:10,background:!analyzeM?"#ccc":"#D85A30",color:"#fff",fontSize:15,fontWeight:500,cursor:!analyzeM?"not-allowed":"pointer",whiteSpace:"nowrap",flexShrink:0}}>
+              分析する
             </button>
           </div>
-          {!aiEnabled && <div style={{fontSize:14,color:"#e57373",marginBottom:8,padding:"6px 10px",background:"#fff5f5",borderRadius:8,border:"0.5px solid #e57373"}}>APIキーが未設定のため利用できません</div>}
           {analyzeResult && !analyzeResult.error && (
             <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:14,overflow:"hidden"}}>
               <div style={{padding:"12px 16px",borderBottom:"0.5px solid #eee",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                 <div style={{fontWeight:600,fontSize:16,color:"#333"}}>{analyzeResult.machine}</div>
-                <div style={{fontSize:13,color:"#aaa"}}>{analyzeResult.count}件の投稿から分析</div>
+                <div style={{fontSize:13,color:"#aaa"}}>{analyzeResult.postCount}件の投稿から分析 · {analyzeResult.updatedAt}</div>
               </div>
               {analyzeResult.summary && (
                 <div style={{padding:"10px 16px",background:"#FAECE7",borderBottom:"0.5px solid #eee",fontSize:14,color:"#993C1D",fontWeight:500}}>{analyzeResult.summary}</div>
