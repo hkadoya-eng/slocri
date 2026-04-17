@@ -552,6 +552,9 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const [uploading, setUploading] = useState(false);
   const [shopFilter, setShopFilter] = useState("");
   const [expandedPosts, setExpandedPosts] = useState({});
+  const [imgSelectedPost, setImgSelectedPost] = useState(null);
+  const imgModalScrollRef = React.useRef(null);
+  React.useEffect(() => { imgModalScrollRef.current?.scrollTo(0, 0); }, [imgSelectedPost?.id]);
   const [replyTo, setReplyTo] = useState(null); // {postId, idx}
   const [replyText, setReplyText] = useState("");
   const [favMachines, setFavMachines] = useState(() => JSON.parse(localStorage.getItem("slotkey_favs") || "[]"));
@@ -811,6 +814,44 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
           <button onClick={() => setFullscreenImg(null)} style={{position:"absolute",top:16,right:16,background:"rgba(255,255,255,0.15)",border:"none",borderRadius:"50%",width:36,height:36,fontSize:20,color:"#fff",cursor:"pointer",lineHeight:1}}>×</button>
         </div>
       )}
+      {/* 画像タブ投稿モーダル */}
+      {imgSelectedPost && (
+        <div onClick={() => setImgSelectedPost(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
+          <div onClick={e => e.stopPropagation()} style={{background:"#fff",borderRadius:"16px 16px 0 0",width:"100%",maxWidth:740,maxHeight:"80vh",display:"flex",flexDirection:"column",boxSizing:"border-box"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 16px 8px",borderBottom:"0.5px solid #eee",flexShrink:0}}>
+              <div style={{display:"flex",gap:5,alignItems:"center"}}>
+                <CatBadge cat={imgSelectedPost.cat}/>
+              </div>
+              <button onClick={() => setImgSelectedPost(null)} style={{background:"none",border:"none",fontSize:22,cursor:"pointer",color:"#aaa",padding:"0 4px",lineHeight:1}}>×</button>
+            </div>
+            <div ref={imgModalScrollRef} style={{overflowY:"auto",padding:"12px 16px 16px",flex:1,minHeight:0}}>
+              <div style={{fontSize:14,color:"#888",marginBottom:4,display:"flex",gap:8,flexWrap:"wrap"}}>
+                <span style={{fontWeight:500,color:"#555"}}>@{imgSelectedPost.internal?.author||imgSelectedPost.author||"ゲスト"}</span>
+                <span>機種: <span style={{color:"#333",fontWeight:500}}>{imgSelectedPost.machine}</span></span>
+              </div>
+              <div style={{fontSize:16,fontWeight:500,color:"#333",marginBottom:6,overflowWrap:"anywhere"}}>{imgSelectedPost.title}</div>
+              <div style={{fontSize:15,color:"#666",lineHeight:1.65,marginBottom:8,overflowWrap:"anywhere"}}>{imgSelectedPost.body}</div>
+              {imgSelectedPost.internal?.imageUrl && (
+                <img src={imgSelectedPost.internal.imageUrl} alt="" onClick={() => setFullscreenImg(imgSelectedPost.internal.imageUrl)} style={{width:"100%",maxHeight:340,objectFit:"contain",borderRadius:8,marginBottom:8,display:"block",background:"#f9f9f9",cursor:"zoom-in"}} />
+              )}
+              {imgSelectedPost.url && imgSelectedPost.internal?.ogImageUrl && !imgSelectedPost.internal?.imageUrl && (
+                <img src={imgSelectedPost.internal.ogImageUrl} alt="" style={{width:"100%",maxHeight:220,objectFit:"contain",borderRadius:8,marginBottom:8,display:"block",background:"#f9f9f9"}} />
+              )}
+              {imgSelectedPost.url && (
+                <a href={imgSelectedPost.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",textDecoration:"none",overflow:"hidden",marginBottom:8}}>
+                  <span style={{fontSize:14,color:"#888",flexShrink:0}}>🔗</span>
+                  <span style={{fontSize:14,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0}}>{imgSelectedPost.url}</span>
+                </a>
+              )}
+              <div style={{display:"flex",gap:8,marginTop:4}}>
+                <button onClick={() => { toggleLike(imgSelectedPost); setImgSelectedPost(p => ({...p, internal:{...p.internal,likes:(p.internal?.likes||[]).indexOf(MY_UID)>=0?(p.internal.likes.filter(x=>x!==MY_UID)):[...(p.internal.likes||[]),MY_UID]}})); }} style={{flex:1,padding:"8px 0",border:"none",borderRadius:10,background:(imgSelectedPost.internal?.likes||[]).indexOf(MY_UID)>=0?"#D85A30":"#E8ECF0",color:(imgSelectedPost.internal?.likes||[]).indexOf(MY_UID)>=0?"#fff":"#555",fontSize:14,cursor:"pointer",boxShadow:"3px 3px 6px #C5C9D4,-3px -3px 6px #FFFFFF"}}>♥ {(imgSelectedPost.internal?.likes||[]).length}</button>
+                <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}?post=${imgSelectedPost.id}`); showToast("リンクをコピーしました"); }} style={{padding:"8px 14px",border:"none",borderRadius:10,background:"#E8ECF0",color:"#555",fontSize:14,cursor:"pointer",boxShadow:"3px 3px 6px #C5C9D4,-3px -3px 6px #FFFFFF"}}>🔗</button>
+                {imgSelectedPost.internal?.imageUrl && <button onClick={() => setFullscreenImg(imgSelectedPost.internal.imageUrl)} style={{padding:"8px 14px",border:"none",borderRadius:10,background:"#E8ECF0",color:"#555",fontSize:14,cursor:"pointer",boxShadow:"3px 3px 6px #C5C9D4,-3px -3px 6px #FFFFFF"}}>⛶</button>}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* 機種別まとめモーダル */}
       {machineModal && (() => {
         const mPosts = posts.filter(p => p.machine === machineModal).sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0));
@@ -951,24 +992,13 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
       {filter === "img" && filtered.length > 0 && (
         <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:12}}>
           {filtered.map(p => (
-            <div key={p.id} onClick={() => setExpandedPosts(prev => ({...prev, [p.id]: !prev[p.id]}))} style={{borderRadius:12,overflow:"hidden",background:"#E8ECF0",boxShadow:"3px 3px 8px #C5C9D4, -3px -3px 8px #FFFFFF",cursor:"pointer",position:"relative"}}>
+            <div key={p.id} onClick={() => setImgSelectedPost(p)} style={{borderRadius:12,overflow:"hidden",background:"#E8ECF0",boxShadow:"3px 3px 8px #C5C9D4, -3px -3px 8px #FFFFFF",cursor:"pointer",position:"relative"}}>
               <img src={p.internal.imageUrl || p.internal.ogImageUrl} alt="" style={{width:"100%",aspectRatio:"1",objectFit:"cover",display:"block"}}/>
               <div style={{padding:"6px 8px"}}>
                 <div style={{display:"flex",gap:4,alignItems:"center",marginBottom:3}}><CatBadge cat={p.cat}/></div>
                 <div style={{fontSize:13,fontWeight:500,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</div>
                 <div style={{fontSize:12,color:"#aaa",marginTop:2}}>{p.machine}</div>
               </div>
-              {expandedPosts[p.id] && (
-                <div onClick={e => e.stopPropagation()} style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.75)",display:"flex",flexDirection:"column",justifyContent:"flex-end",padding:10,borderRadius:12}}>
-                  <div style={{fontSize:13,color:"#fff",fontWeight:500,marginBottom:4,overflowWrap:"anywhere"}}>{p.title}</div>
-                  <div style={{fontSize:12,color:"rgba(255,255,255,0.8)",lineHeight:1.5,marginBottom:8,display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{p.body}</div>
-                  <div style={{display:"flex",gap:6}}>
-                    <button onClick={() => toggleLike(p)} style={{flex:1,padding:"5px 0",border:"none",borderRadius:8,background:(p.internal?.likes||[]).indexOf(MY_UID)>=0?"#D85A30":"rgba(255,255,255,0.2)",color:"#fff",fontSize:13,cursor:"pointer"}}>♥ {(p.internal?.likes||[]).length}</button>
-                    <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}?post=${p.id}`); showToast("リンクをコピーしました"); }} style={{padding:"5px 10px",border:"none",borderRadius:8,background:"rgba(255,255,255,0.2)",color:"#fff",fontSize:13,cursor:"pointer"}}>🔗</button>
-                    <button onClick={() => setFullscreenImg(p.internal.imageUrl || p.internal.ogImageUrl)} style={{padding:"5px 10px",border:"none",borderRadius:8,background:"rgba(255,255,255,0.2)",color:"#fff",fontSize:13,cursor:"pointer"}}>⛶</button>
-                  </div>
-                </div>
-              )}
             </div>
           ))}
         </div>
