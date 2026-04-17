@@ -10,6 +10,7 @@ const CATS = {
   episode: { label:"昔の機種",     bg:"#FFF0F5", color:"#A0306A", border:"#F0A0C0" },
   quote:   { label:"版権ネタ",     bg:"#EAF3DE", color:"#3B6D11", border:"#97C459" },
   bonus:   { label:"演出・表現",   bg:"#FAECE7", color:"#993C1D", border:"#F0997B" },
+  game:    { label:"ゲーム性評価", bg:"#E8F5E9", color:"#2E7D32", border:"#81C784" },
   fun:     { label:"その他雑談",   bg:"#F3EFF9", color:"#6B3FA0", border:"#C4A8E8" },
 };
 const SRC_COLORS = {
@@ -92,6 +93,7 @@ const TEMPLATES = {
   episode: "その機種の思い出・特徴など",
   quote:   "原作・キャラ・楽曲などについて",
   bonus:   "演出の法則・好きなシーンなど",
+  game:    "面白い・つまらない・打感・ゲーム性の評価など",
   fun:     "なんでも",
 };
 
@@ -522,7 +524,7 @@ export default function App() {
 
 function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFilter = "all", onFilterChange, directPost, onDirectPostClear }) {
   const [filter, setFilter] = useState(initialFilter);
-  const CAT_KEYS = ["aimH","memory","spec","hall","episode","quote","bonus","fun"];
+  const CAT_KEYS = ["aimH","memory","spec","hall","episode","quote","bonus","game","fun"];
   const [showCats, setShowCats] = useState(() => CAT_KEYS.includes(initialFilter));
   function updateFilter(v) { setFilter(v); onFilterChange?.(v); if (!CAT_KEYS.includes(v)) setShowCats(false); }
   const [query, setQuery] = useState("");
@@ -908,7 +910,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
             {(()=>{const lbl={fontSize:13,color:"#888",whiteSpace:"nowrap",minWidth:52,paddingTop:2};const row={display:"flex",alignItems:"flex-start",gap:8,marginBottom:8};const inp={flex:1,fontSize:16,padding:"9px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"};return(<>
             <div style={row}><span style={lbl}>名前</span><input value={fName} onChange={e=>setFName(e.target.value)} placeholder="例: ゲスト" style={inp}/></div>
             {fCat!=="fun"&&<div style={row}><span style={lbl}>機種名</span><div style={{flex:1,position:"relative"}}>{(()=>{const allM=[...new Set(posts.map(p=>p.machine).filter(Boolean))].sort((a,b)=>{const s=n=>n.replace(/^(Lパチスロ\s*|LB|L\s*|e|スマスロ\s*|すますろ\s*|Sパチスロ\s*|S|Pパチスロ\s*|P)/,"").trim();const r=n=>n.startsWith("L")?0:n.startsWith("スマスロ")||n.startsWith("すますろ")?1:n.startsWith("e")?2:3;const d=s(a).localeCompare(s(b),"ja");return d!==0?d:r(a)-r(b);});const filtered=fMachine.trim()?allM.filter(m=>m.includes(fMachine)):allM;return(<><input value={fMachine} onChange={e=>{setFMachine(e.target.value);setMachineSuggestion(null);setFMachineOpen(true);}} onFocus={()=>setFMachineOpen(true)} onBlur={()=>setTimeout(()=>{setFMachineOpen(false);checkMachineName(fMachine);},150)} placeholder="例: バジリスク絆2（任意）" style={{...inp,width:"100%",marginBottom:machineSuggestion?4:0,boxSizing:"border-box"}}/>{fMachineOpen&&filtered.length>0&&<div style={{position:"absolute",top:"100%",left:0,right:0,background:"#fff",borderRadius:10,boxShadow:"0 4px 20px rgba(0,0,0,0.15)",zIndex:200,maxHeight:220,overflowY:"auto",marginTop:4}}>{filtered.map(name=><div key={name} onMouseDown={()=>{setFMachine(name);setFMachineOpen(false);setMachineSuggestion(null);}} style={{padding:"10px 14px",fontSize:14,color:"#333",borderBottom:"0.5px solid #f0f0f0",cursor:"pointer"}}>{name}</div>)}</div>}{machineSuggestion&&<div style={{fontSize:14,color:"#666",marginTop:4,display:"flex",alignItems:"center",gap:6}}>もしかして:<button onClick={()=>{setFMachine(machineSuggestion);setMachineSuggestion(null);}} style={{fontSize:14,color:"#D85A30",background:"none",border:"none",cursor:"pointer",padding:0,fontWeight:500,textDecoration:"underline"}}>{machineSuggestion}</button><button onClick={()=>setMachineSuggestion(null)} style={{fontSize:13,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:0}}>✕</button></div>}</>);})()}</div></div>}
-            <div style={row}><span style={lbl}>カテゴリ</span><select value={fCat} onChange={e=>setFCat(e.target.value)} style={{...inp,color:CATS[fCat]?.color||"#555",fontWeight:700,background:CATS[fCat]?.bg||"#E8ECF0",boxShadow:`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF, inset 0 0 0 2px ${CATS[fCat]?.border||"#ddd"}`,fontSize:15}}><option value="aimH">お店狙い目</option><option value="memory">勝＆負エピ</option><option value="spec">機種情報</option><option value="hall">業界情報</option><option value="episode">昔の機種</option><option value="quote">版権ネタ</option><option value="bonus">演出・表現</option><option value="fun">その他雑談</option></select></div>
+            <div style={row}><span style={lbl}>カテゴリ</span><select value={fCat} onChange={e=>setFCat(e.target.value)} style={{...inp,color:CATS[fCat]?.color||"#555",fontWeight:700,background:CATS[fCat]?.bg||"#E8ECF0",boxShadow:`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF, inset 0 0 0 2px ${CATS[fCat]?.border||"#ddd"}`,fontSize:15}}><option value="aimH">お店狙い目</option><option value="memory">勝＆負エピ</option><option value="spec">機種情報</option><option value="hall">業界情報</option><option value="episode">昔の機種</option><option value="quote">版権ネタ</option><option value="bonus">演出・表現</option><option value="game">ゲーム性評価</option><option value="fun">その他雑談</option></select></div>
             <div style={row}><span style={lbl}>URL</span><div style={{flex:1,display:"flex",gap:6,alignItems:"center"}}><input value={fUrl} onChange={e=>{setFUrl(e.target.value);if(!e.target.value.trim())setFOgImage("");}} placeholder="引用元URL（任意）" style={{...inp,flex:1,fontSize:15,minWidth:0}}/>{fUrl.trim()&&<button type="button" onClick={fetchBodyFromUrl} disabled={fBodyFetching} style={{padding:"8px 10px",border:"none",borderRadius:10,background:fBodyFetching?"#ddd":"#E8ECF0",boxShadow:fBodyFetching?"none":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:13,color:fBodyFetching?"#aaa":"#555",cursor:fBodyFetching?"default":"pointer",whiteSpace:"nowrap",flexShrink:0}}>{fBodyFetching?"取得中…":"本文取得"}</button>}</div></div>
             {fOgImage&&!fImage&&<div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,paddingLeft:60}}><img src={fOgImage} alt="OGP" style={{width:80,height:52,objectFit:"cover",borderRadius:6,flexShrink:0,background:"#ddd"}} onError={e=>{e.target.style.display="none";}}/><span style={{fontSize:12,color:"#aaa"}}>URLのサムネイル</span><button onClick={()=>setFOgImage("")} style={{marginLeft:"auto",background:"none",border:"none",color:"#aaa",cursor:"pointer",fontSize:16,padding:"0 4px",lineHeight:1}}>×</button></div>}
             <div style={{...row,alignItems:"flex-start"}}><span style={{...lbl,paddingTop:10}}>本文<br/><span style={{fontSize:11,color:"#bbb",fontWeight:400}}>任意</span></span><textarea value={fBody} onChange={e=>setFBody(e.target.value)} placeholder={fBodyFetching?"取得中...":(TEMPLATES[fCat]||"URLから自動取得、または手動入力")} disabled={fBodyFetching} style={{...inp,resize:"vertical",minHeight:88,opacity:fBodyFetching?0.6:1}}/></div>
@@ -1026,6 +1028,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <option value="episode">昔の機種</option>
                   <option value="quote">版権ネタ</option>
                   <option value="bonus">演出・表現</option>
+                  <option value="game">ゲーム性評価</option>
                 </select>
                 <input value={eMachine} onChange={e => setEMachine(e.target.value)} placeholder="機種名" style={{width:"100%",fontSize:15,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}} />
                 <textarea value={eBody} onChange={e => setEBody(e.target.value)} style={{width:"100%",fontSize:15,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",resize:"vertical",minHeight:80,marginBottom:8,boxSizing:"border-box"}} />
@@ -1242,7 +1245,7 @@ function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick, loadPost
   }
 
   const counts = {};
-  ["aimH","memory","spec","hall","episode","quote","bonus","fun"].forEach(k => { counts[k] = posts.filter(p => p.cat===k).length; });
+  ["aimH","memory","spec","hall","episode","quote","bonus","game","fun"].forEach(k => { counts[k] = posts.filter(p => p.cat===k).length; });
 
   function isDup(candidate) {
     return posts.some(p => candidate.dupKey && p.dup_key && candidate.dupKey === p.dup_key);
@@ -1371,7 +1374,7 @@ async function autoCollect() {
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:"1.25rem"}}>
-        {["aimH","memory","spec","hall","episode","quote","bonus","fun"].map(k => (
+        {["aimH","memory","spec","hall","episode","quote","bonus","game","fun"].map(k => (
           <div key={k} onClick={() => onCatClick?.(k)} style={{background:"#E8ECF0",borderRadius:10,boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",padding:"8px 10px",cursor:"pointer",border:`0.5px solid ${CATS[k].border}`,transition:"background 0.1s"}}
             onMouseEnter={e=>e.currentTarget.style.background=CATS[k].bg}
             onMouseLeave={e=>e.currentTarget.style.background="#f9f9f9"}>
@@ -1469,7 +1472,7 @@ function OverviewTab({ posts, updatePost }) {
   const catDist = useMemo(() => {
     const analysisPosts = posts.filter(p => p.cat !== "fun");
     const base = analysisPosts.length;
-    const main = ["aimH","memory","spec","hall","episode","quote","bonus"].map(k => {
+    const main = ["aimH","memory","spec","hall","episode","quote","bonus","game"].map(k => {
       const ps = analysisPosts.filter(p => p.cat===k);
       const likes = ps.reduce((s,p) => s+(p.internal?.likes?.length||0), 0);
       const top = ps.slice().sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0))[0];
@@ -1886,8 +1889,8 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
       )}
 
       {mode==="gap" && (() => {
-        const GAP_CATS = ["spec","aimH","memory","bonus","episode","quote","hall"];
-        const CAT_SHORT = { spec:"機種情報", aimH:"狙い目", memory:"勝負エピ", bonus:"演出", episode:"昔の機種", quote:"版権", hall:"業界" };
+        const GAP_CATS = ["spec","aimH","memory","bonus","game","episode","quote","hall"];
+        const CAT_SHORT = { spec:"機種情報", aimH:"狙い目", memory:"勝負エピ", bonus:"演出", game:"ゲーム性", episode:"昔の機種", quote:"版権", hall:"業界" };
         const machineMap = {};
         posts.filter(p => p.cat !== "fun" && p.machine !== "全般").forEach(p => {
           if (!machineMap[p.machine]) machineMap[p.machine] = {};
@@ -2025,6 +2028,7 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
                 <option value="episode">昔の機種</option>
                 <option value="quote">版権ネタ</option>
                 <option value="bonus">演出・表現</option>
+                <option value="game">ゲーム性評価</option>
               </select>
             </div>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
