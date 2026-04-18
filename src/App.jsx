@@ -201,8 +201,41 @@ export default function App() {
   const [installPrompt, setInstallPrompt] = useState(null);
   const [showIOSSteps, setShowIOSSteps] = useState(false);
   const [showNotifDetail, setShowNotifDetail] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [fbCat, setFbCat] = useState("機能要望");
+  const [fbName, setFbName] = useState(() => localStorage.getItem("slotkey_name") || "");
+  const [fbBody, setFbBody] = useState("");
+  const [fbSending, setFbSending] = useState(false);
+  const [fbDone, setFbDone] = useState(false);
+  const [showFbInbox, setShowFbInbox] = useState(false);
+  const logoTapRef = useRef(0);
+  const logoTapTimerRef = useRef(null);
 
   function goToFeedWithFilter(cat) { setFeedFilter(cat); setTab("feed"); }
+
+  function handleLogoTap() {
+    logoTapRef.current++;
+    clearTimeout(logoTapTimerRef.current);
+    logoTapTimerRef.current = setTimeout(() => { logoTapRef.current = 0; }, 2000);
+    if (logoTapRef.current >= 5) { logoTapRef.current = 0; setShowFbInbox(true); }
+  }
+
+  async function submitFeedback() {
+    if (!fbBody.trim()) return;
+    setFbSending(true);
+    await addPost({
+      cat: "feedback",
+      machine: "",
+      title: fbCat,
+      body: fbBody.trim(),
+      source: "manual",
+      author: fbName.trim() || "匿名",
+      internal: { ...blank(), author: fbName.trim() || "匿名", feedbackCat: fbCat, submitterUid: MY_UID },
+    });
+    setFbSending(false);
+    setFbDone(true);
+    setFbBody("");
+  }
   const nextId = useRef(1000);
 
   useEffect(() => {
@@ -326,6 +359,8 @@ export default function App() {
 
   const TABS = ["feed","collect","overview","research"];
   const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"リサーチ" };
+  const normalPosts = posts.filter(p => p.cat !== "feedback");
+  const feedbackPosts = posts.filter(p => p.cat === "feedback");
 
   return (
     <div style={{padding:"16px",maxWidth:740,width:"100%",boxSizing:"border-box",margin:"0 auto",fontFamily:"sans-serif",textAlign:"left",overflowX:"hidden",background:"#E8ECF0",minHeight:"100svh"}}>
@@ -336,7 +371,7 @@ export default function App() {
         </div>
       )}
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"0.6rem"}}>
-        <Logo size={56}/>
+        <div onClick={handleLogoTap} style={{cursor:"pointer"}}><Logo size={56}/></div>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
           <button onClick={() => setShowSites(v => !v)} title="おすすめサイト"
           style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:36,height:36,fontSize:17,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:showSites?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:showSites?"#D85A30":"#aaa"}}>🔗</button>
@@ -358,7 +393,7 @@ export default function App() {
           {/* 管理者：通知設定パネル開閉 */}
           <button onClick={() => setShowNotifAdmin(v => !v)} title="設定"
           style={{background:"#E8ECF0",border:"none",borderRadius:"50%",width:28,height:28,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:showNotifAdmin?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:showNotifAdmin?"#D85A30":"#aaa"}}>⚙</button>
-          <span style={{fontSize:12,color:"#D85A30",background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",borderRadius:20,padding:"5px 14px",fontWeight:600,letterSpacing:"0.2px"}}>{posts.length}件</span>
+          <span style={{fontSize:12,color:"#D85A30",background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",borderRadius:20,padding:"5px 14px",fontWeight:600,letterSpacing:"0.2px"}}>{normalPosts.length}件</span>
         </div>
       </div>
       {showSites && (
@@ -514,10 +549,98 @@ export default function App() {
 
       {loading && <div style={{textAlign:"center",padding:"2rem",color:"#888"}}>読み込み中...</div>}
 
-      {!loading && tab === "feed"     && <FeedTab     posts={posts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} directPost={directPost} onDirectPostClear={() => setDirectPost(null)} />}
-      {!loading && tab === "collect"  && <CollectTab  posts={posts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
-      {!loading && tab === "overview" && <OverviewTab posts={posts} updatePost={updatePost} />}
-      {!loading && tab === "research" && <ResearchTab posts={posts} aiEnabled={aiEnabled} updatePost={updatePost} />}
+      {!loading && tab === "feed"     && <FeedTab     posts={normalPosts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} directPost={directPost} onDirectPostClear={() => setDirectPost(null)} />}
+      {!loading && tab === "collect"  && <CollectTab  posts={normalPosts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
+      {!loading && tab === "overview" && <OverviewTab posts={normalPosts} updatePost={updatePost} />}
+      {!loading && tab === "research" && <ResearchTab posts={normalPosts} aiEnabled={aiEnabled} updatePost={updatePost} />}
+
+      {/* フローティングフィードバックボタン */}
+      <div style={{position:"fixed",bottom:80,right:16,zIndex:200}}>
+        <button onClick={() => { setShowFeedback(true); setFbDone(false); }}
+          style={{background:"#D85A30",color:"#fff",border:"none",borderRadius:"50%",width:50,height:50,fontSize:20,cursor:"pointer",boxShadow:"3px 3px 10px rgba(0,0,0,0.25)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          💬
+        </button>
+      </div>
+
+      {/* フィードバック送信モーダル */}
+      {showFeedback && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:400,display:"flex",alignItems:"flex-end"}} onClick={e => { if(e.target===e.currentTarget) setShowFeedback(false); }}>
+          <div style={{background:"#E8ECF0",borderRadius:"16px 16px 0 0",padding:"20px 20px 32px",width:"100%",maxWidth:740,margin:"0 auto",boxSizing:"border-box"}}>
+            <div style={{width:40,height:4,background:"#C5C9D4",borderRadius:2,margin:"0 auto 16px"}}/>
+            {fbDone ? (
+              <div style={{textAlign:"center",padding:"24px 0"}}>
+                <div style={{fontSize:36,marginBottom:10}}>✅</div>
+                <div style={{fontSize:16,fontWeight:600,color:"#333",marginBottom:6}}>送信しました！</div>
+                <div style={{fontSize:14,color:"#888",marginBottom:20}}>フィードバックありがとうございます。</div>
+                <button onClick={() => { setShowFeedback(false); setFbDone(false); }}
+                  style={{padding:"10px 28px",border:"none",borderRadius:10,background:"#D85A30",color:"#fff",fontSize:15,cursor:"pointer",fontWeight:600}}>閉じる</button>
+              </div>
+            ) : (
+              <>
+                <div style={{fontSize:16,fontWeight:600,marginBottom:6}}>フィードバックを送る</div>
+                <div style={{fontSize:13,color:"#888",marginBottom:14}}>ご意見・ご要望をお気軽にどうぞ。内容は管理者のみ確認できます。</div>
+                <div style={{marginBottom:12}}>
+                  <div style={{fontSize:13,color:"#888",marginBottom:6}}>種類</div>
+                  <div style={{display:"flex",gap:6}}>
+                    {["機能要望","バグ報告","その他"].map(k => (
+                      <button key={k} onClick={() => setFbCat(k)}
+                        style={{padding:"6px 14px",border:`0.5px solid ${fbCat===k?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:fbCat===k?"#FAECE7":"#fff",color:fbCat===k?"#993C1D":"#888",cursor:"pointer",fontWeight:fbCat===k?600:400}}>{k}</button>
+                    ))}
+                  </div>
+                </div>
+                <div style={{marginBottom:10}}>
+                  <div style={{fontSize:13,color:"#888",marginBottom:4}}>名前 <span style={{color:"#bbb",fontSize:12}}>（省略可・匿名になります）</span></div>
+                  <input value={fbName} onChange={e => setFbName(e.target.value)} placeholder="例：田中"
+                    style={{width:"100%",padding:"9px 12px",border:"none",borderRadius:10,background:"#fff",fontSize:15,boxSizing:"border-box"}}/>
+                </div>
+                <div style={{marginBottom:16}}>
+                  <div style={{fontSize:13,color:"#888",marginBottom:4}}>内容 <span style={{color:"#e57373"}}>*</span></div>
+                  <textarea value={fbBody} onChange={e => setFbBody(e.target.value)} placeholder="気になった点・改善してほしい点など" rows={4}
+                    style={{width:"100%",padding:"9px 12px",border:"none",borderRadius:10,background:"#fff",fontSize:15,resize:"vertical",boxSizing:"border-box"}}/>
+                </div>
+                <div style={{display:"flex",gap:8}}>
+                  <button onClick={() => setShowFeedback(false)}
+                    style={{flex:1,padding:"11px 0",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",color:"#888",fontSize:15,cursor:"pointer"}}>キャンセル</button>
+                  <button onClick={submitFeedback} disabled={!fbBody.trim()||fbSending}
+                    style={{flex:2,padding:"11px 0",border:"none",borderRadius:10,background:(!fbBody.trim()||fbSending)?"#ccc":"#D85A30",color:"#fff",fontSize:15,fontWeight:600,cursor:(!fbBody.trim()||fbSending)?"not-allowed":"pointer"}}>
+                    {fbSending?"送信中…":"送信する"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 管理者フィードバックインボックス（ロゴ5回タップで表示） */}
+      {showFbInbox && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:500,display:"flex",alignItems:"flex-end"}} onClick={e => { if(e.target===e.currentTarget) setShowFbInbox(false); }}>
+          <div style={{background:"#E8ECF0",borderRadius:"16px 16px 0 0",padding:"20px 20px 32px",width:"100%",maxWidth:740,margin:"0 auto",boxSizing:"border-box",maxHeight:"80vh",display:"flex",flexDirection:"column"}}>
+            <div style={{width:40,height:4,background:"#C5C9D4",borderRadius:2,margin:"0 auto 14px"}}/>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+              <div style={{fontSize:16,fontWeight:600}}>📬 フィードバック一覧</div>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                <span style={{fontSize:13,color:"#aaa"}}>{feedbackPosts.length}件</span>
+                <button onClick={() => setShowFbInbox(false)} style={{background:"none",border:"none",fontSize:20,color:"#aaa",cursor:"pointer",padding:"0 4px"}}>✕</button>
+              </div>
+            </div>
+            <div style={{overflowY:"auto",flex:1}}>
+              {feedbackPosts.length === 0 ? (
+                <div style={{textAlign:"center",color:"#aaa",padding:"32px 0",fontSize:14}}>まだフィードバックはありません</div>
+              ) : feedbackPosts.map(p => (
+                <div key={p.id} style={{background:"#fff",borderRadius:12,padding:"12px 14px",marginBottom:8}}>
+                  <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
+                    <span style={{fontSize:12,padding:"2px 8px",borderRadius:6,background:p.title==="バグ報告"?"#FCEBEB":p.title==="機能要望"?"#E6F1FB":"#F3EFF9",color:p.title==="バグ報告"?"#A32D2D":p.title==="機能要望"?"#185FA5":"#6B3FA0",fontWeight:600}}>{p.title}</span>
+                    <span style={{fontSize:12,color:"#aaa"}}>{p.internal?.author || "匿名"}</span>
+                    <span style={{fontSize:12,color:"#ccc",marginLeft:"auto"}}>{p.created_at ? new Date(p.created_at).toLocaleDateString("ja-JP") : ""}</span>
+                  </div>
+                  <div style={{fontSize:14,color:"#333",lineHeight:1.6}}>{p.body}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
