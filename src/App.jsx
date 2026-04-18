@@ -1796,7 +1796,7 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
 
   const analyzeMachines = useMemo(() => {
     const m = {};
-    posts.filter(p => p.cat !== "fun" && p.machine !== "全般").forEach(p => { m[p.machine] = (m[p.machine]||0)+1; });
+    posts.filter(p => p.cat !== "fun" && p.machine && !p.machine.includes("全般")).forEach(p => { m[p.machine] = (m[p.machine]||0)+1; });
     return Object.entries(m).filter(([,c])=>c>=3).sort((a,b)=>b[1]-a[1]).map(([name,count])=>({name,count}));
   }, [posts]);
 
