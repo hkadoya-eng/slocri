@@ -1,0 +1,37 @@
+name: 機種分析を自動更新
+
+on:
+  schedule:
+    - cron: '0 15 * * 0'  # 毎週日曜 00:00 JST
+  workflow_dispatch:       # GitHub UI から手動実行も可能
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: チェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 依存パッケージインストール
+        run: pip install anthropic requests
+
+      - name: 機種分析を更新
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python update_analysis.py
+
+      - name: 変更があればコミット & プッシュ
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add src/machineAnalysis.json
+          git diff --staged --quiet && echo "変更なし" || (
+            git commit -m "auto: 機種分析を更新 $(date +'%Y-%m-%d')" &&
+            git push
+          )
