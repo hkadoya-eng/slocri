@@ -20,6 +20,7 @@ SUPABASE_HEADERS = {
 
 ANALYSIS_PATH = os.path.join(os.path.dirname(__file__), "src", "machineAnalysis.json")
 STALE_THRESHOLD = 3  # 投稿がこの件数以上増えたら再分析
+FORCE_ALL = "--force" in sys.argv  # 全機種強制再分析
 
 
 def fetch_posts():
@@ -71,39 +72,46 @@ def analyze_machine(machine, posts, client):
 
     posts_text = "\n".join(
         f"- [{p['cat']}] {p['title']}：{p['body']}"
-        for p in posts[:50]
+        for p in posts[:60]
     )
 
-    prompt = f"""あなたはパチスロ機種の評価アナリストです。
+    prompt = f"""あなたはパチスロ・パチンコ機種の評価アナリストです。
 以下は「{machine}」についてのユーザー投稿・解析情報です。
 
 {posts_text}
 
-これらの情報を元に、以下のJSON形式で機種評価を作成してください。
+これらの情報を元に、以下のJSON形式で詳細な機種評価を作成してください。
 
 {{
-  "summary": "20文字以内の一言まとめ",
+  "summary": "20文字以内の一言まとめ（機種の核心を一言で）",
+  "highlight": "この機種のゲーム性・面白さ・特徴を100〜200文字で詳述。打感・演出の仕組み・爆発力・天井設計など、実際に打った際の体験を中心に記述する",
   "pros": [
-    "良い点1（具体的な数値やユーザーの声を含めて60〜100文字）",
+    "良い点1（具体的な数値・演出名・ユーザーの声を含めて80〜150文字）",
     "良い点2（同上）",
-    "良い点3（同上）"
+    "良い点3（同上）",
+    "良い点4（同上・あれば）",
+    "良い点5（同上・あれば）",
+    "良い点6（同上・あれば）"
   ],
   "cons": [
-    "悪い点1（具体的な数値やユーザーの声を含めて60〜100文字）",
-    "悪い点2（同上）"
+    "悪い点1（具体的な数値・症状・ユーザーの声を含めて80〜150文字）",
+    "悪い点2（同上）",
+    "悪い点3（同上・あれば）",
+    "悪い点4（同上・あれば）"
   ]
 }}
 
 ルール：
 - summaryは20文字以内
-- pros/consはそれぞれ最大5件、最低1件
+- highlightは機種の面白さ・ゲーム性の核心を打ち手視点で具体的に記述（「〇〇G天井でAT確定」「〇〇ループ継続率XX%」など数値を積極活用）
+- pros/consはそれぞれ最大7件、最低2件
 - 投稿内容に基づく事実のみ（推測・創作禁止）
-- プレイヤー視点で記述
+- プレイヤー視点で記述、ゲーム性の楽しさが伝わるよう心がける
 - JSONのみ出力（説明文・コードブロック不要）"""
 
     message = client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=1024,
+        max_tokens=2048,
         messages=[{"role": "user", "content": prompt}],
     )
 
@@ -157,10 +165,11 @@ def run():
 
         if existing_key:
             prev_count = analysis[existing_key].get("postCount", 0)
-            if len(machine_posts) < prev_count + STALE_THRESHOLD:
+            if not FORCE_ALL and len(machine_posts) < prev_count + STALE_THRESHOLD:
                 print(f"スキップ  [{machine}] {len(machine_posts)}件（前回{prev_count}件）")
                 continue
-            print(f"再分析    [{machine}] {prev_count}件 → {len(machine_posts)}件", end=" ... ")
+            label = "強制再分析" if FORCE_ALL else "再分析"
+            print(f"{label}    [{machine}] {prev_count}件 → {len(machine_posts)}件", end=" ... ")
         else:
             print(f"新規分析  [{machine}] {len(machine_posts)}件", end=" ... ")
 
@@ -172,6 +181,7 @@ def run():
             analysis[key] = {
                 "aliases": analysis.get(key, {}).get("aliases", []),
                 "summary": result["summary"],
+                "highlight": result.get("highlight", analysis.get(key, {}).get("highlight", "")),
                 "pros": result["pros"],
                 "cons": result["cons"],
                 "postCount": len(machine_posts),
