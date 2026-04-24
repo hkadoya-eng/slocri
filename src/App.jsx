@@ -2187,6 +2187,18 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
               {analyzeResult.summary && (
                 <div style={{padding:"10px 16px",background:"#FAECE7",borderBottom:"0.5px solid #eee",fontSize:14,color:"#993C1D",fontWeight:500}}>{analyzeResult.summary}</div>
               )}
+              {analyzeResult.spec && (
+                <div style={{padding:"10px 16px",borderBottom:"0.5px solid #eee",background:"#F8F9FA"}}>
+                  <div style={{fontSize:12,fontWeight:600,color:"#555",marginBottom:4}}>📋 スペック</div>
+                  <div style={{fontSize:13,color:"#444",lineHeight:1.7}}>{analyzeResult.spec.split(" / ").map((s,i,arr) => <span key={i}>{s}{i<arr.length-1 && <span style={{color:"#bbb"}}> / </span>}</span>)}</div>
+                </div>
+              )}
+              {analyzeResult.highlight && (
+                <div style={{padding:"12px 16px",borderBottom:"0.5px solid #eee",background:"#FAFAFA"}}>
+                  <div style={{fontSize:12,fontWeight:600,color:"#555",marginBottom:6}}>🎰 ゲーム性・特徴</div>
+                  <div style={{fontSize:14,color:"#333",lineHeight:1.7}}>{analyzeResult.highlight}</div>
+                </div>
+              )}
               <div style={{padding:"12px 16px",borderBottom:"0.5px solid #eee"}}>
                 <div style={{fontSize:14,fontWeight:600,color:"#2E7D32",marginBottom:8}}>👍 良いところ</div>
                 {(analyzeResult.pros||[]).length > 0
