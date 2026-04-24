@@ -1929,6 +1929,9 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
   const [analyzeResult, setAnalyzeResult] = useState(null);
   const [analyzeLoading, setAnalyzeLoading] = useState(false);
   const [rankSort, setRankSort] = useState("posts");
+  const [proposePolicy, setProposePolicy] = useState({ target:"", direction:"", reference:"", avoid:"", extra:"" });
+  const [proposeResult, setProposeResult] = useState(null);
+  const [proposeLoading, setProposeLoading] = useState(false);
 
   useEffect(() => { if(bottomRef.current) bottomRef.current.scrollIntoView({behavior:"smooth"}); }, [messages]);
 
@@ -1965,6 +1968,34 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
     }
   }
 
+  async function generateProposal() {
+    if (!proposePolicy.target || !proposePolicy.direction) return;
+    setProposeLoading(true);
+    setProposeResult(null);
+    try {
+      const analysisContext = Object.entries(MACHINE_ANALYSIS).map(([name, data]) => {
+        const lines = [`【${name}】`];
+        if (data.spec) lines.push(`  スペック: ${data.spec}`);
+        if (data.summary) lines.push(`  一言: ${data.summary}`);
+        if (data.highlight) lines.push(`  ゲーム性: ${data.highlight}`);
+        if (data.pros?.length) lines.push(`  良い点: ${data.pros.slice(0,3).join(" / ")}`);
+        if (data.cons?.length) lines.push(`  悪い点: ${data.cons.slice(0,3).join(" / ")}`);
+        return lines.join("\n");
+      }).join("\n\n");
+      const policyText = `ターゲット層: ${proposePolicy.target}\nゲーム性の方向性: ${proposePolicy.direction}\n参考にしたい機種・要素: ${proposePolicy.reference}\n避けたい要素・反省点: ${proposePolicy.avoid}\nその他・備考: ${proposePolicy.extra}`;
+      const prompt = `あなたはパチスロ・パチンコ機種の企画開発コンサルタントです。以下の「既存機種分析データ」と「開発指針」をもとに、新機種のゲーム性提案書を作成してください。\n\n---\n【既存機種分析データ】\n${analysisContext}\n\n---\n【開発指針】\n${policyText}\n\n---\n以下の構成でマークダウン形式の提案書を作成してください。\n\n# 新機種ゲーム性提案書\n\n## 1. 市場の現状と課題\n（既存機種の分析から見えた「プレイヤーが求めているもの」「市場に足りていないもの」を200文字程度で）\n\n## 2. コンセプト\n（新機種のコアコンセプトを一言キャッチと200文字程度の説明で）\n\n## 3. ゲームフロー概要\n（通常時→CZ→AT→上位ATの流れをテキストの図で表現。数値は仮でOK）\n\n## 4. 推奨スペック\n（機械割・純増・天井・コイン単価などの方向性を箇条書きで）\n\n## 5. 差別化ポイント\n（既存機種と比べて何が新しいか・何を改善したか。3〜5点の箇条書きで）\n\n## 6. 想定プレイヤー体験\n（実際に打ったときにどんな感情が生まれるかを300文字程度で描写）\n\n## 7. リスクと対策\n（この設計で懸念されること・それへの対策を2〜3点で）\n\nルール：数値は「目安」として明示する。具体的で実用的な提案にする（「〜が重要です」だけでなく「〜G以内に〜を実現する」など）。`;
+      const res = await fetch("/api/claude", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:4096, messages:[{role:"user", content:prompt}] }) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || JSON.stringify(data.error)));
+      const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("") || "生成に失敗しました。";
+      setProposeResult(text);
+    } catch(e) {
+      setProposeResult("エラーが発生しました: " + (e.message || "不明"));
+    }
+    setProposeLoading(false);
+  }
+
   const SUGG = ["社内いいねが多い投稿の共通点を教えて","企画ネタになりそうな思い出エピソードをまとめて","北斗天昇の一番盛り上がる演出は？","バジ絆2のBCが続きやすいゾーンってどこ？"];
 
   async function send(text) {
@@ -1993,7 +2024,7 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
   return (
     <div style={{minWidth:0}}>
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"wrap"}}>
-        {[["browse","絞り込み"],["rank","ランキング"],["gap","ギャップ表"],["analyze","機種分析"],["chat","チャット"]].map(([k,l]) => {
+        {[["browse","絞り込み"],["rank","ランキング"],["gap","ギャップ表"],["analyze","機種分析"],["chat","チャット"],["propose","提案書"]].map(([k,l]) => {
           const on = mode===k;
           return <button key={k} onClick={() => setMode(k)} style={{padding:"5px 12px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{l}</button>;
         })}
@@ -2264,6 +2295,61 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
             <button onClick={() => { const q=filter.machine?filter.machine+(filter.cat?"の"+(CATS[filter.cat]?.label):"")+"について企画のヒントを教えて":(CATS[filter.cat]?.label)+"カテゴリで人気の投稿の共通点を教えて"; setMode("chat"); setTimeout(()=>send(q),100); }} style={{marginTop:4,width:"100%",padding:"10px 0",border:"0.5px solid #D85A30",borderRadius:8,background:"#FAECE7",color:"#993C1D",fontSize:15,fontWeight:500,cursor:"pointer"}}>
               この絞り込み結果をチャットで深掘り ↗
             </button>
+          )}
+        </div>
+      )}
+
+      {mode==="propose" && (
+        <div>
+          {!aiEnabled && (
+            <div style={{fontSize:14,color:"#e57373",marginBottom:12,padding:"8px 12px",background:"#fff5f5",borderRadius:8,border:"0.5px solid #e57373"}}>
+              APIキーが未設定のため生成できません。<br/>
+              <span style={{color:"#aaa"}}>Vercelの環境変数に ANTHROPIC_API_KEY を設定すると利用できます。</span>
+            </div>
+          )}
+          <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:14}}>
+            {[
+              ["target","① ターゲット層","例: 荒波苦手の20〜30代、設定狙い玄人、ライト女性層"],
+              ["direction","② ゲーム性の方向性","例: 自力感を強化、通常時の退屈さを解消、爆発力と安定を両立"],
+              ["reference","③ 参考にしたい機種・要素","例: カバネリの自力上乗せ + ヨルムンガンドの設定差設計を改善"],
+              ["avoid","④ 避けたい要素・反省点","例: デキレ感、通常時の煽り過多、天井が重すぎる"],
+              ["extra","⑤ その他こだわり・備考（任意）","例: IPはアニメ系、スマスロ、コイン単価3円台"],
+            ].map(([key, label, ph]) => (
+              <div key={key}>
+                <div style={{fontSize:13,fontWeight:500,color:"#555",marginBottom:4}}>{label}</div>
+                <textarea
+                  value={proposePolicy[key]}
+                  onChange={e => setProposePolicy(p => ({...p, [key]: e.target.value}))}
+                  placeholder={ph}
+                  rows={key==="direction"||key==="extra"?2:1}
+                  style={{width:"100%",fontSize:14,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",lineHeight:1.5,color:"#333",boxSizing:"border-box"}}
+                />
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={generateProposal}
+            disabled={!aiEnabled || proposeLoading || !proposePolicy.target || !proposePolicy.direction}
+            style={{width:"100%",padding:"12px 0",border:"none",borderRadius:10,background:(!aiEnabled||proposeLoading||!proposePolicy.target||!proposePolicy.direction)?"#ccc":"#D85A30",color:"#fff",fontSize:15,fontWeight:600,cursor:(!aiEnabled||proposeLoading||!proposePolicy.target||!proposePolicy.direction)?"not-allowed":"pointer",marginBottom:16}}
+          >
+            {proposeLoading ? "生成中...（30秒ほどかかります）" : "提案書を生成する"}
+          </button>
+          {proposeResult && (
+            <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"16px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                <div style={{fontSize:13,fontWeight:600,color:"#555"}}>生成された提案書</div>
+                <button onClick={() => navigator.clipboard.writeText(proposeResult)} style={{padding:"4px 10px",border:"0.5px solid #ddd",borderRadius:6,background:"#f5f5f5",color:"#666",fontSize:13,cursor:"pointer"}}>コピー</button>
+              </div>
+              <div style={{fontSize:14,lineHeight:1.8,color:"#333",whiteSpace:"pre-wrap",overflowWrap:"anywhere"}}>
+                {proposeResult.split("\n").map((line, i) => {
+                  if (line.startsWith("# ")) return <div key={i} style={{fontSize:18,fontWeight:700,color:"#333",marginTop:8,marginBottom:6}}>{line.slice(2)}</div>;
+                  if (line.startsWith("## ")) return <div key={i} style={{fontSize:15,fontWeight:700,color:"#D85A30",marginTop:16,marginBottom:4}}>{line.slice(3)}</div>;
+                  if (line.startsWith("- ") || line.startsWith("* ")) return <div key={i} style={{paddingLeft:12,marginBottom:2}}>• {line.slice(2)}</div>;
+                  if (line.trim()==="---") return <hr key={i} style={{border:"none",borderTop:"0.5px solid #eee",margin:"8px 0"}}/>;
+                  return <div key={i} style={{marginBottom:line===""?6:0}}>{line}</div>;
+                })}
+              </div>
+            </div>
           )}
         </div>
       )}
