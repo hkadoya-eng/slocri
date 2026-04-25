@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import { supabase } from "./supabase";
 import MACHINE_ANALYSIS from "./machineAnalysis.json";
 import GAME_LIBRARY from "./gameDesignLibrary.json";
+import MACHINE_LIBRARY from "./machineLibrary.json";
 
 const CATS = {
   aimH:    { label:"お店狙い目",   bg:"#FFF8E1", color:"#E65100", border:"#FFB74D" },
@@ -2011,6 +2012,10 @@ ${GAME_LIBRARY.playerPsychology["20代が反応する要素"].join(" / ")}
 【やめられない設計の原理】
 ${GAME_LIBRARY.playerPsychology.やめられない設計の原理.map(p=>`・${p.type}: ${p.description} (例: ${p.example})`).join("\n")}`;
 
+      const machineLibContext = MACHINE_LIBRARY.machines.slice(0, 200).map(m =>
+        `${m.name}（${m.maker}/${m.year}/${m.era}）[${m.type}] spec:${m.spec} pattern:${m.designPattern} 教訓:${m.lesson} 感情:${m.playerEmotion} tags:${m.tags.join(",")}`
+      ).join("\n");
+
       const COIN_LABEL = { light:"ライト（〜3.0円）", standard:"スタンダード（3.1〜3.5円）", heavy:"ヘビー（3.6〜4.2円）", superHeavy:"超ヘビー（4.3円以上）" };
       const policyText = [
         `ターゲット層: ${proposePolicy.targets.join("・")}`,
@@ -2020,10 +2025,10 @@ ${GAME_LIBRARY.playerPsychology.やめられない設計の原理.map(p=>`・${p
         proposePolicy.reference ? `参考にしたい機種・要素: ${proposePolicy.reference}` : "",
         proposePolicy.extra ? `その他・備考: ${proposePolicy.extra}` : "",
       ].filter(Boolean).join("\n");
-      const prompt = `あなたはパチスロ・パチンコ機種の企画開発コンサルタントです。以下の3つの情報源をもとに、新機種のゲーム性提案書を作成してください。
+      const prompt = `あなたはパチスロ・パチンコ機種の企画開発コンサルタントです。以下の4つの情報源をもとに、新機種のゲーム性提案書を作成してください。
 
 ---
-【1. 既存機種 個別分析データ（14機種）】
+【1. 既存機種 詳細分析データ（14機種）】
 ${analysisContext}
 
 ---
@@ -2031,11 +2036,15 @@ ${analysisContext}
 ${libContext}
 
 ---
-【3. 開発指針】
+【3. 200機種データベース（機種名・スペック・設計パターン・教訓）】
+${machineLibContext}
+
+---
+【4. 開発指針】
 ${policyText}
 
 ---
-以下の構成でマークダウン形式の提案書を作成してください。ライブラリの具体的なデータ（機種名・数値・失敗事例）を引用しながら根拠を示してください。
+以下の構成でマークダウン形式の提案書を作成してください。200機種データベースを参照して類似機種を幅広く検討し、具体的なデータ（機種名・数値・失敗事例）を引用しながら根拠を示してください。
 
 # 新機種ゲーム性提案書
 

@@ -12,8 +12,9 @@ from datetime import date
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
-ANALYSIS_PATH = os.path.join(os.path.dirname(__file__), "src", "machineAnalysis.json")
-LIBRARY_PATH  = os.path.join(os.path.dirname(__file__), "src", "gameDesignLibrary.json")
+ANALYSIS_PATH  = os.path.join(os.path.dirname(__file__), "src", "machineAnalysis.json")
+LIBRARY_PATH   = os.path.join(os.path.dirname(__file__), "src", "gameDesignLibrary.json")
+MACHINE_LIB_PATH = os.path.join(os.path.dirname(__file__), "src", "machineLibrary.json")
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "proposals")
 
 
@@ -37,6 +38,22 @@ def load_analysis():
 def load_library():
     with open(LIBRARY_PATH, encoding="utf-8") as f:
         return json.load(f)
+
+
+def load_machine_library():
+    with open(MACHINE_LIB_PATH, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def build_machine_lib_context(ml):
+    lines = []
+    for m in ml["machines"]:
+        lines.append(
+            f"{m['name']}（{m['maker']}/{m['year']}/{m['era']}）[{m['type']}] "
+            f"spec:{m['spec']} pattern:{m['designPattern']} 教訓:{m['lesson']} "
+            f"感情:{m['playerEmotion']} tags:{','.join(m['tags'])}"
+        )
+    return "\n".join(lines)
 
 
 def build_library_context(lib):
@@ -154,7 +171,7 @@ def gather_policy():
     }
 
 
-def generate_proposal(policy, analysis_context, lib_context, client):
+def generate_proposal(policy, analysis_context, lib_context, machine_lib_context, client):
     policy_text = f"""
 ターゲット層: {policy['target']}
 ゲーム性の方向性: {policy['direction']}
@@ -164,10 +181,10 @@ def generate_proposal(policy, analysis_context, lib_context, client):
 """.strip()
 
     prompt = f"""あなたはパチスロ・パチンコ機種の企画開発コンサルタントです。
-以下の3つの情報源をもとに、新機種のゲーム性提案書を作成してください。
+以下の4つの情報源をもとに、新機種のゲーム性提案書を作成してください。
 
 ---
-【1. 既存機種 個別分析データ（14機種）】
+【1. 既存機種 詳細分析データ（14機種）】
 {analysis_context}
 
 ---
@@ -175,12 +192,16 @@ def generate_proposal(policy, analysis_context, lib_context, client):
 {lib_context}
 
 ---
-【3. 開発指針】
+【3. 200機種データベース（機種名・スペック・設計パターン・教訓）】
+{machine_lib_context}
+
+---
+【4. 開発指針】
 {policy_text}
 
 ---
 以下の構成でマークダウン形式の提案書を作成してください。
-ライブラリの具体的なデータ（機種名・数値・失敗事例）を引用しながら根拠を示してください。
+200機種データベースを参照して類似機種を幅広く検討し、具体的なデータ（機種名・数値・失敗事例）を引用しながら根拠を示してください。
 
 # 新機種ゲーム性提案書
 
@@ -269,8 +290,12 @@ def run():
     lib_context = build_library_context(library)
     print(f"  設計ライブラリをコンテキストに追加")
 
+    machine_lib = load_machine_library()
+    machine_lib_context = build_machine_lib_context(machine_lib)
+    print(f"  {machine_lib['total']}機種データベースをコンテキストに追加")
+
     print("\nClaudeが提案書を生成中...（30秒ほどかかります）\n")
-    proposal = generate_proposal(policy, context, lib_context, client)
+    proposal = generate_proposal(policy, context, lib_context, machine_lib_context, client)
 
     # 保存
     path = save_proposal(proposal, policy)
