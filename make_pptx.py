@@ -83,31 +83,29 @@ def title_slide(prs, title, catch):
 
 def positioning_slide(prs):
     """自力感 vs やめにくさ の2軸ポジショニングマップ"""
-    # 各機種のスコア (自力感 0-10, やめにくさ 0-10)
-    SCORES = {
-        "L虚構推理":          (2, 9),
-        "L真打吉宗":          (7, 8),
-        "スマスロ ミリオンゴッド": (5, 7),
-        "スマスロ甲鉄城のカバネリ": (8, 4),
-        "Lガンダムユニコーン":  (4, 5),
-        "スマスロ ヨルムンガンド": (6, 3),
-        "スマスロ アクダマドライブ": (5, 3),
-        "異世界かるてっとBT":  (3, 4),
-        "L戦国乙女5":         (4, 4),
-        "スマスロ新鬼武者3":   (4, 3),
-        "スマスロ北斗の拳":    (4, 3),
-        # 名機
-        "バジ絆2":            (4, 7),
-        "番長3":              (6, 6),
-        "Re:ゼロ":            (3, 8),
-        "ハーデス":           (3, 5),
-        "沖ドキ":             (2, 6),
+    # machineAnalysis.jsonからスコアを読み込む
+    analysis_path = os.path.join(os.path.dirname(__file__), "src", "machineAnalysis.json")
+    with open(analysis_path, encoding="utf-8") as f:
+        analysis = json.load(f)
+
+    SCORES = {}
+    SHORT = {}
+    for name, data in analysis.items():
+        sc = data.get("scores")
+        if sc:
+            SCORES[name] = (sc.get("jiriki", 5), sc.get("yamenikusa", 5))
+            # 短縮名
+            short = name.replace("スマスロ ","").replace("スマスロ","").replace("Lガンダムユニコーン覚醒DRIVE","ガンダムUC").replace("e転生したらスライムだった件2","転スラ2").replace("eリコリス・リコイル","リコリコ")
+            SHORT[name] = short[:9]
+
+    # 名機（固定）
+    CLASSIC = {
+        "バジ絆2": (4, 7), "番長3": (6, 6),
+        "Re:ゼロ": (3, 8), "ハーデス": (3, 5), "沖ドキ": (2, 6),
     }
     COLOR_MAP = {
-        "L虚構推理": RGBColor(0xD8,0x5A,0x30),
-        "Re:ゼロ":   RGBColor(0xD8,0x5A,0x30),
-        "バジ絆2":   RGBColor(0x88,0x88,0x88),
-        "番長3":     RGBColor(0x88,0x88,0x88),
+        "L虚構推理":   RGBColor(0xD8,0x5A,0x30),
+        "Re:ゼロ":     RGBColor(0xD8,0x5A,0x30),
     }
 
     slide = blank_slide(prs)
@@ -144,32 +142,47 @@ def positioning_slide(prs):
         r2.text = label
         sf(r2, 9, color=RGBColor(0xBB,0xBB,0xBB))
 
-    # 各機種をプロット
     from pptx.util import Inches as I
+    # 現行機をプロット
     for name, (jiriki, yame) in SCORES.items():
-        # jiriki: 0=左, 10=右  yame: 0=下, 10=上
         px = MAP_L + (jiriki / 10) * MAP_W
         py = MAP_T + (1 - yame / 10) * MAP_H
-        dot_r = 0.12
-        color = COLOR_MAP.get(name, RGBColor(0x55,0x99,0xCC))
+        dot_r = 0.13
+        color = COLOR_MAP.get(name, RGBColor(0x44,0x88,0xBB))
         dot = slide.shapes.add_shape(9, I(px - dot_r/2), I(py - dot_r/2), I(dot_r), I(dot_r))
         dot.fill.solid()
         dot.fill.fore_color.rgb = color
         dot.line.fill.background()
-
-        short = name.replace("スマスロ ","").replace("スマスロ","").replace("Lガンダムユニコーン","ガンダムUC")[:8]
-        tf3 = add_tb(slide, px + 0.08, py - 0.1, 1.5, 0.28)
+        short = SHORT.get(name, name[:9])
+        tf3 = add_tb(slide, px + 0.08, py - 0.1, 1.6, 0.28)
         p3 = tf3.paragraphs[0]
         r3 = p3.add_run()
         r3.text = short
         sf(r3, 7, color=color, bold=(name in COLOR_MAP))
 
-    # 凡例
-    tf4 = add_tb(slide, MAP_L + 0.1, MAP_T + 0.05, 3.0, 0.25)
+    # 名機をプロット（灰色）
+    for name, (jiriki, yame) in CLASSIC.items():
+        px = MAP_L + (jiriki / 10) * MAP_W
+        py = MAP_T + (1 - yame / 10) * MAP_H
+        dot_r = 0.11
+        color = RGBColor(0x99,0x99,0x99)
+        dot = slide.shapes.add_shape(9, I(px - dot_r/2), I(py - dot_r/2), I(dot_r), I(dot_r))
+        dot.fill.solid()
+        dot.fill.fore_color.rgb = color
+        dot.line.fill.background()
+        tf3 = add_tb(slide, px + 0.07, py - 0.1, 1.2, 0.26)
+        p3 = tf3.paragraphs[0]
+        r3 = p3.add_run()
+        r3.text = name
+        sf(r3, 6, color=color)
+
+    # 判断基準の説明（スコアは非表示）
+    criteria_text = "配置根拠 ｜ 自力感：自力上乗せ特化ゾーン・レア役直結上乗せ・CZ段階演出の有無　やめにくさ：強制フェーズ突入・1G連ループ・AT後優遇状態継続の有無"
+    tf4 = add_tb(slide, MAP_L, MAP_T + MAP_H + 0.08, MAP_W, 0.35)
     p4 = tf4.paragraphs[0]
     r4 = p4.add_run()
-    r4.text = "橙=注目設計 青=現行機 灰=名機"
-    sf(r4, 8, color=C_MID)
+    r4.text = criteria_text
+    sf(r4, 7, color=C_MID)
 
 
 def matrix_slide(prs, lib):
