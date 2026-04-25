@@ -90,6 +90,18 @@ def build_library_context(lib):
     for p in lib["playerPsychology"]["やめられない設計の原理"]:
         lines.append(f"・{p['type']}: {p['description']} (例: {p['example']})")
 
+    lines.append("\n【名機の設計パターン（業界スタンダードになった設計）】")
+    for name, data in lib.get("classicMachines", {}).items():
+        lines.append(f"▶{name}（{data.get('year','')}年/{data.get('maker','')}）")
+        lines.append(f"  パターン: {data.get('designPattern','')} | スペック: {data.get('spec','')}")
+        lines.append(f"  設計の核心: {data.get('highlight','')}")
+        lines.append(f"  設計教訓: {data.get('designLesson','')}")
+        lines.append(f"  プレイヤー感情: {data.get('playerEmotion','')}")
+
+    lines.append("\n【設計の変遷】")
+    for topic, text in lib.get("designEvolution", {}).items():
+        lines.append(f"・{topic}: {text}")
+
     return "\n".join(lines)
 
 

@@ -1930,7 +1930,7 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
   const [analyzeResult, setAnalyzeResult] = useState(null);
   const [analyzeLoading, setAnalyzeLoading] = useState(false);
   const [rankSort, setRankSort] = useState("posts");
-  const [proposePolicy, setProposePolicy] = useState({ target:"", direction:"", reference:"", avoid:"", extra:"" });
+  const [proposePolicy, setProposePolicy] = useState({ targets:[], coinUnit:"standard", patterns:[], avoids:[], reference:"", extra:"" });
   const [proposeResult, setProposeResult] = useState(null);
   const [proposeLoading, setProposeLoading] = useState(false);
 
@@ -1970,7 +1970,7 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
   }
 
   async function generateProposal() {
-    if (!proposePolicy.target || !proposePolicy.direction) return;
+    if (proposePolicy.targets.length === 0) return;
     setProposeLoading(true);
     setProposeResult(null);
     try {
@@ -2011,7 +2011,15 @@ ${GAME_LIBRARY.playerPsychology["20代が反応する要素"].join(" / ")}
 【やめられない設計の原理】
 ${GAME_LIBRARY.playerPsychology.やめられない設計の原理.map(p=>`・${p.type}: ${p.description} (例: ${p.example})`).join("\n")}`;
 
-      const policyText = `ターゲット層: ${proposePolicy.target}\nゲーム性の方向性: ${proposePolicy.direction}\n参考にしたい機種・要素: ${proposePolicy.reference}\n避けたい要素・反省点: ${proposePolicy.avoid}\nその他・備考: ${proposePolicy.extra}`;
+      const COIN_LABEL = { light:"ライト（〜3.0円）", standard:"スタンダード（3.1〜3.5円）", heavy:"ヘビー（3.6〜4.2円）", superHeavy:"超ヘビー（4.3円以上）" };
+      const policyText = [
+        `ターゲット層: ${proposePolicy.targets.join("・")}`,
+        `コイン単価帯: ${COIN_LABEL[proposePolicy.coinUnit]||proposePolicy.coinUnit}`,
+        proposePolicy.patterns.length ? `採用したい設計パターン: ${proposePolicy.patterns.join("・")}` : "",
+        proposePolicy.avoids.length ? `避けたい要素: ${proposePolicy.avoids.join("・")}` : "",
+        proposePolicy.reference ? `参考にしたい機種・要素: ${proposePolicy.reference}` : "",
+        proposePolicy.extra ? `その他・備考: ${proposePolicy.extra}` : "",
+      ].filter(Boolean).join("\n");
       const prompt = `あなたはパチスロ・パチンコ機種の企画開発コンサルタントです。以下の3つの情報源をもとに、新機種のゲーム性提案書を作成してください。
 
 ---
@@ -2376,30 +2384,69 @@ ${policyText}
               <span style={{color:"#aaa"}}>Vercelの環境変数に ANTHROPIC_API_KEY を設定すると利用できます。</span>
             </div>
           )}
-          <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:14}}>
-            {[
-              ["target","① ターゲット層","例: 荒波苦手の20〜30代、設定狙い玄人、ライト女性層"],
-              ["direction","② ゲーム性の方向性","例: 自力感を強化、通常時の退屈さを解消、爆発力と安定を両立"],
-              ["reference","③ 参考にしたい機種・要素","例: カバネリの自力上乗せ + ヨルムンガンドの設定差設計を改善"],
-              ["avoid","④ 避けたい要素・反省点","例: デキレ感、通常時の煽り過多、天井が重すぎる"],
-              ["extra","⑤ その他こだわり・備考（任意）","例: IPはアニメ系、スマスロ、コイン単価3円台"],
-            ].map(([key, label, ph]) => (
-              <div key={key}>
-                <div style={{fontSize:13,fontWeight:500,color:"#555",marginBottom:4}}>{label}</div>
-                <textarea
-                  value={proposePolicy[key]}
-                  onChange={e => setProposePolicy(p => ({...p, [key]: e.target.value}))}
-                  placeholder={ph}
-                  rows={key==="direction"||key==="extra"?2:1}
-                  style={{width:"100%",fontSize:14,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",lineHeight:1.5,color:"#333",boxSizing:"border-box"}}
-                />
+          {(() => {
+            const toggle = (key, val) => setProposePolicy(p => ({ ...p, [key]: p[key].includes(val) ? p[key].filter(x=>x!==val) : [...p[key], val] }));
+            const chip = (key, val, label) => {
+              const on = proposePolicy[key].includes(val);
+              return <button key={val} onClick={() => toggle(key, val)} style={{padding:"5px 10px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:16,fontSize:12,background:on?"#FAECE7":"#f9f9f9",color:on?"#993C1D":"#777",cursor:"pointer",fontWeight:on?600:400,whiteSpace:"nowrap"}}>{label}</button>;
+            };
+            const radio = (val, label) => {
+              const on = proposePolicy.coinUnit === val;
+              return <button key={val} onClick={() => setProposePolicy(p=>({...p,coinUnit:val}))} style={{padding:"5px 12px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:16,fontSize:12,background:on?"#FAECE7":"#f9f9f9",color:on?"#993C1D":"#777",cursor:"pointer",fontWeight:on?600:400}}>{label}</button>;
+            };
+            const section = (label, children) => (
+              <div style={{marginBottom:14}}>
+                <div style={{fontSize:12,fontWeight:600,color:"#888",marginBottom:6,letterSpacing:"0.05em"}}>{label}</div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:6}}>{children}</div>
               </div>
-            ))}
-          </div>
+            );
+            return (
+              <div style={{marginBottom:16}}>
+                {section("① ターゲット層（複数可）", [
+                  chip("targets","20代ライト層","20代ライト層"),
+                  chip("targets","30〜40代コア層","30〜40代コア層"),
+                  chip("targets","設定狙い玄人","設定狙い玄人"),
+                  chip("targets","ライト女性層","ライト女性層"),
+                  chip("targets","旧世代ファン（40〜50代）","旧世代ファン"),
+                ])}
+                {section("② コイン単価帯", [
+                  radio("light","ライト（〜3.0円）"),
+                  radio("standard","スタンダード（3.1〜3.5円）"),
+                  radio("heavy","ヘビー（3.6〜4.2円）"),
+                  radio("superHeavy","超ヘビー（4.3円+）"),
+                ])}
+                {section("③ 採用したい設計パターン（複数可）", [
+                  chip("patterns","強制ループ型","強制ループ型（虚構推理型）"),
+                  chip("patterns","段階育成型","段階育成型（ガンダム型）"),
+                  chip("patterns","爆裂一撃型","爆裂一撃型（吉宗型）"),
+                  chip("patterns","周期保証型","周期保証型"),
+                  chip("patterns","二重継続率型","二重継続率型（バジ絆2型）"),
+                  chip("patterns","前兆期待型","前兆期待型（ハーデス型）"),
+                  chip("patterns","IP融合型","IPテーマ融合型（Re:ゼロ型）"),
+                ])}
+                {section("④ 避けたい要素（複数可）", [
+                  chip("avoids","自力感・択あて","自力感・択あて"),
+                  chip("avoids","デキレ感","デキレ感"),
+                  chip("avoids","天井1000G超え","天井1000G超え"),
+                  chip("avoids","通常時の煽り過多","通常時の煽り過多"),
+                  chip("avoids","設定依存が強すぎる","設定依存が強すぎる"),
+                  chip("avoids","コイン単価4円超え","コイン単価4円超え"),
+                ])}
+                <div style={{marginBottom:10}}>
+                  <div style={{fontSize:12,fontWeight:600,color:"#888",marginBottom:4,letterSpacing:"0.05em"}}>⑤ 参考にしたい機種・要素（任意）</div>
+                  <textarea value={proposePolicy.reference} onChange={e=>setProposePolicy(p=>({...p,reference:e.target.value}))} placeholder="例: カバネリの自力演出の爽快感を残しつつ、虚構推理のループ設計を組み合わせたい" rows={2} style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",lineHeight:1.5,color:"#333",boxSizing:"border-box"}}/>
+                </div>
+                <div>
+                  <div style={{fontSize:12,fontWeight:600,color:"#888",marginBottom:4,letterSpacing:"0.05em"}}>⑥ その他こだわり・備考（任意）</div>
+                  <textarea value={proposePolicy.extra} onChange={e=>setProposePolicy(p=>({...p,extra:e.target.value}))} placeholder="例: IPはアニメ系、スマスロ、やめ時がないような設計にしたい" rows={2} style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",lineHeight:1.5,color:"#333",boxSizing:"border-box"}}/>
+                </div>
+              </div>
+            );
+          })()}
           <button
             onClick={generateProposal}
-            disabled={!aiEnabled || proposeLoading || !proposePolicy.target || !proposePolicy.direction}
-            style={{width:"100%",padding:"12px 0",border:"none",borderRadius:10,background:(!aiEnabled||proposeLoading||!proposePolicy.target||!proposePolicy.direction)?"#ccc":"#D85A30",color:"#fff",fontSize:15,fontWeight:600,cursor:(!aiEnabled||proposeLoading||!proposePolicy.target||!proposePolicy.direction)?"not-allowed":"pointer",marginBottom:16}}
+            disabled={!aiEnabled || proposeLoading || proposePolicy.targets.length === 0}
+            style={{width:"100%",padding:"12px 0",border:"none",borderRadius:10,background:(!aiEnabled||proposeLoading||proposePolicy.targets.length===0)?"#ccc":"#D85A30",color:"#fff",fontSize:15,fontWeight:600,cursor:(!aiEnabled||proposeLoading||proposePolicy.targets.length===0)?"not-allowed":"pointer",marginBottom:16}}
           >
             {proposeLoading ? "生成中...（30秒ほどかかります）" : "提案書を生成する"}
           </button>
