@@ -81,6 +81,97 @@ def title_slide(prs, title, catch):
     sf(r3, 11, color=C_MID)
 
 
+def positioning_slide(prs):
+    """自力感 vs やめにくさ の2軸ポジショニングマップ"""
+    # 各機種のスコア (自力感 0-10, やめにくさ 0-10)
+    SCORES = {
+        "L虚構推理":          (2, 9),
+        "L真打吉宗":          (7, 8),
+        "スマスロ ミリオンゴッド": (5, 7),
+        "スマスロ甲鉄城のカバネリ": (8, 4),
+        "Lガンダムユニコーン":  (4, 5),
+        "スマスロ ヨルムンガンド": (6, 3),
+        "スマスロ アクダマドライブ": (5, 3),
+        "異世界かるてっとBT":  (3, 4),
+        "L戦国乙女5":         (4, 4),
+        "スマスロ新鬼武者3":   (4, 3),
+        "スマスロ北斗の拳":    (4, 3),
+        # 名機
+        "バジ絆2":            (4, 7),
+        "番長3":              (6, 6),
+        "Re:ゼロ":            (3, 8),
+        "ハーデス":           (3, 5),
+        "沖ドキ":             (2, 6),
+    }
+    COLOR_MAP = {
+        "L虚構推理": RGBColor(0xD8,0x5A,0x30),
+        "Re:ゼロ":   RGBColor(0xD8,0x5A,0x30),
+        "バジ絆2":   RGBColor(0x88,0x88,0x88),
+        "番長3":     RGBColor(0x88,0x88,0x88),
+    }
+
+    slide = blank_slide(prs)
+    set_bg(slide, C_WHITE)
+    add_rect(slide, 0, 0, 10, 1.05, C_ORANGE)
+
+    tf = add_tb(slide, 0.4, 0.12, 9.2, 0.8)
+    p = tf.paragraphs[0]
+    r = p.add_run()
+    r.text = "設計ポジショニングマップ（自力感 × やめにくさ）"
+    sf(r, 19, bold=True, color=C_WHITE)
+
+    # マップ領域: x=0.6〜9.6, y=1.3〜7.1
+    MAP_L, MAP_T, MAP_W, MAP_H = 0.8, 1.3, 8.4, 5.6
+    MID_X = MAP_L + MAP_W / 2
+    MID_Y = MAP_T + MAP_H / 2
+
+    # 背景グリッド
+    add_rect(slide, MAP_L, MAP_T, MAP_W, MAP_H, RGBColor(0xF8,0xF8,0xF8))
+    # 軸線
+    add_rect(slide, MID_X - 0.01, MAP_T, 0.02, MAP_H, RGBColor(0xDD,0xDD,0xDD))
+    add_rect(slide, MAP_L, MID_Y - 0.01, MAP_W, 0.02, RGBColor(0xDD,0xDD,0xDD))
+
+    # 軸ラベル
+    for label, lx, ly, w in [
+        ("← 自力感 低", MAP_L + 0.1, MAP_T + MAP_H - 0.35, 2.0),
+        ("自力感 高 →", MAP_L + MAP_W - 2.1, MAP_T + MAP_H - 0.35, 2.0),
+        ("やめにくい ↑", MAP_L + MAP_W/2 - 1.0, MAP_T + 0.05, 2.0),
+        ("やめやすい ↓", MAP_L + MAP_W/2 - 1.0, MAP_T + MAP_H - 0.35, 2.0),
+    ]:
+        tf2 = add_tb(slide, lx, ly, w, 0.3)
+        p2 = tf2.paragraphs[0]
+        r2 = p2.add_run()
+        r2.text = label
+        sf(r2, 9, color=RGBColor(0xBB,0xBB,0xBB))
+
+    # 各機種をプロット
+    from pptx.util import Inches as I
+    for name, (jiriki, yame) in SCORES.items():
+        # jiriki: 0=左, 10=右  yame: 0=下, 10=上
+        px = MAP_L + (jiriki / 10) * MAP_W
+        py = MAP_T + (1 - yame / 10) * MAP_H
+        dot_r = 0.12
+        color = COLOR_MAP.get(name, RGBColor(0x55,0x99,0xCC))
+        dot = slide.shapes.add_shape(9, I(px - dot_r/2), I(py - dot_r/2), I(dot_r), I(dot_r))
+        dot.fill.solid()
+        dot.fill.fore_color.rgb = color
+        dot.line.fill.background()
+
+        short = name.replace("スマスロ ","").replace("スマスロ","").replace("Lガンダムユニコーン","ガンダムUC")[:8]
+        tf3 = add_tb(slide, px + 0.08, py - 0.1, 1.5, 0.28)
+        p3 = tf3.paragraphs[0]
+        r3 = p3.add_run()
+        r3.text = short
+        sf(r3, 7, color=color, bold=(name in COLOR_MAP))
+
+    # 凡例
+    tf4 = add_tb(slide, MAP_L + 0.1, MAP_T + 0.05, 3.0, 0.25)
+    p4 = tf4.paragraphs[0]
+    r4 = p4.add_run()
+    r4.text = "橙=注目設計 青=現行機 灰=名機"
+    sf(r4, 8, color=C_MID)
+
+
 def matrix_slide(prs, lib):
     """既存機種との設計比較マトリックス"""
     slide = blank_slide(prs)
@@ -239,13 +330,14 @@ def make_pptx(md_path):
 
     title_slide(prs, title, catch)
 
-    # 比較マトリックススライド
+    # ポジショニングマップ + 比較マトリックス
     try:
         with open(LIBRARY_PATH, encoding="utf-8") as f:
             lib = json.load(f)
+        positioning_slide(prs)
         matrix_slide(prs, lib)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[WARN] スライド生成スキップ: {e}")
 
     for heading, body in sections:
         in_code = False
