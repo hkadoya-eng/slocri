@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { supabase } from "./supabase";
 import MACHINE_ANALYSIS from "./machineAnalysis.json";
+import GAME_LIBRARY from "./gameDesignLibrary.json";
 
 const CATS = {
   aimH:    { label:"お店狙い目",   bg:"#FFF8E1", color:"#E65100", border:"#FFB74D" },
@@ -1982,8 +1983,76 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
         if (data.cons?.length) lines.push(`  悪い点: ${data.cons.slice(0,3).join(" / ")}`);
         return lines.join("\n");
       }).join("\n\n");
+
+      const libContext = `【ゲームフロー設計パターン】
+${Object.entries(GAME_LIBRARY.gameFlowPatterns).map(([k,v]) => `▶${k}: ${v.description}\n  成功例: ${v.examples.map(e=>e.machine+' - '+e.detail).join(' / ')}\n  強み: ${v.strengths.join('・')}\n  弱み: ${v.weaknesses.join('・')}\n  プレイヤー感情: ${v.playerEmotion}`).join("\n\n")}
+
+【CZ設計パターン】
+${Object.entries(GAME_LIBRARY.czDesignPatterns).map(([k,v]) => `▶${k}: ${v.description}\n  例: ${v.examples.map(e=>e.machine+(e.czProb?' ('+e.czProb+')':'')+' - '+(e.evaluation||e.issue||e.detail||'')).join(' / ')}`).join("\n\n")}
+
+【コイン単価帯と客層】
+${Object.entries(GAME_LIBRARY.specDesign.coinUnitRanges).map(([k,v]) => `${v.range}: ${v.machines.join('・')} → ${v.targetPlayer}`).join("\n")}
+
+【設定差設計パターン】
+${Object.entries(GAME_LIBRARY.settingDifferenceDesign).filter(([k])=>k!=='シンプル判別型の成功例').map(([k,v]) => `▶${k}: ${v.merit} / リスク: ${v.demerit||v.risk||''}`).join("\n")}
+
+【市場の空白（まだ誰もやっていない設計）】
+${GAME_LIBRARY.marketGaps.現在市場に存在しない設計.map(g=>`・${g.gap}: ${g.opportunity}`).join("\n")}
+
+【失敗パターン共通点】
+${GAME_LIBRARY.marketGaps.失敗した機種の共通パターン.join("\n")}
+
+【ライトユーザーが嫌うこと】
+${GAME_LIBRARY.playerPsychology.ライトユーザーが嫌うこと.join(" / ")}
+
+【20代が反応する要素】
+${GAME_LIBRARY.playerPsychology["20代が反応する要素"].join(" / ")}
+
+【やめられない設計の原理】
+${GAME_LIBRARY.playerPsychology.やめられない設計の原理.map(p=>`・${p.type}: ${p.description} (例: ${p.example})`).join("\n")}`;
+
       const policyText = `ターゲット層: ${proposePolicy.target}\nゲーム性の方向性: ${proposePolicy.direction}\n参考にしたい機種・要素: ${proposePolicy.reference}\n避けたい要素・反省点: ${proposePolicy.avoid}\nその他・備考: ${proposePolicy.extra}`;
-      const prompt = `あなたはパチスロ・パチンコ機種の企画開発コンサルタントです。以下の「既存機種分析データ」と「開発指針」をもとに、新機種のゲーム性提案書を作成してください。\n\n---\n【既存機種分析データ】\n${analysisContext}\n\n---\n【開発指針】\n${policyText}\n\n---\n以下の構成でマークダウン形式の提案書を作成してください。\n\n# 新機種ゲーム性提案書\n\n## 1. 市場の現状と課題\n（既存機種の分析から見えた「プレイヤーが求めているもの」「市場に足りていないもの」を200文字程度で）\n\n## 2. コンセプト\n（新機種のコアコンセプトを一言キャッチと200文字程度の説明で）\n\n## 3. ゲームフロー概要\n（通常時→CZ→AT→上位ATの流れをテキストの図で表現。数値は仮でOK）\n\n## 4. 推奨スペック\n（機械割・純増・天井・コイン単価などの方向性を箇条書きで）\n\n## 5. 差別化ポイント\n（既存機種と比べて何が新しいか・何を改善したか。3〜5点の箇条書きで）\n\n## 6. 想定プレイヤー体験\n（実際に打ったときにどんな感情が生まれるかを300文字程度で描写）\n\n## 7. リスクと対策\n（この設計で懸念されること・それへの対策を2〜3点で）\n\nルール：数値は「目安」として明示する。具体的で実用的な提案にする（「〜が重要です」だけでなく「〜G以内に〜を実現する」など）。`;
+      const prompt = `あなたはパチスロ・パチンコ機種の企画開発コンサルタントです。以下の3つの情報源をもとに、新機種のゲーム性提案書を作成してください。
+
+---
+【1. 既存機種 個別分析データ（14機種）】
+${analysisContext}
+
+---
+【2. ゲーム設計ライブラリ（設計パターン・市場空白・プレイヤー心理）】
+${libContext}
+
+---
+【3. 開発指針】
+${policyText}
+
+---
+以下の構成でマークダウン形式の提案書を作成してください。ライブラリの具体的なデータ（機種名・数値・失敗事例）を引用しながら根拠を示してください。
+
+# 新機種ゲーム性提案書
+
+## 1. 市場の現状と課題
+（ライブラリの市場空白・失敗パターンを引用しながら「何が足りないか」を250文字程度で）
+
+## 2. コンセプト
+（一言キャッチ＋200文字程度の説明。市場の空白を埋める設計コンセプトを明示）
+
+## 3. ゲームフロー概要
+（通常時→CZ→AT→上位ATの流れをテキスト図で。設計パターン名を明示して根拠を示す）
+
+## 4. 推奨スペック
+（コイン単価帯・機械割・純増・天井を箇条書きで。ライブラリのスペック傾向データを根拠に）
+
+## 5. 差別化ポイント
+（市場空白リストから引用しながら「何を新しくしたか」を3〜5点で）
+
+## 6. 想定プレイヤー体験
+（ライブラリのプレイヤー心理を参照し、実際に打った時の感情を300文字程度で）
+
+## 7. リスクと対策
+（ライブラリの失敗パターンに照らして懸念点と対策を2〜3点で）
+
+ルール：数値は「目安」として明示する。「〜G以内に〜を実現する」など具体的な数値付きで提案する。既存機種を引き合いに出して差別化ポイントを明確にする。`;
       const res = await fetch("/api/claude", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:4096, messages:[{role:"user", content:prompt}] }) });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
