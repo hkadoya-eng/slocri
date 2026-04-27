@@ -14,7 +14,7 @@ from pptx.enum.text import PP_ALIGN
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "yoshimune_guide_v3.pptx")
+OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "yoshimune_guide_v4.pptx")
 
 # ── カラーパレット（江戸・吉宗テーマ）──────────────────────────
 C_BG       = RGBColor(0x07, 0x07, 0x0E)   # 深夜の黒
@@ -573,12 +573,13 @@ def s_flow(prs):
     arr(Inches(7.75), Inches(2.8))   # 真高確率→真BB
     ar(Inches(8.65), Inches(1.72))   # 真BB→1G連
 
-    # 1G連ループ矢印（右から左に）
-    rect(s, Inches(7.5), Inches(1.3), Emu(100000), Emu(460000), C_GOLD)  # 縦線
-    rect(s, Inches(7.5), Inches(1.3), Emu(2000000), Emu(100000), C_GOLD) # 横線上
-    rect(s, Inches(7.5), Inches(1.72), Emu(100000), Emu(100000), C_GOLD) # 縦接続
+    # 1G連ループ矢印 ── ボックス外側に描く（x=7.3"：ボックス左端7.5"の外）
+    rect(s, Inches(7.3), Inches(1.28), Emu(80000), Emu(530000), C_GOLD)   # 縦線（外側）
+    rect(s, Inches(7.3), Inches(1.28), Emu(2350000), Emu(80000), C_GOLD)  # 横線上
+    # 下向き矢印の三角（右端）
+    rect(s, Inches(9.57), Inches(1.28), Emu(80000), Emu(180000), C_GOLD)
 
-    tb(s, Inches(4.5), Inches(1.0), Inches(2.8), Emu(350000),
+    tb(s, Inches(3.8), Inches(0.92), Inches(3.5), Emu(340000),
        "↺ 1G連ループ（2000枚×N）", 9, bold=True, color=C_GOLD2, align=PP_ALIGN.CENTER)
 
     # 天井ルート
@@ -604,29 +605,29 @@ def s_setting(prs):
 
     # 左：設定示唆一覧
     LX = Inches(0.2)
-    rect_b(s, LX, Inches(0.85), Inches(4.7), Inches(3.55),
+    rect_b(s, LX, Inches(0.85), Inches(4.7), Inches(3.65),
            C_CARD, C_GOLD, 1.5)
     tb(s, LX + Emu(80000), Inches(0.90), Inches(4.4), Emu(330000),
        "設定示唆演出", 11, bold=True, color=C_GOLD)
 
     hints = [
         ("コパンダトロフィー色",
-         "銅  → 設定2以上\n銀  → 設定3以上\n金  → 設定4以上\n虹  → 設定6濃厚！", C_GOLD2),
+         "銅→設定2以上 / 銀→設定3以上\n金→設定4以上 / 虹→設定6濃厚！", C_GOLD2),
         ("真BB中ボイス",
          "特定キャラのセリフで示唆\n「江戸を守る！」→ 設定6濃厚", C_RED),
         ("御白洲ビジョン",
          "吉宗＜大岡越前＜天英院\n天英院出現で高設定期待大", C_LTBLUE),
         ("AT終了画面（差枚表示）",
-         "456枚 → 設定4以上\n555枚 → 設定5以上\n666枚 → 設定6濃厚", C_ORANGE),
+         "456枚→設4以上 / 555枚→設5以上\n666枚→設定6濃厚！", C_ORANGE),
     ]
     hy = Inches(1.3)
     for h_name, h_desc, h_col in hints:
         rect(s, LX + Emu(80000), hy, Inches(4.4), Emu(50000), h_col)
         tb(s, LX + Emu(80000), hy + Emu(60000), Inches(4.4), Emu(270000),
            h_name, 9, bold=True, color=h_col)
-        tb(s, LX + Emu(80000), hy + Emu(320000), Inches(4.4), Emu(320000),
+        tb(s, LX + Emu(80000), hy + Emu(320000), Inches(4.4), Emu(360000),
            h_desc, 8.5, color=C_CREAM)
-        hy += Emu(720000)
+        hy += Emu(750000)
 
     # 右：設定差比較表
     RX = Inches(5.2)
