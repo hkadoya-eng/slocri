@@ -14,7 +14,7 @@ from pptx.enum.text import PP_ALIGN
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "yoshimune_guide_v2.pptx")
+OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "yoshimune_guide_v3.pptx")
 
 # ── カラーパレット（江戸・吉宗テーマ）──────────────────────────
 C_BG       = RGBColor(0x07, 0x07, 0x0E)   # 深夜の黒
@@ -287,12 +287,12 @@ def s_spec(prs):
     sy = Inches(1.32)
     for j, (k, v) in enumerate(specs):
         bg = RGBColor(0x12, 0x08, 0x02) if j % 2 == 0 else RGBColor(0x18, 0x10, 0x04)
-        rect(s, LX, sy, Inches(4.7), Emu(340000), bg)
-        tb(s, LX + Emu(80000), sy + Emu(30000), Inches(1.4), Emu(295000),
-           k, 8.5, color=C_GRAY)
-        tb(s, LX + Emu(1580000), sy + Emu(30000), Inches(2.9), Emu(295000),
+        rect(s, LX, sy, Inches(4.7), Emu(325000), bg)
+        tb(s, LX + Emu(80000), sy + Emu(25000), Inches(1.4), Emu(280000),
+           k, 8.5, color=C_GRAY, wrap=False)
+        tb(s, LX + Emu(1580000), sy + Emu(25000), Inches(2.9), Emu(280000),
            v, 9, bold=True, color=C_CREAM)
-        sy += Emu(345000)
+        sy += Emu(330000)
 
     # 右カラム：機械割グラフ
     RX = Inches(5.2)
@@ -308,18 +308,18 @@ def s_spec(prs):
         ("設定5", 107.8, "107.8%", C_ORANGE),
         ("設定6", 114.0, "114.0%", C_GOLD2),
     ]
-    bar_lx   = RX + Emu(600000)
-    bar_wmax = Inches(2.8)
+    bar_lx   = RX + Emu(700000)
+    bar_wmax = Inches(2.0)           # バーを短くしてラベル幅を確保
     bar_h    = Emu(240000)
     gy = Inches(1.35)
     for lbl, val, val_str, col in settings:
         ratio = (val - 95) / (114 - 95)
         rect(s, bar_lx, gy, bar_wmax, bar_h, RGBColor(0x20, 0x15, 0x05))
         rect(s, bar_lx, gy, int(bar_wmax * ratio), bar_h, col)
-        tb(s, RX + Emu(80000), gy + Emu(30000), Emu(490000), Emu(200000),
-           lbl, 9, color=C_CREAM)
-        tb(s, bar_lx + bar_wmax + Emu(80000), gy + Emu(30000), Emu(430000), Emu(200000),
-           val_str, 9.5, bold=True, color=col)
+        tb(s, RX + Emu(80000), gy + Emu(30000), Emu(580000), Emu(240000),
+           lbl, 9, color=C_CREAM, wrap=False)
+        tb(s, bar_lx + bar_wmax + Emu(100000), gy + Emu(20000), Emu(900000), Emu(260000),
+           val_str, 10, bold=True, color=col, wrap=False)
         gy += Emu(345000)
 
     # 注記
@@ -657,7 +657,7 @@ def s_setting(prs):
         for val, cx, cw in zip(vals, cxs, cws):
             c = col if val == mw else (C_GOLD2 if val == sd else C_CREAM)
             tb(s, cx, ry + Emu(30000), cw, Emu(280000),
-               val, 9, bold=(val == mw), color=c, align=PP_ALIGN.CENTER)
+               val, 9, bold=(val == mw), color=c, align=PP_ALIGN.CENTER, wrap=False)
         ry += Emu(335000)
 
     # 注記
