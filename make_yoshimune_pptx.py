@@ -14,7 +14,7 @@ from pptx.enum.text import PP_ALIGN
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "yoshimune_guide_v1.pptx")
+OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "yoshimune_guide_v2.pptx")
 
 # ── カラーパレット（江戸・吉宗テーマ）──────────────────────────
 C_BG       = RGBColor(0x07, 0x07, 0x0E)   # 深夜の黒
@@ -674,33 +674,34 @@ def s_review(prs):
     s = new_slide(prs)
     hdr(s, "市場評価 & 総評  ──  この台を一言で言うと？")
 
-    # 上段：総評カード
-    rect_b(s, Inches(0.2), Inches(0.85), Inches(9.6), Emu(500000),
+    # 上段：総評カード（高さを十分確保）
+    rect_b(s, Inches(0.2), Inches(0.82), Inches(9.6), Emu(900000),
            RGBColor(0x14, 0x08, 0x00), C_GOLD, 2)
-    tb(s, Inches(0.35), Inches(0.90), Inches(9.2), Emu(350000),
+    tb(s, Inches(0.35), Inches(0.88), Inches(9.2), Emu(310000),
        "一言まとめ", 10, bold=True, color=C_GOLD)
-    tb(s, Inches(0.35), Inches(1.22), Inches(9.2), Emu(320000),
-       "「初代吉宗の魂をスマスロで再現した爆裂機。AT自体は地味だが、真BBに辿り着けば2000枚×1G連ループで一撃性能は業界トップクラス。"
-       "荒波は強めで設定1は厳しめだが、設定6の114%は高水準。」",
-       10, color=C_CREAM)
+    tb(s, Inches(0.35), Inches(1.20), Inches(9.2), Emu(480000),
+       "「初代吉宗の魂をスマスロで再現した爆裂機。AT自体は地味だが、真BBに辿り着けば"
+       "2000枚×1G連ループで一撃性能は業界トップクラス。\n"
+       "　荒波は強めで設定1は厳しめだが、設定6の114%は高水準。」",
+       9.5, color=C_CREAM)
 
-    # 中段：好評 / 批評
-    rect_b(s, Inches(0.2), Inches(1.95), Inches(4.6), Inches(1.8),
+    # 中段：好評 / 批評（y を一言まとめカード終端+0.1" に）
+    rect_b(s, Inches(0.2), Inches(1.92), Inches(4.6), Inches(1.55),
            RGBColor(0x06, 0x14, 0x06), C_GREEN, 1.5)
-    tb(s, Inches(0.3), Inches(2.0), Inches(4.3), Emu(330000),
+    tb(s, Inches(0.3), Inches(1.97), Inches(4.3), Emu(310000),
        "ユーザー好評点", 10, bold=True, color=C_GREEN)
-    tb(s, Inches(0.3), Inches(2.38), Inches(4.3), Inches(1.2),
+    tb(s, Inches(0.3), Inches(2.30), Inches(4.3), Emu(1050000),
        "✔ 「爆発力が凄い。2000枚を複数回取れた」\n"
        "✔ 「真BBの1G連が来た時の興奮は段違い」\n"
        "✔ 「吉宗ファンなら絶対打つべき台」\n"
        "✔ 「周期システムが分かると楽しい」",
        9, color=C_CREAM)
 
-    rect_b(s, Inches(5.1), Inches(1.95), Inches(4.7), Inches(1.8),
+    rect_b(s, Inches(5.1), Inches(1.92), Inches(4.7), Inches(1.55),
            RGBColor(0x14, 0x06, 0x06), C_RED, 1.5)
-    tb(s, Inches(5.2), Inches(2.0), Inches(4.3), Emu(330000),
+    tb(s, Inches(5.2), Inches(1.97), Inches(4.4), Emu(310000),
        "ユーザー批評点", 10, bold=True, color=C_RED)
-    tb(s, Inches(5.2), Inches(2.38), Inches(4.3), Inches(1.2),
+    tb(s, Inches(5.2), Inches(2.30), Inches(4.4), Emu(1050000),
        "✗ 「低設定はATに入っても出ない」\n"
        "✗ 「CZを連続スルーすると萎える」\n"
        "✗ 「真高確率に入れても真BB引けないことも」\n"
@@ -708,16 +709,17 @@ def s_review(prs):
        9, color=C_CREAM)
 
     # 下段：導入・稼働概要
-    rect_b(s, Inches(0.2), Inches(3.85), Inches(9.6), Inches(0.7),
+    rect_b(s, Inches(0.2), Inches(3.57), Inches(9.6), Emu(480000),
            RGBColor(0x10, 0x08, 0x00), C_GOLD, 1.2)
-    tb(s, Inches(0.35), Inches(3.9), Inches(9.2), Emu(340000),
-       "導入台数 約15,000台（2026年4月導入）  /  評価 ★1.79（まだ集計途中）  /  吉宗シリーズ累計ファン多数", 9.5, color=C_GOLD)
+    tb(s, Inches(0.35), Inches(3.63), Inches(9.2), Emu(390000),
+       "導入台数 約15,000台（2026年4月導入）  /  評価 ★1.79（まだ集計途中）  /  吉宗シリーズ累計ファン多数",
+       9.5, color=C_GOLD)
 
-    # まとめテーブル
-    rect(s, Inches(0.2), Inches(4.65), Inches(9.6), Emu(380000), RGBColor(0x08, 0x05, 0x00))
-    tb(s, Inches(0.35), Inches(4.7), Inches(9.2), Emu(340000),
-       "向いているユーザー：「爆発力重視」「吉宗シリーズファン」「高設定確保できる環境」の3条件が揃うと楽しい台。"
-       "低設定・ホール全般設定での稼働では荒波に注意。",
+    # まとめ（下端を Inches(5.3) 以内に収める）
+    rect(s, Inches(0.2), Inches(4.15), Inches(9.6), Emu(700000), RGBColor(0x08, 0x05, 0x00))
+    tb(s, Inches(0.35), Inches(4.22), Inches(9.2), Emu(600000),
+       "向いているユーザー：「爆発力重視」「吉宗シリーズファン」「高設定を確保できる環境」\n"
+       "この3条件が揃う場面で最大限に輝く台。低設定・全台低設定のホールでは荒波に注意。",
        9, color=C_CREAM)
 
 
