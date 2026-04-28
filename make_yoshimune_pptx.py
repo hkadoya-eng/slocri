@@ -14,7 +14,7 @@ from pptx.enum.text import PP_ALIGN
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "yoshimune_guide_v4.pptx")
+OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "yoshimune_guide_v5.pptx")
 
 # ── カラーパレット（江戸・吉宗テーマ）──────────────────────────
 C_BG       = RGBColor(0x07, 0x07, 0x0E)   # 深夜の黒
@@ -583,10 +583,10 @@ def s_flow(prs):
        "↺ 1G連ループ（2000枚×N）", 9, bold=True, color=C_GOLD2, align=PP_ALIGN.CENTER)
 
     # 天井ルート
-    rect_b(s, Inches(0.2), Inches(3.8), Inches(2.3), Emu(430000),
-           RGBColor(0x08, 0x08, 0x28), C_BLUE, 1.2)
-    tb(s, Inches(0.3), Inches(3.85), Inches(2.1), Emu(390000),
-       "天井ルート\nCZ間1000G\nAT間1500G\n→ 天井到達でAT保証", 8, color=C_LTBLUE)
+    rect_b(s, Inches(0.2), Inches(3.75), Inches(2.5), Emu(700000),
+           RGBColor(0x06, 0x08, 0x28), C_BLUE, 2.0)
+    tb(s, Inches(0.32), Inches(3.82), Inches(2.3), Emu(620000),
+       "天井ルート\nCZ間 1,000G\nAT間 1,500G\n→ 天井到達でAT保証", 9.5, bold=True, color=C_LTBLUE)
 
     # 凡例
     rect(s, Inches(3.0), Inches(3.8), Inches(6.8), Emu(750000), RGBColor(0x08, 0x05, 0x00))
