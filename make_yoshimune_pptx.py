@@ -15,7 +15,7 @@ from pptx.enum.text import PP_ALIGN
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "yoshimune_guide_v10.pptx")
+OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "yoshimune_guide_v11.pptx")
 
 # ── カラーパレット（江戸・吉宗テーマ）──────────────────────────
 C_BG       = RGBColor(0x07, 0x07, 0x0E)   # 深夜の黒
@@ -588,66 +588,111 @@ def s_flow(prs):
     s = new_slide(prs)
     hdr(s, "ゲームフロー全体図  ──  通常時から爆発まで")
 
-    # ボックス幅2.0"・間隔0.35"でピッタリ収まる配置
-    # CZ終端2.2" → AT始端2.55" → AT終端4.55" → 真高確率始端4.9" → 終端6.9" → 真BB始端7.25" → 終端9.25"
-    BW = Inches(2.0)
-    boxes = [
-        (Inches(0.2),  Inches(0.9),  BW, Emu(500000),
-         "通常時\n夜回りカウンター\nPT加算", C_CARD, C_GRAY),
-        (Inches(0.2),  Inches(1.65), BW, Emu(500000),
-         "周期到達\n（100〜600PT×最大6周期）", C_CARD, C_GRAY),
-        (Inches(0.2),  Inches(2.45), BW, Emu(500000),
-         "CZ\n悪人成敗チャンス\n成功率約55%", RGBColor(0x18,0x06,0x00), C_RED),
-        (Inches(2.55), Inches(2.45), BW, Emu(500000),
-         "AT\n勧善懲悪RUSH\n純増2.7枚/G", RGBColor(0x06,0x06,0x18), C_BLUE),
-        (Inches(4.9),  Inches(2.45), BW, Emu(500000),
-         "真高確率\n青7狙え！\n約1/168で真BB", RGBColor(0x18,0x0A,0x00), C_ORANGE),
-        (Inches(7.25), Inches(2.45), BW, Emu(500000),
-         "真BB\n約2000枚\n純増9.0枚/G", RGBColor(0x20,0x08,0x00), C_RED),
-        (Inches(7.25), Inches(1.65), BW, Emu(500000),
-         "1G連\nループ\n2000枚×N回！", RGBColor(0x22,0x16,0x00), C_GOLD2),
+    # ── 蛇行2段レイアウト ─────────────────────────────────────────
+    # 上段 (左→右): 通常時/周期 → CZ → AT
+    # 下段 (右→左): 真高確率 → 真BB → 1G連ループ
+    BW      = Inches(3.0)
+    BH      = Inches(1.2)
+    GAP     = Inches(0.2)
+    R1Y     = Inches(0.55)
+    R2Y     = Inches(2.35)
+    BOT_Y   = Inches(3.75)
+
+    X1 = Inches(0.2)
+    X2 = X1 + BW + GAP
+    X3 = X2 + BW + GAP
+
+    # ── 上段ボックス ──────────────────────────────────────────────
+    row1 = [
+        (X1, "通常時 / 周期到達",
+         "夜回りPTを毎G積算\n規定PT × 最大6周期でCZへ",
+         RGBColor(0x12, 0x0C, 0x04), C_GRAY),
+        (X2, "CZ  悪人成敗チャンス",
+         "成功率 約55%\n成功 → AT直行",
+         RGBColor(0x18, 0x06, 0x00), C_RED),
+        (X3, "AT  勧善懲悪RUSH",
+         "純増 2.7枚/G\n40G周期で真高確率へのジャッジ",
+         RGBColor(0x06, 0x06, 0x18), C_BLUE),
     ]
-    for (l, t, w, h, txt, fill, bdr) in boxes:
-        rect_b(s, l, t, w, h, fill, bdr, 1.8)
-        tb(s, l, t, w, h, txt, 9, bold=True, color=C_WHITE, align=PP_ALIGN.CENTER)
+    for x, title, desc, fill, bdr in row1:
+        rect_b(s, x, R1Y, BW, BH, fill, bdr, 1.8)
+        tb(s, x + Emu(80000), R1Y + Emu(60000), BW - Emu(160000), Emu(340000),
+           title, 10, bold=True, color=C_WHITE)
+        tb(s, x + Emu(80000), R1Y + Emu(420000), BW - Emu(160000), BH - Emu(490000),
+           desc, 9, color=C_CREAM)
 
-    # 下向き矢印（通常時→周期→CZ）
-    def ar(x, y): arrow_d(s, x, y, C_GRAY)
-    # 右向き矢印（CZ→AT→真高確率→真BB）
-    def arr(x, y): arrow_r(s, x, y, Emu(240000), C_RED)
+    # 上段右向き矢印
+    for x_left in [X1, X2]:
+        arrow_r(s, x_left + BW + Emu(40000), R1Y + BH // 2, GAP - Emu(80000), C_RED)
 
-    ar(Inches(1.2),  Inches(1.47))   # 通常時→周期（1G連ボックス底=1.65+0.547=2.197"の手前）
-    ar(Inches(1.2),  Inches(2.22))   # 周期→CZ
-    arr(Inches(2.22), Inches(2.72))  # CZ→AT（CZ終端2.2"〜AT始端2.55"の間）
-    arr(Inches(4.57), Inches(2.72))  # AT→真高確率
-    arr(Inches(6.92), Inches(2.72))  # 真高確率→真BB（真高確率終端6.9"〜真BB始端7.25"の間）
+    # ── 折り返し下向き矢印: ATの中心 → 真高確率の中心 ──────────────
+    AT_CX = X3 + BW // 2
+    _aw, _ah = Emu(130000), Emu(380000)
+    shp_d = s.shapes.add_shape(13, AT_CX - _aw // 2,
+                                R1Y + BH + Emu(60000), _aw, _ah)
+    shp_d.rotation = 90
+    shp_d.fill.solid()
+    shp_d.fill.fore_color.rgb = C_ORANGE
+    shp_d.line.fill.background()
 
-    # 真BB→1G連（上向き矢印）
-    _w, _h = Emu(100000), Emu(200000)
-    shp_u = s.shapes.add_shape(13, Inches(8.25) - _w // 2, Inches(2.2), _w, _h)
-    shp_u.rotation = 270
-    shp_u.fill.solid()
-    shp_u.fill.fore_color.rgb = C_GOLD
-    shp_u.line.fill.background()
+    # ── 下段ボックス (右→左の流れ) ────────────────────────────────
+    row2 = [
+        (X3, "真高確率ゾーン",
+         "青7を狙え！\n約1/168 で真BIG BONUS確定",
+         RGBColor(0x18, 0x0A, 0x00), C_ORANGE),
+        (X2, "真 BIG BONUS",
+         "約2,000枚 / 純増9.0枚/G\n消化中に「1G連抽選」！",
+         RGBColor(0x1C, 0x08, 0x00), C_RED),
+        (X1, "1G連ループ",
+         "次の1Gで再び真BB発動！\n2,000枚 × N回 積み上がる",
+         RGBColor(0x1C, 0x14, 0x00), C_GOLD2),
+    ]
+    for x, title, desc, fill, bdr in row2:
+        rect_b(s, x, R2Y, BW, BH, fill, bdr, 1.8)
+        tb(s, x + Emu(80000), R2Y + Emu(60000), BW - Emu(160000), Emu(340000),
+           title, 10, bold=True, color=C_WHITE)
+        tb(s, x + Emu(80000), R2Y + Emu(420000), BW - Emu(160000), BH - Emu(490000),
+           desc, 9, color=C_CREAM)
 
-    # 1G連ループ（右側にコの字）
-    rect(s, Inches(9.27), Inches(1.65), Emu(80000), Emu(985000), C_GOLD)   # 右縦線
-    rect(s, Inches(7.23), Inches(1.63), Emu(2120000), Emu(80000), C_GOLD)  # 上横線
+    # 下段左向き矢印（真高確率→真BB, 真BB→1G連）
+    for x_right in [X3, X2]:
+        _w = GAP - Emu(80000)
+        _h = Emu(150000)
+        shp = s.shapes.add_shape(13,
+                                  x_right - GAP + Emu(40000),
+                                  R2Y + BH // 2 - _h // 2,
+                                  _w, _h)
+        shp.rotation = 180
+        shp.fill.solid()
+        shp.fill.fore_color.rgb = C_RED
+        shp.line.fill.background()
 
-    tb(s, Inches(2.6), Inches(0.9), Inches(4.5), Emu(340000),
-       "↺ 1G連ループ（2000枚×N）", 9, bold=True, color=C_GOLD2, align=PP_ALIGN.CENTER)
+    # ── 1G連ループバック (⊓コネクタ: 1G連 → 真BB) ─────────────────
+    LW     = Emu(55000)
+    cx_1g  = X1 + BW // 2
+    cx_trb = X2 + BW // 2
+    loop_y = R2Y - Emu(350000)   # ⊓の頂辺（上段と下段の間）
 
-    # 天井ルート
-    rect_b(s, Inches(0.2), Inches(3.6), Inches(2.2), Emu(700000),
-           RGBColor(0x06, 0x08, 0x28), C_BLUE, 2.0)
-    tb(s, Inches(0.32), Inches(3.67), Inches(2.0), Emu(620000),
-       "天井ルート\nCZ間 1,000G\nAT間 1,500G\n→ 天井到達でAT保証", 9.5, bold=True, color=C_LTBLUE)
+    rect(s, cx_1g  - LW // 2, loop_y, LW, R2Y - loop_y, C_GOLD)          # 左脚
+    rect(s, cx_1g  - LW // 2, loop_y - LW // 2,
+         cx_trb - cx_1g + LW, LW, C_GOLD)                                 # 頂辺
+    rect(s, cx_trb - LW // 2, loop_y, LW, R2Y - loop_y, C_GOLD)          # 右脚
+    tb(s, cx_1g + Emu(80000), loop_y + Emu(40000),
+       cx_trb - cx_1g - Emu(80000), Emu(250000),
+       "↺ 1G連成功でループ！", 8, bold=True, color=C_GOLD2, align=PP_ALIGN.CENTER)
 
-    # 凡例
-    rect(s, Inches(2.6), Inches(3.6), Inches(7.2), Emu(750000), RGBColor(0x08, 0x05, 0x00))
-    tb(s, Inches(2.75), Inches(3.67), Inches(6.9), Emu(700000),
-       "★ 鍵は「真BB + 1G連」。AT自体の純増は2.7枚とおとなしいが、真高確率→真BBに到達すれば\n"
-       "　2000枚×複数ループが現実的になる。「当たりをいくつ引けるか」よりも「真BBを連鎖できるか」が勝負。",
+    # ── 下部バー: 天井ルート + 解説 ───────────────────────────────
+    rect_b(s, X1, BOT_Y, Inches(2.5), Emu(900000),
+           RGBColor(0x06, 0x08, 0x28), C_BLUE, 1.5)
+    tb(s, X1 + Emu(80000), BOT_Y + Emu(80000), Inches(2.2), Emu(780000),
+       "天井ルート\nCZ間 1,000G\nAT間 1,500G\n天井到達でAT保証",
+       9, color=C_LTBLUE)
+
+    rect(s, Inches(2.95), BOT_Y, Inches(6.85), Emu(900000), RGBColor(0x08, 0x05, 0x00))
+    tb(s, Inches(3.1), BOT_Y + Emu(100000), Inches(6.5), Emu(750000),
+       "★ 鍵は「真BB + 1G連」。AT自体の純増は2.7枚とおとなしいが、"
+       "真高確率→真BBに到達すれば\n2,000枚×複数ループが現実的になる。"
+       "「当たりをいくつ引けるか」よりも「真BBを連鎖できるか」が勝負。",
        9, color=C_GOLD)
 
 
