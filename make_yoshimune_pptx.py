@@ -15,7 +15,7 @@ from pptx.enum.text import PP_ALIGN
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "yoshimune_guide_v9.pptx")
+OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "yoshimune_guide_v10.pptx")
 
 # ── カラーパレット（江戸・吉宗テーマ）──────────────────────────
 C_BG       = RGBColor(0x07, 0x07, 0x0E)   # 深夜の黒
@@ -134,6 +134,11 @@ def tb(slide, l, t, w, h, text, sz=10, bold=False, color=C_WHITE,
     run.font.color.rgb = color
     run.font.name = "メイリオ"
     return txb
+
+
+def net_note(slide, text="※ネットより"):
+    tb(slide, Inches(8.5), Inches(5.38), Inches(1.4), Emu(200000),
+       text, 7, color=C_GRAY, align=PP_ALIGN.RIGHT)
 
 
 def hdr(slide, text, color=C_GOLD):
@@ -297,6 +302,7 @@ def s_history(prs):
     tb(s, Inches(0.35), Inches(4.62), Inches(9.2), Emu(370000),
        "初代から受け継がれる「7を狙う・1G連・711枚」のDNA ── 真打吉宗はそれを「真BB 2000枚 × 1G連」として昇華させた集大成だから「真打」を名乗れる。",
        9.5, color=C_GOLD)
+    net_note(s)
 
 
 # ══════════════════════════════════════════════════════════════
@@ -444,6 +450,7 @@ def s_normal(prs):
     tb(s, Inches(0.35), Inches(4.76), Inches(9.2), Emu(330000),
        "★ 天国モード時は1周期のみでCZ到達。AT後は天国移行率約43%なので「連チャンしやすい状態」が頻繁に発生する。",
        9, color=C_GOLD)
+    net_note(s)
 
 
 # ══════════════════════════════════════════════════════════════
@@ -508,6 +515,7 @@ def s_cz_at(prs):
         tb(s, bx + Emu(80000), Inches(4.75), Inches(2.1), Emu(340000),
            desc, 8, color=C_CREAM)
         bx += Inches(2.42)
+    net_note(s)
 
 
 # ══════════════════════════════════════════════════════════════
@@ -570,6 +578,7 @@ def s_truemode(prs):
        "AT（勧善懲悪RUSH）→ 真高確率 → 真BB（2000枚）→ 1G連ループ\n"
        "1G連が連続すれば「2000枚 × 複数回」の大爆発。これが真打吉宗の醍醐味。",
        9.5, color=C_CREAM)
+    net_note(s)
 
 
 # ══════════════════════════════════════════════════════════════
@@ -712,6 +721,7 @@ def s_setting(prs):
     tb(s, Inches(0.35), Inches(4.62), Inches(9.2), Emu(390000),
        "設定差はCZ・AT当選率に集中。設定6の114%は高水準だが「荒い」機種なので、設定4でも厳しい局面あり。判別は累積示唆演出で総合判断が重要。",
        9, color=C_GOLD)
+    net_note(s)
 
 
 # ══════════════════════════════════════════════════════════════
