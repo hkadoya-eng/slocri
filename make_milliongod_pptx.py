@@ -11,7 +11,7 @@ from pptx.enum.text import PP_ALIGN
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "milliongod_guide_v1.pptx")
+OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "milliongod_guide_v2.pptx")
 
 # ── カラーパレット（神・ゼウステーマ）──────────────────────────────
 C_BG        = RGBColor(0x05, 0x05, 0x12)
@@ -433,12 +433,12 @@ def s_flow(prs):
         (X1, "通常時 / 前兆",
          "6種ステージでモード管理\nガイア・アテナが前兆のサイン",
          RGBColor(0x10, 0x08, 0x22), C_PURPLE),
-        (X2, "GG  GOD GAME",
-         "AT本体 / 50G / 純増7.0枚/G\nループストックA〜Dを消化",
+        (X2, "GG当選 / Z-ZONE",
+         "GG当選確定で0揃い→Z-ZONE突入\n5G間で黄7×5連→ストック獲得\n成功率 約90% ※ネットより",
+         RGBColor(0x1C, 0x12, 0x00), C_LIGHTNING),
+        (X3, "GG消化  GOD GAME",
+         "50G × ストック数 / 純増7.0枚/G\n赤7揃い → SGG突入\nGOD揃い(1/16,384) → PGG突入",
          RGBColor(0x18, 0x08, 0x00), C_GOLD),
-        (X3, "SGG / Z-ZONE突入",
-         "赤7揃い → SGG突入\nZ-ZONEで黄7連鎖チャンス！",
-         RGBColor(0x0C, 0x04, 0x24), C_PURPLE),
     ]
     for x, title, desc, fill, bdr in row1:
         rect_b(s, x, R1Y, BW, BH, fill, bdr, 1.8)
@@ -455,16 +455,16 @@ def s_flow(prs):
     shp_d = s.shapes.add_shape(13, AT_CX - _aw // 2, R1Y + BH + Emu(60000), _aw, _ah)
     shp_d.rotation = 90
     shp_d.fill.solid()
-    shp_d.fill.fore_color.rgb = C_PURPLE
+    shp_d.fill.fore_color.rgb = C_GOLD
     shp_d.line.fill.background()
 
     row2 = [
-        (X3, "Z-GAME（黄7連鎖）",
-         "約1/1.4で黄7出現\n5連成功でGGストック獲得\n失敗でSGG終了・G-ZONEへ",
-         RGBColor(0x18, 0x14, 0x00), C_LIGHTNING),
-        (X2, "PGG  PREMIUM GOD GAME",
-         "GOD揃い（1/16,384）時突入\nGGストック4個+80%Dループ\n期待枚数3,000枚超",
-         RGBColor(0x20, 0x10, 0x00), C_GOD),
+        (X3, "GGストックループ",
+         "GG消化後 ストック残→GG継続\nDループ(80%)なら連荘爆発！",
+         RGBColor(0x18, 0x14, 0x00), C_GOLD),
+        (X2, "SGG / PGG",
+         "赤7揃い → SGG（継続率75%+）\nGOD揃い → PGG（期待3,000枚）\nGG消化中に内部抽選",
+         RGBColor(0x10, 0x04, 0x24), C_PURPLE),
         (X1, "G-ZONE  引き戻し",
          "GG/SGG終了後5Gのチャンス\n奇数揃いでGG再突入！\nストックなしでも逆転あり",
          RGBColor(0x06, 0x0C, 0x22), C_BLUE),
@@ -485,7 +485,7 @@ def s_flow(prs):
         shp.fill.fore_color.rgb = C_GOLD
         shp.line.fill.background()
 
-    # ⊓ループバック: G-ZONE → GG (引き戻し成功)
+    # ⊓ループバック: G-ZONE → GG当選/Z-ZONE (引き戻し成功)
     LW     = Emu(55000)
     cx_gz  = X1 + BW // 2
     cx_gg  = X2 + BW // 2
@@ -494,7 +494,7 @@ def s_flow(prs):
     rect(s, cx_gz - LW // 2, loop_y - LW // 2, cx_gg - cx_gz + LW, LW, C_BLUE)
     rect(s, cx_gg - LW // 2, loop_y, LW, R2Y - loop_y, C_BLUE)
     tb(s, cx_gz + Emu(80000), loop_y + Emu(40000), cx_gg - cx_gz - Emu(80000), Emu(250000),
-       "↺ 引き戻し成功でGG再突入！", 8, bold=True, color=C_LTBLUE, align=PP_ALIGN.CENTER)
+       "↺ G-ZONE成功でGG再突入！", 8, bold=True, color=C_LTBLUE, align=PP_ALIGN.CENTER)
 
     # 下部バー
     rect_b(s, X1, BOT_Y, Inches(2.5), Emu(900000),
@@ -595,59 +595,60 @@ def s_normal(prs):
 # ══════════════════════════════════════════════════════════════
 def s_gg(prs):
     s = new_slide(prs)
-    hdr(s, "AT詳細  ──  GG → SGG → Z-GAME の連鎖")
+    hdr(s, "AT詳細  ──  Z-ZONE(GG当選時) → GG消化 → SGG / PGG")
 
+    # 左パネル: Z-ZONE / Z-GAME（GG当選確定時・AT外）
     rect_b(s, Inches(0.2), Inches(0.85), Inches(2.9), Inches(3.3),
-           RGBColor(0x18, 0x0C, 0x00), C_GOLD, 2.0)
+           RGBColor(0x1C, 0x16, 0x00), C_LIGHTNING, 2.0)
     tb(s, Inches(0.3), Inches(0.90), Inches(2.6), Emu(330000),
-       "GG  GOD GAME", 11, bold=True, color=C_GOLD2, font=FONT_H)
+       "Z-ZONE / Z-GAME", 11, bold=True, color=C_LIGHTNING, font=FONT_H)
     tb(s, Inches(0.3), Inches(1.28), Inches(2.6), Inches(2.5),
-       "AT本体 / 1セット50G\n純増：約7.0枚/G\n\n"
-       "【消化中の仕組み】\n"
-       "  ループストックを1個消費して\n  50Gを消化する\n\n"
-       "  消化後：\n"
+       "GG当選確定時（AT外）に発生\n「0揃い」で突入濃厚\n\n"
+       "【Z-ZONE（5G間）】\n"
+       "  5G間で黄7を引くと\n  Z-GAMEへ突入！\n\n"
+       "【Z-GAME】\n"
+       "  黄7揃うたびGGストック+1\n"
+       "  ハズレor青7で終了\n"
+       "  5連成功率 約90% ※ネットより",
+       9, color=C_CREAM)
+
+    arrow_r(s, Inches(3.2), Inches(2.5), Emu(270000), C_GOLD)
+
+    # 中パネル: GG消化（AT本体）
+    rect_b(s, Inches(3.65), Inches(0.85), Inches(3.1), Inches(3.3),
+           RGBColor(0x18, 0x0C, 0x00), C_GOLD, 2.5)
+    tb(s, Inches(3.75), Inches(0.90), Inches(2.9), Emu(330000),
+       "GG  GOD GAME（AT本体）", 11, bold=True, color=C_GOLD2, font=FONT_H)
+    tb(s, Inches(3.75), Inches(1.28), Inches(2.9), Inches(2.5),
+       "1セット50G / 純増：約7.0枚/G\nストックA〜Dを1個消費して消化\n\n"
+       "【消化後の分岐】\n"
        "  ストック残 → GGループ継続\n"
        "  ストックなし → G-ZONE（5G）\n\n"
        "  赤7揃い → SGG突入\n"
        "  GOD揃い → PGG突入",
        9, color=C_CREAM)
 
-    arrow_r(s, Inches(3.2), Inches(2.5), Emu(270000), C_RED)
+    arrow_r(s, Inches(6.85), Inches(2.5), Emu(270000), C_RED)
 
-    rect_b(s, Inches(3.65), Inches(0.85), Inches(3.1), Inches(3.3),
-           RGBColor(0x10, 0x04, 0x24), C_PURPLE, 2.5)
-    tb(s, Inches(3.75), Inches(0.90), Inches(2.9), Emu(330000),
-       "SGG  SUPER GOD GAME", 11, bold=True, color=C_PURPLE, font=FONT_H)
-    tb(s, Inches(3.75), Inches(1.28), Inches(2.9), Inches(2.5),
-       "赤7揃い時に突入する上位AT。\n1セット 10〜100G（変動型）\n継続率：75%以上\n\n"
-       "【SGG中の仕組み】\n"
-       "  消化中に「Z-ZONE」が発生。\n"
-       "  Z-ZONEでは約1/1.4で黄7出現。\n"
-       "  5連成功でGGストック獲得！\n\n"
-       "  SGG終了後 → G-ZONE（5G）\n"
-       "  奇数揃いでGG再突入",
-       9, color=C_CREAM)
-
-    arrow_r(s, Inches(6.85), Inches(2.5), Emu(270000), C_LIGHTNING)
-
+    # 右パネル: SGG + PGG
     rect_b(s, Inches(7.3), Inches(0.85), Inches(2.5), Inches(3.3),
-           RGBColor(0x1C, 0x16, 0x00), C_LIGHTNING, 2.5)
+           RGBColor(0x14, 0x04, 0x22), C_PURPLE, 2.5)
     tb(s, Inches(7.4), Inches(0.90), Inches(2.3), Emu(330000),
-       "Z-GAME", 14, bold=True, color=C_LIGHTNING, font=FONT_H)
+       "SGG / PGG", 14, bold=True, color=C_PURPLE, font=FONT_H)
     tb(s, Inches(7.4), Inches(1.28), Inches(2.3), Inches(2.5),
-       "新搭載の\n上乗せ連鎖ゾーン\n\n"
-       "約1/1.4で\n黄7が出現！\n\n"
-       "5連成功で\nGGストック\n獲得確定\n\n"
-       "★ 連鎖するほど\n   枚数が膨らむ",
+       "【SGG  赤7揃い時】\n"
+       "継続率75%以上\n上乗せ連鎖が続く\n\n"
+       "【PGG  GOD揃い時】\n"
+       "確率1/16,384\nGGストック4個\n+80%Dループ\n期待枚数3,000枚超",
        9, color=C_CREAM)
 
     rect(s, Inches(0.2), Inches(4.25), Inches(9.6), Emu(750000),
          RGBColor(0x10, 0x06, 0x22))
-    rect(s, Inches(0.2), Inches(4.25), Emu(60000), Emu(750000), C_PURPLE)
+    rect(s, Inches(0.2), Inches(4.25), Emu(60000), Emu(750000), C_LIGHTNING)
     tb(s, Inches(0.45), Inches(4.30), Inches(9.2), Emu(330000),
-       "GG → SGG → Z-GAME の連鎖が出玉の鍵", 10, bold=True, color=C_PURPLE, font=FONT_H)
+       "Z-ZONEはGG当選確定時・AT外に発生。通常のGG消化中（50G中）には存在しない。", 10, bold=True, color=C_LIGHTNING, font=FONT_H)
     tb(s, Inches(0.45), Inches(4.65), Inches(9.2), Emu(330000),
-       "赤7揃いでSGGに入りZ-GAMEを繰り返すほどGGストックが積み上がる。連荘で2,000〜3,000枚も現実的な台。",
+       "GG当選→Z-ZONE/Z-GAMEでストックを積み上げ→GG消化→赤7/GOD揃いでSGG/PGGへ。この連鎖が爆発の全て。",
        9.5, color=C_CREAM)
     net_note(s)
 
