@@ -6,6 +6,7 @@ import io
 import os
 import sys
 import random
+import urllib.request
 from PIL import Image as PILImage, ImageDraw, ImageFilter, ImageEnhance
 from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
@@ -14,7 +15,7 @@ from pptx.enum.text import PP_ALIGN
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "yoshimune_guide_v5.pptx")
+OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "yoshimune_guide_v9.pptx")
 
 # ── カラーパレット（江戸・吉宗テーマ）──────────────────────────
 C_BG       = RGBColor(0x07, 0x07, 0x0E)   # 深夜の黒
@@ -191,7 +192,7 @@ def s_title(prs):
     tb(s, Inches(0.55), Inches(0.9), Inches(5.8), Emu(600000),
        "真打 吉宗", 48, bold=True, color=C_GOLD2)
     tb(s, Inches(0.55), Inches(2.3), Inches(5.8), Emu(380000),
-       "完全解説ガイド  ──  ゲーム性・フロー・設定差をすべて理解する", 11, italic=True, color=C_CREAM)
+       "2000枚が、次の1ゲームでもう1回来るかもしれない。それが怖くてたまらない台。", 11, italic=True, color=C_CREAM)
 
     # キャッチ
     rect(s, Inches(0.55), Inches(3.1), Inches(5.5), Emu(700000), RGBColor(0x18, 0x08, 0x00))
@@ -211,52 +212,90 @@ def s_title(prs):
 # ══════════════════════════════════════════════════════════════
 #  SLIDE 2: 吉宗シリーズの歴史
 # ══════════════════════════════════════════════════════════════
+def _fetch_pil(url, w_px, h_px):
+    """URLから画像取得→アスペクト比を保ってリサイズ・中央配置。失敗時はプレースホルダーを返す"""
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = resp.read()
+        img = PILImage.open(io.BytesIO(data)).convert("RGB")
+        img.thumbnail((w_px, h_px), PILImage.LANCZOS)
+        canvas = PILImage.new("RGB", (w_px, h_px), (30, 20, 10))
+        offset_x = (w_px - img.width) // 2
+        offset_y = (h_px - img.height) // 2
+        canvas.paste(img, (offset_x, offset_y))
+        return canvas
+    except Exception:
+        return PILImage.new("RGB", (w_px, h_px), (30, 20, 10))
+
+
 def s_history(prs):
     s = new_slide(prs)
     hdr(s, "HISTORY  ──  吉宗シリーズの歴史と「真打」の意味")
 
+    machine_images = [
+        "https://img.p-gabu.jp/assets/machine/e6ae541d6d57ddd2db3074b9410a96f3/main_3d50d1ec9325ebd791acc1a191aac4d38ca5859d.jpg",
+        "https://img.p-gabu.jp/assets/machine/e30380ea91643047e0c358537d8ec4a5/main_f7170dd74a2447ecd6cc180d6ddabc7882079296.png",
+        "https://img.p-gabu.jp/assets/machine/7fbbd8d4343653d6b5587d6c3c321e9b/main_9548f239d08ef4508b86a51e812d0458a6895024.jpg",
+        "https://chonborista.com/wp-content/uploads/2023/12/l_yoshimune_rising_kyotai.jpg",
+        "https://images.1geki.jp/wp-content/uploads/2025/03/img_l_yoshimune.webp",
+        "https://images.1geki.jp/wp-content/uploads/2026/02/img_l_shinuchi_yoshimune.png",
+    ]
+
     timeline = [
         ("2003", "初代 吉宗",
-         "業界初・シャッター付き液晶\n全国26万台設置（歴代2位）\n爆裂1G連AT・「おじゃる！」の衝撃\nパチスロ文化を変えた伝説機",
+         "BIG 711枚 × 1G連ボーナス機\n爆裂4号機・26万台設置\n吉宗/姫/爺の3種BB\n7を狙うゲーム性",
          C_RED, C_CRIMSON),
-        ("2013", "吉宗（AT機）",
-         "時代の変化でAT機に転換\nゲーム性を現代仕様に再構成\nシリーズファンへの橋渡し役",
+        ("2013", "吉宗",
+         "5号機AT機に転換\n純増約2.8枚・1セット40G\nシリーズを現代仕様に再構成",
          C_GRAY, C_DARKGRAY),
         ("2015", "吉宗 ～極～",
-         "BB払出320枚に強化\n演出・システムをさらに進化\n「極」の名の通りパワーアップ",
+         "BB払出320枚に強化\n1セット80G+αに拡張\nAT上乗せ性能を大幅強化",
          C_GRAY, C_DARKGRAY),
-        ("2025", "スマスロ 吉宗",
-         "スマスロ初代として復活\n天井999G、16:9液晶\n往年のファンを熱狂させた",
+        ("2024", "吉宗RISING",
+         "スマスロ初復活\n純増4.0枚・AT平均711枚\n昇天ループ・爺と姫が仲間に",
+         C_GOLD, C_CARD),
+        ("2025", "L吉宗",
+         "純増7.11枚・BB 711枚\n1G連2回で「裏鷹狩り」\n期待枚数3600枚",
          C_GOLD, C_CARD),
         ("2026", "真打 吉宗",
-         "スマスロシリーズの集大成\n真BB2000枚 × 1G連を搭載\n「真打」＝歌舞伎で最高位の称号",
+         "真BB 2000枚 × 1G連\n「7を狙う」DNA進化\n4月6日導入",
          C_GOLD2, RGBColor(0x20, 0x10, 0x00)),
     ]
 
-    bw = Inches(1.77)
+    IMG_H_EMU = Emu(800000)
+    IMG_W_PX, IMG_H_PX = 210, 120
+
+    bw = Inches(1.5)
     bh = Inches(3.6)
     by = Inches(0.85)
-    for i, (year, name, desc, col, bg) in enumerate(timeline):
-        bx = Inches(0.2) + i * (bw + Emu(50000))
-        is_latest = (i == 4)
+    for i, ((year, name, desc, col, bg), img_url) in enumerate(zip(timeline, machine_images)):
+        bx = Inches(0.2) + i * (bw + Emu(80000))
+        is_latest = (i == 5)
         border = C_GOLD2 if is_latest else (C_RED if i == 0 else C_DARKGRAY)
         rect_b(s, bx, by, bw, bh, bg, border, 2.0 if is_latest else 1.0)
 
-        # 年
+        # 年ラベル
         rect(s, bx, by, bw, Emu(380000), border)
         tb(s, bx, by + Emu(50000), bw, Emu(300000),
            year, 16, bold=True, color=C_WHITE if is_latest else C_BG,
            align=PP_ALIGN.CENTER)
-        tb(s, bx + Emu(80000), by + Emu(420000), bw - Emu(160000), Emu(380000),
-           name, 10, bold=True, color=col)
-        tb(s, bx + Emu(80000), by + Emu(790000), bw - Emu(160000), bh - Emu(850000),
-           desc, 8.5, color=C_CREAM if is_latest else C_LTGRAY)
 
-    # 「真打」説明
+        # 筐体画像
+        img = _fetch_pil(img_url, IMG_W_PX, IMG_H_PX)
+        add_pic(s, img, bx, by + Emu(390000), bw, IMG_H_EMU)
+
+        # 機種名・説明
+        tb(s, bx + Emu(80000), by + Emu(1230000), bw - Emu(160000), Emu(350000),
+           name, 9, bold=True, color=col)
+        tb(s, bx + Emu(80000), by + Emu(1570000), bw - Emu(160000), bh - Emu(1630000),
+           desc, 8, color=C_CREAM if is_latest else C_LTGRAY)
+
+    # 下部：歴史と真打の接続
     rect(s, Inches(0.2), Inches(4.55), Inches(9.6), Emu(430000),
          RGBColor(0x18, 0x10, 0x00))
     tb(s, Inches(0.35), Inches(4.62), Inches(9.2), Emu(370000),
-       "「真打（しんうち）」とは歌舞伎・落語の世界で最高位の称号。シリーズの集大成として、初代の魂を受け継ぎながら進化した最終形態を意味する。",
+       "初代から受け継がれる「7を狙う・1G連・711枚」のDNA ── 真打吉宗はそれを「真BB 2000枚 × 1G連」として昇華させた集大成だから「真打」を名乗れる。",
        9.5, color=C_GOLD)
 
 
@@ -540,57 +579,64 @@ def s_flow(prs):
     s = new_slide(prs)
     hdr(s, "ゲームフロー全体図  ──  通常時から爆発まで")
 
-    # フロー定義
+    # ボックス幅2.0"・間隔0.35"でピッタリ収まる配置
+    # CZ終端2.2" → AT始端2.55" → AT終端4.55" → 真高確率始端4.9" → 終端6.9" → 真BB始端7.25" → 終端9.25"
+    BW = Inches(2.0)
     boxes = [
-        # (x, y, w, h, text, fill, border)
-        (Inches(0.2),  Inches(0.9),  Inches(2.3), Emu(500000),
+        (Inches(0.2),  Inches(0.9),  BW, Emu(500000),
          "通常時\n夜回りカウンター\nPT加算", C_CARD, C_GRAY),
-        (Inches(0.2),  Inches(1.7),  Inches(2.3), Emu(500000),
+        (Inches(0.2),  Inches(1.65), BW, Emu(500000),
          "周期到達\n（100〜600PT×最大6周期）", C_CARD, C_GRAY),
-        (Inches(0.2),  Inches(2.55), Inches(2.3), Emu(500000),
+        (Inches(0.2),  Inches(2.45), BW, Emu(500000),
          "CZ\n悪人成敗チャンス\n成功率約55%", RGBColor(0x18,0x06,0x00), C_RED),
-        (Inches(2.8),  Inches(2.55), Inches(2.3), Emu(500000),
+        (Inches(2.55), Inches(2.45), BW, Emu(500000),
          "AT\n勧善懲悪RUSH\n純増2.7枚/G", RGBColor(0x06,0x06,0x18), C_BLUE),
-        (Inches(5.4),  Inches(2.55), Inches(2.3), Emu(500000),
+        (Inches(4.9),  Inches(2.45), BW, Emu(500000),
          "真高確率\n青7狙え！\n約1/168で真BB", RGBColor(0x18,0x0A,0x00), C_ORANGE),
-        (Inches(7.5),  Inches(2.55), Inches(2.3), Emu(500000),
+        (Inches(7.25), Inches(2.45), BW, Emu(500000),
          "真BB\n約2000枚\n純増9.0枚/G", RGBColor(0x20,0x08,0x00), C_RED),
-        (Inches(7.5),  Inches(1.7),  Inches(2.3), Emu(500000),
+        (Inches(7.25), Inches(1.65), BW, Emu(500000),
          "1G連\nループ\n2000枚×N回！", RGBColor(0x22,0x16,0x00), C_GOLD2),
     ]
     for (l, t, w, h, txt, fill, bdr) in boxes:
         rect_b(s, l, t, w, h, fill, bdr, 1.8)
         tb(s, l, t, w, h, txt, 9, bold=True, color=C_WHITE, align=PP_ALIGN.CENTER)
 
-    # 矢印
+    # 下向き矢印（通常時→周期→CZ）
     def ar(x, y): arrow_d(s, x, y, C_GRAY)
+    # 右向き矢印（CZ→AT→真高確率→真BB）
     def arr(x, y): arrow_r(s, x, y, Emu(240000), C_RED)
 
-    ar(Inches(1.35), Inches(1.42))   # 通常時→周期
-    ar(Inches(1.35), Inches(2.22))   # 周期→CZ
-    arr(Inches(2.55), Inches(2.8))   # CZ→AT
-    arr(Inches(5.15), Inches(2.8))   # AT→真高確率
-    arr(Inches(7.75), Inches(2.8))   # 真高確率→真BB
-    ar(Inches(8.65), Inches(1.72))   # 真BB→1G連
+    ar(Inches(1.2),  Inches(1.47))   # 通常時→周期（1G連ボックス底=1.65+0.547=2.197"の手前）
+    ar(Inches(1.2),  Inches(2.22))   # 周期→CZ
+    arr(Inches(2.22), Inches(2.72))  # CZ→AT（CZ終端2.2"〜AT始端2.55"の間）
+    arr(Inches(4.57), Inches(2.72))  # AT→真高確率
+    arr(Inches(6.92), Inches(2.72))  # 真高確率→真BB（真高確率終端6.9"〜真BB始端7.25"の間）
 
-    # 1G連ループ矢印 ── ボックス外側に描く（x=7.3"：ボックス左端7.5"の外）
-    rect(s, Inches(7.3), Inches(1.28), Emu(80000), Emu(530000), C_GOLD)   # 縦線（外側）
-    rect(s, Inches(7.3), Inches(1.28), Emu(2350000), Emu(80000), C_GOLD)  # 横線上
-    # 下向き矢印の三角（右端）
-    rect(s, Inches(9.57), Inches(1.28), Emu(80000), Emu(180000), C_GOLD)
+    # 真BB→1G連（上向き矢印）
+    _w, _h = Emu(100000), Emu(200000)
+    shp_u = s.shapes.add_shape(13, Inches(8.25) - _w // 2, Inches(2.2), _w, _h)
+    shp_u.rotation = 270
+    shp_u.fill.solid()
+    shp_u.fill.fore_color.rgb = C_GOLD
+    shp_u.line.fill.background()
 
-    tb(s, Inches(3.8), Inches(0.92), Inches(3.5), Emu(340000),
+    # 1G連ループ（右側にコの字）
+    rect(s, Inches(9.27), Inches(1.65), Emu(80000), Emu(985000), C_GOLD)   # 右縦線
+    rect(s, Inches(7.23), Inches(1.63), Emu(2120000), Emu(80000), C_GOLD)  # 上横線
+
+    tb(s, Inches(2.6), Inches(0.9), Inches(4.5), Emu(340000),
        "↺ 1G連ループ（2000枚×N）", 9, bold=True, color=C_GOLD2, align=PP_ALIGN.CENTER)
 
     # 天井ルート
-    rect_b(s, Inches(0.2), Inches(3.75), Inches(2.5), Emu(700000),
+    rect_b(s, Inches(0.2), Inches(3.6), Inches(2.2), Emu(700000),
            RGBColor(0x06, 0x08, 0x28), C_BLUE, 2.0)
-    tb(s, Inches(0.32), Inches(3.82), Inches(2.3), Emu(620000),
+    tb(s, Inches(0.32), Inches(3.67), Inches(2.0), Emu(620000),
        "天井ルート\nCZ間 1,000G\nAT間 1,500G\n→ 天井到達でAT保証", 9.5, bold=True, color=C_LTBLUE)
 
     # 凡例
-    rect(s, Inches(3.0), Inches(3.8), Inches(6.8), Emu(750000), RGBColor(0x08, 0x05, 0x00))
-    tb(s, Inches(3.15), Inches(3.85), Inches(6.5), Emu(700000),
+    rect(s, Inches(2.6), Inches(3.6), Inches(7.2), Emu(750000), RGBColor(0x08, 0x05, 0x00))
+    tb(s, Inches(2.75), Inches(3.67), Inches(6.9), Emu(700000),
        "★ 鍵は「真BB + 1G連」。AT自体の純増は2.7枚とおとなしいが、真高確率→真BBに到達すれば\n"
        "　2000枚×複数ループが現実的になる。「当たりをいくつ引けるか」よりも「真BBを連鎖できるか」が勝負。",
        9, color=C_GOLD)
@@ -673,55 +719,109 @@ def s_setting(prs):
 # ══════════════════════════════════════════════════════════════
 def s_review(prs):
     s = new_slide(prs)
-    hdr(s, "市場評価 & 総評  ──  この台を一言で言うと？")
+    hdr(s, "この台の正直なところ  ──  知ってから打てばもっと楽しい")
 
-    # 上段：総評カード（高さを十分確保）
+    # 上段：一言フック
     rect_b(s, Inches(0.2), Inches(0.82), Inches(9.6), Emu(900000),
            RGBColor(0x14, 0x08, 0x00), C_GOLD, 2)
     tb(s, Inches(0.35), Inches(0.88), Inches(9.2), Emu(310000),
-       "一言まとめ", 10, bold=True, color=C_GOLD)
+       "一言で言うと", 10, bold=True, color=C_GOLD)
     tb(s, Inches(0.35), Inches(1.20), Inches(9.2), Emu(480000),
-       "「初代吉宗の魂をスマスロで再現した爆裂機。AT自体は地味だが、真BBに辿り着けば"
-       "2000枚×1G連ループで一撃性能は業界トップクラス。\n"
-       "　荒波は強めで設定1は厳しめだが、設定6の114%は高水準。」",
+       "初代吉宗の「7を狙う・1G連」をスマスロで進化させた爆裂機。"
+       "真BBに辿り着くまでは地味だが、辿り着いた瞬間から別の台になる。\n"
+       "勝ってるのに、次の1ゲームが怖くてたまらない ── それがこの台の本質。",
        9.5, color=C_CREAM)
 
-    # 中段：好評 / 批評（y を一言まとめカード終端+0.1" に）
+    # 中段：好評 / 批評
     rect_b(s, Inches(0.2), Inches(1.92), Inches(4.6), Inches(1.55),
            RGBColor(0x06, 0x14, 0x06), C_GREEN, 1.5)
     tb(s, Inches(0.3), Inches(1.97), Inches(4.3), Emu(310000),
-       "ユーザー好評点", 10, bold=True, color=C_GREEN)
+       "打ってよかった声", 10, bold=True, color=C_GREEN)
     tb(s, Inches(0.3), Inches(2.30), Inches(4.3), Emu(1050000),
-       "✔ 「爆発力が凄い。2000枚を複数回取れた」\n"
-       "✔ 「真BBの1G連が来た時の興奮は段違い」\n"
-       "✔ 「吉宗ファンなら絶対打つべき台」\n"
-       "✔ 「周期システムが分かると楽しい」",
+       "✔ 「2000枚が複数回来た時の興奮は別格」\n"
+       "✔ 「1G連が来るかどうかの1ゲームが忘れられない」\n"
+       "✔ 「周期システムが分かると見え方が変わる」\n"
+       "✔ 「吉宗世代には刺さりまくる」",
        9, color=C_CREAM)
 
     rect_b(s, Inches(5.1), Inches(1.92), Inches(4.7), Inches(1.55),
            RGBColor(0x14, 0x06, 0x06), C_RED, 1.5)
     tb(s, Inches(5.2), Inches(1.97), Inches(4.4), Emu(310000),
-       "ユーザー批評点", 10, bold=True, color=C_RED)
+       "知っておくべきリスク", 10, bold=True, color=C_RED)
     tb(s, Inches(5.2), Inches(2.30), Inches(4.4), Emu(1050000),
-       "✗ 「低設定はATに入っても出ない」\n"
-       "✗ 「CZを連続スルーすると萎える」\n"
-       "✗ 「真高確率に入れても真BB引けないことも」\n"
-       "✗ 「初当りが重く感じる局面がある」",
+       "✗ 低設定は真BBまでの道のりが長く苦しい\n"
+       "✗ CZスルーが続くとペースが掴めない\n"
+       "✗ 真高確率に入っても真BBを引けないことも\n"
+       "✗ コイン単価が高め・荒波耐性が必要",
        9, color=C_CREAM)
 
-    # 下段：導入・稼働概要
+    # 下段：向いているユーザー
     rect_b(s, Inches(0.2), Inches(3.57), Inches(9.6), Emu(480000),
            RGBColor(0x10, 0x08, 0x00), C_GOLD, 1.2)
     tb(s, Inches(0.35), Inches(3.63), Inches(9.2), Emu(390000),
-       "導入台数 約15,000台（2026年4月導入）  /  評価 ★1.79（まだ集計途中）  /  吉宗シリーズ累計ファン多数",
+       "導入台数 約15,000台（2026年4月）  /  吉宗シリーズファン多数  /  4月導入組で稼働独走中",
        9.5, color=C_GOLD)
 
-    # まとめ（下端を Inches(5.3) 以内に収める）
     rect(s, Inches(0.2), Inches(4.15), Inches(9.6), Emu(700000), RGBColor(0x08, 0x05, 0x00))
     tb(s, Inches(0.35), Inches(4.22), Inches(9.2), Emu(600000),
-       "向いているユーザー：「爆発力重視」「吉宗シリーズファン」「高設定を確保できる環境」\n"
-       "この3条件が揃う場面で最大限に輝く台。低設定・全台低設定のホールでは荒波に注意。",
+       "この資料では、「真BBまでの道のり」と「1G連が生まれる瞬間」を順を追って解説します。\n"
+       "仕組みを知ってから打つと、1ゲームごとの意味が変わります。",
        9, color=C_CREAM)
+
+
+# ══════════════════════════════════════════════════════════════
+#  SLIDE 10: まとめ
+# ══════════════════════════════════════════════════════════════
+def s_matome(prs):
+    s = new_slide(prs)
+    hdr(s, "まとめ  ──  真打吉宗で覚えておくべき3つのこと")
+
+    # キャッチバック
+    rect_b(s, Inches(0.2), Inches(0.82), Inches(9.6), Emu(760000),
+           RGBColor(0x14, 0x08, 0x00), C_GOLD, 2)
+    tb(s, Inches(0.35), Inches(0.9), Inches(9.2), Emu(620000),
+       "「2000枚が、次の1ゲームでもう1回来るかもしれない。それが怖くてたまらない台。」",
+       13, bold=True, italic=True, color=C_GOLD2)
+
+    # 3つのポイント
+    points = [
+        ("① 真BBが本番",
+         "通常ATは「真BBへの道のり」。\n"
+         "真高確率に入って青7が揃った瞬間、\n"
+         "2000枚×9枚/Gの別の台が始まる。",
+         C_ORANGE),
+        ("② 次の1Gに全部かかっている",
+         "真BB中の1G連抽選がこの台の核心。\n"
+         "成敗役を引くたびにループのチャンス。\n"
+         "連鎖するほど2000枚が積み上がる。",
+         C_RED),
+        ("③ 設定が入る日を選ぶ",
+         "設定6は機械割114%・業界最高水準。\n"
+         "設定1と設定6では別の台と思うべき。\n"
+         "高設定確保が最大の攻略。",
+         C_GOLD),
+    ]
+    bx = Inches(0.2)
+    bw = Inches(3.1)
+    for title, body, col in points:
+        rect_b(s, bx, Inches(1.77), bw, Inches(2.35), C_CARD, col, 2.0)
+        rect(s, bx, Inches(1.77), bw, Emu(380000), col)
+        tb(s, bx + Emu(80000), Inches(1.83), bw - Emu(160000), Emu(290000),
+           title, 11, bold=True, color=C_BG)
+        tb(s, bx + Emu(80000), Inches(2.26), bw - Emu(160000), Inches(1.7),
+           body, 9.5, color=C_CREAM)
+        bx += bw + Emu(180000)
+
+    # DNA締め
+    rect(s, Inches(0.2), Inches(4.22), Inches(9.6), Emu(680000),
+         RGBColor(0x08, 0x05, 0x00))
+    rect(s, Inches(0.2), Inches(4.22), Emu(60000), Emu(680000), C_GOLD)
+    tb(s, Inches(0.45), Inches(4.28), Inches(9.1), Emu(300000),
+       "初代から受け継がれた「7を狙う・1G連・711枚」のDNA", 10, bold=True, color=C_GOLD)
+    tb(s, Inches(0.45), Inches(4.62), Inches(9.1), Emu(300000),
+       "真打吉宗はそれを「真BB 2000枚 × 1G連ループ」として昇華させたシリーズの集大成。"
+       "怖くてたまらない1ゲームを、ぜひ体験してください。",
+       9.5, color=C_CREAM)
 
 
 # ══════════════════════════════════════════════════════════════
@@ -737,15 +837,16 @@ def main():
     prs.slide_height = SLIDE_H
 
     print("\n📊 スライド生成中...")
-    s_title(prs);   print("  1/9 タイトル")
-    s_history(prs); print("  2/9 吉宗シリーズの歴史")
-    s_spec(prs);    print("  3/9 基本スペック")
-    s_normal(prs);  print("  4/9 通常時の仕組み")
-    s_cz_at(prs);   print("  5/9 CZ → AT")
-    s_truemode(prs);print("  6/9 真高確率 → 真BB → 1G連")
-    s_flow(prs);    print("  7/9 全体ゲームフロー図")
-    s_setting(prs); print("  8/9 設定示唆・設定差")
-    s_review(prs);  print("  9/9 市場評価・総評")
+    s_title(prs);    print("   1/10 タイトル")
+    s_review(prs);   print("   2/10 この台のいいところ・悪いところ")
+    s_history(prs);  print("   3/10 吉宗シリーズの歴史")
+    s_spec(prs);     print("   4/10 基本スペック")
+    s_flow(prs);     print("   5/10 全体ゲームフロー図")
+    s_normal(prs);   print("   6/10 通常時の仕組み")
+    s_cz_at(prs);    print("   7/10 CZ → AT")
+    s_truemode(prs); print("   8/10 真高確率 → 真BB → 1G連")
+    s_setting(prs);  print("   9/10 設定示唆・設定差")
+    s_matome(prs);   print("  10/10 まとめ")
 
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     prs.save(OUT_PATH)
