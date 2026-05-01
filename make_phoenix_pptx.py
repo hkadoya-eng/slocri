@@ -1,6 +1,6 @@
 """
 スマスロ新機種企画提案 「PHOENIX LEGACY」 PowerPointジェネレーター
-出力: proposals/phoenix_legacy_v1.pptx
+出力: proposals/phoenix_legacy_v2.pptx
 """
 import io, os, sys
 from PIL import Image as PILImage, ImageDraw
@@ -11,19 +11,19 @@ from pptx.enum.text import PP_ALIGN
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "phoenix_legacy_v1.pptx")
+OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "phoenix_legacy_v2.pptx")
 
 # ── カラーパレット（フェニックス：橙・金・赤テーマ）────────────────
 C_BG      = RGBColor(0x08, 0x04, 0x00)
 C_CARD    = RGBColor(0x14, 0x08, 0x00)
 C_GOLD    = RGBColor(0xC9, 0x9A, 0x1E)
 C_GOLD2   = RGBColor(0xFF, 0xD7, 0x00)
-C_PHOENIX = RGBColor(0xFF, 0x6B, 0x1A)   # フェニックスオレンジ
-C_EMBER   = RGBColor(0xFF, 0x30, 0x00)   # エンバーレッド
-C_FEATHER = RGBColor(0xFF, 0xB0, 0x40)   # 羽の金橙
-C_CRIMSON = RGBColor(0xA8, 0x1C, 0x1C)   # ネメシス赤
+C_PHOENIX = RGBColor(0xFF, 0x6B, 0x1A)
+C_EMBER   = RGBColor(0xFF, 0x30, 0x00)
+C_FEATHER = RGBColor(0xFF, 0xB0, 0x40)
+C_CRIMSON = RGBColor(0xA8, 0x1C, 0x1C)
 C_RED     = RGBColor(0xDC, 0x26, 0x26)
-C_TEAL    = RGBColor(0x20, 0xA0, 0x90)   # コントラスト用
+C_TEAL    = RGBColor(0x20, 0xA0, 0x90)
 C_LTBLUE  = RGBColor(0x93, 0xC5, 0xFD)
 C_CREAM   = RGBColor(0xF5, 0xE6, 0xC8)
 C_WHITE   = RGBColor(0xFF, 0xFF, 0xFF)
@@ -145,101 +145,64 @@ def s_title(prs):
        10, color=C_LTGRAY)
 
     tb(s, Inches(7.8), Inches(5.2), Inches(2.0), Emu(300000),
-       "v1.0  2026.05", 8, color=C_GRAY, align=PP_ALIGN.RIGHT)
+       "v2.0  2026.05", 8, color=C_GRAY, align=PP_ALIGN.RIGHT)
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 2: コアコンセプト
+#  SLIDE 2: セールスポイント（旧スライド2+3を統合）
 # ══════════════════════════════════════════════════════════════
-def s_concept(prs):
+def s_sellingpoints(prs):
     s = new_slide(prs)
-    hdr(s, "コアコンセプト  ──  なぜフェニックスなのか")
+    hdr(s, "3つの設計軸  ──  PHOENIX LEGACYが目指す体験")
 
     pillars = [
         (Inches(0.2),
-         "フェニックスの炎",
-         "炎の中で眠り、\n炎の中で蘇る不死鳥\n\n「1回のATが1世代」\nATが終わるたびに\nフェニックスが\n次の炎を灯す\n\n負けも\n「炎を受け継いだ」\nに変わる",
+         "①  PHOENIX CYCLE",
+         "1回のAT = 1世代\nATが終わるたびに\n「REBIRTH演出」が流れ\n次の炎が点火する\n\n「また負けた」ではなく\n「炎を受け継いだ」\nになる感情設計\n\n負けをポジティブに\n転換する構造",
          RGBColor(0x1E, 0x08, 0x00), C_PHOENIX),
         (Inches(3.55),
-         "IGNITION（業界初）",
-         "AT消化中に\n次の炎への\n「点火方法」を選ぶ\n\nSkill（技術）\nBond（絆）\nPower（力）\nの3択\n\nプレイヤーが\n物語を選ぶ台",
-         RGBColor(0x10, 0x10, 0x00), C_GOLD),
+         "②  IGNITION RITE",
+         "AT消化中に赤7揃いで\n「点火方法」を選ぶ\n\nSkill（技術）\nBond（絆）\nPower（力）\nの3択\n\n選んだ内容で\n次ATの性能が変わる\n\nプレイヤーが\n物語を作る台",
+         RGBColor(0x14, 0x10, 0x00), C_GOLD),
         (Inches(6.9),
-         "NEMESIS（宿敵）撃破",
-         "強大な宿敵に\n1セッション内で挑む\n\nFLAMEを重ねるほど\nNEMESISが弱体化\n\n「今日こそ\nEternal Flameだ」\nという感動\n\n完全1セッション完結",
+         "③  NEMESIS GAUGE",
+         "ATを重ねるほど\n宿敵が弱体化する\n1セッション完結設計\n\nゲージMAX\n＋PHOENIX FLAME\n＋IGNITION完全制覇\nでETERNAL FLAME解放\n\n「今日が決戦」という\n感動を1日で完結",
          RGBColor(0x1E, 0x04, 0x04), C_CRIMSON),
     ]
     for x, title, desc, fill, bdr in pillars:
-        rect_b(s, x, Inches(0.85), Inches(3.0), Inches(3.45), fill, bdr, 2.0)
-        tb(s, x + Emu(100000), Inches(0.92), Inches(2.8), Emu(370000),
+        rect_b(s, x, Inches(0.85), Inches(3.0), Inches(3.55), fill, bdr, 2.0)
+        tb(s, x + Emu(100000), Inches(0.92), Inches(2.8), Emu(360000),
            title, 11, bold=True, color=bdr, font=FONT_H)
-        tb(s, x + Emu(100000), Inches(1.38), Inches(2.8), Inches(2.7),
+        tb(s, x + Emu(100000), Inches(1.40), Inches(2.8), Inches(2.80),
            desc, 9, color=C_CREAM)
 
-    rect(s, Inches(0.2), Inches(4.40), Inches(9.6), Emu(40000), C_GOLD)
-    rect(s, Inches(0.2), Inches(4.48), Inches(9.6), Emu(580000), RGBColor(0x16, 0x06, 0x00))
-    tb(s, Inches(0.35), Inches(4.53), Inches(9.2), Emu(250000),
-       "祟り神の章（感情逆転）→ ミリゴ・吉宗（実機メカニクス学習）→ PHOENIX LEGACY（継承×炎×選択）",
+    rect(s, Inches(0.2), Inches(4.52), Inches(9.6), Emu(40000), C_GOLD)
+    rect(s, Inches(0.2), Inches(4.60), Inches(9.6), Emu(560000), RGBColor(0x16, 0x06, 0x00))
+    tb(s, Inches(0.35), Inches(4.65), Inches(9.2), Emu(240000),
+       "祟り神の章（感情逆転）→ ミリゴ・吉宗（実機メカニクス）→ PHOENIX LEGACY（継承×炎×選択）",
        9, bold=True, color=C_GOLD)
-    tb(s, Inches(0.35), Inches(4.80), Inches(9.2), Emu(250000),
-       "タイムリープ（Re:ゼロ・まどマギ）は既存。PHOENIX LEGACYは「炎の継承」という業界初のモチーフで先行者優位を狙う。",
+    tb(s, Inches(0.35), Inches(4.92), Inches(9.2), Emu(230000),
+       "タイムリープ型（Re:ゼロ等）とは異なり、「炎の継承」という積み上げ型の感情設計でユーザーの来店動機を強化する。",
        8.5, color=C_CREAM)
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 3: 業界初ポイント
-# ══════════════════════════════════════════════════════════════
-def s_first(prs):
-    s = new_slide(prs)
-    hdr(s, "業界初ポイント  ──  既存機種にない3つの設計軸")
-
-    firsts = [
-        ("①", "フェニックスループ",
-         "ATループ＝フェニックスの\n再誕演出\n\nATが終わるたびに\n「炎を次の世代へ」\nという演出が流れる\n\n「また負けた」ではなく\n「炎を受け継いだ」\nになる感情設計\n\n✓ 負けをポジティブに転換",
-         C_PHOENIX, RGBColor(0x20, 0x08, 0x00)),
-        ("②", "IGNITION（点火）",
-         "AT消化中に\n次の炎への\n点火方法を選ぶ\nアクティブシステム\n\nSkill / Bond / Power\nの3択\n\n選んだ内容で\n次ATの性能が変わる\n\n✓ プレイヤーが\n　 物語を作る",
-         C_GOLD, RGBColor(0x1E, 0x10, 0x00)),
-        ("③", "NEMESISゲージ",
-         "1セッション内で\nFLAMEを重ねるほど\n宿敵が弱体化する\n\nゲージMAX\n＋PHOENIX FLAME\n＋IGNITION完全制覇\nでETERNAL FLAME解放\n\n✓ 長期遊技の\n　 目標が明確",
-         C_CRIMSON, RGBColor(0x20, 0x04, 0x04)),
-    ]
-    xs = [Inches(0.2), Inches(3.55), Inches(6.9)]
-    for (num, title, desc, col, fill), x in zip(firsts, xs):
-        rect_b(s, x, Inches(0.82), Inches(3.0), Inches(3.6), fill, col, 2.0)
-        rect(s, x + Emu(80000), Inches(0.88), Emu(500000), Emu(500000), col)
-        tb(s, x + Emu(80000), Inches(0.88), Emu(500000), Emu(500000),
-           num, 16, bold=True, color=C_WHITE, font=FONT_H, align=PP_ALIGN.CENTER)
-        tb(s, x + Emu(680000), Inches(0.92), Inches(2.2), Emu(400000),
-           title, 11, bold=True, color=col, font=FONT_H)
-        tb(s, x + Emu(100000), Inches(1.42), Inches(2.8), Inches(2.9),
-           desc, 8.5, color=C_CREAM)
-
-    rect(s, Inches(0.2), Inches(4.52), Inches(9.6), Emu(600000), RGBColor(0x14, 0x06, 0x00))
-    rect(s, Inches(0.2), Inches(4.52), Emu(60000), Emu(600000), C_GOLD)
-    tb(s, Inches(0.45), Inches(4.57), Inches(9.2), Emu(260000),
-       "ミリゴZ-ZONE → 「IGNITION」へ昇華  /  吉宗1G連 → 「EMBER（残り火）」へ昇華",
-       9, bold=True, color=C_GOLD, font=FONT_H)
-    tb(s, Inches(0.45), Inches(4.86), Inches(9.2), Emu(260000),
-       "既存機種のメカニクスを感情設計に統合。「選ぶ楽しさ」「積み上げる喜び」「決着の感動」を1セッションで体験させる。",
-       8.5, color=C_CREAM)
-
-
-# ══════════════════════════════════════════════════════════════
-#  SLIDE 4: ゲームフロー全体図
+#  SLIDE 3: ゲームフロー全体図（overflow修正）
 # ══════════════════════════════════════════════════════════════
 def s_flow(prs):
     s = new_slide(prs)
     hdr(s, "ゲームフロー全体図  ──  1セッションで炎が積み重なる")
 
-    BW  = Inches(3.0)
-    BH  = Inches(1.2)
-    GAP = Inches(0.2)
-    R1Y = Inches(0.55)
-    R2Y = Inches(2.35)
-    X1  = Inches(0.2)
-    X2  = X1 + BW + GAP
-    X3  = X2 + BW + GAP
+    # ボックスサイズを縮小して右余白を確保（⊓コネクター用）
+    BW  = Inches(2.75)
+    BH  = Inches(1.1)
+    GAP = Inches(0.22)
+    R1Y = Inches(0.60)
+    R2Y = Inches(2.18)
+    X1  = Inches(0.18)
+    X2  = X1 + BW + GAP   # ≈ 3.15"
+    X3  = X2 + BW + GAP   # ≈ 6.12"
+    # X3 + BW ≈ 8.87" → 右余白 1.13" （⊓コネクター用に確保）
 
     row1 = [
         (X1, "SLUMBER（スランバー）",
@@ -254,25 +217,31 @@ def s_flow(prs):
     ]
     for x, title, desc, fill, bdr in row1:
         rect_b(s, x, R1Y, BW, BH, fill, bdr, 1.8)
-        tb(s, x + Emu(80000), R1Y + Emu(60000), BW - Emu(160000), Emu(340000),
-           title, 10, bold=True, color=C_WHITE, font=FONT_H)
-        tb(s, x + Emu(80000), R1Y + Emu(420000), BW - Emu(160000), BH - Emu(490000),
-           desc, 9, color=C_CREAM)
+        tb(s, x + Emu(80000), R1Y + Emu(55000), BW - Emu(160000), Emu(320000),
+           title, 9.5, bold=True, color=C_WHITE, font=FONT_H)
+        tb(s, x + Emu(80000), R1Y + Emu(390000), BW - Emu(160000), BH - Emu(450000),
+           desc, 8.5, color=C_CREAM)
     for x_l in [X1, X2]:
         arrow_r(s, x_l + BW + Emu(40000), R1Y + BH // 2, GAP - Emu(80000), C_GOLD)
 
-    # 折り返し下向き矢印
-    AT_CX = X3 + BW // 2
-    _aw, _ah = Emu(130000), Emu(380000)
-    shp_d = s.shapes.add_shape(13, AT_CX - _aw // 2, R1Y + BH + Emu(60000), _aw, _ah)
-    shp_d.rotation = 90
-    shp_d.fill.solid()
-    shp_d.fill.fore_color.rgb = C_GOLD
-    shp_d.line.fill.background()
+    # 右端の⊓コネクター（Row1→Row2の折り返し）
+    CON_X = X3 + BW + Emu(80000)   # ≈ 8.96"
+    CON_R = CON_X + Emu(550000)    # ≈ 9.57"
+    LW    = Emu(55000)
+    MID_Y = (R1Y + BH + R2Y) // 2  # Row1底 〜 Row2天の中間
+    # 縦線（左）
+    rect(s, CON_X, R1Y + BH // 2, LW, MID_Y - (R1Y + BH // 2) + Emu(28000), C_GOLD)
+    # 水平バー
+    rect(s, CON_X, MID_Y, CON_R - CON_X + LW, LW, C_GOLD)
+    # 縦線（右）→ Row2のX3右端
+    rect(s, CON_R, R2Y, LW, MID_Y - R2Y + LW, C_GOLD)
+    # ↓先端矢印っぽいテキスト
+    tb(s, CON_X - Emu(60000), MID_Y - Emu(350000), Emu(800000), Emu(330000),
+       "↺", 16, bold=True, color=C_GOLD2, align=PP_ALIGN.CENTER)
 
     row2 = [
         (X3, "フェニックスループ",
-         "炎が重なるほど台が強化\nストック残 → 次の炎へ！",
+         "炎が重なるほど強化\nストック残 → 次の炎へ！",
          RGBColor(0x20, 0x0C, 0x00), C_GOLD),
         (X2, "BLAZING ALLIANCE",
          "3世代以上で炎が集結\n継続率75% / 純増6.5枚/G",
@@ -283,10 +252,10 @@ def s_flow(prs):
     ]
     for x, title, desc, fill, bdr in row2:
         rect_b(s, x, R2Y, BW, BH, fill, bdr, 1.8)
-        tb(s, x + Emu(80000), R2Y + Emu(60000), BW - Emu(160000), Emu(340000),
-           title, 10, bold=True, color=C_WHITE, font=FONT_H)
-        tb(s, x + Emu(80000), R2Y + Emu(420000), BW - Emu(160000), BH - Emu(490000),
-           desc, 9, color=C_CREAM)
+        tb(s, x + Emu(80000), R2Y + Emu(55000), BW - Emu(160000), Emu(320000),
+           title, 9.5, bold=True, color=C_WHITE, font=FONT_H)
+        tb(s, x + Emu(80000), R2Y + Emu(390000), BW - Emu(160000), BH - Emu(450000),
+           desc, 8.5, color=C_CREAM)
     for x_r in [X3, X2]:
         _w = GAP - Emu(80000)
         _h = Emu(150000)
@@ -297,38 +266,26 @@ def s_flow(prs):
         shp.fill.fore_color.rgb = C_PHOENIX
         shp.line.fill.background()
 
-    # ⊓ループバック
-    LW   = Emu(55000)
-    lx_l = X3 + Emu(200000)
-    lx_r = X3 + Emu(620000)
-    lp_y = R2Y - Emu(350000)
-    rect(s, lx_l - LW // 2, lp_y, LW, R2Y - lp_y, C_GOLD)
-    rect(s, lx_l - LW // 2, lp_y - LW // 2, lx_r - lx_l + LW, LW, C_GOLD)
-    rect(s, lx_r - LW // 2, lp_y, LW, R2Y - lp_y, C_GOLD)
-    tb(s, lx_l + Emu(60000), lp_y + Emu(40000),
-       lx_r - lx_l - Emu(60000), Emu(260000),
-       "↺ ループ！", 8, bold=True, color=C_GOLD2, align=PP_ALIGN.CENTER)
-
     # 下部: ETERNAL FLAME
-    BOT_Y = Inches(3.75)
-    rect_b(s, X1, BOT_Y, Inches(2.9), Emu(900000),
+    BOT_Y = Inches(3.48)
+    rect_b(s, X1, BOT_Y, Inches(2.75), Emu(840000),
            RGBColor(0x22, 0x04, 0x04), C_CRIMSON, 2.0)
-    tb(s, X1 + Emu(80000), BOT_Y + Emu(60000), Inches(2.6), Emu(360000),
-       "ETERNAL FLAME", 11, bold=True, color=C_CRIMSON, font=FONT_H)
-    tb(s, X1 + Emu(80000), BOT_Y + Emu(470000), Inches(2.6), Emu(390000),
-       "NEMESISゲージMAX\n＋PHOENIX FLAME\n＋IGNITION完全制覇\n純増8.0枚/G", 8.5, color=C_CREAM)
+    tb(s, X1 + Emu(80000), BOT_Y + Emu(55000), Inches(2.5), Emu(330000),
+       "ETERNAL FLAME", 10.5, bold=True, color=C_CRIMSON, font=FONT_H)
+    tb(s, X1 + Emu(80000), BOT_Y + Emu(420000), Inches(2.5), Emu(380000),
+       "NEMESISゲージMAX\n＋PHOENIX FLAME\n＋IGNITION完全制覇\n純増8.0枚/G", 8, color=C_CREAM)
 
-    rect(s, Inches(3.1), BOT_Y, Inches(6.7), Emu(900000), RGBColor(0x18, 0x06, 0x00))
-    tb(s, Inches(3.25), BOT_Y + Emu(80000), Inches(6.3), Emu(380000),
-       "★ 歴代全フェニックスが集結する演出。前後のFLAME積み上げ込みでMY約3,500枚。",
+    rect(s, Inches(3.1), BOT_Y, Inches(6.72), Emu(840000), RGBColor(0x18, 0x06, 0x00))
+    tb(s, Inches(3.25), BOT_Y + Emu(80000), Inches(6.3), Emu(330000),
+       "★ 前後のFLAME積み上げ込みでMY約3,500枚。",
        9, bold=True, color=C_FEATHER)
-    tb(s, Inches(3.25), BOT_Y + Emu(480000), Inches(6.3), Emu(380000),
-       "「自分が今日育てた炎が、ここで完全に燃え上がる」——1セッションの物語が完結する瞬間。",
-       9, color=C_CREAM)
+    tb(s, Inches(3.25), BOT_Y + Emu(440000), Inches(6.3), Emu(360000),
+       "「自分が今日育てた炎が、ここで完全に燃え上がる」\n1セッションの物語が完結する瞬間。",
+       8.5, color=C_CREAM)
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 5: 通常時の仕組み
+#  SLIDE 4: 通常時の仕組み
 # ══════════════════════════════════════════════════════════════
 def s_normal(prs):
     s = new_slide(prs)
@@ -398,7 +355,7 @@ def s_normal(prs):
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 6: FLAME・IGNITION
+#  SLIDE 5: FLAME・IGNITION
 # ══════════════════════════════════════════════════════════════
 def s_flame_at(prs):
     s = new_slide(prs)
@@ -453,7 +410,7 @@ def s_flame_at(prs):
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 7: BLAZING ALLIANCE・ETERNAL FLAME
+#  SLIDE 6: BLAZING ALLIANCE・ETERNAL FLAME
 # ══════════════════════════════════════════════════════════════
 def s_climax(prs):
     s = new_slide(prs)
@@ -495,12 +452,12 @@ def s_climax(prs):
        "MY設計：FLAME(800枚) ＋ BLAZING ALLIANCE(1,200枚) ＋ ETERNAL FLAME(1,500枚) ＝ 約3,500枚",
        10, bold=True, color=C_FEATHER, font=FONT_H)
     tb(s, Inches(0.45), Inches(4.78), Inches(9.2), Emu(270000),
-       "通常遊技でもBLAZING ALLIANCEまで楽しめる設計。ETERNAL FLAMEは「夢」ではなく「積み上げれば届く」距離感。",
+       "通常遊技でもBLAZING ALLIANCEまで楽しめる設計。ETERNAL FLAMEは「積み上げれば届く」距離感。",
        9, color=C_CREAM)
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 8: 基本スペック
+#  SLIDE 7: 基本スペック
 # ══════════════════════════════════════════════════════════════
 def s_spec(prs):
     s = new_slide(prs)
@@ -562,7 +519,7 @@ def s_spec(prs):
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 9: ターゲット・市場考察
+#  SLIDE 8: ターゲット・市場考察
 # ══════════════════════════════════════════════════════════════
 def s_market(prs):
     s = new_slide(prs)
@@ -608,12 +565,13 @@ def s_market(prs):
     tb(s, Inches(0.45), Inches(4.45), Inches(9.2), Emu(260000),
        "「なぜ今フェニックスなのか」", 10, bold=True, color=C_PHOENIX, font=FONT_H)
     tb(s, Inches(0.45), Inches(4.78), Inches(9.2), Emu(280000),
-       "RPG世代（FF・ロマサガ）にはPhoenixが刺さる。「炎は消えない・再誕」というモチーフは継承テーマと完全一致。業界初で先行者優位を取れる。",
+       "RPG世代（FF・ロマサガ）にはPhoenixが刺さる。「炎は消えない・再誕」というモチーフは継承テーマと完全一致。"
+       "タイムリープ型との差別化軸として有効と考える。",
        9, color=C_CREAM)
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 10: まとめ
+#  SLIDE 9: まとめ
 # ══════════════════════════════════════════════════════════════
 def s_matome(prs):
     s = new_slide(prs)
@@ -643,7 +601,7 @@ def s_matome(prs):
     rect(s, Inches(0.2), Inches(4.25), Inches(9.6), Emu(40000), C_GOLD)
     rect(s, Inches(0.2), Inches(4.33), Inches(9.6), Emu(760000), RGBColor(0x1C, 0x08, 0x00))
     tb(s, Inches(0.35), Inches(4.38), Inches(9.2), Emu(270000),
-       "業界初3点：① フェニックスループ演出  ② IGNITION（AT中の3択）  ③ NEMESISゲージ（1セッション完結）",
+       "3つの設計軸：① PHOENIX CYCLE（炎の継承）  ② IGNITION RITE（AT中の3択）  ③ NEMESIS GAUGE（1セッション完結）",
        9, bold=True, color=C_GOLD2)
     tb(s, Inches(0.35), Inches(4.70), Inches(9.2), Emu(350000),
        "ミリゴZ-ZONE × 吉宗1G連 × 祟り神の感情設計を統合。\n"
@@ -661,8 +619,7 @@ def main():
 
     slides = [
         ("タイトル",                  s_title),
-        ("コアコンセプト",             s_concept),
-        ("業界初ポイント",             s_first),
+        ("3つの設計軸",               s_sellingpoints),
         ("ゲームフロー全体図",         s_flow),
         ("通常時の仕組み",             s_normal),
         ("FLAME・IGNITION",           s_flame_at),
@@ -673,11 +630,11 @@ def main():
     ]
 
     print("=" * 55)
-    print("  PHOENIX LEGACY 企画提案書ジェネレーター")
+    print("  PHOENIX LEGACY v2 企画提案書ジェネレーター")
     print("=" * 55)
     print("\n🔥 スライド生成中...")
     for i, (name, func) in enumerate(slides, 1):
-        print(f"   {i:2d}/10 {name}")
+        print(f"   {i:2d}/{len(slides)} {name}")
         func(prs)
 
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
