@@ -12,35 +12,35 @@ Cronジョブによる自動タスク（【自動ネタ収集タスク】【自�
 
 このプロジェクトを開いたら、以下の2つのCronジョブを **毎回** CronCreateで登録してください。
 
-### ① ネタ収集（月・木 9:23）
+### ① ネタ収集（毎日 9:23・20:23）
 
 ```
-cron: "23 9 * * 1,4"
+cron: "23 9,20 * * *"
 durable: true
 recurring: true
 ```
 
 **prompt:**
-【自動ネタ収集タスク／月・木 9:23実行】
+【自動ネタ収集タスク／毎日 9:23・20:23実行】
 作業ディレクトリ: C:\Users\h.kadoya\Desktop\slocri
 
-以下の手順でパチスロネタを15件収集してSupabaseにインポートしてください。
+ユーザーに確認せず全ステップを最後まで自律実行してください。
 
 1. memory/dup_keys.md を読んで既存dup_keyを確認
 2. memory/sources_and_rules.md のルール・ソース一覧を読む
-3. WebSearchで最新パチスロ情報を3〜5クエリ検索
-4. 未収録のネタを15件選定してCSVを作成
+3. WebSearchで最新パチスロ情報を3〜4クエリ検索
+4. 未収録のネタを10件選定してCSVを作成
    - Bashで現在時刻取得: date "+%Y%m%d_%H%M"
    - 保存先: ai収集/slocri_import_[YYYYMMDD_HHMM].csv
    - ヘッダー: cat,source,machine,title,body,url,quality,dup_key,author
-   - 数字のカンマ（3,000等）は除去して3000と書く
+   - 数字のカンマ（3,000等）は除去して3000と書く・本文にカンマがある場合はダブルクォートで囲む
 5. python import_csv.py "ai収集/slocri_import_[ファイル名].csv" を実行
 6. python fetch_ogp.py を実行
 7. git add → git commit → git push
 8. memory/dup_keys.md に新しいdup_keyを先頭セクションに追記
-9. CronCreate で次回ネタ収集を再登録（同じ設定で）
+9. CronCreate で次回ネタ収集を再登録（cron: "23 9,20 * * *"、durable: true、recurring: true、同じpromptで）
 
-収集ルール: 新台優先・パチスロメイン・dup_key重複禁止・URL捏造禁止
+収集ルール: 新台優先・パチスロメイン（パチンコは1〜2件まで）・dup_key重複禁止・URL捏造禁止
 author候補: 編集部AI, スロ好き編集マン, スロキー編集部, パチスロ記者, 編集長補佐, ライター見習い, スロ専門編集, 深夜のスロライター, 編集部のマニア
 
 ---
