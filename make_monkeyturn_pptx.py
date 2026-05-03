@@ -30,6 +30,10 @@ C_GREEN = RGBColor(0x22, 0xCC, 0x66)
 C_RED   = RGBColor(0xCC, 0x22, 0x22)
 C_PUR   = RGBColor(0x88, 0x44, 0xCC)
 C_NAVY  = RGBColor(0x04, 0x0A, 0x1C)
+C_STEEL = RGBColor(0x40, 0x60, 0x9A)   # 通常時：スチール青（最冷）
+C_LIME  = RGBColor(0x22, 0xAA, 0x44)   # CZ：チャンス緑
+C_FIRE  = RGBColor(0xFF, 0x44, 0x00)   # エキシビション：炎赤橙
+C_ELEC  = RGBColor(0x00, 0x7A, 0xFF)   # 青島SG：電気青（最熱）
 
 FONT_H = "游明朝"
 FONT_B = "メイリオ"
@@ -190,7 +194,7 @@ def s_flow(prs):
     CZ_MID = CZ_TOP + HBH // 2
 
     # ── 通常時（full box）─────────────────────────────
-    rect_b(s, X1, R1Y, BW, FBH, RGBColor(0x04, 0x0E, 0x22), C_CYAN, 1.8)
+    rect_b(s, X1, R1Y, BW, FBH, RGBColor(0x06, 0x10, 0x22), C_STEEL, 1.8)
     tb(s, X1 + Emu(80000), R1Y + Emu(50000), BW - Emu(160000), Emu(270000),
        "通常時", 10, bold=True, color=C_WHITE, font=FONT_H)
     tb(s, X1 + Emu(80000), R1Y + Emu(340000), BW - Emu(160000), Emu(900000),
@@ -205,9 +209,9 @@ def s_flow(prs):
        "周期天井（222pt等）で突入 / AT当選確定的", 8, color=C_CREAM)
 
     # ── CZ「超抜チャレンジ」（lower half）────────────────
-    rect_b(s, X2, CZ_TOP, BW, HBH, RGBColor(0x04, 0x16, 0x22), C_WATER, 1.8)
+    rect_b(s, X2, CZ_TOP, BW, HBH, RGBColor(0x04, 0x18, 0x08), C_LIME, 1.8)
     tb(s, X2 + Emu(80000), CZ_TOP + Emu(42000), BW - Emu(160000), Emu(260000),
-       "CZ「超抜チャレンジ」", 9.5, bold=True, color=C_WATER, font=FONT_H)
+       "CZ「超抜チャレンジ」", 9.5, bold=True, color=C_LIME, font=FONT_H)
     tb(s, X2 + Emu(80000), CZ_TOP + Emu(320000), BW - Emu(160000), HBH - Emu(355000),
        "レア役直撃 / 10G自力突破 / 成功率約50%", 8, color=C_CREAM)
 
@@ -222,7 +226,7 @@ def s_flow(prs):
     # 矢印：通常時 → 優出モード
     arrow_r(s, X1 + BW + Emu(40000), R1Y + HBH // 2, GAP - Emu(80000), C_CYAN)
     # 矢印：通常時 → CZ
-    arrow_r(s, X1 + BW + Emu(40000), CZ_MID, GAP - Emu(80000), C_WATER)
+    arrow_r(s, X1 + BW + Emu(40000), CZ_MID, GAP - Emu(80000), C_LIME)
     # 矢印：優出モード → AT（成功）
     arrow_r(s, X2 + BW + Emu(40000), R1Y + HBH // 2, GAP - Emu(80000), C_GREEN)
     tb(s, X2 + BW + Emu(8000), R1Y + HBH // 2 - Emu(220000), GAP + Emu(50000), Emu(195000),
@@ -250,10 +254,10 @@ def s_flow(prs):
          RGBColor(0x26, 0x16, 0x00), C_GOLD),
         (X2, "エキシビションレース",
          "グランドスラム後のボーナス区間\n継続率50/66/80/90%に固定",
-         RGBColor(0x0C, 0x16, 0x04), C_SPEED),
+         RGBColor(0x20, 0x08, 0x00), C_FIRE),
         (X1, "上位AT「青島SG」",
          "真の頂点 / 純増4.0枚/G\n継続率83% / 温泉モードあり",
-         RGBColor(0x00, 0x12, 0x26), C_CYAN),
+         RGBColor(0x00, 0x0A, 0x22), C_ELEC),
     ]
     for x, title, desc, fill, bdr in row2:
         rect_b(s, x, R2Y, BW, BH2, fill, bdr, 1.8)
@@ -267,7 +271,7 @@ def s_flow(prs):
         shp = s.shapes.add_shape(13, x_r - GAP + Emu(40000), R2Y + BH2 // 2 - _h // 2, _w, _h)
         shp.rotation = 180
         shp.fill.solid()
-        shp.fill.fore_color.rgb = C_SPEED
+        shp.fill.fore_color.rgb = C_FIRE
         shp.line.fill.background()
 
     BOT_Y = R2Y + BH2 + Emu(110000)
@@ -369,9 +373,9 @@ def s_cz(prs):
     hdr(s, "CZ「超抜チャレンジ」  ──  結末は3通り")
 
     # ── 左：基本仕様 ─────────────────────────────────────
-    rect_b(s, Inches(0.2), Inches(0.85), Inches(4.45), Inches(3.45), C_CARD, C_WATER, 1.5)
+    rect_b(s, Inches(0.2), Inches(0.85), Inches(4.45), Inches(3.45), C_CARD, C_LIME, 1.5)
     tb(s, Inches(0.32), Inches(0.92), Inches(4.1), Emu(320000),
-       "基本仕様", 11, bold=True, color=C_WATER, font=FONT_H)
+       "基本仕様", 11, bold=True, color=C_LIME, font=FONT_H)
     items = [
         ("突入契機",  "レア役成立時の直撃抽選",          C_CREAM),
         ("ゲーム数",  "10G（毎G成功抽選）",              C_WHITE),
@@ -384,7 +388,7 @@ def s_cz(prs):
         bg = RGBColor(0x0A, 0x14, 0x28) if j % 2 == 0 else RGBColor(0x0E, 0x18, 0x2E)
         rect(s, Inches(0.28), iy, Inches(4.27), Emu(315000), bg)
         tb(s, Inches(0.38), iy + Emu(28000), Inches(1.35), Emu(265000),
-           k, 8.5, bold=True, color=C_WATER, wrap=False)
+           k, 8.5, bold=True, color=C_LIME, wrap=False)
         tb(s, Inches(1.78), iy + Emu(28000), Inches(2.6), Emu(265000),
            v, 8.5, color=col, wrap=False)
         iy += Emu(325000)
@@ -395,9 +399,9 @@ def s_cz(prs):
 
     # CZ概要ヘッダー
     rect_b(s, RX, Inches(0.88), RW, Emu(340000),
-           RGBColor(0x04, 0x12, 0x22), C_WATER, 2.0)
+           RGBColor(0x04, 0x18, 0x08), C_LIME, 2.0)
     tb(s, RX + Emu(80000), Inches(0.94), RW - Emu(160000), Emu(280000),
-       "超抜チャレンジ（10G）  ──  3通りの結末", 10, bold=True, color=C_WATER, font=FONT_H)
+       "超抜チャレンジ（10G）  ──  3通りの結末", 10, bold=True, color=C_LIME, font=FONT_H)
 
     FORK_Y = Inches(0.88) + Emu(340000) + Emu(100000)
     S_W    = Inches(2.2)
@@ -613,12 +617,12 @@ def s_aoshima(prs):
     hdr(s, "上位AT「青島SG」  ──  純増4.0枚 × 継続率83% の頂点体験")
 
     # 左：スペックと構造
-    rect_b(s, Inches(0.2), Inches(0.85), Inches(4.5), Inches(3.45), C_CARD, C_CYAN, 1.5)
+    rect_b(s, Inches(0.2), Inches(0.85), Inches(4.5), Inches(3.45), C_CARD, C_ELEC, 1.5)
     tb(s, Inches(0.32), Inches(0.92), Inches(4.2), Emu(320000),
-       "青島SG スペック", 11, bold=True, color=C_CYAN, font=FONT_H)
+       "青島SG スペック", 11, bold=True, color=C_ELEC, font=FONT_H)
     specs = [
         ("純増",     "約4.0枚/G（SG RUSHの1.6倍）",  C_GOLD2),
-        ("継続率",   "約75%（Vストック込みで約83%）",  C_CYAN),
+        ("継続率",   "約75%（Vストック込みで約83%）",  C_ELEC),
         ("突入経路", "グランドスラム後の青島VS波多野勝利", C_CREAM),
         ("構成",     "青島周回パート＋青島VS波多野の2部", C_CREAM),
         ("上乗せ",   "V揃い単：次セット継続濃厚\n  V揃いダブル：継続＋100〜300G上乗せ", C_SPEED),
@@ -648,9 +652,9 @@ def s_aoshima(prs):
        8.5, color=C_CREAM)
 
     rect_b(s, Inches(5.08), Inches(2.38), Inches(4.64), Emu(1250000),
-           RGBColor(0x00, 0x12, 0x28), C_CYAN, 1.0)
+           RGBColor(0x00, 0x0A, 0x22), C_ELEC, 1.0)
     tb(s, Inches(5.2), Inches(2.44), Inches(4.3), Emu(280000),
-       "青島SGに突入する意味", 10, bold=True, color=C_CYAN)
+       "青島SGに突入する意味", 10, bold=True, color=C_ELEC)
     tb(s, Inches(5.2), Inches(2.78), Inches(4.3), Emu(820000),
        "SG RUSH（純増2.5枚）との差は1.5枚/G\n100G消化で+150枚の差が生まれる\n\n"
        "継続率83%で長く続く×純増4.0枚\n= 1日の大台を作る唯一のルート\n\n"
@@ -659,10 +663,10 @@ def s_aoshima(prs):
 
     # フッター
     rect(s, Inches(0.2), Inches(4.42), Inches(9.6), Emu(580000), RGBColor(0x00, 0x10, 0x24))
-    rect(s, Inches(0.2), Inches(4.42), Emu(55000), Emu(580000), C_CYAN)
+    rect(s, Inches(0.2), Inches(4.42), Emu(55000), Emu(580000), C_ELEC)
     tb(s, Inches(0.45), Inches(4.47), Inches(9.1), Emu(250000),
        "青島SGの設計意図：「到達した人だけが味わえる体験」として来店継続の最大動機を作る",
-       9.5, bold=True, color=C_CYAN)
+       9.5, bold=True, color=C_ELEC)
     tb(s, Inches(0.45), Inches(4.80), Inches(9.1), Emu(250000),
        "SG RUSHだけでも楽しめるが、青島SGを知ると「もう一度グランドスラムを取りたい」が生まれる。",
        8.5, color=C_CREAM)
@@ -727,9 +731,9 @@ def s_grandslam(prs):
         ey += Emu(375000)
 
     rect_b(s, Inches(5.1), Inches(3.28), Inches(4.55), Emu(820000),
-           RGBColor(0x00, 0x14, 0x28), C_CYAN, 1.5)
+           RGBColor(0x00, 0x0A, 0x22), C_ELEC, 1.5)
     tb(s, Inches(5.22), Inches(3.34), Inches(4.2), Emu(280000),
-       "継続率に漏れた場合", 9.5, bold=True, color=C_CYAN, font=FONT_H)
+       "継続率に漏れた場合", 9.5, bold=True, color=C_ELEC, font=FONT_H)
     tb(s, Inches(5.22), Inches(3.68), Inches(4.2), Emu(420000),
        "青島VS波多野へ移行\n→ 勝利で上位AT「青島SG」突入\n（エキシビション失敗が青島SG入口になる）",
        8.5, color=C_CREAM)
