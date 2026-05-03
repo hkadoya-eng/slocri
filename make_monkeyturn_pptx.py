@@ -212,7 +212,7 @@ def s_flow(prs):
     MID_Y = (R1Y + BH + R2Y) // 2
     rect(s, CON_X, R1Y + BH // 2, LW, MID_Y - (R1Y + BH // 2) + Emu(28000), C_GOLD)
     rect(s, CON_X, MID_Y, CON_R - CON_X + LW, LW, C_GOLD)
-    rect(s, CON_R, R2Y, LW, MID_Y - R2Y + LW, C_GOLD)
+    rect(s, CON_R, MID_Y, LW, R2Y - MID_Y + LW, C_GOLD)
     tb(s, CON_X - Emu(60000), MID_Y - Emu(350000), Emu(800000), Emu(330000),
        "8セット\n完走", 8, bold=True, color=C_GOLD2, align=PP_ALIGN.CENTER)
 
