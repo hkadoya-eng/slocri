@@ -174,83 +174,138 @@ def s_title(prs):
 # ══════════════════════════════════════════════════════════════
 def s_flow(prs):
     s = new_slide(prs)
-    hdr(s, "ゲームフロー全体図  ──  周期からグランドスラムまで")
+    hdr(s, "ゲームフロー全体図  ──  メインゴールはグランドスラム（8セット完走）")
 
-    BW  = Inches(2.75)
-    BH  = Inches(1.05)
+    BW  = Inches(2.5)
     GAP = Inches(0.22)
+    FBH = Inches(1.65)   # 通常時・AT の縦幅
+    HBH = Inches(0.76)   # 優出モード・CZ の縦幅
+    HG  = Emu(80000)     # 優出モード⇔CZ の隙間
     R1Y = Inches(0.62)
-    R2Y = Inches(2.15)
+    R2Y = Inches(3.02)
     X1  = Inches(0.18)
     X2  = X1 + BW + GAP
     X3  = X2 + BW + GAP
+    CZ_TOP = R1Y + HBH + HG
+    CZ_MID = CZ_TOP + HBH // 2
 
-    row1 = [
-        (X1, "通常時",
-         "激走ポイント毎G加算\nライバルモード抽選 / 周期管理",
-         RGBColor(0x06, 0x10, 0x24), C_CYAN),
-        (X2, "CZ「超抜チャレンジ」",
-         "10G自力突破型 / 成功率約50%\n失敗の一部でグランドスラムCHへ",
-         RGBColor(0x06, 0x18, 0x24), C_WATER),
-        (X3, "AT「SG RUSH」",
-         "純増2.5枚/G\n周回31G + SGバトル9G を繰り返す",
-         RGBColor(0x10, 0x18, 0x06), C_SPEED),
-    ]
-    for x, title, desc, fill, bdr in row1:
-        rect_b(s, x, R1Y, BW, BH, fill, bdr, 1.8)
-        tb(s, x + Emu(80000), R1Y + Emu(50000), BW - Emu(160000), Emu(310000),
-           title, 9.5, bold=True, color=C_WHITE, font=FONT_H)
-        tb(s, x + Emu(80000), R1Y + Emu(370000), BW - Emu(160000), BH - Emu(420000),
-           desc, 8, color=C_CREAM)
-    for x_l in [X1, X2]:
-        arrow_r(s, x_l + BW + Emu(40000), R1Y + BH // 2, GAP - Emu(80000), C_WATER)
+    # ── 通常時（full box）─────────────────────────────
+    rect_b(s, X1, R1Y, BW, FBH, RGBColor(0x04, 0x0E, 0x22), C_CYAN, 1.8)
+    tb(s, X1 + Emu(80000), R1Y + Emu(50000), BW - Emu(160000), Emu(270000),
+       "通常時", 10, bold=True, color=C_WHITE, font=FONT_H)
+    tb(s, X1 + Emu(80000), R1Y + Emu(340000), BW - Emu(160000), Emu(900000),
+       "激走ポイント毎G加算\n\n① 222pt到達（周期天井）\n   → 前兆「優出モード」\n\n② レア役直撃\n   → CZ「超抜チャレンジ」",
+       8, color=C_CREAM)
 
-    # ⊓ コネクター
+    # ── 優出モード（upper half）─────────────────────────
+    rect_b(s, X2, R1Y, BW, HBH, RGBColor(0x00, 0x12, 0x26), C_CYAN, 1.8)
+    tb(s, X2 + Emu(80000), R1Y + Emu(42000), BW - Emu(160000), Emu(260000),
+       "前兆「優出モード」", 9.5, bold=True, color=C_CYAN, font=FONT_H)
+    tb(s, X2 + Emu(80000), R1Y + Emu(320000), BW - Emu(160000), HBH - Emu(355000),
+       "周期天井（222pt等）で突入 / AT当選確定的", 8, color=C_CREAM)
+
+    # ── CZ「超抜チャレンジ」（lower half）────────────────
+    rect_b(s, X2, CZ_TOP, BW, HBH, RGBColor(0x04, 0x16, 0x22), C_WATER, 1.8)
+    tb(s, X2 + Emu(80000), CZ_TOP + Emu(42000), BW - Emu(160000), Emu(260000),
+       "CZ「超抜チャレンジ」", 9.5, bold=True, color=C_WATER, font=FONT_H)
+    tb(s, X2 + Emu(80000), CZ_TOP + Emu(320000), BW - Emu(160000), HBH - Emu(355000),
+       "レア役直撃 / 10G自力突破 / 成功率約50%", 8, color=C_CREAM)
+
+    # ── AT「SG RUSH」（full box）──────────────────────────
+    rect_b(s, X3, R1Y, BW, FBH, RGBColor(0x0C, 0x16, 0x04), C_SPEED, 1.8)
+    tb(s, X3 + Emu(80000), R1Y + Emu(50000), BW - Emu(160000), Emu(270000),
+       "AT「SG RUSH」", 10, bold=True, color=C_WHITE, font=FONT_H)
+    tb(s, X3 + Emu(80000), R1Y + Emu(340000), BW - Emu(160000), Emu(900000),
+       "純増2.5枚/G\n周回31G + SGバトル9G\n\nメインゴール：\n8セット完走\n= グランドスラム達成！",
+       8, color=C_CREAM)
+
+    # 矢印：通常時 → 優出モード
+    arrow_r(s, X1 + BW + Emu(40000), R1Y + HBH // 2, GAP - Emu(80000), C_CYAN)
+    # 矢印：通常時 → CZ
+    arrow_r(s, X1 + BW + Emu(40000), CZ_MID, GAP - Emu(80000), C_WATER)
+    # 矢印：優出モード → AT（成功）
+    arrow_r(s, X2 + BW + Emu(40000), R1Y + HBH // 2, GAP - Emu(80000), C_GREEN)
+    tb(s, X2 + BW + Emu(8000), R1Y + HBH // 2 - Emu(220000), GAP + Emu(50000), Emu(195000),
+       "成功", 7, bold=True, color=C_GREEN, align=PP_ALIGN.CENTER)
+    # 矢印：CZ → AT（成功）
+    arrow_r(s, X2 + BW + Emu(40000), CZ_MID, GAP - Emu(80000), C_GREEN)
+
+    # ── CZ失敗分岐 ────────────────────────────────────────
+    FAIL_Y = CZ_TOP + HBH + Emu(110000)
+    FH     = Emu(510000)
+    FW1    = Inches(1.18)
+    FW2    = BW - FW1 - Emu(45000)
+    GSC_X  = X2 + FW1 + Emu(45000)
+
+    rect(s, X2 + BW // 2 - Emu(27500), CZ_TOP + HBH, Emu(55000), Emu(74000), C_GRAY)
+    tb(s, X2 + BW // 2 - Emu(280000), CZ_TOP + HBH + Emu(6000), Emu(560000), Emu(200000),
+       "失敗", 7, bold=True, color=C_RED, align=PP_ALIGN.CENTER)
+
+    rect_b(s, X2, FAIL_Y, FW1, FH, RGBColor(0x08, 0x10, 0x18), C_GRAY, 1.0)
+    tb(s, X2 + Emu(55000), FAIL_Y + Emu(38000), FW1 - Emu(90000), Emu(225000),
+       "通常時に戻る", 8.5, bold=True, color=C_LTGRY, font=FONT_H)
+    tb(s, X2 + Emu(55000), FAIL_Y + Emu(268000), FW1 - Emu(90000), Emu(220000),
+       "約50% / 次の周期へ", 7.5, color=C_GRAY)
+
+    rect_b(s, GSC_X, FAIL_Y, FW2, FH, RGBColor(0x1C, 0x14, 0x00), C_GOLD, 1.8)
+    tb(s, GSC_X + Emu(55000), FAIL_Y + Emu(38000), FW2 - Emu(90000), Emu(225000),
+       "グランドスラムCH", 8.5, bold=True, color=C_GOLD, font=FONT_H)
+    tb(s, GSC_X + Emu(55000), FAIL_Y + Emu(268000), FW2 - Emu(90000), Emu(220000),
+       "1.2% / AT確定\n艇王シナリオ濃厚", 7.5, color=C_CREAM)
+
+    arrow_r(s, X2 + BW + Emu(40000), FAIL_Y + FH // 2, GAP - Emu(80000), C_GOLD)
+    tb(s, X2 + BW + Emu(8000), FAIL_Y + FH // 2 - Emu(215000), GAP + Emu(50000), Emu(195000),
+       "AT確定", 7, bold=True, color=C_GOLD, align=PP_ALIGN.CENTER)
+
+    # ⊓ コネクター（AT → Row2）
     CON_X = X3 + BW + Emu(80000)
     CON_R = CON_X + Emu(550000)
     LW    = Emu(55000)
-    MID_Y = (R1Y + BH + R2Y) // 2
-    rect(s, CON_X, R1Y + BH // 2, LW, MID_Y - (R1Y + BH // 2) + Emu(28000), C_GOLD)
+    AT_MID = R1Y + FBH // 2
+    MID_Y  = (R1Y + FBH + R2Y) // 2
+    rect(s, CON_X, AT_MID, LW, MID_Y - AT_MID + Emu(28000), C_GOLD)
     rect(s, CON_X, MID_Y, CON_R - CON_X + LW, LW, C_GOLD)
     rect(s, CON_R, MID_Y, LW, R2Y - MID_Y + LW, C_GOLD)
-    tb(s, CON_X - Emu(60000), MID_Y - Emu(350000), Emu(800000), Emu(330000),
+    tb(s, CON_X - Emu(55000), MID_Y - Emu(380000), Emu(790000), Emu(360000),
        "8セット\n完走", 8, bold=True, color=C_GOLD2, align=PP_ALIGN.CENTER)
 
+    # ── Row2（R→L）: グランドスラム → エキシビション → 青島SG ─────
+    BH2 = Inches(0.88)
     row2 = [
-        (X3, "グランドスラム",
-         "8セット完走で達成\n→ エキシビションレースへ",
-         RGBColor(0x20, 0x14, 0x00), C_GOLD),
+        (X3, "グランドスラム達成！",
+         "8完走でメインゴール到達\n→ エキシビション（ボーナス）へ",
+         RGBColor(0x26, 0x16, 0x00), C_GOLD),
         (X2, "エキシビションレース",
-         "継続率50/66/80/90%に固定\n漏れると青島VS波多野へ",
-         RGBColor(0x10, 0x18, 0x06), C_SPEED),
+         "グランドスラム後のボーナス区間\n継続率50/66/80/90%に固定",
+         RGBColor(0x0C, 0x16, 0x04), C_SPEED),
         (X1, "上位AT「青島SG」",
-         "純増4.0枚/G / 継続率83%\n温泉モード（特化ゾーン）あり",
-         RGBColor(0x00, 0x14, 0x28), C_CYAN),
+         "真の頂点 / 純増4.0枚/G\n継続率83% / 温泉モードあり",
+         RGBColor(0x00, 0x12, 0x26), C_CYAN),
     ]
     for x, title, desc, fill, bdr in row2:
-        rect_b(s, x, R2Y, BW, BH, fill, bdr, 1.8)
-        tb(s, x + Emu(80000), R2Y + Emu(50000), BW - Emu(160000), Emu(310000),
+        rect_b(s, x, R2Y, BW, BH2, fill, bdr, 1.8)
+        tb(s, x + Emu(80000), R2Y + Emu(42000), BW - Emu(160000), Emu(265000),
            title, 9.5, bold=True, color=C_WHITE, font=FONT_H)
-        tb(s, x + Emu(80000), R2Y + Emu(370000), BW - Emu(160000), BH - Emu(420000),
+        tb(s, x + Emu(80000), R2Y + Emu(322000), BW - Emu(160000), BH2 - Emu(360000),
            desc, 8, color=C_CREAM)
     for x_r in [X3, X2]:
         _w = GAP - Emu(80000)
         _h = Emu(150000)
-        shp = s.shapes.add_shape(13, x_r - GAP + Emu(40000), R2Y + BH // 2 - _h // 2, _w, _h)
+        shp = s.shapes.add_shape(13, x_r - GAP + Emu(40000), R2Y + BH2 // 2 - _h // 2, _w, _h)
         shp.rotation = 180
         shp.fill.solid()
         shp.fill.fore_color.rgb = C_SPEED
         shp.line.fill.background()
 
-    BOT_Y = Inches(3.38)
-    rect(s, X1, BOT_Y, Inches(9.64), Emu(880000), RGBColor(0x06, 0x10, 0x20))
-    rect(s, X1, BOT_Y, Emu(55000), Emu(880000), C_WATER)
-    tb(s, X1 + Emu(100000), BOT_Y + Emu(70000), Inches(9.2), Emu(310000),
-       "フロー設計のポイント：「到達ルートが複数ある」と「昇格先がある」の2重構造",
+    BOT_Y = R2Y + BH2 + Emu(110000)
+    rect(s, X1, BOT_Y, Inches(9.64), Emu(820000), RGBColor(0x06, 0x10, 0x20))
+    rect(s, X1, BOT_Y, Emu(55000), Emu(820000), C_WATER)
+    tb(s, X1 + Emu(100000), BOT_Y + Emu(60000), Inches(9.2), Emu(290000),
+       "フロー設計の核心：「グランドスラム（8完走）を目指す」ことが来店動機のすべてになる",
        9, bold=True, color=C_WATER, font=FONT_H)
-    tb(s, X1 + Emu(100000), BOT_Y + Emu(420000), Inches(9.2), Emu(400000),
-       "通常周期からSG RUSH → 8セット完走 → 上位AT青島SG という段階的昇格が来店を通じた目標になる。\n"
-       "失敗してもグランドスラムCH経由の救済ルートがあり、「どこかで報われる」設計。",
+    tb(s, X1 + Emu(100000), BOT_Y + Emu(375000), Inches(9.2), Emu(405000),
+       "優出モード（周期天井）とCZ直撃の2ルートでAT突入。AT後はシナリオ14種で継続率が決まり8完走を狙う。\n"
+       "CZ失敗の1.2%でGSC（AT確定・艇王シナリオ）という逆転も存在。失敗にも次がある設計。",
        8.5, color=C_CREAM)
 
 
@@ -418,13 +473,9 @@ def s_at(prs):
     rect(s, Inches(0.28), Inches(1.40), Emu(55000), Emu(360000), C_SPEED)
     tb(s, Inches(0.53), Inches(1.46), Inches(3.8), Emu(280000),
        "周回パート（31G）", 10, bold=True, color=C_SPEED)
-    tb(s, Inches(0.53), Inches(1.78), Inches(3.8), Emu(260000),
-       "上乗せ・特化ゾーン「バカンスモード」抽選\nV揃いでカットイン / ボートで50G以上上乗せ",
+    tb(s, Inches(0.53), Inches(1.78), Inches(3.8), Emu(300000),
+       "上乗せ・特化ゾーン「バカンスモード」（30G）抽選\nV揃いカットイン / 強役で50G以上上乗せ",
        8.5, color=C_CREAM)
-
-    rect(s, Inches(1.8), Inches(1.90), Inches(1.5), Emu(180000), RGBColor(0x00, 0x14, 0x28))
-    tb(s, Inches(1.8), Inches(1.96), Inches(1.5), Emu(160000),
-       "バカンスモード突入", 7.5, color=C_CYAN, align=PP_ALIGN.CENTER)
 
     # SGバトルパート
     rect(s, Inches(0.28), Inches(2.30), Inches(4.32), Emu(360000), RGBColor(0x00, 0x10, 0x28))
