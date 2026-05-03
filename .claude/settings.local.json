@@ -21,7 +21,17 @@
       "Bash(python3 -c \"import PIL\")",
       "Bash(powershell:*)",
       "Bash(curl:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(python fetch_ogp.py)",
+      "Bash(python3 *)",
+      "Bash(python *)",
+      "Bash(gh workflow *)",
+      "Bash(where gh *)",
+      "Bash(date *)",
+      "Bash(date)",
+      "CronCreate",
+      "CronList",
+      "CronDelete"
     ]
   }
 }
