@@ -498,7 +498,7 @@ def s_at(prs):
         ("低（〜25%）",  "関東ガマシ 等",           "早期終了が多い"),
         ("中（50%）",    "ギャンブラー 等",          "標準的な継続"),
         ("高（66〜80%）","艇界のヒロイン 等",        "粘れるシナリオ"),
-        ("最高（艇王）", "艇王（グランドスラム濃厚）","8セット完走ほぼ確定"),
+        ("最高（艇王）", "艇王（GS濃厚）",            "8完走ほぼ確定"),
     ]
     sy = Inches(1.78)
     for j, (a, b, c) in enumerate(scenarios):
@@ -544,7 +544,7 @@ def s_scenario(prs):
         (RGBColor(0xFF, 0xEE, 0x00), "黄",  "継続率：中"),
         (RGBColor(0x22, 0xCC, 0x44), "緑",  "継続率：やや高"),
         (RGBColor(0xCC, 0x22, 0x22), "赤",  "継続率：高"),
-        (RGBColor(0xFF, 0x80, 0xFF), "虹",  "継続率：最高（艇王濃厚）"),
+        (RGBColor(0xFF, 0x80, 0xFF), "虹",  "最高（艇王濃厚）"),
     ]
     ly = Inches(1.40)
     for lcol, lname, ldesc in lamps:
@@ -571,7 +571,7 @@ def s_scenario(prs):
         tb(s, Inches(3.58), cy2 + Emu(25000), Inches(1.25), Emu(275000),
            k, 8, bold=True, color=C_SPEED, wrap=False)
         tb(s, Inches(4.88), cy2 + Emu(25000), Inches(1.45), Emu(275000),
-           v, 7.5, color=C_CREAM, wrap=False)
+           v, 7.5, color=C_CREAM)
         cy2 += Emu(332000)
 
     # 右：シナリオ推測の楽しさ
@@ -630,13 +630,13 @@ def s_aoshima(prs):
     sy = Inches(1.38)
     for j, (k, v, col) in enumerate(specs):
         bg = RGBColor(0x06, 0x14, 0x28) if j % 2 == 0 else RGBColor(0x0A, 0x18, 0x2E)
-        rect(s, Inches(0.28), sy, Inches(4.32), Emu(330000) if "\n" not in v else Emu(450000), bg)
+        rect(s, Inches(0.28), sy, Inches(4.32), Emu(330000) if "\n" not in v else Emu(620000), bg)
         tb(s, Inches(0.38), sy + Emu(28000), Inches(1.3), Emu(260000),
            k, 8.5, bold=True, color=C_WATER, wrap=False)
         lines = v.count("\n") + 1
         tb(s, Inches(1.73), sy + Emu(28000), Inches(2.75), Emu(280000) * lines,
            v, 8.5, color=col)
-        sy += Emu(340000) if "\n" not in v else Emu(460000)
+        sy += Emu(340000) if "\n" not in v else Emu(640000)
 
     # 右：温泉モード＋突入の価値
     rect_b(s, Inches(4.9), Inches(0.85), Inches(4.9), Inches(3.45), C_CARD, C_SPEED, 1.5)
@@ -651,11 +651,11 @@ def s_aoshima(prs):
        "青島VS波多野レース中のレア役成立で突入\n消化中はゲーム数上乗せ抽選が強化\n弱チェリー・強チャンス役で上乗せ確定",
        8.5, color=C_CREAM)
 
-    rect_b(s, Inches(5.08), Inches(2.38), Inches(4.64), Emu(1250000),
+    rect_b(s, Inches(5.08), Inches(2.38), Inches(4.64), Emu(1700000),
            RGBColor(0x00, 0x0A, 0x22), C_ELEC, 1.0)
     tb(s, Inches(5.2), Inches(2.44), Inches(4.3), Emu(280000),
        "青島SGに突入する意味", 10, bold=True, color=C_ELEC)
-    tb(s, Inches(5.2), Inches(2.78), Inches(4.3), Emu(820000),
+    tb(s, Inches(5.2), Inches(2.78), Inches(4.3), Emu(1300000),
        "SG RUSH（純増2.5枚）との差は1.5枚/G\n100G消化で+150枚の差が生まれる\n\n"
        "継続率83%で長く続く×純増4.0枚\n= 1日の大台を作る唯一のルート\n\n"
        "「グランドスラム達成 → 青島SG」が\n来店時の最大目標として機能する",
@@ -723,18 +723,18 @@ def s_grandslam(prs):
              else RGBColor(0x0E, 0x18, 0x2C)
         rect(s, Inches(5.1), ey, Inches(4.55), Emu(360000), bg)
         tb(s, Inches(5.2), ey + Emu(30000), Emu(380000), Emu(300000),
-           f"パターン{pat}", 8, bold=True, color=col, wrap=False)
-        tb(s, Inches(5.85), ey + Emu(30000), Emu(650000), Emu(300000),
+           f"型{pat}", 9, bold=True, color=col, wrap=False)
+        tb(s, Inches(5.85), ey + Emu(30000), Emu(820000), Emu(300000),
            rate, 13, bold=True, color=col, align=PP_ALIGN.CENTER)
-        tb(s, Inches(6.8), ey + Emu(30000), Inches(2.7), Emu(300000),
+        tb(s, Inches(7.05), ey + Emu(30000), Inches(2.45), Emu(300000),
            f"継続率{level}", 8.5, color=C_CREAM)
         ey += Emu(375000)
 
-    rect_b(s, Inches(5.1), Inches(3.28), Inches(4.55), Emu(820000),
+    rect_b(s, Inches(5.1), Inches(3.42), Inches(4.55), Emu(820000),
            RGBColor(0x00, 0x0A, 0x22), C_ELEC, 1.5)
-    tb(s, Inches(5.22), Inches(3.34), Inches(4.2), Emu(280000),
+    tb(s, Inches(5.22), Inches(3.48), Inches(4.2), Emu(280000),
        "継続率に漏れた場合", 9.5, bold=True, color=C_ELEC, font=FONT_H)
-    tb(s, Inches(5.22), Inches(3.68), Inches(4.2), Emu(420000),
+    tb(s, Inches(5.22), Inches(3.82), Inches(4.2), Emu(420000),
        "青島VS波多野へ移行\n→ 勝利で上位AT「青島SG」突入\n（エキシビション失敗が青島SG入口になる）",
        8.5, color=C_CREAM)
 
@@ -800,7 +800,7 @@ def s_matome(prs):
          RGBColor(0x08, 0x14, 0x28))
     bench_h = ["比較軸", "東京喰種", "番長4", "Re:ゼロ", "モンキーターンV"]
     bx = Inches(0.2)
-    bcolw = [Emu(950000), Emu(920000), Emu(920000), Emu(920000), Emu(1050000)]
+    bcolw = [Emu(1006000), Emu(1924000), Emu(1924000), Emu(1924000), Emu(1924000)]
     bhx = []
     cx = bx + Emu(30000)
     for cw in bcolw:
