@@ -213,7 +213,7 @@ def s_flow(prs):
     tb(s, X2 + Emu(80000), CZ_TOP + Emu(42000), BW - Emu(160000), Emu(260000),
        "CZ「超抜チャレンジ」", 9.5, bold=True, color=C_LIME, font=FONT_H)
     tb(s, X2 + Emu(80000), CZ_TOP + Emu(320000), BW - Emu(160000), HBH - Emu(355000),
-       "レア役直撃 / 10G自力突破 / 成功率約50%", 8, color=C_CREAM)
+       "ベル/リプ/レア役カウントアップ\n9カウントで強制成功", 8, color=C_CREAM)
 
     # ── AT「SG RUSH」（full box）──────────────────────────
     rect_b(s, X3, R1Y, BW, FBH, RGBColor(0x0C, 0x16, 0x04), C_SPEED, 1.8)
@@ -377,11 +377,11 @@ def s_cz(prs):
     tb(s, Inches(0.32), Inches(0.92), Inches(4.1), Emu(320000),
        "基本仕様", 11, bold=True, color=C_LIME, font=FONT_H)
     items = [
-        ("突入契機",  "レア役成立時の直撃抽選",          C_CREAM),
-        ("ゲーム数",  "10G（毎G成功抽選）",              C_WHITE),
-        ("成功率",    "約50%（強役ほど高確率）",          C_SPEED),
-        ("成功確定",  "CZ中にペラ9成立で確定",           C_GOLD),
-        ("失敗",      "通常時に戻る（次の周期へ）",        C_LTGRY),
+        ("突入契機",  "レア役成立時の直撃抽選",              C_CREAM),
+        ("ゲーム数",  "10G（毎G成功抽選が並行）",          C_WHITE),
+        ("成功率",    "約50%（強役ほど高確率）",            C_SPEED),
+        ("9カウント", "ベル/リプ/レア役の合計9個→強制成功", C_GOLD),
+        ("失敗",      "通常時に戻る（次の周期へ）",          C_LTGRY),
     ]
     iy = Inches(1.38)
     for j, (k, v, col) in enumerate(items):
@@ -401,7 +401,7 @@ def s_cz(prs):
     rect_b(s, RX, Inches(0.88), RW, Emu(340000),
            RGBColor(0x04, 0x18, 0x08), C_LIME, 2.0)
     tb(s, RX + Emu(80000), Inches(0.94), RW - Emu(160000), Emu(280000),
-       "超抜チャレンジ（10G）  ──  3通りの結末", 10, bold=True, color=C_LIME, font=FONT_H)
+       "超抜チャレンジ（10G）  ──  ベル9カウント or 毎G抽選で突破", 10, bold=True, color=C_LIME, font=FONT_H)
 
     FORK_Y = Inches(0.88) + Emu(340000) + Emu(100000)
     S_W    = Inches(2.2)
@@ -463,7 +463,7 @@ def s_at(prs):
     tb(s, Inches(0.53), Inches(1.46), Inches(3.8), Emu(280000),
        "周回パート（31G）", 10, bold=True, color=C_SPEED)
     tb(s, Inches(0.53), Inches(1.78), Inches(3.8), Emu(300000),
-       "上乗せ・特化ゾーン「バカンスモード」（30G）抽選\nV揃いカットイン / 強役で50G以上上乗せ",
+       "チェリー → ぶっちぎりバトルのメイン契機\nバトル高確中は全役で突入抽選",
        8.5, color=C_CREAM)
 
     # SGバトルパート
@@ -528,7 +528,90 @@ def s_at(prs):
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 6: 14種シナリオ × 示唆システム
+#  SLIDE 6: ぶっちぎりバトル × 連戦
+# ══════════════════════════════════════════════════════════════
+def s_battle(prs):
+    s = new_slide(prs)
+    hdr(s, "ぶっちぎりバトル × 連戦  ──  SGバトルを超える「横道」の自力感")
+
+    # ── 左：ぶっちぎりバトル基本仕様 ─────────────────────────
+    rect_b(s, Inches(0.2), Inches(0.85), Inches(4.45), Inches(3.45), C_CARD, C_SPEED, 1.5)
+    tb(s, Inches(0.32), Inches(0.92), Inches(4.1), Emu(320000),
+       "ぶっちぎりバトル", 11, bold=True, color=C_SPEED, font=FONT_H)
+    items = [
+        ("突入契機",  "周回パートのチェリー主契機（高確=全役）", C_SPEED),
+        ("内容",      "通常SGバトルと独立した自力バトル",        C_WHITE),
+        ("勝率",      "約50%〜（強役ほど高確率）",              C_GOLD),
+        ("恩恵A〜E",  "勝利後1Gで恩恵レベルを告知",             C_GREEN),
+        ("Eが頂点",   "究極Vフリーズ（100G以上確定）\nレア役で300G以上に昇格", C_GOLD),
+        ("連戦突入",  "赤=通常連戦 / 紫=裏連戦（80%ループ）",  C_CYAN),
+    ]
+    iy = Inches(1.38)
+    for j, (k, v, col) in enumerate(items):
+        bg = RGBColor(0x0A, 0x14, 0x28) if j % 2 == 0 else RGBColor(0x0E, 0x18, 0x2E)
+        rect(s, Inches(0.28), iy, Inches(4.27), Emu(315000), bg)
+        tb(s, Inches(0.38), iy + Emu(28000), Inches(1.5), Emu(265000),
+           k, 8.5, bold=True, color=C_WATER, wrap=False)
+        tb(s, Inches(1.93), iy + Emu(28000), Inches(2.4), Emu(265000),
+           v, 8.5, color=col, wrap=False)
+        iy += Emu(325000)
+
+    # ── 右：連戦システム ─────────────────────────────────────
+    RX = Inches(4.85)
+    RW = Inches(4.95)
+
+    rect_b(s, RX, Inches(0.88), RW, Emu(340000),
+           RGBColor(0x14, 0x08, 0x00), C_SPEED, 2.0)
+    tb(s, RX + Emu(80000), Inches(0.94), RW - Emu(160000), Emu(280000),
+       "連戦システム  ──  エフェクト色が強さを決める", 10, bold=True, color=C_SPEED, font=FONT_H)
+
+    FORK_Y = Inches(0.88) + Emu(340000) + Emu(100000)
+    HALF_H = Emu(900000)
+
+    # 赤エフェクト（通常連戦）
+    rect_b(s, RX, FORK_Y, RW, HALF_H, RGBColor(0x1A, 0x04, 0x04), C_RED, 2.0)
+    tb(s, RX + Emu(80000), FORK_Y + Emu(55000), RW - Emu(140000), Emu(290000),
+       "赤エフェクト → 通常連戦", 11, bold=True, color=C_RED, font=FONT_H)
+    tb(s, RX + Emu(80000), FORK_Y + Emu(350000), RW - Emu(140000), HALF_H - Emu(400000),
+       "敗北するまでぶっちぎりバトルが継続。\n"
+       "1バトルごとに追加報酬のチャンス。",
+       9, color=C_CREAM)
+
+    # 紫エフェクト（裏連戦）
+    URA_Y = FORK_Y + HALF_H + Emu(80000)
+    rect_b(s, RX, URA_Y, RW, HALF_H, RGBColor(0x12, 0x04, 0x1A), C_PUR, 2.0)
+    tb(s, RX + Emu(80000), URA_Y + Emu(55000), RW - Emu(140000), Emu(290000),
+       "紫エフェクト → 裏連戦", 11, bold=True, color=C_PUR, font=FONT_H)
+    tb(s, RX + Emu(80000), URA_Y + Emu(350000), RW - Emu(140000), HALF_H - Emu(400000),
+       "初回勝利がほぼ確定。\n"
+       "以降は約80%ループで継続。\n"
+       "「最強の横道」で大量報酬に期待。",
+       9, color=C_CREAM)
+
+    # 設計コメント
+    CMT_Y = URA_Y + HALF_H + Emu(80000)
+    rect_b(s, RX, CMT_Y, RW, Emu(620000), RGBColor(0x06, 0x10, 0x20), C_CYAN, 1.2)
+    tb(s, RX + Emu(70000), CMT_Y + Emu(50000), RW - Emu(100000), Emu(270000),
+       "設計上の役割", 9.5, bold=True, color=C_CYAN, font=FONT_H)
+    tb(s, RX + Emu(70000), CMT_Y + Emu(310000), RW - Emu(100000), Emu(270000),
+       "SGバトル（継続判定）とは独立した「横道」として\n"
+       "AT中に予期せず割り込む。驚きと興奮が打感を豊かにする。",
+       8, color=C_CREAM)
+
+    # フッター
+    rect(s, Inches(0.2), Inches(4.42), Inches(9.6), Emu(580000), RGBColor(0x06, 0x10, 0x20))
+    rect(s, Inches(0.2), Inches(4.42), Emu(55000), Emu(580000), C_SPEED)
+    tb(s, Inches(0.45), Inches(4.47), Inches(9.1), Emu(250000),
+       "ぶっちぎりバトルの価値：SGバトルとは別軸の自力感で、AT消化が「ただ待つ」にならない",
+       9.5, bold=True, color=C_SPEED)
+    tb(s, Inches(0.45), Inches(4.80), Inches(9.1), Emu(250000),
+       "裏連戦（紫）を引いた瞬間「今日は何かある」という直感が生まれる。シナリオ推測とは別軸の興奮。",
+       8.5, color=C_CREAM)
+    net_note(s)
+
+
+# ══════════════════════════════════════════════════════════════
+#  SLIDE 7: 14種シナリオ × 示唆システム
 # ══════════════════════════════════════════════════════════════
 def s_scenario(prs):
     s = new_slide(prs)
@@ -864,6 +947,7 @@ def main():
         ("通常時設計",                   s_normal),
         ("CZ「超抜チャレンジ」",         s_cz),
         ("AT「SG RUSH」",               s_at),
+        ("ぶっちぎりバトル × 連戦",      s_battle),
         ("シナリオ × 示唆システム",      s_scenario),
         ("上位AT「青島SG」",             s_aoshima),
         ("グランドスラム × エキシビション", s_grandslam),

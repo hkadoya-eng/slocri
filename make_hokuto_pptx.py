@@ -313,7 +313,8 @@ def s_bb(prs):
         (C_TEAL, "小役パート",  "30G + α",
          "レア役でVストックや継続率アップを抽選。\n宿命バトル勝利でVストック獲得。"),
         (C_RED,  "バトルパート", "8G（復活あり）",
-         "ケンシロウがラオウと戦う。\n勝利→次セット継続、敗北→BB終了。\n復活演出あり（バトル後も終わらない）。"),
+         "ケンシロウがラオウと戦う。\n消化中のレア役→継続への書き換え抽選。\n"
+         "8G目レア役→ユリア復活確定（継続率84%以上が確定）。\n敗北後も復活演出あり。"),
     ]
     for i, (ac, t, dur, body) in enumerate(parts):
         py = ly + Emu(280000) + i * Emu(1100000)
@@ -384,11 +385,95 @@ def s_bb(prs):
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 5: 有利区間・冷遇問題
+#  SLIDE 5: ゲーム体験の核心
+# ══════════════════════════════════════════════════════════════
+def s_experience(prs):
+    s = new_slide(prs)
+    hdr(s, "ゲーム体験の核心 ── 緊張・自力感・理不尽が共存する設計", "5/8")
+
+    # ── 上段：5ステップ体験フロー ──────────────────────────
+    bw = Inches(1.60)
+    gap = Inches(0.36)
+    bh = Emu(1380000)
+    sx0 = Inches(0.20)
+    flow_y = Inches(0.72)
+    cy = flow_y + bh // 2
+
+    steps = [
+        (C_CARD2,                    C_GOLD,  "BB開始",
+         "オーラ色が示される\n継続率が「宣言」\n（白〜虹の6段階）"),
+        (RGBColor(0x14, 0x04, 0x04), C_RED,   "小役パート\n（宿命バトル）",
+         "レア役を引いて勝利\n→ Vストック獲得\n「自力感の核心」"),
+        (RGBColor(0x06, 0x0C, 0x20), C_TEAL,  "バトルパート",
+         "ケンシロウが\nラオウと戦う\n勝敗は次の瞬間に"),
+        (RGBColor(0x1A, 0x04, 0x04), C_CRIM,  "第3停止を\n離す瞬間",
+         "この瞬間に勝敗確定\n「緊張の極点」\n復活演出の可能性も"),
+        (RGBColor(0x12, 0x0A, 0x02), C_GOLD2, "継続 or\n無想転生",
+         "継続→次セットBB\n約33%で無想転生\nチャンスへ突入"),
+    ]
+    for i, (fill, ac, title, desc) in enumerate(steps):
+        bx = sx0 + i * (bw + gap)
+        rect_b(s, bx, flow_y, bw, bh, fill, ac, 1.5)
+        tb(s, bx + Emu(40000), flow_y + Emu(60000), bw - Emu(60000), Emu(380000),
+           title, 9.5, bold=True, color=ac, align=PP_ALIGN.CENTER, font=FONT_H)
+        tb(s, bx + Emu(35000), flow_y + Emu(460000), bw - Emu(55000), Emu(820000),
+           desc, 8, color=C_WHITE, align=PP_ALIGN.CENTER)
+        if i < 4:
+            arrow_r(s, bx + bw + Emu(80000), cy)
+
+    # ── 下段左：自力感の設計 ───────────────────────────────
+    lx = Inches(0.28)
+    ly = flow_y + bh + Emu(120000)
+    lw = Inches(4.5)
+    lh = Emu(2650000)
+
+    rect_b(s, lx, ly, lw, lh, C_CARD, C_TEAL, 1.5)
+    rect(s, lx, ly, Emu(45000), lh, C_TEAL)
+    tb(s, lx + Emu(75000), ly + Emu(45000), lw - Emu(100000), Emu(260000),
+       "「自力感」の設計", 11, bold=True, color=C_TEAL, font=FONT_H)
+    tb(s, lx + Emu(75000), ly + Emu(300000), lw - Emu(100000), lh - Emu(360000),
+       "【宿命バトルの役どころ】\n"
+       "リプレイ成立 → チャンス（勝利を期待）\n"
+       "レア役成立   → 勝利確定\n"
+       "中段チェリー/リーチ目 → アミババトル確定\n\n"
+       "継続率はオーラで事前に「宣言」されるが、\n"
+       "宿命バトルで自分が役を引くことで\n"
+       "「自分が勝った」能動体験が生まれる。\n\n"
+       "【バトルパート8G目の特別仕様】\n"
+       "8G目にレア役→ユリア復活確定\n"
+       "（継続率84%以上が確定する最大の自力演出）",
+       8, color=C_WHITE)
+
+    # ── 下段右：理不尽を飲み込ませる設計 ────────────────────
+    rx = Inches(5.0)
+    rw = Inches(4.7)
+
+    rect_b(s, rx, ly, rw, lh, RGBColor(0x16, 0x04, 0x04), C_CRIM, 1.5)
+    rect(s, rx, ly, Emu(45000), lh, C_CRIM)
+    tb(s, rx + Emu(75000), ly + Emu(45000), rw - Emu(100000), Emu(260000),
+       "「理不尽」を飲み込ませる設計", 11, bold=True, color=C_CRIM, font=FONT_H)
+    tb(s, rx + Emu(75000), ly + Emu(300000), rw - Emu(100000), lh - Emu(360000),
+       "虹オーラ（89%継続）でも11%は終了する。\n"
+       "これは設計的欠陥でなく「北斗の味」。\n\n"
+       "なぜ受け入れられるか？\n"
+       "① 「北斗あるある」という共有体験になる\n"
+       "   → ホールでの会話・コミュニティ形成\n\n"
+       "② 理不尽があるから連続継続の喜びが大きい\n"
+       "   → リスクと報酬のメリハリが生まれる\n\n"
+       "③ 4号機北斗の記憶と接続し\n"
+       "   「それが北斗だ」とユーザー自身が\n"
+       "   納得するIPの力",
+       8, color=C_WHITE)
+
+    note(s)
+
+
+# ══════════════════════════════════════════════════════════════
+#  SLIDE 6: 有利区間・冷遇問題
 # ══════════════════════════════════════════════════════════════
 def s_issue(prs):
     s = new_slide(prs)
-    hdr(s, "有利区間問題 ── 不透明な差枚管理への不満", "5/7")
+    hdr(s, "有利区間問題 ── 不透明な差枚管理への不満", "6/8")
 
     bx, by = Inches(0.28), Inches(0.72)
     bw2 = Inches(4.5)
@@ -446,7 +531,7 @@ def s_issue(prs):
 # ══════════════════════════════════════════════════════════════
 def s_hanbet(prs):
     s = new_slide(prs)
-    hdr(s, "設定判別 ── 実戦で使えるポイント", "6/7")
+    hdr(s, "設定判別 ── 実戦で使えるポイント", "7/8")
 
     cols_x = [Inches(0.28), Inches(3.48), Inches(6.68)]
     cols_w = [Inches(3.0), Inches(3.0), Inches(3.0)]
@@ -494,7 +579,7 @@ def s_hanbet(prs):
 # ══════════════════════════════════════════════════════════════
 def s_matome(prs):
     s = new_slide(prs)
-    hdr(s, "まとめ ── 設計から学べること", "7/7")
+    hdr(s, "まとめ ── 設計から学べること", "8/8")
 
     bx, by = Inches(0.28), Inches(0.72)
     bw3 = Inches(4.5)
@@ -566,6 +651,7 @@ def main():
     s_spec(prs)
     s_flow(prs)
     s_bb(prs)
+    s_experience(prs)
     s_issue(prs)
     s_hanbet(prs)
     s_matome(prs)
