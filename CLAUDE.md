@@ -12,16 +12,13 @@ Cronジョブによる自動タスク（【自動ネタ収集タスク】【自�
 
 このプロジェクトを開いたら、以下の2つのCronジョブを **毎回** CronCreateで登録してください。
 
-### ① ネタ収集（毎日 9:23・20:23）
+### ① ネタ収集（毎日 9:00・13:30）
 
-```
-cron: "23 9,20 * * *"
-durable: true
-recurring: true
-```
+**9:00ジョブ** `cron: "0 9 * * *"` / **13:30ジョブ** `cron: "30 13 * * *"`
+両方 durable: true、recurring: true
 
-**prompt:**
-【自動ネタ収集タスク／毎日 9:23・20:23実行】
+**prompt（9:00版・13:30版でcron行だけ変える）:**
+【自動ネタ収集タスク／毎日 9:00実行】  ← 13:30版は「13:30実行」に変更
 作業ディレクトリ: C:\Users\h.kadoya\Desktop\slocri
 
 ユーザーに確認せず全ステップを最後まで自律実行してください。
@@ -38,17 +35,17 @@ recurring: true
 6. python fetch_ogp.py を実行
 7. git add → git commit → git push
 8. memory/dup_keys.md に新しいdup_keyを先頭セクションに追記
-9. CronCreate で次回ネタ収集を再登録（cron: "23 9,20 * * *"、durable: true、recurring: true、同じpromptで）
+9. CronCreate で次回を再登録（9:00版は cron:"0 9 * * *"、13:30版は cron:"30 13 * * *"、durable:true、recurring:true）
 
 収集ルール: 新台優先・パチスロメイン（パチンコは1〜2件まで）・dup_key重複禁止・URL捏造禁止
 author候補: 編集部AI, スロ好き編集マン, スロキー編集部, パチスロ記者, 編集長補佐, ライター見習い, スロ専門編集, 深夜のスロライター, 編集部のマニア
 
 ---
 
-### ② 機種分析更新（日曜 10:17）
+### ② 機種分析更新（2日に1回 10:17）
 
 ```
-cron: "17 10 * * 0"
+cron: "17 10 */2 * *"
 durable: true
 recurring: true
 ```
