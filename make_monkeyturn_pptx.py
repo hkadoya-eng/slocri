@@ -12,7 +12,7 @@ from pptx.enum.text import PP_ALIGN
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 OUT_PATH = os.path.join(os.path.dirname(__file__),
-           "proposals", "機種分析", "モンキーターンV", "monkeyturn_guide_v1.pptx")
+           "proposals", "機種分析", "モンキーターンV", "monkeyturn_guide_v2.pptx")
 
 # ── カラーパレット（海×速さ：深海紺×ティール×オレンジ）──────────
 C_BG    = RGBColor(0x04, 0x0A, 0x1C)
@@ -182,7 +182,7 @@ def s_flow(prs):
     HBH = Inches(0.76)   # 優出モード・CZ の縦幅
     HG  = Emu(80000)     # 優出モード⇔CZ の隙間
     R1Y = Inches(0.62)
-    R2Y = Inches(3.02)
+    R2Y = Inches(2.62)
     X1  = Inches(0.18)
     X2  = X1 + BW + GAP
     X3  = X2 + BW + GAP
@@ -229,33 +229,6 @@ def s_flow(prs):
        "成功", 7, bold=True, color=C_GREEN, align=PP_ALIGN.CENTER)
     # 矢印：CZ → AT（成功）
     arrow_r(s, X2 + BW + Emu(40000), CZ_MID, GAP - Emu(80000), C_GREEN)
-
-    # ── CZ失敗分岐 ────────────────────────────────────────
-    FAIL_Y = CZ_TOP + HBH + Emu(110000)
-    FH     = Emu(510000)
-    FW1    = Inches(1.18)
-    FW2    = BW - FW1 - Emu(45000)
-    GSC_X  = X2 + FW1 + Emu(45000)
-
-    rect(s, X2 + BW // 2 - Emu(27500), CZ_TOP + HBH, Emu(55000), Emu(74000), C_GRAY)
-    tb(s, X2 + BW // 2 - Emu(280000), CZ_TOP + HBH + Emu(6000), Emu(560000), Emu(200000),
-       "失敗", 7, bold=True, color=C_RED, align=PP_ALIGN.CENTER)
-
-    rect_b(s, X2, FAIL_Y, FW1, FH, RGBColor(0x08, 0x10, 0x18), C_GRAY, 1.0)
-    tb(s, X2 + Emu(55000), FAIL_Y + Emu(38000), FW1 - Emu(90000), Emu(225000),
-       "通常時に戻る", 8.5, bold=True, color=C_LTGRY, font=FONT_H)
-    tb(s, X2 + Emu(55000), FAIL_Y + Emu(268000), FW1 - Emu(90000), Emu(220000),
-       "約50% / 次の周期へ", 7.5, color=C_GRAY)
-
-    rect_b(s, GSC_X, FAIL_Y, FW2, FH, RGBColor(0x1C, 0x14, 0x00), C_GOLD, 1.8)
-    tb(s, GSC_X + Emu(55000), FAIL_Y + Emu(38000), FW2 - Emu(90000), Emu(225000),
-       "グランドスラムCH", 8.5, bold=True, color=C_GOLD, font=FONT_H)
-    tb(s, GSC_X + Emu(55000), FAIL_Y + Emu(268000), FW2 - Emu(90000), Emu(220000),
-       "1.2% / AT確定\n艇王シナリオ濃厚", 7.5, color=C_CREAM)
-
-    arrow_r(s, X2 + BW + Emu(40000), FAIL_Y + FH // 2, GAP - Emu(80000), C_GOLD)
-    tb(s, X2 + BW + Emu(8000), FAIL_Y + FH // 2 - Emu(215000), GAP + Emu(50000), Emu(195000),
-       "AT確定", 7, bold=True, color=C_GOLD, align=PP_ALIGN.CENTER)
 
     # ⊓ コネクター（AT → Row2）
     CON_X = X3 + BW + Emu(80000)
@@ -393,65 +366,77 @@ def s_normal(prs):
 # ══════════════════════════════════════════════════════════════
 def s_cz(prs):
     s = new_slide(prs)
-    hdr(s, "CZ「超抜チャレンジ」  ──  10G自力突破・成功率約50%の設計")
+    hdr(s, "CZ「超抜チャレンジ」  ──  結末は3通り")
 
-    # 左：基本仕様
-    rect_b(s, Inches(0.2), Inches(0.85), Inches(4.5), Inches(3.45), C_CARD, C_WATER, 1.5)
-    tb(s, Inches(0.32), Inches(0.92), Inches(4.2), Emu(320000),
+    # ── 左：基本仕様 ─────────────────────────────────────
+    rect_b(s, Inches(0.2), Inches(0.85), Inches(4.45), Inches(3.45), C_CARD, C_WATER, 1.5)
+    tb(s, Inches(0.32), Inches(0.92), Inches(4.1), Emu(320000),
        "基本仕様", 11, bold=True, color=C_WATER, font=FONT_H)
     items = [
-        ("ゲーム数",  "10G",                          C_WHITE),
-        ("タイプ",    "自力突破型（毎G抽選）",          C_CREAM),
-        ("成功率",    "約50%",                          C_SPEED),
-        ("突入契機",  "周期到達（222pt優出）・レア役",  C_CREAM),
-        ("成功確定",  "CZ中にペラ9回成立で確定",       C_GOLD),
+        ("突入契機",  "レア役成立時の直撃抽選",          C_CREAM),
+        ("ゲーム数",  "10G（毎G成功抽選）",              C_WHITE),
+        ("成功率",    "約50%（強役ほど高確率）",          C_SPEED),
+        ("成功確定",  "CZ中にペラ9成立で確定",           C_GOLD),
+        ("失敗",      "通常時に戻る（次の周期へ）",        C_LTGRY),
     ]
     iy = Inches(1.38)
     for j, (k, v, col) in enumerate(items):
         bg = RGBColor(0x0A, 0x14, 0x28) if j % 2 == 0 else RGBColor(0x0E, 0x18, 0x2E)
-        rect(s, Inches(0.28), iy, Inches(4.32), Emu(315000), bg)
-        tb(s, Inches(0.38), iy + Emu(28000), Inches(1.3), Emu(265000),
+        rect(s, Inches(0.28), iy, Inches(4.27), Emu(315000), bg)
+        tb(s, Inches(0.38), iy + Emu(28000), Inches(1.35), Emu(265000),
            k, 8.5, bold=True, color=C_WATER, wrap=False)
-        tb(s, Inches(1.73), iy + Emu(28000), Inches(2.75), Emu(265000),
+        tb(s, Inches(1.78), iy + Emu(28000), Inches(2.6), Emu(265000),
            v, 8.5, color=col, wrap=False)
         iy += Emu(325000)
 
-    # 右：成否分岐
-    rect_b(s, Inches(5.0), Inches(0.85), Inches(4.75), Inches(3.45), C_CARD, C_SPEED, 1.5)
-    tb(s, Inches(5.12), Inches(0.92), Inches(4.5), Emu(320000),
-       "成否分岐とその先", 11, bold=True, color=C_SPEED, font=FONT_H)
+    # ── 右：3結末フロー ──────────────────────────────────
+    RX = Inches(4.85)
+    RW = Inches(4.95)
 
-    # 成功
-    rect(s, Inches(5.2), Inches(1.38), Inches(2.1), Inches(1.1), RGBColor(0x00, 0x20, 0x08))
-    tb(s, Inches(5.2), Inches(1.43), Inches(2.1), Emu(350000),
-       "成功", 16, bold=True, color=C_GREEN, align=PP_ALIGN.CENTER)
-    tb(s, Inches(5.2), Inches(1.88), Inches(2.1), Emu(340000),
-       "AT「SG RUSH」突入\n14種シナリオが選択", 9, color=C_GREEN, align=PP_ALIGN.CENTER)
+    # CZ概要ヘッダー
+    rect_b(s, RX, Inches(0.88), RW, Emu(340000),
+           RGBColor(0x04, 0x12, 0x22), C_WATER, 2.0)
+    tb(s, RX + Emu(80000), Inches(0.94), RW - Emu(160000), Emu(280000),
+       "超抜チャレンジ（10G）  ──  3通りの結末", 10, bold=True, color=C_WATER, font=FONT_H)
+
+    FORK_Y = Inches(0.88) + Emu(340000) + Emu(100000)
+    S_W    = Inches(2.2)
+    F_X    = RX + S_W + Emu(60000)
+    F_W    = RW - S_W - Emu(60000)
+    TOTAL_H = Emu(1860000)
+
+    # 成功（左）
+    rect_b(s, RX, FORK_Y, S_W, TOTAL_H, RGBColor(0x00, 0x18, 0x06), C_GREEN, 2.0)
+    tb(s, RX + Emu(80000), FORK_Y + Emu(55000), S_W - Emu(140000), Emu(300000),
+       "成功（約50%）", 11, bold=True, color=C_GREEN, font=FONT_H)
+    tb(s, RX + Emu(80000), FORK_Y + Emu(375000), S_W - Emu(140000), Emu(1280000),
+       "AT「SG RUSH」突入\n\n第3停止を離す瞬間に\n14種シナリオが確定\n\n純増2.5枚/G\n8完走を目指す", 9, color=C_CREAM)
 
     # 失敗（通常）
-    rect(s, Inches(7.5), Inches(1.38), Inches(2.1), Inches(1.1), RGBColor(0x20, 0x08, 0x00))
-    tb(s, Inches(7.5), Inches(1.43), Inches(2.1), Emu(350000),
-       "失敗", 16, bold=True, color=C_RED, align=PP_ALIGN.CENTER)
-    tb(s, Inches(7.5), Inches(1.88), Inches(2.1), Emu(340000),
-       "通常時に戻る\n次の周期へ", 9, color=C_RED, align=PP_ALIGN.CENTER)
+    N_H = Emu(840000)
+    rect_b(s, F_X, FORK_Y, F_W, N_H, RGBColor(0x14, 0x10, 0x10), C_GRAY, 1.2)
+    tb(s, F_X + Emu(70000), FORK_Y + Emu(50000), F_W - Emu(120000), Emu(285000),
+       "失敗（通常）約49%", 10, bold=True, color=C_LTGRY, font=FONT_H)
+    tb(s, F_X + Emu(70000), FORK_Y + Emu(350000), F_W - Emu(120000), Emu(460000),
+       "通常時に戻る\n次の周期でまた抽選", 9, color=C_GRAY)
 
-    # プレミアム分岐
-    rect_b(s, Inches(5.2), Inches(2.68), Inches(4.4), Inches(1.42),
-           RGBColor(0x20, 0x18, 0x00), C_GOLD, 2.0)
-    tb(s, Inches(5.32), Inches(2.74), Inches(4.1), Emu(310000),
-       "プレミアム：グランドスラムチャレンジ", 10, bold=True, color=C_GOLD, font=FONT_H)
-    tb(s, Inches(5.32), Inches(3.12), Inches(4.1), Emu(420000),
-       "CZ失敗の約1.2%で突入\nAT1セット目が継続濃厚状態からスタート\n成功で波多野フリーズ / 艇王シナリオ濃厚",
-       8.5, color=C_CREAM)
+    # グランドスラムCH
+    GSC_Y = FORK_Y + N_H + Emu(80000)
+    GSC_H = TOTAL_H - N_H - Emu(80000)
+    rect_b(s, F_X, GSC_Y, F_W, GSC_H, RGBColor(0x1E, 0x14, 0x00), C_GOLD, 2.0)
+    tb(s, F_X + Emu(70000), GSC_Y + Emu(50000), F_W - Emu(120000), Emu(285000),
+       "失敗→GSC（約1.2%）", 10, bold=True, color=C_GOLD, font=FONT_H)
+    tb(s, F_X + Emu(70000), GSC_Y + Emu(350000), F_W - Emu(120000), Emu(580000),
+       "AT確定\n波多野フリーズ発生\n艇王シナリオ確定\n→ 8完走ほぼ確定", 9, color=C_CREAM)
 
     # フッター
     rect(s, Inches(0.2), Inches(4.42), Inches(9.6), Emu(580000), RGBColor(0x06, 0x10, 0x20))
     rect(s, Inches(0.2), Inches(4.42), Emu(55000), Emu(580000), C_WATER)
     tb(s, Inches(0.45), Inches(4.47), Inches(9.1), Emu(250000),
-       "CZ設計のポイント：失敗しても「ほぼ通常に戻るだけ」で、突き抜ける時は突き抜ける設計",
+       "CZ設計のポイント：50%で失敗しても通常に戻るだけ、1.2%で逆転AT確定という絶妙なバランス",
        9.5, bold=True, color=C_WATER)
     tb(s, Inches(0.45), Inches(4.80), Inches(9.1), Emu(250000),
-       "グランドスラムチャレンジという超プレミアムルートが「外れたけど最高の展開になった」体験を生む。",
+       "「外れたと思ったら最高の展開」体験がCZへの参加し続けるモチベーションを維持させる。",
        8.5, color=C_CREAM)
     net_note(s)
 
