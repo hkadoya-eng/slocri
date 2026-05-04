@@ -1,7 +1,8 @@
 """
-スマスロ 北斗の拳 機種説明+分析 統合版 PowerPointジェネレーター
-出力: proposals/機種分析/北斗の拳/hokuto_guide_v1.pptx
-テーマ: 黒×金×赤（北斗カラー）
+スマスロ 北斗の拳 機種説明+分析 統合版 PowerPointジェネレーター v2
+出力: proposals/機種分析/北斗の拳/hokuto_guide_v2.pptx
+テーマ: 黒×金×赤×紫（北斗カラー）
+情報源: 一撃(1geki.jp)・ちょんぼりすた・ななプレス・p-town.dmm.com等
 """
 import io, os, sys
 from PIL import Image as PILImage, ImageDraw
@@ -13,7 +14,7 @@ from pptx.enum.text import PP_ALIGN
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 OUT_PATH = os.path.join(os.path.dirname(__file__),
-           "proposals", "機種分析", "北斗の拳", "hokuto_guide_v1.pptx")
+           "proposals", "機種分析", "北斗の拳", "hokuto_guide_v2.pptx")
 os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
 
 # ── カラーパレット（黒×金×赤：北斗カラー）────────────────────────
@@ -190,7 +191,7 @@ def s_title(prs):
            desc, 8.5, color=C_WHITE)
 
     tb(s, Inches(7.8), Inches(5.18), Inches(2.0), Emu(270000),
-       "v1.0  2026.05", 8, color=C_GRAY, align=PP_ALIGN.RIGHT)
+       "v2.0  2026.05", 8, color=C_GRAY, align=PP_ALIGN.RIGHT)
     net_note(s)
 
 
@@ -199,7 +200,7 @@ def s_title(prs):
 # ══════════════════════════════════════════════════════════════
 def s_flow(prs):
     s = new_slide(prs)
-    hdr(s, "ゲームフロー全体図  ──  通常時 → AT → 上位ATへの全ルート", "2/10")
+    hdr(s, "ゲームフロー全体図  ──  通常時 → AT → 上位ATへの全ルート", "2/9")
 
     # ── Row1（左→右）: 通常時 → 宿命バトル → BB → Vストック ─────────
     BW  = Inches(2.2)
@@ -298,7 +299,7 @@ def s_flow(prs):
 # ══════════════════════════════════════════════════════════════
 def s_normal(prs):
     s = new_slide(prs)
-    hdr(s, "通常時の遊び方  ──  2つのルートでBBを目指す", "3/10")
+    hdr(s, "通常時の遊び方  ──  2つのルートでBBを目指す", "3/9")
 
     # ── ルート①（左）: チャンス役 → 宿命バトル ────────────────────
     rect_b(s, Inches(0.2), Inches(0.72), Inches(4.5), Inches(3.55),
@@ -361,11 +362,11 @@ def s_normal(prs):
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 4: 宿命バトル（突破の仕方・役の意味）
+#  SLIDE 4: 宿命バトル詳細（役ごとの意味・8G目の特別仕様）
 # ══════════════════════════════════════════════════════════════
 def s_battle(prs):
     s = new_slide(prs)
-    hdr(s, "宿命バトル  ──  8Gで自分の役がケンシロウを勝たせる", "4/10")
+    hdr(s, "宿命バトル  ──  8Gで自分の役がケンシロウを勝たせる", "4/9")
 
     # ── 左：役ごとの意味 ───────────────────────────────────────
     rect_b(s, Inches(0.2), Inches(0.72), Inches(4.55), Inches(3.55),
@@ -375,62 +376,73 @@ def s_battle(prs):
        "役が持つ意味 ── 何が起きたら何をすればいいか", 10, bold=True, color=C_RED, font=FONT_H)
 
     roles = [
-        (C_LTGRY, "ハズレ・ベル",  "バトル結果に変化なし\n次のゲームへ"),
-        (C_CREAM, "リプレイ",      "チャンス！\n勝利への書き換え抽選が走る"),
-        (C_GOLD,  "スイカ",        "強チャンス！\n勝利書き換え率がリプよりUP"),
-        (C_CRIM,  "チェリー",      "高確率で勝利確定！\n7G目まで引けば大喜び"),
-        (C_GOLD2, "8G目のレア役",  "ユリア復活確定\n継続率84%以上が確定する最大の自力演出"),
-        (C_PUR,   "敗北後の復活",  "演出が続けば逆転あり！\n敗北確定まで諦めない"),
+        (C_LTGRY, "ハズレ・ベル",    "バトル結果に変化なし\n次のゲームへ"),
+        (C_CREAM, "リプレイ",        "チャンス！\n勝利への書き換え抽選が走る"),
+        (C_GOLD,  "弱スイカ",        "強チャンス！\n対戦相手が変化しやすい（サウザーが多め）"),
+        (C_GOLD2, "強スイカ",        "高チャンス！\n4回に1回の割合でウイグル以上が選択"),
+        (C_CRIM,  "中段チェリー",    "最強役！ 28.9%でウイグル以上確定\nアミバ出現＝共闘以上が濃厚"),
+        (C_GOLD2, "8G目のレア役",    "ユリア復活確定！\n継続率84%以上が確定する最大の自力演出"),
     ]
     ry = Inches(1.30)
     for ac, title, body in roles:
-        rect(s, Inches(0.28), ry, Emu(50000), Emu(520000), ac)
-        tb(s, Inches(0.48), ry + Emu(30000), Inches(1.55), Emu(245000),
+        rect(s, Inches(0.28), ry, Emu(50000), Emu(500000), ac)
+        tb(s, Inches(0.48), ry + Emu(28000), Inches(1.62), Emu(235000),
            title, 9, bold=True, color=ac, wrap=False)
-        tb(s, Inches(2.08), ry + Emu(30000), Inches(2.5), Emu(460000),
+        tb(s, Inches(2.14), ry + Emu(28000), Inches(2.44), Emu(440000),
            body, 8.5, color=C_WHITE)
-        ry += Emu(555000)
+        ry += Emu(530000)
 
-    # ── 右上：バトルの流れ ────────────────────────────────────
-    rect_b(s, Inches(5.0), Inches(0.72), Inches(4.75), Inches(1.85),
+    # ── 右上：バトルのフロー（8G） ────────────────────────────
+    rect_b(s, Inches(5.0), Inches(0.72), Inches(4.75), Inches(1.95),
            C_CARD, C_GOLD, 1.5)
     tb(s, Inches(5.15), Inches(0.78), Inches(4.4), Emu(290000),
        "宿命バトルのフロー（8G）", 10, bold=True, color=C_GOLD, font=FONT_H)
 
     flow_steps = [
-        ("突入", "チャンス役成立で宿命バトル開始"),
-        ("1〜7G", "役を引くたびに書き換え抽選 or 勝利確定"),
-        ("8G目", "レア役→ユリア復活確定（継続率84%以上確定）"),
-        ("勝利", "BB（バトルボーナス）当選！"),
-        ("敗北", "復活演出の可能性あり / 通常時に戻る"),
+        ("突入契機", "チャンス目(1/179.6)・チェリー・スイカ成立で宿命バトル開始"),
+        ("1〜7G",  "役を引くたびに書き換え抽選 or 勝利確定"),
+        ("8G目★", "レア役→ユリア復活確定（継続率84%以上）"),
+        ("勝利",   "BB（バトルボーナス）当選！ Vストック抽選も走る"),
+        ("敗北",   "一部で復活演出あり / 通常時に戻る"),
     ]
-    fy = Inches(1.26)
+    fy = Inches(1.25)
     for j, (step, desc) in enumerate(flow_steps):
-        bc = C_CRIM if step == "8G目" else (C_GREEN if step == "勝利" else C_GOLD)
-        bg = RGBColor(0x14, 0x04, 0x04) if step == "8G目" else C_CARD2
-        rect(s, Inches(5.08), fy, Inches(4.58), Emu(230000), bg)
-        tb(s, Inches(5.18), fy + Emu(28000), Emu(550000), Emu(190000),
+        bc = C_CRIM if "★" in step else (C_GREEN if step == "勝利" else C_GOLD)
+        bg = RGBColor(0x18, 0x04, 0x04) if "★" in step else C_CARD2
+        rect(s, Inches(5.08), fy, Inches(4.58), Emu(233000), bg)
+        tb(s, Inches(5.18), fy + Emu(30000), Emu(680000), Emu(195000),
            step, 8.5, bold=True, color=bc, wrap=False)
-        tb(s, Inches(6.0), fy + Emu(28000), Inches(3.4), Emu(190000),
-           desc, 8.5, color=C_WHITE, wrap=False)
-        fy += Emu(240000)
+        tb(s, Inches(6.12), fy + Emu(30000), Inches(3.28), Emu(195000),
+           desc, 8, color=C_WHITE, wrap=False)
+        fy += Emu(243000)
 
-    # ── 右下：戦略ポイント ───────────────────────────────────
-    rect_b(s, Inches(5.0), Inches(2.72), Inches(4.75), Inches(1.55),
-           RGBColor(0x14, 0x04, 0x04), C_CRIM, 2.0)
-    tb(s, Inches(5.15), Inches(2.78), Inches(4.4), Emu(285000),
-       "プレイヤーとしての立ち回り", 10, bold=True, color=C_CRIM, font=FONT_H)
-    tb(s, Inches(5.15), Inches(3.15), Inches(4.4), Emu(1000000),
-       "・レア役が出たら確定演出を見逃さない\n"
-       "・8G目まで諦めない（ユリア復活チャンス）\n"
-       "・敗北演出が続いても画面を離れない\n"
-       "・BB当選時のオーラ色を必ず確認\n"
-       "  （白〜虹で継続率を「宣言」している）",
-       8.5, color=C_WHITE)
+    # ── 右下：対戦相手の強さ（5段階） ──────────────────────────
+    rect_b(s, Inches(5.0), Inches(2.80), Inches(4.75), Inches(1.47),
+           RGBColor(0x14, 0x04, 0x00), C_CRIM, 2.0)
+    rect(s, Inches(5.0), Inches(2.80), Emu(50000), Inches(1.47), C_CRIM)
+    tb(s, Inches(5.23), Inches(2.86), Inches(4.3), Emu(285000),
+       "対戦相手5段階（出現で継続率示唆）", 10, bold=True, color=C_CRIM, font=FONT_H)
+    enemies = [
+        (C_LTGRY, "シン",     "弱 / 低継続率期待"),
+        (C_CREAM, "サウザー",  "中 / 弱スイカ契機で多め"),
+        (C_GOLD,  "ウイグル",  "強 / 高継続率期待"),
+        (C_CRIM,  "ジャギ",   "強強 / 高継続確定級"),
+        (C_GOLD2, "アミバ",   "出現＝共闘以上が濃厚！"),
+    ]
+    ex = Inches(5.08)
+    EW = Inches(0.90)
+    for i, (ec, ename, edesc) in enumerate(enemies):
+        rect(s, ex, Inches(3.22), EW, Emu(700000), C_ROW)
+        rect(s, ex, Inches(3.22), EW, Emu(80000), ec)
+        tb(s, ex + Emu(30000), Inches(3.32), EW - Emu(50000), Emu(220000),
+           ename, 8, bold=True, color=ec, wrap=False, align=PP_ALIGN.CENTER)
+        tb(s, ex + Emu(20000), Inches(3.53), EW - Emu(30000), Emu(430000),
+           edesc, 6.5, color=C_CREAM)
+        ex += EW + Emu(10000)
 
     footer(s,
            "宿命バトル設計の本質：役を引く自分の行動が「ケンシロウを勝たせた」能動体験になる",
-           "プレイヤーが確率を変えられないのに「自分が引いた」と感じるのがこのバトル設計の巧みさ。8G目のユリア復活が最大の自力演出。",
+           "8G目のユリア復活が最大の自力演出。対戦相手（敵キャラ）が継続率示唆を担うことでIPの物語が機能的にゲームに溶け込む。",
            C_RED)
     net_note(s)
 
@@ -440,7 +452,7 @@ def s_battle(prs):
 # ══════════════════════════════════════════════════════════════
 def s_at(prs):
     s = new_slide(prs)
-    hdr(s, "AT「世紀末モード（BB）」  ──  継続と上乗せの設計を理解する", "5/10")
+    hdr(s, "AT「世紀末モード（BB）」  ──  継続と上乗せの設計を理解する", "5/9")
 
     # ── 上段：BBの2パート構成フロー ───────────────────────────
     BW = Inches(3.8)
@@ -522,8 +534,8 @@ def s_at(prs):
        8.5, color=C_WHITE)
 
     footer(s,
-           "BBで出玉が伸びる条件：バトル継続×Vストック蓄積×無想転生チャンス突入の3段階",
-           "上乗せはボーナス経由のみ。「バトルに勝ち続けること」がすべての行動指針になる設計。シンプルで明快。",
+           "BBで出玉が伸びる条件：バトル継続×Vストック蓄積×無想転生チャンス突入（約33%）の3段階",
+           "上乗せはBBセット継続経由のみ。レア役→宿命バトル勝利→Vストック蓄積が全行動指針。シンプルで明快な設計。",
            C_RED)
     net_note(s)
 
@@ -533,22 +545,22 @@ def s_at(prs):
 # ══════════════════════════════════════════════════════════════
 def s_jura(prs):
     s = new_slide(prs)
-    hdr(s, "上位モード「修羅の国」  ──  高純増×高継続の頂点体験", "6/10")
+    hdr(s, "上位モード「修羅の国」  ──  無想転生バトルへの3ルートと頂点体験", "6/9")
 
     # ── 到達ルートフロー ──────────────────────────────────────
     rect(s, Inches(0.2), Inches(0.72), Inches(9.6), Emu(330000), C_CARD)
     tb(s, Inches(0.35), Inches(0.76), Inches(9.0), Emu(270000),
-       "修羅の国への到達ルート  ──  無想転生バトルから繋がる", 10, bold=True, color=C_PUR, font=FONT_H)
+       "無想転生バトルへの3つの突入ルート  ──  どのルートが来ても頂点体験へ", 10, bold=True, color=C_PUR, font=FONT_H)
 
     route_boxes = [
-        (Inches(0.22), C_RED,  "BB継続",
-         "バトルパート勝利\nまたはVストック消化で\n次セットBBへ"),
-        (Inches(2.62), C_GOLD, "無想転生チャンス",
-         "BB消化後に約33%で\n突入する15Gの特別区間\n→ 突入で神演出が発生"),
-        (Inches(5.02), C_CRIM, "無想転生バトル",
-         "継続率94%\n期待獲得2500枚以上\nここが「頂点」"),
-        (Inches(7.42), C_PUR,  "修羅の国",
-         "高純増・高継続の上位AT\n血涙の章がさらに上位\n最高峰の体験ゾーン"),
+        (Inches(0.22), C_GOLD, "無想転生チャンス",
+         "BB消化後に約33%で突入\n15G消化で成功率≈33%\nベル・レア役・白BAR揃いで突破抽選"),
+        (Inches(2.62), C_CRIM, "レイ・トキ昇天",
+         "宿命バトル勝利後に発生\nレイ/トキが共闘→昇天で\n無想転生バトルへ直行"),
+        (Inches(5.02), C_GOLD2, "ロングフリーズ",
+         "通常時のリプレイ成立一部で\nロングフリーズ発生→白BAR揃い\n無想転生バトル直行（プレミア）"),
+        (Inches(7.42), C_PUR,  "無想転生バトル",
+         "継続率94%\n期待獲得2500枚以上\n「修羅の国」が隣に待つ頂点"),
     ]
     for bx, ac, title, desc in route_boxes:
         rect_b(s, bx, Inches(1.15), Inches(2.2), Inches(1.20), C_CARD, ac, 1.5)
@@ -606,7 +618,7 @@ def s_jura(prs):
 # ══════════════════════════════════════════════════════════════
 def s_design(prs):
     s = new_slide(prs)
-    hdr(s, "面白さの設計  ──  なぜスマスロ北斗の拳は面白いのか", "7/10")
+    hdr(s, "面白さの設計  ──  なぜスマスロ北斗の拳は面白いのか", "7/9")
 
     pillars = [
         (Inches(0.2), C_RED,
@@ -642,7 +654,7 @@ def s_design(prs):
 # ══════════════════════════════════════════════════════════════
 def s_eval(prs):
     s = new_slide(prs)
-    hdr(s, "良い点と課題  ──  バランス評価", "8/10")
+    hdr(s, "良い点と課題  ──  バランス評価", "8/9")
 
     # ── 良い点（左）──────────────────────────────────────────
     rect_b(s, Inches(0.2), Inches(0.72), Inches(4.55), Inches(3.55),
@@ -708,7 +720,7 @@ def s_eval(prs):
 # ══════════════════════════════════════════════════════════════
 def s_matome(prs):
     s = new_slide(prs)
-    hdr(s, "まとめ  ──  設計から学べること", "9/10")
+    hdr(s, "まとめ  ──  設計から学べること", "9/9")
 
     # ── 左：長期稼働を支えた3要素 ────────────────────────────
     rect_b(s, Inches(0.2), Inches(0.72), Inches(4.55), Inches(3.55),
@@ -790,9 +802,9 @@ def main():
         ("まとめ・設計から学べること",               s_matome),
     ]
 
-    print("=" * 58)
-    print("  スマスロ北斗の拳 機種説明＋分析 統合版ジェネレーター")
-    print("=" * 58)
+    print("=" * 60)
+    print("  スマスロ北斗の拳 機種説明＋分析 統合版ジェネレーター v2")
+    print("=" * 60)
     print()
     for i, (name, func) in enumerate(slides, 1):
         print(f"  {i:2d}/{len(slides)} {name}")

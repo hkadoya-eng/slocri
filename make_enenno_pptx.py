@@ -1,7 +1,8 @@
 """
-Lパチスロ 炎炎ノ消防隊2 機種説明＋分析 統合版 PPTXジェネレーター
-出力: proposals/機種分析/炎炎ノ消防隊2/enenno_guide_v1.pptx
+Lパチスロ 炎炎ノ消防隊2 機種説明＋分析 統合版 PPTXジェネレーター v2
+出力: proposals/機種分析/炎炎ノ消防隊2/enenno_guide_v2.pptx
 テーマ: 深黒×炎赤×オレンジ×白（炎カラー）
+情報源: なな徹・ちょんぼりすた・一撃 各解析ページ（2026年2月〜）
 """
 import io, os, sys
 from PIL import Image as PILImage, ImageDraw
@@ -13,19 +14,19 @@ from pptx.enum.text import PP_ALIGN
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 OUT_PATH = os.path.join(os.path.dirname(__file__),
-           "proposals", "機種分析", "炎炎ノ消防隊2", "enenno_guide_v1.pptx")
+           "proposals", "機種分析", "炎炎ノ消防隊2", "enenno_guide_v2.pptx")
 os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
 
 # ── カラーパレット（深黒×炎赤×オレンジ×白）──────────────────────────
-C_BG    = RGBColor(0x0A, 0x04, 0x04)   # 深黒（炎赤みがかった暗黒）
-C_CARD  = RGBColor(0x14, 0x08, 0x04)   # カード背景
-C_CARD2 = RGBColor(0x1C, 0x0C, 0x06)   # カード背景2
-C_ROW   = RGBColor(0x18, 0x0A, 0x05)   # 奇数行
-C_FIRE  = RGBColor(0xCC, 0x22, 0x00)   # 炎赤（メイン）
-C_FIRE2 = RGBColor(0xFF, 0x55, 0x11)   # 炎オレンジ
-C_ORG   = RGBColor(0xFF, 0x99, 0x22)   # オレンジ（アクセント）
-C_FLAME = RGBColor(0xFF, 0xCC, 0x44)   # 炎の先端（金色寄り）
-C_WHITE = RGBColor(0xF0, 0xEC, 0xE8)   # 白（炎寄り）
+C_BG    = RGBColor(0x0A, 0x04, 0x04)
+C_CARD  = RGBColor(0x14, 0x08, 0x04)
+C_CARD2 = RGBColor(0x1C, 0x0C, 0x06)
+C_ROW   = RGBColor(0x18, 0x0A, 0x05)
+C_FIRE  = RGBColor(0xFF, 0x44, 0x00)   # 炎赤メイン #FF4400
+C_FIRE2 = RGBColor(0xFF, 0x66, 0x11)   # 炎オレンジ
+C_ORG   = RGBColor(0xFF, 0x88, 0x00)   # オレンジ #FF8800
+C_FLAME = RGBColor(0xFF, 0xCC, 0x44)   # 炎先端（金）
+C_WHITE = RGBColor(0xF0, 0xEC, 0xE8)
 C_CREAM = RGBColor(0xF0, 0xD8, 0xB0)
 C_GRAY  = RGBColor(0x99, 0x88, 0x80)
 C_LTGRY = RGBColor(0x55, 0x44, 0x40)
@@ -33,7 +34,8 @@ C_CYAN  = RGBColor(0x22, 0xCC, 0xDD)
 C_BLUE  = RGBColor(0x22, 0x77, 0xFF)
 C_GREEN = RGBColor(0x22, 0xCC, 0x66)
 C_GOLD  = RGBColor(0xC8, 0xA8, 0x40)
-C_RED   = RGBColor(0xDD, 0x11, 0x11)   # 純赤（警告色）
+C_RED   = RGBColor(0xDD, 0x11, 0x11)
+C_PINK  = RGBColor(0xFF, 0x44, 0x88)
 
 FONT_H = "游明朝"
 FONT_B = "メイリオ"
@@ -41,20 +43,17 @@ SLIDE_W = Inches(10)
 SLIDE_H = Inches(5.625)
 
 
+# ── 背景・ヘルパー群 ─────────────────────────────────────────────────
 def make_bg(w=1280, h=720):
-    """炎をイメージした赤みがかった暗いグラデーション背景"""
     img = PILImage.new("RGB", (w, h), (10, 4, 4))
     draw = ImageDraw.Draw(img)
-    # 斜めライン（炎の陰影）
     for i in range(0, w + h, 80):
         draw.line([(i, 0), (0, i)], fill=(16, 6, 4), width=1)
-    # 下部炎グロー（赤オレンジ）
     for y in range(h - 120, h):
         t = (y - (h - 120)) / 120
-        r = int(40 * t)
-        g = int(10 * t)
+        r = int(50 * t)
+        g = int(12 * t)
         draw.line([(0, y), (w, y)], fill=(r, g, 0))
-    # 上部わずかな赤み
     for y in range(0, 40):
         t = (40 - y) / 40 * 0.5
         draw.line([(0, y), (w, y)], fill=(int(15 * t), 0, 0))
@@ -116,13 +115,11 @@ def hdr(slide, title_text, pg=""):
 
 
 def net_note(slide):
-    """※ネット解析情報より を右下に表示"""
-    tb(slide, Inches(8.2), Inches(5.38), Inches(1.7), Emu(180000),
-       "※ネット解析情報より", 7, color=C_GRAY, align=PP_ALIGN.RIGHT)
+    tb(slide, Inches(7.8), Inches(5.38), Inches(2.1), Emu(180000),
+       "※ネット解析情報より（なな徹・ちょんぼりすた・一撃）", 6.5, color=C_GRAY, align=PP_ALIGN.RIGHT)
 
 
 def footer(slide, bold_text, sub_text=""):
-    """各スライドのフッター: 設計コメント（太字）＋補足説明"""
     fy = Inches(5.08)
     rect(slide, 0, fy, SLIDE_W, Inches(0.545), RGBColor(0x0E, 0x06, 0x04))
     rect(slide, 0, fy, Emu(20000), Inches(0.545), C_FIRE)
@@ -141,16 +138,10 @@ def arrow_r(slide, x, cy, col=None):
 
 
 def arrow_d(slide, cx, y, col=None):
-    """下向き矢印"""
-    shp = slide.shapes.add_shape(13, cx - Emu(90000), y, Emu(180000), Emu(180000))
-    # 下向きに回転（180度）するため shape type 14 (下向き矢印) を使う
     shp2 = slide.shapes.add_shape(14, cx - Emu(90000), y, Emu(180000), Emu(180000))
     shp2.fill.solid()
     shp2.fill.fore_color.rgb = col or C_FIRE
     shp2.line.fill.background()
-    # 最初のshapeを削除
-    sp = shp._element
-    sp.getparent().remove(sp)
     return shp2
 
 
@@ -160,55 +151,58 @@ def arrow_d(slide, cx, y, col=None):
 def s_title(prs):
     s = new_slide(prs)
 
-    # 左パネル
     rect(s, 0, 0, Inches(5.4), SLIDE_H, RGBColor(0x06, 0x02, 0x02))
     rect(s, 0, 0, Emu(55000), SLIDE_H, C_FIRE)
     rect(s, Inches(5.4), 0, Emu(8000), SLIDE_H, C_FIRE)
 
     tb(s, Inches(0.22), Inches(0.4), Inches(5.0), Emu(330000),
-       "機種説明＋分析 統合ガイド", 11, color=C_FIRE2, font=FONT_H)
+       "機種説明＋分析 統合ガイド  v2（解析情報更新版）", 10, color=C_FIRE2, font=FONT_H)
     tb(s, Inches(0.22), Inches(0.88), Inches(5.1), Emu(900000),
        "炎炎ノ消防隊2", 34, bold=True, color=C_FIRE, font=FONT_H)
-    tb(s, Inches(0.22), Inches(2.65), Inches(5.0), Emu(280000),
-       "Lパチスロ ── 高純増×二段階天井×十字目変換の設計", 9.5, color=C_CREAM, font=FONT_H)
+    tb(s, Inches(0.22), Inches(2.62), Inches(5.0), Emu(280000),
+       "Lパチスロ（スマスロ）── 十字目変換×ストック型ST×高純増5.8枚の設計", 9, color=C_CREAM, font=FONT_H)
 
-    # スペック
+    # スペック表（実測値）
     specs = [
-        ("メーカー",    "SANKYO　2026年導入"),
-        ("設定",       "1〜6段階"),
-        ("AT純増",     "約5.8枚/G（業界最高水準）"),
-        ("設定6機械割", "114.9%"),
-        ("天井①",     "850G（ボーナス間）"),
-        ("天井②",     "2,000G（炎炎激闘間）"),
+        ("メーカー",        "SANKYO　2026年2月2日導入"),
+        ("設定",           "1〜6段階"),
+        ("AT純増",         "約5.8枚/G（ボーナス中・AT中とも）"),
+        ("設定1機械割",     "97.7%"),
+        ("設定6機械割",     "114.9%"),
+        ("ボーナス初当り①", "設定1：1/272 ／ 設定6：1/227"),
+        ("炎炎ループ初当り", "設定1：1/684 ／ 設定6：1/486"),
+        ("天井①",         "ボーナス間850G（SPエピソードBONUS保証）"),
+        ("天井②",         "炎炎ループ間2,000G（SPエピソードBONUS保証）"),
+        ("天井③",         "伝導者の罠5スルーでSPエピ確定"),
     ]
     for i, (k, v) in enumerate(specs):
-        ry = Inches(3.12) + i * Emu(350000)
-        tb(s, Inches(0.22), ry, Inches(1.5), Emu(310000),
-           k, 8, color=C_GRAY)
-        tb(s, Inches(1.72), ry, Inches(3.5), Emu(310000),
-           v, 8.5, bold=True, color=C_WHITE)
+        ry = Inches(3.05) + i * Emu(225000)
+        tb(s, Inches(0.22), ry, Inches(1.7), Emu(210000),
+           k, 7.5, color=C_GRAY)
+        tb(s, Inches(1.92), ry, Inches(3.3), Emu(210000),
+           v, 7.5, bold=True, color=C_WHITE)
 
     # 右パネル：この台の3ポイント
     kws = [
-        (C_FIRE,  "① 十字目変換フロー",
-         "リプレイ小V→PUSH→炎色変換→\n伝導者決戦。緊張感ある自力感の核心"),
-        (C_ORG,   "② 高純増5.8枚/G",
-         "炎炎大戦ループ中に爆発的出玉。\n短時間で大量獲得が可能"),
-        (C_CYAN,  "③ 二段階天井設計",
-         "850G+2,000GのWセーフティで\n投資計画が立てやすい安心設計"),
+        (C_FIRE,  "① 十字目変換フロー（核心）",
+         "リプレイ小V→十字目変換→変換演出\n→伝導者決戦でボーナス告知。\n約1/100で発生する緊張感の連続。"),
+        (C_ORG,   "② 高純増5.8枚/G×ループ設計",
+         "炎炎大戦のループ率約80%で\n短時間に大量獲得が可能。\n紅J大戦なら期待約2,050枚。"),
+        (C_CYAN,  "③ 3段階天井＋伝導者の罠スルー",
+         "850G天井・2,000G天井・5スルー\n天井の多層セーフティで\n投資計画が立てやすい安心設計。"),
     ]
     for i, (ac, kw, desc) in enumerate(kws):
         y0 = Inches(0.55) + i * Emu(1540000)
         rect_b(s, Inches(5.65), y0, Inches(4.1), Inches(1.3), C_CARD, ac, 2.0)
         rect(s, Inches(5.65), y0, Emu(60000), Inches(1.3), ac)
         tb(s, Inches(5.85), y0 + Emu(65000), Inches(3.8), Emu(310000),
-           kw, 12, bold=True, color=ac, font=FONT_H)
-        tb(s, Inches(5.85), y0 + Emu(390000), Inches(3.8), Emu(420000),
+           kw, 11.5, bold=True, color=ac, font=FONT_H)
+        tb(s, Inches(5.85), y0 + Emu(380000), Inches(3.8), Emu(450000),
            desc, 8.5, color=C_WHITE)
 
     net_note(s)
-    footer(s, "設計の核心は「十字目変換フロー」── リプレイからPUSH、炎色判定、ボーナス抽選という緊張感の連鎖",
-           "3つのポイントを押さえれば台の全体像が掴める")
+    footer(s, "設計核心：「十字目変換×伝導者決戦×ループ型AT」── 毎ゲーム緊張感と多層天井で安心感を両立",
+           "純増5.8枚/Gはボーナス中・AT中ともに共通の高速出玉スペック")
 
 
 # ══════════════════════════════════════════════════════════════
@@ -218,63 +212,54 @@ def s_flow(prs):
     s = new_slide(prs)
     hdr(s, "ゲームフロー全体図 ── 通常時→AT→上位ATの全ルート", "2/9")
 
-    # 上段：通常→AT→上位AT の基本フロー
+    # 上段：通常→初当り→炎炎激闘 の基本フロー
     top_y = Inches(0.75)
-    top_h = Emu(1150000)
+    top_h = Emu(1100000)
 
     flow1 = [
-        (C_CARD2, C_GRAY,  "通常遊技",       "天井: 850G\nレア役でCZ/AT抽選"),
-        (C_CARD,  C_ORG,   "CZ\n(前兆)",     "天井到達時・\nレア役から突入"),
-        (C_CARD,  C_FIRE,  "ボーナス各種",   "REG/炎炎ブースト\n/アドラバーストなど"),
-        (C_CARD,  C_FIRE2, "炎炎激闘\n(AT)", "1セット15G+α\nストック型"),
+        (C_CARD2, C_GRAY,  "通常遊技",         "規定G数/レア役\n/十字目変換で\n初当り抽選"),
+        (C_CARD,  C_FIRE2, "REGボーナス\n(~85枚)", "消化後→\n伝導者の罠へ"),
+        (C_CARD,  C_ORG,   "伝導者の罠",       "エピソードBONUS\n抽選。5スルーで\nSPエピ確定"),
+        (C_CARD,  C_FIRE,  "SPエピソード\nBONUS(~200枚)", "直接\n炎炎激闘へ"),
+        (C_CARD,  C_FLAME, "炎炎激闘\n(メインST)",  "1セット15G+α\nストック型"),
     ]
-    bw1 = Inches(1.85)
-    gap1 = Inches(0.22)
+    bw1 = Inches(1.6)
+    gap1 = Inches(0.17)
     sx1 = Inches(0.28)
     cy1 = top_y + top_h // 2
 
     for i, (fill, ac, lbl, sub) in enumerate(flow1):
         bx = sx1 + i * (bw1 + gap1)
         rect_b(s, bx, top_y, bw1, top_h, fill, ac, 1.8)
-        tb(s, bx + Emu(40000), top_y + Emu(80000), bw1 - Emu(80000), Emu(380000),
-           lbl, 10, bold=True, color=ac, align=PP_ALIGN.CENTER, font=FONT_H)
-        tb(s, bx + Emu(30000), top_y + Emu(500000), bw1 - Emu(60000), Emu(520000),
-           sub, 8, color=C_GRAY, align=PP_ALIGN.CENTER)
-        if i < 3:
-            arrow_r(s, bx + bw1 + Emu(15000), cy1)
+        tb(s, bx + Emu(35000), top_y + Emu(70000), bw1 - Emu(60000), Emu(360000),
+           lbl, 9.5, bold=True, color=ac, align=PP_ALIGN.CENTER, font=FONT_H)
+        tb(s, bx + Emu(25000), top_y + Emu(480000), bw1 - Emu(45000), Emu(520000),
+           sub, 7.5, color=C_GRAY, align=PP_ALIGN.CENTER)
+        if i < 4:
+            arrow_r(s, bx + bw1 + Emu(10000), cy1)
 
-    # 天井② ラベル
-    tb(s, Inches(0.28), top_y + Emu(1200000), Inches(3.0), Emu(280000),
-       "天井② 2,000G → CZ/AT保証", 8, color=C_CYAN)
-    rect(s, Inches(0.28), top_y + Emu(1450000), Inches(3.5), Emu(5000), C_CYAN)
-
-    # 上段右側：炎炎激闘の詳細ループ
-    loop_x = Inches(7.7)
-    loop_y = Inches(0.75)
-    loop_w = Inches(2.05)
-
-    rect_b(s, loop_x, loop_y, loop_w, Emu(1150000), C_CARD, C_FIRE2, 1.5)
-    rect(s, loop_x, loop_y, Emu(35000), Emu(1150000), C_FIRE2)
-    tb(s, loop_x + Emu(60000), loop_y + Emu(55000), loop_w - Emu(80000), Emu(280000),
-       "ストック型ループ", 9, bold=True, color=C_FIRE2, font=FONT_H)
-    tb(s, loop_x + Emu(60000), loop_y + Emu(340000), loop_w - Emu(80000), Emu(700000),
-       "15G終了後、ストック\nあれば即再セット。\nボーナスループ率\n80%以上が目標。", 8, color=C_WHITE)
+    # 天井アノテーション
+    tb(s, sx1, top_y + Emu(1120000), Inches(3.0), Emu(260000),
+       "天井①：ボーナス間850G → SPエピ確定", 7.5, color=C_CYAN)
+    rect(s, sx1, top_y + Emu(1360000), Inches(3.5), Emu(5000), C_CYAN)
+    tb(s, sx1 + Inches(3.6), top_y + Emu(1120000), Inches(3.5), Emu(260000),
+       "天井③：伝導者の罠5スルー → SPエピ確定", 7.5, color=C_ORG)
 
     # 中段区切り線
-    rect(s, 0, Inches(2.08), SLIDE_W, Emu(5000), RGBColor(0x44, 0x18, 0x08))
+    rect(s, 0, Inches(2.1), SLIDE_W, Emu(5000), RGBColor(0x44, 0x18, 0x08))
 
-    # 下段：AT内→上位AT昇格ルート
-    bot_y = Inches(2.15)
-    bot_h = Emu(1100000)
+    # 下段：炎炎激闘内→上位AT昇格ルート
+    bot_y = Inches(2.18)
+    bot_h = Emu(1080000)
 
     flow2 = [
-        (C_CARD,  C_FIRE2, "炎炎激闘\n（AT継続）",  "十字目変換成功\n→伝導者決戦"),
-        (C_CARD,  C_ORG,   "アドラリンク\n（上乗せ）", "3Gロック演出\n1段〜3段で期待度変化"),
-        (C_CARD,  C_FLAME, "炎炎大戦\n（上位AT）",  "ループ率80〜90%\n継続で大量獲得"),
-        (RGBColor(0x18, 0x08, 0x02), C_GOLD,
-         "アドラバースト\n（最上位）",    "期待約2,760枚\n最強クラス"),
+        (C_CARD,  C_FIRE2, "炎炎激闘\n（基本ST）",     "ボーナス期待度\n約57%/15G"),
+        (C_CARD,  C_ORG,   "炎炎大戦\n（上位ST）",     "ループ率約80%\n純増5.8枚/G"),
+        (C_CARD,  C_PINK,  "紅J大戦\n（特殊上位）",    "紅丸+J参戦\n期待約2,050枚"),
+        (RGBColor(0x18,0x08,0x02), C_GOLD,
+         "アドラバースト\n(穢レ無キ炎)",  "期待約2,760枚\n森羅万象経由"),
     ]
-    bw2 = Inches(1.85)
+    bw2 = Inches(1.95)
     gap2 = Inches(0.22)
     sx2 = Inches(0.28)
     cy2 = bot_y + bot_h // 2
@@ -282,296 +267,319 @@ def s_flow(prs):
     for i, (fill, ac, lbl, sub) in enumerate(flow2):
         bx = sx2 + i * (bw2 + gap2)
         rect_b(s, bx, bot_y, bw2, bot_h, fill, ac, 1.8)
-        tb(s, bx + Emu(40000), bot_y + Emu(80000), bw2 - Emu(80000), Emu(380000),
+        tb(s, bx + Emu(40000), bot_y + Emu(70000), bw2 - Emu(70000), Emu(370000),
            lbl, 10, bold=True, color=ac, align=PP_ALIGN.CENTER, font=FONT_H)
-        tb(s, bx + Emu(30000), bot_y + Emu(500000), bw2 - Emu(60000), Emu(480000),
+        tb(s, bx + Emu(30000), bot_y + Emu(490000), bw2 - Emu(55000), Emu(470000),
            sub, 8, color=C_GRAY, align=PP_ALIGN.CENTER)
         if i < 3:
-            arrow_r(s, bx + bw2 + Emu(15000), cy2)
+            arrow_r(s, bx + bw2 + Emu(12000), cy2)
 
-    # 右側：超炎炎大戦
-    sx2_last = sx2 + 4 * (bw2 + gap2)
-    rect_b(s, sx2_last, bot_y, loop_w, bot_h,
-           RGBColor(0x1A, 0x0A, 0x00), C_GOLD, 2.0)
-    rect(s, sx2_last, bot_y, Emu(35000), bot_h, C_GOLD)
-    tb(s, sx2_last + Emu(60000), bot_y + Emu(80000), loop_w - Emu(80000), Emu(310000),
-       "超炎炎大戦", 10, bold=True, color=C_GOLD, font=FONT_H)
-    tb(s, sx2_last + Emu(60000), bot_y + Emu(400000), loop_w - Emu(80000), Emu(580000),
-       "最高継続率Ver.\nEX BONUS:\n最大3,000枚", 8, color=C_WHITE)
+    # 右端：アドラリンク説明
+    rx_al = sx2 + 4 * (bw2 + gap2)
+    rect_b(s, rx_al, bot_y, Inches(1.55), bot_h, C_CARD, C_CYAN, 1.5)
+    rect(s, rx_al, bot_y, Emu(30000), bot_h, C_CYAN)
+    tb(s, rx_al + Emu(50000), bot_y + Emu(70000), Inches(1.3), Emu(310000),
+       "アドラ\nリンク\nCZ(3G)", 9, bold=True, color=C_CYAN, font=FONT_H, align=PP_ALIGN.CENTER)
+    tb(s, rx_al + Emu(50000), bot_y + Emu(490000), Inches(1.3), Emu(460000),
+       "成功率\n約50%\n上乗せ契機", 7.5, color=C_WHITE, align=PP_ALIGN.CENTER)
+
+    # 天井②アノテーション
+    tb(s, sx2, bot_y + Emu(1100000), Inches(4.0), Emu(260000),
+       "天井②：炎炎ループ間2,000G → SPエピ確定", 7.5, color=C_FLAME)
+    rect(s, sx2, bot_y + Emu(1340000), Inches(4.5), Emu(5000), C_FLAME)
 
     net_note(s)
-    footer(s, "上段=通常〜AT突入ルート、下段=AT内昇格ルート。「炎炎激闘→炎炎大戦→アドラバースト」が出玉の本線",
-           "天井②は2,000Gというロング設計で長期狙いのセーフティ")
+    footer(s, "上段=通常〜炎炎激闘突入ルート（REG経由と直撃の2本）、下段=AT内昇格ルート（炎炎大戦→紅J大戦→アドラバースト）",
+           "伝導者の罠5スルー天井という独自の第三天井が投資上限の安心感をさらに強化する")
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 3: 通常時の遊び方（ルート・チャンス役の見方）
+#  SLIDE 3: 通常時の遊び方（天井含む全ルート）
 # ══════════════════════════════════════════════════════════════
 def s_normal(prs):
     s = new_slide(prs)
-    hdr(s, "通常時の遊び方 ── ルート・チャンス役・天井管理", "3/9")
+    hdr(s, "通常時の遊び方 ── 全AT突入ルート・天井管理・打ち方", "3/9")
 
-    # 左：ルート図
+    # 左：AT突入ルート図
     lx, ly = Inches(0.28), Inches(0.72)
     lw = Inches(4.55)
 
     rect(s, lx, ly, lw, Emu(290000), RGBColor(0x55, 0x18, 0x00))
     tb(s, lx + Emu(60000), ly + Emu(55000), lw - Emu(80000), Emu(220000),
-       "通常時〜AT突入ルート", 10, bold=True, color=C_ORG)
+       "通常時〜炎炎激闘突入ルート（全3系統）", 10, bold=True, color=C_ORG)
 
     routes = [
-        (C_FIRE2, "ルート①  レア役ヒット",
-         "チェリー・スイカ・強チェリーなどで\nAT直撃 or CZ（前兆）突入の抽選。\n強レア役ほど期待度が高い。"),
-        (C_CYAN,  "ルート②  天井①到達（850G）",
-         "ボーナス間850GでCZ/AT保証。\n設定変更後は650Gに短縮。\n日常的に狙える最頻出ルート。"),
-        (C_FLAME, "ルート③  天井②到達（2,000G）",
-         "炎炎激闘間2,000Gで発動。\nリセット後は1,500G。\n長期ハマりの最終出口として機能。"),
+        (C_FIRE2, "ルート①  SPエピソードBONUS直撃",
+         "初当りがSPエピソードBONUSなら\n炎炎激闘に直行（最短ルート）。\n約200枚消化→そのまま激闘へ突入。"),
+        (C_FIRE,  "ルート②  REGボーナス→伝導者の罠→炎炎激闘",
+         "初当りがREGの場合は消化後に「伝導者の罠」へ。\n罠でエピソードBONUS当選→炎炎激闘突入。\n5スルーで次SPエピ確定（天井③）。"),
+        (C_CYAN,  "ルート③  天井①（ボーナス間850G）",
+         "ボーナス間850GでSPエピソードBONUS確定。\n最も頻出の天井到達ルート。\n設定変更後は短縮あり（要確認）。"),
+        (C_FLAME, "ルート④  天井②（炎炎ループ間2,000G）",
+         "炎炎激闘（ループ）間2,000Gで発動。\nSPエピソードBONUS確定。長期ハマりの出口。\n天井②到達時点は大きな期待値を持つ。"),
     ]
     for i, (ac, t, b) in enumerate(routes):
-        iy = ly + Emu(290000) + i * Emu(1230000)
-        rect_b(s, lx, iy, lw, Emu(1160000), C_CARD, ac, 1.5)
-        rect(s, lx, iy, Emu(45000), Emu(1160000), ac)
-        tb(s, lx + Emu(75000), iy + Emu(55000), lw - Emu(100000), Emu(270000),
+        iy = ly + Emu(290000) + i * Emu(1125000)
+        rect_b(s, lx, iy, lw, Emu(1060000), C_CARD, ac, 1.5)
+        rect(s, lx, iy, Emu(45000), Emu(1060000), ac)
+        tb(s, lx + Emu(75000), iy + Emu(50000), lw - Emu(100000), Emu(270000),
            t, 9, bold=True, color=ac)
-        tb(s, lx + Emu(75000), iy + Emu(330000), lw - Emu(100000), Emu(720000),
-           b, 8, color=C_WHITE)
+        tb(s, lx + Emu(75000), iy + Emu(320000), lw - Emu(100000), Emu(670000),
+           b, 7.5, color=C_WHITE)
 
-    # 右：チャンス役の見方
+    # 右：チャンス役と確率・打ち方
     rx, ry = Inches(5.0), Inches(0.72)
     rw = Inches(4.7)
 
     rect(s, rx, ry, rw, Emu(290000), RGBColor(0x55, 0x18, 0x00))
     tb(s, rx + Emu(60000), ry + Emu(55000), rw - Emu(80000), Emu(220000),
-       "チャンス役の見方と期待度目安", 10, bold=True, color=C_ORG)
+       "チャンス役の確率・期待度（全設定共通）", 10, bold=True, color=C_ORG)
 
     chance = [
-        (C_GRAY,  "リプレイ",      "通常遊技の基本役。\n小V停止→PUSHが核心（AT中）"),
-        (C_FIRE2, "弱チェリー",    "AT抽選あり。\n前兆移行の起点になりやすい"),
-        (C_FIRE,  "スイカ",        "高確率でCZ/AT抽選。\n出現時は要注目"),
-        (C_ORG,   "強チェリー",    "高確率でAT直撃 or 上位ボーナス。\n炎炎ブースト以上の期待度"),
-        (C_FLAME, "7揃い系の役",   "最重要。ボーナス確定に近い扱い。\nフリーズ発生でEX BONUS等"),
+        (C_GRAY,  "リプレイ",    "約1/8.6",  "小V停止でAT中に十字目変換の起点に"),
+        (C_FIRE2, "弱チェリー",  "約1/80",   "十字目変換/前兆移行の抽選対象"),
+        (C_FIRE,  "スイカ",      "約1/128",  "十字目変換・ボーナス高確の抽選対象"),
+        (C_ORG,   "チャンス目",  "約1/128",  "十字目変換の抽選対象役"),
+        (C_FLAME, "十字リプレイ","約1/5000", "アドラリンク当選濃厚・状態問わず"),
+        (C_CYAN,  "レア役合算",  "約1/35",   "チェリー・スイカ・チャンス目の合算"),
     ]
-    ch_h = Emu(770000)
-    for i, (ac, role, desc) in enumerate(chance):
+    ch_h = Emu(690000)
+    for i, (ac, role, prob, desc) in enumerate(chance):
         cy = ry + Emu(290000) + i * ch_h
         bg = C_CARD if i % 2 == 0 else C_ROW
         rect(s, rx, cy, rw, ch_h, bg)
         rect(s, rx, cy, Emu(35000), ch_h, ac)
-        tb(s, rx + Emu(60000), cy + Emu(60000), Inches(1.2), Emu(310000),
-           role, 9, bold=True, color=ac, wrap=False)
-        tb(s, rx + Emu(60000) + Inches(1.2), cy + Emu(70000), rw - Inches(1.3), Emu(590000),
-           desc, 8, color=C_WHITE)
+        tb(s, rx + Emu(55000), cy + Emu(55000), Inches(1.0), Emu(260000),
+           role, 8.5, bold=True, color=ac, wrap=False)
+        tb(s, rx + Emu(55000) + Inches(1.0), cy + Emu(60000), Inches(0.8), Emu(240000),
+           prob, 8, bold=True, color=C_FLAME, wrap=False)
+        tb(s, rx + Emu(55000), cy + Emu(310000), rw - Inches(0.6), Emu(320000),
+           desc, 7.5, color=C_WHITE)
+
+    # 打ち方メモ
+    rect_b(s, rx, ry + Emu(4440000), rw, Emu(550000), C_CARD2, C_FIRE, 1.5)
+    tb(s, rx + Emu(60000), ry + Emu(4490000), rw - Emu(80000), Emu(200000),
+       "打ち方：順押しBAR狙い（左リール上段にBAR）", 8.5, bold=True, color=C_FIRE)
+    tb(s, rx + Emu(60000), ry + Emu(4700000), rw - Emu(80000), Emu(280000),
+       "手順を守らないとペナルティあり。小V停止を見逃さないこと。", 7.5, color=C_GRAY)
 
     net_note(s)
-    footer(s, "通常時の基本戦略：天井①を基準にゲーム数管理しつつ、レア役チャンスを見逃さず注目する",
-           "天井②は長期間来店や高設定狙い時の投資上限として意識する")
+    footer(s, "通常時の基本戦略：天井①(850G)を基準に管理し、伝導者の罠スルー回数（5スルー天井）もカウントする",
+           "天井②(2,000G)は長期ハマり台の最終出口として機能。十字リプレイは状態問わず激アツ")
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 4: AT「炎炎激闘」の遊び方（十字目変換フロー詳細）
+#  SLIDE 4: AT「炎炎激闘」の核心：十字目変換フロー
 # ══════════════════════════════════════════════════════════════
 def s_at_flow(prs):
     s = new_slide(prs)
-    hdr(s, "AT「炎炎激闘」の遊び方 ── 十字目変換フロー詳細", "4/9")
+    hdr(s, "AT「炎炎激闘」の核心 ── 十字目変換フロー詳細（解析値）", "4/9")
 
-    # フローチャートのノード定義
-    # 左側：メインフロー（縦型）
     fc_x = Inches(0.28)
-    fc_w = Inches(4.35)
+    fc_w = Inches(4.4)
 
-    rect(s, fc_x, Inches(0.72), fc_w, Emu(290000), RGBColor(0x55, 0x18, 0x00))
-    tb(s, fc_x + Emu(60000), Inches(0.74), fc_w - Emu(80000), Emu(270000),
-       "核心：十字目変換フロー（AT1セット15G+α）", 9.5, bold=True, color=C_ORG)
+    rect(s, fc_x, Inches(0.72), fc_w, Emu(260000), RGBColor(0x55, 0x18, 0x00))
+    tb(s, fc_x + Emu(60000), Inches(0.74), fc_w - Emu(80000), Emu(240000),
+       "十字目変換フロー（AT1セット15G+α）", 9.5, bold=True, color=C_ORG)
 
-    # ノード1: リプレイで小V停止
-    n1_y = Inches(1.08)
-    n1_h = Emu(620000)
+    # STEP 1
+    n1_y = Inches(1.06)
+    n1_h = Emu(560000)
     rect_b(s, fc_x, n1_y, fc_w, n1_h, C_CARD2, C_GRAY, 1.2)
-    tb(s, fc_x + Emu(40000), n1_y + Emu(50000), fc_w - Emu(60000), Emu(220000),
-       "STEP 1", 7.5, bold=True, color=C_GRAY)
-    tb(s, fc_x + Emu(40000), n1_y + Emu(250000), fc_w - Emu(60000), Emu(280000),
-       "リプレイ成立 → 小V停止", 11, bold=True, color=C_WHITE, font=FONT_H)
+    tb(s, fc_x + Emu(40000), n1_y + Emu(45000), fc_w - Emu(60000), Emu(200000),
+       "STEP 1", 7, bold=True, color=C_GRAY)
+    tb(s, fc_x + Emu(40000), n1_y + Emu(240000), fc_w - Emu(60000), Emu(260000),
+       "レア役 or リプレイ小V 成立", 10.5, bold=True, color=C_WHITE, font=FONT_H)
 
-    # 矢印1
-    arrow_d(s, fc_x + fc_w // 2, n1_y + n1_h + Emu(20000), C_FIRE)
+    arrow_d(s, fc_x + fc_w // 2, n1_y + n1_h + Emu(15000), C_FIRE)
 
-    # ノード2: PUSHボタン → 十字目に変換
-    n2_y = n1_y + n1_h + Emu(230000)
-    n2_h = Emu(620000)
-    rect_b(s, fc_x, n2_y, fc_w, n2_h, RGBColor(0x20, 0x08, 0x02), C_FIRE, 1.8)
+    # STEP 2
+    n2_y = n1_y + n1_h + Emu(215000)
+    n2_h = Emu(560000)
+    rect_b(s, fc_x, n2_y, fc_w, n2_h, RGBColor(0x20, 0x08, 0x02), C_FIRE, 2.0)
     rect(s, fc_x, n2_y, Emu(35000), n2_h, C_FIRE)
-    tb(s, fc_x + Emu(60000), n2_y + Emu(50000), fc_w - Emu(80000), Emu(220000),
-       "STEP 2", 7.5, bold=True, color=C_FIRE)
-    tb(s, fc_x + Emu(60000), n2_y + Emu(250000), fc_w - Emu(80000), Emu(280000),
-       "PUSHボタン → 十字目に変換！", 11, bold=True, color=C_FIRE2, font=FONT_H)
+    tb(s, fc_x + Emu(60000), n2_y + Emu(45000), fc_w - Emu(80000), Emu(200000),
+       "STEP 2", 7, bold=True, color=C_FIRE)
+    tb(s, fc_x + Emu(60000), n2_y + Emu(240000), fc_w - Emu(80000), Emu(260000),
+       "十字目変換発生！（約1/100）", 10.5, bold=True, color=C_FIRE2, font=FONT_H)
 
-    # 矢印2
-    arrow_d(s, fc_x + fc_w // 2, n2_y + n2_h + Emu(20000), C_FIRE)
+    arrow_d(s, fc_x + fc_w // 2, n2_y + n2_h + Emu(15000), C_FIRE)
 
-    # ノード3: 炎の色で期待度判定（分岐）
-    n3_y = n2_y + n2_h + Emu(230000)
-    n3_h = Emu(760000)
+    # STEP 3: 変換演出の種類と期待度
+    n3_y = n2_y + n2_h + Emu(215000)
+    n3_h = Emu(840000)
     rect_b(s, fc_x, n3_y, fc_w, n3_h, RGBColor(0x22, 0x0A, 0x04), C_ORG, 2.0)
     rect(s, fc_x, n3_y, Emu(35000), n3_h, C_ORG)
-    tb(s, fc_x + Emu(60000), n3_y + Emu(55000), fc_w - Emu(80000), Emu(250000),
-       "STEP 3  炎の色で期待度確認", 9.5, bold=True, color=C_ORG, font=FONT_H)
+    tb(s, fc_x + Emu(60000), n3_y + Emu(50000), fc_w - Emu(80000), Emu(230000),
+       "STEP 3  変換演出の種類で期待度確認", 9.5, bold=True, color=C_ORG, font=FONT_H)
 
-    # 炎色の3分岐
-    colors_info = [
-        (RGBColor(0xDD, 0xDD, 0xDD), "白炎",  "約20%"),
-        (C_BLUE,                     "青炎",  "約40%"),
-        (C_RED,                      "赤炎",  "確定！"),
+    # 変換演出4パターン（実測値）
+    conv_infos = [
+        (C_GRAY,  "十字マーク\n変換",  "低期待度"),
+        (C_CYAN,  "アイリス\n変換",   "約50%+\n(レア役時のみ)"),
+        (C_FIRE,  "シンラ\n変換",    "約84%"),
+        (C_FLAME, "紅丸\n変換",     "約98%"),
     ]
-    cw3 = (fc_w - Emu(80000)) // 3
-    for ci, (cc, clbl, cpct) in enumerate(colors_info):
-        cx3 = fc_x + Emu(60000) + ci * cw3
-        rect_b(s, cx3 + Emu(15000), n3_y + Emu(310000),
-               cw3 - Emu(30000), Emu(380000), C_CARD, cc, 1.5)
-        tb(s, cx3 + Emu(20000), n3_y + Emu(340000), cw3 - Emu(35000), Emu(200000),
-           clbl, 9, bold=True, color=cc, align=PP_ALIGN.CENTER, wrap=False)
-        tb(s, cx3 + Emu(20000), n3_y + Emu(540000), cw3 - Emu(35000), Emu(200000),
-           cpct, 8.5, bold=True, color=C_FLAME, align=PP_ALIGN.CENTER, wrap=False)
+    cw3 = (fc_w - Emu(80000)) // 4
+    for ci, (cc, clbl, cpct) in enumerate(conv_infos):
+        cx3 = fc_x + Emu(50000) + ci * cw3
+        rect_b(s, cx3 + Emu(8000), n3_y + Emu(290000),
+               cw3 - Emu(16000), Emu(490000), C_CARD, cc, 1.5)
+        tb(s, cx3 + Emu(15000), n3_y + Emu(320000), cw3 - Emu(25000), Emu(240000),
+           clbl, 8, bold=True, color=cc, align=PP_ALIGN.CENTER)
+        tb(s, cx3 + Emu(15000), n3_y + Emu(560000), cw3 - Emu(25000), Emu(220000),
+           cpct, 7.5, bold=True, color=C_FLAME, align=PP_ALIGN.CENTER)
 
-    # ノード4: 成功→伝導者決戦
-    n4_y = n3_y + n3_h + Emu(200000)
-    n4_h = Emu(620000)
-    arrow_d(s, fc_x + fc_w // 2, n3_y + n3_h + Emu(20000), C_FLAME)
-    rect_b(s, fc_x, n4_y, fc_w, n4_h,
-           RGBColor(0x24, 0x10, 0x00), C_FLAME, 2.0)
+    arrow_d(s, fc_x + fc_w // 2, n3_y + n3_h + Emu(15000), C_FLAME)
+
+    # STEP 4
+    n4_y = n3_y + n3_h + Emu(210000)
+    n4_h = Emu(560000)
+    rect_b(s, fc_x, n4_y, fc_w, n4_h, RGBColor(0x24, 0x10, 0x00), C_FLAME, 2.0)
     rect(s, fc_x, n4_y, Emu(35000), n4_h, C_FLAME)
-    tb(s, fc_x + Emu(60000), n4_y + Emu(50000), fc_w - Emu(80000), Emu(220000),
-       "STEP 4  変換成功！", 7.5, bold=True, color=C_FLAME)
-    tb(s, fc_x + Emu(60000), n4_y + Emu(255000), fc_w - Emu(80000), Emu(280000),
-       "伝導者決戦 → ボーナス抽選", 11, bold=True, color=C_GOLD, font=FONT_H)
+    tb(s, fc_x + Emu(60000), n4_y + Emu(45000), fc_w - Emu(80000), Emu(200000),
+       "STEP 4  変換成功！", 7, bold=True, color=C_FLAME)
+    tb(s, fc_x + Emu(60000), n4_y + Emu(240000), fc_w - Emu(80000), Emu(260000),
+       "伝導者決戦 → ボーナス当選の告知演出", 10, bold=True, color=C_GOLD, font=FONT_H)
 
-    # 右パネル：保険設計・セット管理
-    rx, ry = Inches(4.85), Inches(0.72)
-    rw = Inches(4.9)
+    # 右パネル：保険設計と発生頻度詳細
+    rx, ry = Inches(4.9), Inches(0.72)
+    rw = Inches(4.85)
 
-    rect(s, rx, ry, rw, Emu(290000), RGBColor(0x55, 0x18, 0x00))
-    tb(s, rx + Emu(60000), ry + Emu(55000), rw - Emu(80000), Emu(220000),
-       "保険設計とセット管理", 10, bold=True, color=C_ORG)
+    rect(s, rx, ry, rw, Emu(260000), RGBColor(0x55, 0x18, 0x00))
+    tb(s, rx + Emu(60000), ry + Emu(55000), rw - Emu(80000), Emu(200000),
+       "抽選の仕組み・保険設計・発生頻度", 10, bold=True, color=C_ORG)
 
     insurance = [
-        (C_RED,  "3回目強制成功の保険設計",
-         "2連続外れ → 3回目は必ず変換成功！\n\n"
-         "どんな状況でも最大3回のリプレイを\n"
-         "待てば必ず伝導者決戦に突入する。\n"
-         "「あと1回待てば確実」の安心感が\n打ち続けるモチベーションを維持させる。"),
-        (C_CYAN, "15G未変換 → 再セット",
-         "15G以内に一度も変換成功しなかった\n"
-         "場合は自動的に15G再セット。\n\n"
-         "転落なし・強制終了なしの設計で\n"
-         "ストレスなく遊べる保護機構。"),
-        (C_FLAME, "ストック型AT継続",
-         "変換成功→ボーナス抽選→ストック獲得\n"
-         "のサイクルで枚数を積み上げる。\n"
-         "ストックが残る限りセット継続。\n\"また来る\"という安堵感が重要。"),
+        (C_FIRE,  "抽選の3段階フロー（解析値）",
+         "① 十字目変換発生の抽選（内部状態参照）\n"
+         "② 十字目高確への移行抽選\n"
+         "③ 十字目ランクの昇格抽選\n\n"
+         "この3段階の抽選が順番に実行され、\n"
+         "ランクが高いほど変換演出が豪華になる。\n"
+         "トータル発生率：約1/100。"),
+        (C_CYAN,  "内部状態と高確の概念",
+         "通常時は「ボーナス高確」「十字目高確」の\n"
+         "2つの内部状態が存在。どちらが高いかで\n"
+         "変換発生率・期待度が変化する。\n\n"
+         "伝導者の罠中は十字目高確の概念なし。\n"
+         "常に同じ当選率で抽選される。"),
+        (C_ORG,   "ストック型継続の仕組み",
+         "炎炎激闘はボーナスストックで継続管理。\n"
+         "ストックが残る限り15G再セット。\n\n"
+         "炎炎（ストック）ボーナス当選→ストック獲得\n"
+         "→セット継続のサイクルが出玉の本体。\n"
+         "ストック数が\"残弾数\"として機能。"),
     ]
     for i, (ac, t, b) in enumerate(insurance):
-        iy = ry + Emu(290000) + i * Emu(1320000)
-        rect_b(s, rx, iy, rw, Emu(1250000), C_CARD, ac, 1.5)
-        rect(s, rx, iy, Emu(40000), Emu(1250000), ac)
-        tb(s, rx + Emu(70000), iy + Emu(55000), rw - Emu(90000), Emu(270000),
+        iy = ry + Emu(260000) + i * Emu(1335000)
+        rect_b(s, rx, iy, rw, Emu(1265000), C_CARD, ac, 1.5)
+        rect(s, rx, iy, Emu(40000), Emu(1265000), ac)
+        tb(s, rx + Emu(70000), iy + Emu(50000), rw - Emu(90000), Emu(260000),
            t, 9, bold=True, color=ac)
-        tb(s, rx + Emu(70000), iy + Emu(330000), rw - Emu(90000), Emu(800000),
+        tb(s, rx + Emu(70000), iy + Emu(320000), rw - Emu(90000), Emu(830000),
            b, 7.5, color=C_WHITE)
 
     net_note(s)
-    footer(s, "十字目変換フローの設計核心：「必ず報われる」保険が打ち手の集中力とストレスフリーを両立する",
-           "3回目強制成功・15G再セットは「終わらない安心感」の設計原則")
+    footer(s, "十字目変換の設計核心：3段階内部抽選＋キャラ変換演出で「期待度の可視化」と「毎ゲームの緊張感」を両立",
+           "紅丸変換（約98%）は実質告知演出。シンラ変換（約84%）でも十分な激アツ期待度")
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 5: 出玉を伸ばす方法（伝導者決戦・上乗せ）
+#  SLIDE 5: 出玉を伸ばす方法（アドラリンク×炎炎大戦×上位演出）
 # ══════════════════════════════════════════════════════════════
 def s_extend(prs):
     s = new_slide(prs)
-    hdr(s, "出玉を伸ばす方法 ── 伝導者決戦・アドラリンク・上乗せ契機", "5/9")
+    hdr(s, "出玉を伸ばす方法 ── アドラリンク×伝導者決戦×上位昇格", "5/9")
 
-    # 伝導者決戦
+    # 左：アドラリンク（上乗せCZ）
     lx, ly = Inches(0.28), Inches(0.72)
     lw = Inches(4.5)
 
-    rect(s, lx, ly, lw, Emu(290000), RGBColor(0x55, 0x18, 0x00))
-    tb(s, lx + Emu(60000), ly + Emu(55000), lw - Emu(80000), Emu(220000),
-       "伝導者決戦（ボーナス抽選バトル）", 10, bold=True, color=C_ORG)
+    rect(s, lx, ly, lw, Emu(260000), RGBColor(0x55, 0x18, 0x00))
+    tb(s, lx + Emu(60000), ly + Emu(55000), lw - Emu(80000), Emu(200000),
+       "アドラリンク（上乗せ専用CZ・3G）", 10, bold=True, color=C_ORG)
 
-    densha = [
-        (C_FIRE,  "伝導者決戦とは",
-         "十字目変換成功後に発生するボーナス抽選の\n"
-         "演出バトル。勝利でボーナス獲得。\n"
-         "炎色・演出の豪華さで期待度が変わる。"),
-        (C_FLAME, "勝利でボーナス獲得",
-         "REGボーナス → 設定判別の機会\n"
-         "炎炎ブースト → 高継続ATへ\n"
-         "アドラバースト → 期待2,760枚の最強ボーナス"),
-        (C_CYAN,  "パターン注目ポイント",
-         "BGM・キャラ・エフェクトで継続期待度が変化。\n"
-         "シンラや炎柱絡みの演出は高期待度。\n"
-         "最後まで諦めずに見届けること。"),
+    rect_b(s, lx, ly + Emu(260000), lw, Emu(1400000), C_CARD, C_CYAN, 2.0)
+    rect(s, lx, ly + Emu(260000), Emu(40000), Emu(1400000), C_CYAN)
+    tb(s, lx + Emu(70000), ly + Emu(310000), lw - Emu(90000), Emu(260000),
+       "アドラリンクの仕組み（解析値）", 10, bold=True, color=C_CYAN, font=FONT_H)
+    tb(s, lx + Emu(70000), ly + Emu(580000), lw - Emu(90000), Emu(1000000),
+       "前兆中に十字目停止で発生する3GのCZ。\n"
+       "成功期待度：約50%。\n\n"
+       "3G間に小Vリプレイ or レア役成立→ボーナス当選。\n"
+       "十字リプレイ経由で発生時→紅J大戦昇格濃厚！\n\n"
+       "通常時突入率：約1/450\n"
+       "伝導者の罠中突入率：約1/550",
+       8.5, color=C_WHITE)
+
+    # アドラリンク発動のリールロック（段数演出）
+    rect(s, lx, ly + Emu(1660000), lw, Emu(260000), RGBColor(0x44, 0x18, 0x00))
+    tb(s, lx + Emu(60000), ly + Emu(1710000), lw - Emu(80000), Emu(200000),
+       "リールロック段数で期待度を視覚的に表示", 9, bold=True, color=C_ORG)
+
+    locks = [
+        (C_GRAY,  "1段ロック", "チャンス",      "約30%",  0.30),
+        (C_FIRE2, "2段ロック", "期待大",        "約60%",  0.60),
+        (C_FLAME, "3段ロック", "当確に近い",    "約90%+", 0.92),
     ]
-    for i, (ac, t, b) in enumerate(densha):
-        iy = ly + Emu(290000) + i * Emu(1230000)
-        rect_b(s, lx, iy, lw, Emu(1160000), C_CARD, ac, 1.5)
-        rect(s, lx, iy, Emu(40000), Emu(1160000), ac)
-        tb(s, lx + Emu(70000), iy + Emu(50000), lw - Emu(90000), Emu(270000),
-           t, 9, bold=True, color=ac)
-        tb(s, lx + Emu(70000), iy + Emu(320000), lw - Emu(90000), Emu(750000),
-           b, 8, color=C_WHITE)
+    lock_y = ly + Emu(1920000)
+    lock_h = Emu(760000)
+    lock_w = lw / 3
 
-    # アドラリンク（上乗せ契機）
+    for i, (ac, lbl, desc, pct_s, pct) in enumerate(locks):
+        lkx = lx + i * lock_w
+        bg = C_CARD if i % 2 == 0 else C_ROW
+        rect_b(s, lkx + Emu(8000), lock_y, lock_w - Emu(16000), lock_h, bg, ac, 1.5)
+        tb(s, lkx + Emu(15000), lock_y + Emu(50000), lock_w - Emu(25000), Emu(240000),
+           lbl, 8.5, bold=True, color=ac, align=PP_ALIGN.CENTER, wrap=False)
+        tb(s, lkx + Emu(15000), lock_y + Emu(290000), lock_w - Emu(25000), Emu(200000),
+           desc, 7.5, color=C_WHITE, align=PP_ALIGN.CENTER)
+        bar_w = lock_w - Emu(80000)
+        rect(s, lkx + Emu(40000), lock_y + Emu(500000), bar_w, Emu(80000), C_LTGRY)
+        rect(s, lkx + Emu(40000), lock_y + Emu(500000), int(bar_w * pct), Emu(80000), ac)
+        tb(s, lkx + Emu(40000), lock_y + Emu(600000), lock_w - Emu(50000), Emu(180000),
+           pct_s, 8, bold=True, color=ac, align=PP_ALIGN.CENTER, wrap=False)
+
+    # 右：伝導者決戦と出玉昇格
     rx, ry = Inches(5.0), Inches(0.72)
     rw = Inches(4.7)
 
-    rect(s, rx, ry, rw, Emu(290000), RGBColor(0x55, 0x18, 0x00))
-    tb(s, rx + Emu(60000), ry + Emu(55000), rw - Emu(80000), Emu(220000),
-       "アドラリンク（上乗せ専用CZ・3G）", 10, bold=True, color=C_ORG)
+    rect(s, rx, ry, rw, Emu(260000), RGBColor(0x55, 0x18, 0x00))
+    tb(s, rx + Emu(60000), ry + Emu(55000), rw - Emu(80000), Emu(200000),
+       "伝導者決戦と各ボーナスの出玉役割", 10, bold=True, color=C_ORG)
 
-    rect_b(s, rx, ry + Emu(290000), rw, Emu(1450000), C_CARD, C_CYAN, 1.8)
-    rect(s, rx, ry + Emu(290000), Emu(40000), Emu(1450000), C_CYAN)
-
-    tb(s, rx + Emu(70000), ry + Emu(340000), rw - Emu(90000), Emu(260000),
-       "アドラリンクの仕組み", 10, bold=True, color=C_CYAN, font=FONT_H)
-    tb(s, rx + Emu(70000), ry + Emu(600000), rw - Emu(90000), Emu(1050000),
-       "AT中に割り込む3GのプチCZ。\n"
-       "ボーナスやAT上乗せを自力で掴むチャンス。\n\n"
-       "「自力で当てた」感覚を演出する重要な仕組み。\n"
-       "受け身でなく能動的なプレイ感を生む。",
-       8.5, color=C_WHITE)
-
-    # 3段ロック演出
-    rect(s, rx, ry + Emu(1740000), rw, Emu(290000), RGBColor(0x44, 0x18, 0x00))
-    tb(s, rx + Emu(60000), ry + Emu(1790000), rw - Emu(80000), Emu(220000),
-       "リールロック段数で期待度を視覚化", 9, bold=True, color=C_ORG)
-
-    locks = [
-        (C_GRAY,  "1段ロック", "チャンス",           "約30%",  0.30),
-        (C_FIRE2, "2段ロック", "期待度大幅アップ",   "約60%",  0.60),
-        (C_FLAME, "3段ロック", "激アツ（当確に近い）", "約90%+", 0.92),
+    densha = [
+        (C_FIRE,  "伝導者決戦（ボーナス告知バトル演出）",
+         "十字目変換成功後に発生するバトル演出。\n"
+         "勝利でボーナス当選が告知される。\n"
+         "演出豪華さ・BGM・キャラ登場で期待度が変化。\n"
+         "シンラ/炎柱絡み演出は高期待度。"),
+        (C_FLAME, "ボーナス種類と出玉・役割",
+         "REGボーナス（~85枚）：設定判別チャンス\n"
+         "   →消化後に伝導者の罠へ\n"
+         "SPエピソードBONUS（~200枚）：炎炎激闘直行\n"
+         "炎炎ボーナス（~200枚）：激闘内ストック獲得\n"
+         "炎炎BSTボーナス：ループ率90%・期待約550枚\n"
+         "紅J大戦直撃：期待約2,050枚"),
+        (C_ORG,   "森羅万象CZ → アドラバースト（最強）",
+         "ボーナス消化中に突入する隠しCZ。\n"
+         "成功でアドラバースト（穢レ無キ炎）確定。\n"
+         "アドラチャレンジ成功でも到達可能。\n"
+         "期待獲得枚数：約2,760枚（シリーズ最強）。"),
     ]
-    lock_y = ry + Emu(2030000)
-    lock_h = Emu(850000)
-    lock_w = rw / 3
-
-    for i, (ac, lbl, desc, pct_s, pct) in enumerate(locks):
-        lkx = rx + i * lock_w
-        bg = C_CARD if i % 2 == 0 else C_ROW
-        rect_b(s, lkx + Emu(8000), lock_y, lock_w - Emu(16000), lock_h, bg, ac, 1.5)
-        tb(s, lkx + Emu(20000), lock_y + Emu(55000), lock_w - Emu(30000), Emu(260000),
-           lbl, 9, bold=True, color=ac, align=PP_ALIGN.CENTER, wrap=False)
-        tb(s, lkx + Emu(20000), lock_y + Emu(310000), lock_w - Emu(30000), Emu(240000),
-           desc, 7.5, color=C_WHITE, align=PP_ALIGN.CENTER)
-        # バー
-        bar_w = lock_w - Emu(80000)
-        rect(s, lkx + Emu(40000), lock_y + Emu(570000), bar_w, Emu(90000), C_LTGRY)
-        rect(s, lkx + Emu(40000), lock_y + Emu(570000), int(bar_w * pct), Emu(90000), ac)
-        tb(s, lkx + Emu(40000), lock_y + Emu(670000), lock_w - Emu(50000), Emu(200000),
-           pct_s, 8, bold=True, color=ac, align=PP_ALIGN.CENTER, wrap=False)
+    for i, (ac, t, b) in enumerate(densha):
+        iy = ry + Emu(260000) + i * Emu(1345000)
+        rect_b(s, rx, iy, rw, Emu(1275000), C_CARD, ac, 1.5)
+        rect(s, rx, iy, Emu(40000), Emu(1275000), ac)
+        tb(s, rx + Emu(70000), iy + Emu(50000), rw - Emu(90000), Emu(260000),
+           t, 8.5, bold=True, color=ac)
+        tb(s, rx + Emu(70000), iy + Emu(320000), rw - Emu(90000), Emu(850000),
+           b, 7.5, color=C_WHITE)
 
     net_note(s)
-    footer(s, "アドラリンクの3段ロック設計：段階的な視覚演出がプレイヤーの「自力感」と期待感を最大化する",
-           "3段ロックは「当確に近い体験」を与えることで台前から離れさせない設計")
+    footer(s, "出玉を伸ばす鍵：アドラリンクの3段ロック演出＋十字リプレイ経由での紅J大戦昇格狙いが最大の上振れルート",
+           "森羅万象CZ（ボーナス中）→アドラバーストは約2,760枚の最終到達点。終了画面まで要注目")
 
 
 # ══════════════════════════════════════════════════════════════
@@ -579,91 +587,91 @@ def s_extend(prs):
 # ══════════════════════════════════════════════════════════════
 def s_upper(prs):
     s = new_slide(prs)
-    hdr(s, "上位モード ── (超)炎炎大戦・アドラバーストへの到達と遊び方", "6/9")
+    hdr(s, "上位モード ── 炎炎大戦・紅J大戦・アドラバーストへの到達と遊び方", "6/9")
 
-    # 上段：昇格ルート
-    rect(s, 0, Inches(0.72), SLIDE_W, Emu(290000), RGBColor(0x44, 0x18, 0x00))
-    tb(s, Inches(0.35), Inches(0.76), Inches(6.0), Emu(230000),
-       "上位モード到達ルート（炎炎激闘から昇格）", 9, bold=True, color=C_ORG)
+    # 上段：昇格ルートフロー
+    rect(s, 0, Inches(0.72), SLIDE_W, Emu(260000), RGBColor(0x44, 0x18, 0x00))
+    tb(s, Inches(0.35), Inches(0.755), Inches(9.0), Emu(210000),
+       "上位モード到達ルート（炎炎激闘からの昇格階層）", 9, bold=True, color=C_ORG)
 
     route_boxes = [
-        (C_FIRE2, "炎炎激闘\n（基本AT）",   "スタート地点\n1セット15G+α"),
-        (C_ORG,   "ボーナス\n大量ストック", "伝導者決戦勝利\n連続でストック積み上げ"),
-        (C_FLAME, "炎炎大戦\n（上位AT）",   "ループ率80〜90%\n昇格で大量獲得開始"),
-        (C_GOLD,  "超炎炎大戦\n（最上位）",  "最高継続率\nEX BONUS等も出現"),
-        (C_RED,   "アドラバースト\n（特殊）", "期待約2,760枚\n特別ルートで突入"),
+        (C_FIRE2, "炎炎激闘\n（基本ST）",     "ボーナス期待度\n約57%/15G\nスタート地点"),
+        (C_ORG,   "炎炎大戦\n（上位ST）",     "ループ率約80%\n純増5.8枚/G\n主軸出玉ゾーン"),
+        (C_PINK,  "紅J大戦\n（特殊上位ST）",  "紅丸+J参戦\n期待約2,050枚\nアドラリンク経由"),
+        (C_GOLD,  "アドラバースト\n(穢レ無キ炎)", "森羅万象CZ\n期待約2,760枚\n最強フィナーレ"),
     ]
-    bw_r = Inches(1.65)
-    gap_r = Inches(0.21)
-    sx_r = Inches(0.28)
-    cy_r = Inches(1.38)
-    bh_r = Emu(1120000)
+    bw_r = Inches(2.1)
+    gap_r = Inches(0.26)
+    sx_r = Inches(0.35)
+    cy_r = Inches(1.42)
+    bh_r = Emu(1100000)
 
     for i, (ac, lbl, sub) in enumerate(route_boxes):
         bx = sx_r + i * (bw_r + gap_r)
         rect_b(s, bx, cy_r - bh_r // 2, bw_r, bh_r,
-               C_CARD if i < 3 else RGBColor(0x18, 0x08, 0x00), ac, 2.0 if i >= 3 else 1.5)
-        tb(s, bx + Emu(30000), cy_r - bh_r // 2 + Emu(80000),
-           bw_r - Emu(50000), Emu(380000), lbl, 10, bold=True,
+               C_CARD if i < 2 else RGBColor(0x18, 0x08, 0x00), ac, 2.0 if i >= 2 else 1.5)
+        tb(s, bx + Emu(35000), cy_r - bh_r // 2 + Emu(70000),
+           bw_r - Emu(55000), Emu(370000), lbl, 10, bold=True,
            color=ac, align=PP_ALIGN.CENTER, font=FONT_H)
-        tb(s, bx + Emu(25000), cy_r - bh_r // 2 + Emu(470000),
-           bw_r - Emu(40000), Emu(480000), sub, 7.5,
+        tb(s, bx + Emu(30000), cy_r - bh_r // 2 + Emu(460000),
+           bw_r - Emu(45000), Emu(480000), sub, 7.5,
            color=C_GRAY, align=PP_ALIGN.CENTER)
-        if i < 4:
-            arrow_r(s, bx + bw_r + Emu(10000), cy_r)
+        if i < 3:
+            arrow_r(s, bx + bw_r + Emu(12000), cy_r)
 
     # 中区切り
-    rect(s, 0, Inches(2.05), SLIDE_W, Emu(5000), RGBColor(0x44, 0x18, 0x08))
+    rect(s, 0, Inches(2.06), SLIDE_W, Emu(5000), RGBColor(0x44, 0x18, 0x08))
 
     # 下段左：炎炎大戦の遊び方
-    lx2, ly2 = Inches(0.28), Inches(2.1)
-    lw2 = Inches(4.5)
-    lh2 = Emu(2600000)
+    lx2, ly2 = Inches(0.28), Inches(2.12)
+    lw2 = Inches(4.55)
+    lh2 = Emu(2620000)
 
-    rect_b(s, lx2, ly2, lw2, lh2, C_CARD, C_FLAME, 1.8)
-    rect(s, lx2, ly2, Emu(45000), lh2, C_FLAME)
-    tb(s, lx2 + Emu(75000), ly2 + Emu(55000), lw2 - Emu(95000), Emu(280000),
-       "(超)炎炎大戦の遊び方", 11, bold=True, color=C_FLAME, font=FONT_H)
-    tb(s, lx2 + Emu(75000), ly2 + Emu(360000), lw2 - Emu(95000), lh2 - Emu(420000),
-       "【ループ型の遊び方】\n"
-       "炎炎大戦は1セット完了後に80〜90%の\n"
-       "確率で再突入する高継続AT。\n\n"
-       "プレイヤーはセットが続くたびに出玉が\n"
-       "積み上がるのを体感する。\n\n"
-       "【超炎炎大戦の特徴】\n"
-       "炎炎大戦より継続率がさらに高いバージョン。\n"
-       "突入時の演出が派手で打ちごたえ抜群。\n\n"
-       "【EX BONUSへの期待】\n"
-       "超炎炎大戦中にEX BONUSが出現すると\n"
-       "最大3,000枚を狙えるロマンがある。",
+    rect_b(s, lx2, ly2, lw2, lh2, C_CARD, C_ORG, 1.8)
+    rect(s, lx2, ly2, Emu(45000), lh2, C_ORG)
+    tb(s, lx2 + Emu(75000), ly2 + Emu(50000), lw2 - Emu(95000), Emu(270000),
+       "炎炎大戦・紅J大戦の遊び方", 11, bold=True, color=C_ORG, font=FONT_H)
+    tb(s, lx2 + Emu(75000), ly2 + Emu(340000), lw2 - Emu(95000), lh2 - Emu(400000),
+       "【炎炎大戦（上位ST）】\n"
+       "炎炎激闘の一部で突入。純増5.8枚/Gは変わらず\n"
+       "ボーナス期待度が約80%に跳ね上がる。\n"
+       "15G+α消化後も高確率でループ継続。\n"
+       "ボーナス当選時は通常時を経由せず炎炎大戦に復帰。\n\n"
+       "【昇格条件】\n"
+       "小Vリプレイ・レア役で炎炎大戦への昇格を抽選。\n"
+       "昇格後はさらに紅J大戦への昇格も抽選される。\n\n"
+       "【紅J大戦（特殊上位ST）】\n"
+       "紅丸とジョーカーが参戦する特殊バージョン。\n"
+       "期待獲得枚数は約2,050枚。\n"
+       "アドラリンクで十字リプレイ経由→昇格濃厚。",
        8, color=C_WHITE)
 
-    # 下段右：アドラバーストの遊び方
-    rx2, ry2 = Inches(5.0), Inches(2.1)
-    rw2 = Inches(4.7)
+    # 下段右：アドラバースト
+    rx2, ry2 = Inches(5.05), Inches(2.12)
+    rw2 = Inches(4.65)
 
     rect_b(s, rx2, ry2, rw2, lh2,
            RGBColor(0x18, 0x08, 0x00), C_GOLD, 2.0)
     rect(s, rx2, ry2, Emu(45000), lh2, C_GOLD)
-    tb(s, rx2 + Emu(75000), ry2 + Emu(55000), rw2 - Emu(95000), Emu(280000),
-       "アドラバーストの遊び方", 11, bold=True, color=C_GOLD, font=FONT_H)
-    tb(s, rx2 + Emu(75000), ry2 + Emu(360000), rw2 - Emu(95000), lh2 - Emu(420000),
+    tb(s, rx2 + Emu(75000), ry2 + Emu(50000), rw2 - Emu(95000), Emu(270000),
+       "アドラバースト（穢レ無キ炎）の遊び方", 11, bold=True, color=C_GOLD, font=FONT_H)
+    tb(s, rx2 + Emu(75000), ry2 + Emu(340000), rw2 - Emu(95000), lh2 - Emu(400000),
        "【到達ルート】\n"
-       "アドラリンク成功 → 最上位ボーナスへ。\n"
-       "または伝導者決戦での特殊勝利パターン。\n\n"
-       "【期待枚数約2,760枚の根拠】\n"
-       "ボーナス消化中の獲得枚数＋炎炎大戦\n"
-       "ループによる出玉の合算値。\n"
-       "1回突入するだけで大きなプラスが見込める。\n\n"
-       "【打ち方のコツ】\n"
-       "アドラバースト中は演出をしっかり見届ける。\n"
-       "終了画面に設定示唆が出ることがある。\n"
-       "消化終了後もすぐに離席しないこと。",
+       "① ボーナス消化中の森羅万象CZ成功\n"
+       "② アドラチャレンジ（別途CZ）成功\n\n"
+       "【期待枚数約2,760枚の内訳】\n"
+       "ボーナス消化中の獲得枚数＋炎炎大戦ループ\n"
+       "による出玉の合算。JACゲームとの組み合わせで\n"
+       "大量獲得が実現する構造。\n\n"
+       "【打ち方・注意点】\n"
+       "アドラバースト突入時は演出を最後まで確認。\n"
+       "終了画面に設定示唆が表示される場合がある。\n"
+       "消化中は離席厳禁。JACゲーム中の役把握も重要。",
        8, color=C_WHITE)
 
     net_note(s)
-    footer(s, "上位モードの到達は「炎炎激闘で伝導者決戦に勝ち続ける」の延長線上にある自然な昇格設計",
-           "アドラバーストは期待枚数2,760枚という明確な数字が打ち手の目標設定を助ける")
+    footer(s, "上位モードの階層：炎炎激闘→炎炎大戦（ループ率80%）→紅J大戦（2,050枚）→アドラバースト（2,760枚）",
+           "アドラリンクで十字リプレイを引けた場合は紅J大戦昇格濃厚。これが最大の出玉上振れルート")
 
 
 # ══════════════════════════════════════════════════════════════
@@ -673,34 +681,36 @@ def s_design(prs):
     s = new_slide(prs)
     hdr(s, "面白さの設計 ── なぜ炎炎ノ消防隊2は面白いのか", "7/9")
 
-    # 5つの設計原則
     principles = [
-        (C_FIRE,  "① 毎ゲーム「起きるかも」のドキドキ感",
-         "十字目変換はリプレイが来るたびに発生チャンス。\n"
-         "つまりほぼ毎数ゲームにドキドキの瞬間がある。\n"
-         "「スロットを回す」行為そのものに意味を持たせる設計。"),
-        (C_FIRE2, "② 炎の色という直感的な期待度表示",
-         "白→青→赤という色の強さ＝期待度の高さが直感的。\n"
-         "説明書なしで「赤が出たら熱い」と感じられる\n"
-         "初心者にも優しいUX設計になっている。"),
-        (C_ORG,   "③ 3回目必ず成功という「報われる」保証",
-         "2連続外れでも3回目は必ず変換成功する保険設計。\n"
-         "「絶対に外れ続けない」安心感がストレスを消し\n"
-         "集中力を長時間維持させる巧みな心理設計。"),
+        (C_FIRE,  "① 毎ゲーム「起きるかも」の緊張感",
+         "十字目変換は約1/100と頻繁に発生。\n"
+         "リプレイを引くたびに「変換するか？」の\n"
+         "ドキドキが生まれる。スロットを回す行為\n"
+         "そのものに意味を持たせる設計。"),
+        (C_FIRE2, "② キャラ変換演出という直感的期待度表示",
+         "十字マーク→アイリス→シンラ→紅丸と\n"
+         "キャラの格で期待度が直感でわかる。\n"
+         "原作ファンには感情移入を促す二重設計。\n"
+         "初心者もベテランも楽しめるUX。"),
+        (C_ORG,   "③ ストック型継続という「残弾数」の安心感",
+         "ストックが残る限りセットが続く設計。\n"
+         "「あと何セット確定している」という\n"
+         "残弾数感覚が離席を防ぎ継続プレイを促す。\n"
+         "15G再セットも含めたストレスフリー設計。"),
         (C_CYAN,  "④ アドラリンクによる自力感の演出",
-         "打ち手が「自分でボーナスを当てた」と感じる仕掛け。\n"
-         "受け身のボーナス待ちでなく能動的に参加する感覚が\n"
-         "没入感とリピート意欲を高める核心メカニズム。"),
-        (C_FLAME, "⑤ 常に「上」が見える多層構造",
-         "炎炎激闘→炎炎大戦→超炎炎大戦→アドラバーストと\n"
-         "常に上位状態が存在する。\"次のレベル\"が見えることで\n"
-         "プレイヤーの目標が途切れず離席抑制につながる。"),
+         "前兆中に割り込む3GのCZ。打ち手が\n"
+         "「自分でボーナスを引いた」と感じる仕組み。\n"
+         "3段ロックの視覚演出が期待感を段階的に\n"
+         "高め、没入感とリピート意欲を生む。"),
+        (C_FLAME, "⑤ 常に「上のレベル」が見える多層構造",
+         "炎炎激闘→炎炎大戦→紅J大戦→アドラバースト\n"
+         "と常に上位状態が存在し続ける。\n"
+         "\"次のステージ\"への目標が途切れず\n"
+         "プレイヤーの離席抑制につながる設計。"),
     ]
-    # 2列 3+2 レイアウト
     bw_p = Inches(4.55)
-    bh_p = Emu(1250000)
-    gx = Inches(0.25)
-    gy = Inches(0.14)
+    bh_p = Emu(1200000)
+    gy = Inches(0.10)
 
     positions = [
         (Inches(0.28),  Inches(0.72)),
@@ -709,12 +719,11 @@ def s_design(prs):
         (Inches(5.17),  Inches(0.72) + bh_p + gy),
         (Inches(0.28),  Inches(0.72) + 2 * (bh_p + gy)),
     ]
-    # ⑤は横幅を広げてセンターに
     for i, (ac, t, b) in enumerate(principles):
         if i == 4:
             px = Inches(0.28)
             pw = Inches(9.44)
-            ph = Emu(1150000)
+            ph = Emu(1100000)
         else:
             px, _ = positions[i]
             pw = bw_p
@@ -723,14 +732,14 @@ def s_design(prs):
 
         rect_b(s, px, py, pw, ph, C_CARD, ac, 1.5)
         rect(s, px, py, Emu(40000), ph, ac)
-        tb(s, px + Emu(70000), py + Emu(55000), pw - Emu(90000), Emu(270000),
+        tb(s, px + Emu(70000), py + Emu(50000), pw - Emu(90000), Emu(260000),
            t, 9.5, bold=True, color=ac, font=FONT_H)
-        tb(s, px + Emu(70000), py + Emu(340000), pw - Emu(90000), ph - Emu(400000),
+        tb(s, px + Emu(70000), py + Emu(330000), pw - Emu(90000), ph - Emu(390000),
            b, 8, color=C_WHITE)
 
     net_note(s)
-    footer(s, "面白さの核心：「リプレイ毎のドキドキ×直感的炎色×保険設計×自力感×多層目標」の5要素が絡み合う",
-           "炎の色という原作モチーフをゲーム性に昇華した点が本機の最大の設計的美しさ")
+    footer(s, "面白さの核心：「1/100の十字目変換×キャラ期待度演出×ストック残弾感×自力感×多層目標」の5要素連鎖",
+           "炎（原作モチーフ）をキャラ変換演出のランク指標に昇華した点が本機の設計的美しさの真骨頂")
 
 
 # ══════════════════════════════════════════════════════════════
@@ -740,78 +749,77 @@ def s_pros_cons(prs):
     s = new_slide(prs)
     hdr(s, "良い点と課題 ── 設計の強みと改善余地", "8/9")
 
-    # 良い点（左）
     lx, ly = Inches(0.28), Inches(0.72)
     lw = Inches(4.5)
 
-    rect(s, lx, ly, lw, Emu(290000), C_GREEN)
-    tb(s, lx + Emu(60000), ly + Emu(55000), lw - Emu(80000), Emu(220000),
+    rect(s, lx, ly, lw, Emu(260000), C_GREEN)
+    tb(s, lx + Emu(60000), ly + Emu(55000), lw - Emu(80000), Emu(200000),
        "良い点 ── 設計的強み", 10, bold=True, color=C_BG)
 
     pros = [
-        (C_GREEN, "高純増5.8枚/Gという圧倒的スピード",
-         "現行機で最高水準の純増速度。\n"
-         "炎炎大戦ループ中の出玉爆発体験が\n"
-         "他台との最大の差別化になっている。"),
-        (C_GREEN, "十字目変換フローの毎G緊張感",
-         "リプレイ毎にドキドキが発生する設計で\n"
-         "退屈しない遊技体験を提供。\n"
-         "炎色演出が初心者にも直感的でわかりやすい。"),
-        (C_GREEN, "3回目強制成功という心理的安心設計",
-         "「外れ続けない」保証が打ち手のストレスを\n"
-         "大幅に軽減。長時間プレイを促進する。"),
-        (C_GREEN, "二段階天井で投資計画が立てやすい",
-         "850G+2,000Gの多層保護で\n"
-         "ハイエナ狙いも明確。\n"
-         "来店計画が立てやすいホール訴求力がある。"),
+        (C_GREEN, "高純増5.8枚/G×ボーナス中も共通",
+         "ボーナス消化中・AT中ともに純増5.8枚で\n"
+         "出玉速度が統一されている。ループ中の\n"
+         "体感出玉スピードが圧倒的。"),
+        (C_GREEN, "キャラ変換演出による直感的期待度設計",
+         "アイリス・シンラ・紅丸という原作キャラの\n"
+         "格が期待度順。原作ファン以外も\n"
+         "画面を見ただけで期待感を直感できる。"),
+        (C_GREEN, "3段階天井＋スルー天井の多層セーフティ",
+         "850G天井・2,000G天井・5スルー天井で\n"
+         "ハイエナ立ち回りも計画しやすい。\n"
+         "投資上限が明確で安心感が高い。"),
+        (C_GREEN, "ストック型×ループ型の複合AT設計",
+         "炎炎激闘（ストック管理）と炎炎大戦\n"
+         "（ループ型）の2層構造が出玉の\n"
+         "予測感と意外性を同時に提供する。"),
     ]
     for i, (ac, t, b) in enumerate(pros):
-        iy = ly + Emu(290000) + i * Emu(1160000)
-        rect_b(s, lx, iy, lw, Emu(1090000), C_CARD, ac, 1.2)
-        rect(s, lx, iy, Emu(35000), Emu(1090000), ac)
-        tb(s, lx + Emu(60000), iy + Emu(50000), lw - Emu(80000), Emu(260000),
+        iy = ly + Emu(260000) + i * Emu(1140000)
+        rect_b(s, lx, iy, lw, Emu(1070000), C_CARD, ac, 1.2)
+        rect(s, lx, iy, Emu(35000), Emu(1070000), ac)
+        tb(s, lx + Emu(60000), iy + Emu(48000), lw - Emu(80000), Emu(250000),
            t, 8.5, bold=True, color=ac)
-        tb(s, lx + Emu(60000), iy + Emu(310000), lw - Emu(80000), Emu(680000),
+        tb(s, lx + Emu(60000), iy + Emu(300000), lw - Emu(80000), Emu(660000),
            b, 7.5, color=C_WHITE)
 
-    # 課題（右）
     rx, ry = Inches(5.0), Inches(0.72)
     rw = Inches(4.7)
 
-    rect(s, rx, ry, rw, Emu(290000), C_RED)
-    tb(s, rx + Emu(60000), ry + Emu(55000), rw - Emu(80000), Emu(220000),
+    rect(s, rx, ry, rw, Emu(260000), C_RED)
+    tb(s, rx + Emu(60000), ry + Emu(55000), rw - Emu(80000), Emu(200000),
        "課題 ── 改善余地・注意点", 10, bold=True, color=C_WHITE)
 
     cons = [
-        (C_RED,   "天井②2,000Gの投資負担",
-         "炎炎激闘間2,000Gは非常に長い。\n"
-         "天井②を狙う場合は大きな投資が必要で\n"
-         "ライトユーザーには厳しい設定。"),
-        (C_FIRE,  "十字目変換の連続外れ体験",
-         "3回目保証はあるものの、2連続外れは\n"
-         "感情的にマイナス体験になりやすい。\n"
-         "保険を知らない初心者には不安を与える。"),
+        (C_RED,   "天井②（2,000G）の投資負担の大きさ",
+         "炎炎ループ間2,000Gは非常に長い設定。\n"
+         "天井②を狙う際は大きな投資が必要で\n"
+         "ライトユーザーには敷居が高い。"),
+        (C_FIRE,  "伝導者の罠スルー天井の複雑さ",
+         "5スルー天井という独自カウント概念が\n"
+         "初心者には理解しにくい。\n"
+         "カウント方法を知らないと損をする場面も。"),
         (C_ORG,   "設定判別難易度の高さ",
-         "REGボーナスのシナリオが最重要だが\n"
+         "REGボーナスのシナリオが設定差の主軸だが\n"
          "引けなければ判別不能に近い。\n"
-         "高設定を確信するまでに時間がかかる。"),
-        (C_GRAY,  "上位AT到達前の単調感",
-         "炎炎激闘の15Gが積み重なる前の段階は\n"
-         "単純作業感が出やすい。\n"
-         "ストック数が少ない序盤は離脱リスクあり。"),
+         "高設定確信まで時間とゲーム数が必要。"),
+        (C_GRAY,  "炎炎激闘序盤の単調感",
+         "ストック数が少ない序盤は15G×数セットの\n"
+         "繰り返しで単純作業感が出やすい。\n"
+         "炎炎大戦に乗るまでの我慢が必要。"),
     ]
     for i, (ac, t, b) in enumerate(cons):
-        iy = ry + Emu(290000) + i * Emu(1160000)
-        rect_b(s, rx, iy, rw, Emu(1090000), C_CARD, ac, 1.2)
-        rect(s, rx, iy, Emu(35000), Emu(1090000), ac)
-        tb(s, rx + Emu(60000), iy + Emu(50000), rw - Emu(80000), Emu(260000),
+        iy = ry + Emu(260000) + i * Emu(1140000)
+        rect_b(s, rx, iy, rw, Emu(1070000), C_CARD, ac, 1.2)
+        rect(s, rx, iy, Emu(35000), Emu(1070000), ac)
+        tb(s, rx + Emu(60000), iy + Emu(48000), rw - Emu(80000), Emu(250000),
            t, 8.5, bold=True, color=ac)
-        tb(s, rx + Emu(60000), iy + Emu(310000), rw - Emu(80000), Emu(680000),
+        tb(s, rx + Emu(60000), iy + Emu(300000), rw - Emu(80000), Emu(660000),
            b, 7.5, color=C_WHITE)
 
     net_note(s)
-    footer(s, "強みと課題を把握することが設計学習の要点：強みを他機種に応用し、課題を次世代機で克服する視点を持つ",
-           "特に天井②の長さとライトユーザー離脱リスクは導入ホール側のケアが重要な課題")
+    footer(s, "強みと課題の両面把握が設計学習の本質：強みを他機種に応用し、課題を次世代設計で克服する視点を持つ",
+           "伝導者の罠スルー天井の複雑さはゲームセンター的な深みでもあり、ヘビーユーザーには魅力になり得る")
 
 
 # ══════════════════════════════════════════════════════════════
@@ -821,79 +829,78 @@ def s_matome(prs):
     s = new_slide(prs)
     hdr(s, "まとめ ── 設計から学べること", "9/9")
 
-    # 左：設計の核心3点
     lx, ly = Inches(0.28), Inches(0.72)
     lw = Inches(4.5)
 
-    rect(s, lx, ly, lw, Emu(290000), RGBColor(0x55, 0x18, 0x00))
-    tb(s, lx + Emu(60000), ly + Emu(55000), lw - Emu(80000), Emu(220000),
+    rect(s, lx, ly, lw, Emu(260000), RGBColor(0x55, 0x18, 0x00))
+    tb(s, lx + Emu(60000), ly + Emu(55000), lw - Emu(80000), Emu(200000),
        "炎炎ノ消防隊2 ── 設計的強み総括", 10, bold=True, color=C_ORG)
 
     strengths = [
         (C_FIRE,  "十字目変換フローという核心設計",
-         "リプレイ→小V停止→PUSH→炎色変換→伝導者決戦\n"
-         "という連鎖が毎Gの緊張感を生む。\n"
-         "3回目強制成功の保険がストレスを消す。"),
-        (C_FLAME, "5.8枚/Gという出玉体験の圧倒性",
-         "炎炎大戦ループ中の出玉爆発が\n"
-         "他台にはない「速くて大きな勝ち体験」を提供。\n"
-         "来店動機・リピート動機の最大要因。"),
-        (C_CYAN,  "投資計画を支援する二段階天井",
-         "850G+2,000Gの多層セーフティで\n"
-         "プレイヤーが安心して遊べる設計。\n"
-         "天井狙いの立ち回りも計画しやすい。"),
+         "レア役→1/100で十字目変換発生→\n"
+         "キャラ変換演出で期待度可視化→伝導者決戦\n"
+         "という緊張感の連鎖が毎Gを意味ある時間にする。"),
+        (C_FLAME, "5.8枚/G×ループ型ATの出玉体験",
+         "炎炎大戦ループ率80%×純増5.8枚/Gが\n"
+         "他台にない「速くて大きな勝ち体験」を提供。\n"
+         "紅J大戦・アドラバーストが夢として機能。"),
+        (C_CYAN,  "3段階天井＋スルー天井の安心設計",
+         "850G・2,000G・5スルー天井の多層構造で\n"
+         "投資計画が立てやすく来店動機になる。\n"
+         "ハイエナ立ち回りの明確な指標にもなる。"),
     ]
     for i, (ac, t, b) in enumerate(strengths):
-        iy = ly + Emu(290000) + i * Emu(1280000)
+        iy = ly + Emu(260000) + i * Emu(1280000)
         rect_b(s, lx, iy, lw, Emu(1210000), C_CARD, ac, 1.5)
         rect(s, lx, iy, Emu(40000), Emu(1210000), ac)
-        tb(s, lx + Emu(70000), iy + Emu(55000), lw - Emu(90000), Emu(270000),
+        tb(s, lx + Emu(70000), iy + Emu(50000), lw - Emu(90000), Emu(260000),
            t, 9, bold=True, color=ac)
-        tb(s, lx + Emu(70000), iy + Emu(330000), lw - Emu(90000), Emu(780000),
+        tb(s, lx + Emu(70000), iy + Emu(325000), lw - Emu(90000), Emu(780000),
            b, 8, color=C_WHITE)
 
-    # 右：設計原則と総括
     rx, ry = Inches(5.0), Inches(0.72)
     rw = Inches(4.7)
 
-    rect(s, rx, ry, rw, Emu(290000), C_CARD2)
-    tb(s, rx + Emu(60000), ry + Emu(55000), rw - Emu(80000), Emu(220000),
+    rect(s, rx, ry, rw, Emu(260000), C_CARD2)
+    tb(s, rx + Emu(60000), ry + Emu(55000), rw - Emu(80000), Emu(200000),
        "設計から学べる原則", 10, bold=True, color=C_ORG, font=FONT_H)
 
     principles = [
         (C_FIRE,  "毎Gの行動に意味を持たせよ",
-         "「リプレイを引いたら何かが起きる」という\n仕組みが打ち手を能動的にする"),
-        (C_FIRE2, "期待度は色で直感的に伝えよ",
-         "白→青→赤という直感UXが\n初心者とベテラン両方を取り込む"),
-        (C_ORG,   "「報われる」保証を設計に組み込め",
-         "3回目強制成功のような\n安心設計がストレスを消し長時間稼働を促す"),
+         "1/100の変換チャンスが打ち手を\n能動的にし、回し続けるモチベーションを生む"),
+        (C_FIRE2, "期待度はキャラの格で直感的に伝えよ",
+         "アイリス<シンラ<紅丸という\n原作序列＝期待度がUXと物語を融合させる"),
+        (C_ORG,   "「残弾数」で安心感を設計せよ",
+         "ストック型のセット継続保証が\nストレスを消し長時間稼働を促す"),
         (C_FLAME, "常に上の目標を見せよ",
-         "多層構造の上位状態が\nプレイヤーの離席を防ぎ連チャン体験を作る"),
+         "多層の上位ATが\"次のステージ\"を\n常に提示し離席を防ぐ設計の鉄則"),
     ]
     for i, (ac, t, b) in enumerate(principles):
-        py0 = ry + Emu(290000) + i * Emu(770000)
-        rect_b(s, rx, py0, rw, Emu(720000), C_CARD, ac, 1.0)
-        rect(s, rx, py0, Emu(30000), Emu(720000), ac)
-        tb(s, rx + Emu(55000), py0 + Emu(50000), rw - Emu(75000), Emu(240000),
+        py0 = ry + Emu(260000) + i * Emu(760000)
+        rect_b(s, rx, py0, rw, Emu(710000), C_CARD, ac, 1.0)
+        rect(s, rx, py0, Emu(30000), Emu(710000), ac)
+        tb(s, rx + Emu(55000), py0 + Emu(48000), rw - Emu(75000), Emu(230000),
            t, 8.5, bold=True, color=ac)
-        tb(s, rx + Emu(55000), py0 + Emu(290000), rw - Emu(75000), Emu(360000),
+        tb(s, rx + Emu(55000), py0 + Emu(285000), rw - Emu(75000), Emu(350000),
            b, 7.5, color=C_WHITE)
 
     # 総括ボックス
-    rect_b(s, rx, ry + Emu(3380000), rw, Emu(1000000),
+    rect_b(s, rx, ry + Emu(3310000), rw, Emu(1060000),
            RGBColor(0x1A, 0x06, 0x02), C_FIRE, 2.0)
-    rect(s, rx, ry + Emu(3380000), Emu(40000), Emu(1000000), C_FIRE)
-    tb(s, rx + Emu(65000), ry + Emu(3430000), rw - Emu(85000), Emu(260000),
+    rect(s, rx, ry + Emu(3310000), Emu(40000), Emu(1060000), C_FIRE)
+    tb(s, rx + Emu(65000), ry + Emu(3360000), rw - Emu(85000), Emu(250000),
        "総括", 9, bold=True, color=C_FIRE)
-    tb(s, rx + Emu(65000), ry + Emu(3700000), rw - Emu(85000), Emu(620000),
-       "十字目変換×高純増×二段階天井の三位一体。\n"
-       "原作の「炎の色」をゲーム性に昇華した\n"
+    tb(s, rx + Emu(65000), ry + Emu(3620000), rw - Emu(85000), Emu(690000),
+       "十字目変換×キャラ期待度演出×3段階天井×ループ型AT\n"
+       "という4要素の統合設計。\n"
+       "原作「炎」の世界観をゲーム性に昇華した\n"
        "2026年導入機の中で設計完成度が高い一台。",
        8, color=C_WHITE)
 
     net_note(s)
-    footer(s, "本機の設計思想：「毎Gに意味・直感的期待表示・保険設計・多層目標」の4原則を次世代機設計に活用せよ",
-           "炎炎ノ消防隊2の十字目変換フローは現代ATの教科書的事例として参照価値が高い")
+    footer(s, "本機の設計思想：「毎G意味付け・キャラ期待度演出・残弾安心感・多層目標」の4原則を次世代機設計に活用せよ",
+           "十字目変換フロー＋キャラ変換演出の組み合わせは現代ATの教科書的事例として参照価値が高い")
 
 
 # ══════════════════════════════════════════════════════════════
@@ -904,15 +911,15 @@ def main():
     prs.slide_width = SLIDE_W
     prs.slide_height = SLIDE_H
 
-    s_title(prs)    # 1: タイトル・スペック・3ポイント
-    s_flow(prs)     # 2: ゲームフロー全体図
-    s_normal(prs)   # 3: 通常時の遊び方
-    s_at_flow(prs)  # 4: AT炎炎激闘・十字目変換フロー詳細
-    s_extend(prs)   # 5: 出玉を伸ばす方法
-    s_upper(prs)    # 6: 上位モード
-    s_design(prs)   # 7: 面白さの設計
+    s_title(prs)     # 1: タイトル・スペック・3ポイント
+    s_flow(prs)      # 2: ゲームフロー全体図
+    s_normal(prs)    # 3: 通常時の遊び方
+    s_at_flow(prs)   # 4: AT炎炎激闘・十字目変換フロー詳細
+    s_extend(prs)    # 5: 出玉を伸ばす方法
+    s_upper(prs)     # 6: 上位モード
+    s_design(prs)    # 7: 面白さの設計
     s_pros_cons(prs) # 8: 良い点と課題
-    s_matome(prs)   # 9: まとめ・設計から学べること
+    s_matome(prs)    # 9: まとめ・設計から学べること
 
     prs.save(OUT_PATH)
     print(f"Saved: {OUT_PATH}")
