@@ -1,13 +1,12 @@
 """
-「真打吉宗」完全解説 PowerPoint ジェネレーター
-出力: proposals/yoshimune_guide_v1.pptx
+L真打吉宗 機種分析資料  （大都技研・2026年4月6日導入）
+出力: proposals/機種分析/真打吉宗/yoshimune_analysis.pptx
+テーマ: 和黒 × 紫 × 橙（吉宗世界観）
 """
 import io
 import os
 import sys
-import random
-import urllib.request
-from PIL import Image as PILImage, ImageDraw, ImageFilter, ImageEnhance
+from PIL import Image as PILImage, ImageDraw
 from pptx import Presentation
 from pptx.util import Inches, Pt, Emu
 from pptx.dml.color import RGBColor
@@ -15,166 +14,114 @@ from pptx.enum.text import PP_ALIGN
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-OUT_PATH = os.path.join(os.path.dirname(__file__), "proposals", "yoshimune_guide_v11.pptx")
+OUT_PATH = os.path.join(os.path.dirname(__file__),
+           "proposals", "機種分析", "真打吉宗", "yoshimune_analysis.pptx")
+os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
 
-# ── カラーパレット（江戸・吉宗テーマ）──────────────────────────
-C_BG       = RGBColor(0x07, 0x07, 0x0E)   # 深夜の黒
-C_CARD     = RGBColor(0x12, 0x0C, 0x04)   # 漆黒・焦げ茶
-C_CARD2    = RGBColor(0x10, 0x10, 0x28)   # 藍
-C_GOLD     = RGBColor(0xD4, 0xA5, 0x20)   # 金
-C_GOLD2    = RGBColor(0xFF, 0xD7, 0x60)   # 明るい金
-C_RED      = RGBColor(0xCC, 0x22, 0x00)   # 朱
-C_CRIMSON  = RGBColor(0x99, 0x00, 0x00)   # 深紅
-C_INDIGO   = RGBColor(0x1A, 0x1A, 0x5C)   # 藍色
-C_BLUE     = RGBColor(0x33, 0x66, 0xDD)   # 青
-C_LTBLUE   = RGBColor(0x88, 0xAA, 0xFF)   # 薄青
-C_CREAM    = RGBColor(0xF5, 0xE6, 0xC8)   # 和紙色
-C_WHITE    = RGBColor(0xFF, 0xFF, 0xFF)
-C_LTGRAY   = RGBColor(0xBB, 0xBB, 0xBB)
-C_GRAY     = RGBColor(0x88, 0x88, 0x88)
-C_DARKGRAY = RGBColor(0x44, 0x44, 0x44)
-C_GREEN    = RGBColor(0x22, 0xBB, 0x55)
-C_ORANGE   = RGBColor(0xFF, 0x88, 0x00)
-C_YELLOW   = RGBColor(0xFF, 0xEE, 0x44)
-C_PURPLE   = RGBColor(0x88, 0x33, 0xCC)
+# ── カラーパレット（和黒×紫×橙）───────────────────────────────
+C_BG    = RGBColor(0x08, 0x04, 0x14)   # 和黒
+C_CARD  = RGBColor(0x10, 0x08, 0x20)
+C_CARD2 = RGBColor(0x18, 0x10, 0x2C)
+C_ROW   = RGBColor(0x14, 0x0C, 0x24)
+C_PUR   = RGBColor(0x88, 0x22, 0xCC)   # 紫（吉宗メインカラー）
+C_PUR2  = RGBColor(0xAA, 0x55, 0xFF)   # 明るい紫
+C_ORG   = RGBColor(0xFF, 0x77, 0x11)   # 橙（真BB色）
+C_ORG2  = RGBColor(0xFF, 0xAA, 0x44)   # 明るい橙
+C_GOLD  = RGBColor(0xC8, 0xA8, 0x40)   # 金
+C_GOLD2 = RGBColor(0xFF, 0xD7, 0x00)
+C_RED   = RGBColor(0xCC, 0x22, 0x22)
+C_WHITE = RGBColor(0xE8, 0xE8, 0xF4)
+C_CREAM = RGBColor(0xD0, 0xC0, 0xA0)
+C_GRAY  = RGBColor(0x88, 0x88, 0xAA)
+C_LTGRY = RGBColor(0x44, 0x44, 0x66)
+C_GREEN = RGBColor(0x22, 0xCC, 0x66)
 
+FONT_H = "游明朝"
+FONT_B = "メイリオ"
 SLIDE_W = Inches(10)
 SLIDE_H = Inches(5.625)
 
 
-# ── Pillow 背景生成 ────────────────────────────────────────────
-def make_edo_bg(width=960, height=540):
-    """江戸風暗い背景"""
-    random.seed(7)
-    img = PILImage.new("RGB", (width, height), (7, 7, 14))
+def make_bg(w=1280, h=720):
+    img = PILImage.new("RGB", (w, h), (8, 4, 20))
     draw = ImageDraw.Draw(img)
-
-    # 縦縞（暖簾風）
-    for x in range(0, width, 48):
-        alpha_val = random.randint(8, 22)
-        col = random.choice([(80, 40, 0), (60, 10, 10), (20, 20, 60)])
-        draw.rectangle([x, 0, x + 22, height], fill=(*col,))
-
-    # 霧・靄
-    overlay = PILImage.new("RGBA", (width, height), (0, 0, 0, 0))
-    od = ImageDraw.Draw(overlay, "RGBA")
-    for _ in range(80):
-        x = random.randint(0, width)
-        y = random.randint(0, height)
-        r = random.randint(40, 200)
-        a = random.randint(5, 25)
-        od.ellipse([x - r, y - r, x + r, y + r], fill=(20, 10, 5, a))
-    img = PILImage.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
-    img = img.filter(ImageFilter.GaussianBlur(2))
-    return img
-
-
-def make_title_bg(width=960, height=540):
-    """タイトル用 赤×金×黒"""
-    img = make_edo_bg(width, height)
-    draw = ImageDraw.Draw(img)
-    # 右側に赤い縦帯
-    draw.rectangle([width - 320, 0, width, height], fill=(80, 5, 5))
-    # 金の装飾線
-    for y in range(0, height, 60):
-        draw.line([(width - 320, y), (width, y)], fill=(100, 70, 10), width=1)
-    img = img.filter(ImageFilter.GaussianBlur(1))
-    return img
-
-
-def pil_to_stream(pil_img):
+    # 斜めライン
+    for i in range(0, w + h, 80):
+        draw.line([(i, 0), (0, i)], fill=(12, 8, 28), width=1)
+    # 下部の紫グロー
+    for y in range(h - 80, h):
+        t = (y - (h - 80)) / 80
+        draw.line([(0, y), (w, y)], fill=(int(25 * t), 0, int(35 * t)))
+    # 上部薄暗化
+    for y in range(0, 40):
+        t = (40 - y) / 40 * 0.5
+        draw.line([(0, y), (w, y)], fill=(0, 0, int(8 * t)))
     buf = io.BytesIO()
-    pil_img.save(buf, format="PNG")
+    img.save(buf, "PNG")
     buf.seek(0)
     return buf
 
 
-# ── pptx ヘルパー ──────────────────────────────────────────────
-def new_slide(prs, bg=C_BG):
+def new_slide(prs):
     s = prs.slides.add_slide(prs.slide_layouts[6])
-    fill = s.background.fill
-    fill.solid()
-    fill.fore_color.rgb = bg
+    bg = make_bg()
+    pic = s.shapes.add_picture(bg, 0, 0, SLIDE_W, SLIDE_H)
+    s.shapes._spTree.remove(pic._element)
+    s.shapes._spTree.insert(2, pic._element)
     return s
 
 
-def add_pic(slide, pil_img, left, top, w, h):
-    slide.shapes.add_picture(pil_to_stream(pil_img), left, top, w, h)
-
-
-def rect(slide, l, t, w, h, color):
-    shp = slide.shapes.add_shape(1, l, t, w, h)
+def rect(slide, x, y, w, h, color):
+    shp = slide.shapes.add_shape(1, x, y, w, h)
     shp.fill.solid()
     shp.fill.fore_color.rgb = color
     shp.line.fill.background()
     return shp
 
 
-def rect_b(slide, l, t, w, h, fill, border, bpt=1.5):
-    shp = slide.shapes.add_shape(1, l, t, w, h)
+def rect_b(slide, x, y, w, h, fill, border, bw=1.0):
+    shp = slide.shapes.add_shape(1, x, y, w, h)
     shp.fill.solid()
     shp.fill.fore_color.rgb = fill
     shp.line.color.rgb = border
-    shp.line.width = Pt(bpt)
+    shp.line.width = Pt(bw)
     return shp
 
 
-def tb(slide, l, t, w, h, text, sz=10, bold=False, color=C_WHITE,
-       align=PP_ALIGN.LEFT, italic=False, wrap=True):
-    txb = slide.shapes.add_textbox(l, t, w, h)
-    tf = txb.text_frame
+def tb(slide, x, y, w, h, text, size=10, bold=False, color=None,
+       align=PP_ALIGN.LEFT, font=None, wrap=True):
+    tf = slide.shapes.add_textbox(x, y, w, h).text_frame
     tf.word_wrap = wrap
     p = tf.paragraphs[0]
     p.alignment = align
     run = p.add_run()
     run.text = text
-    run.font.size = Pt(sz)
+    run.font.size = Pt(size)
     run.font.bold = bold
-    run.font.italic = italic
-    run.font.color.rgb = color
-    run.font.name = "メイリオ"
-    return txb
+    run.font.color.rgb = color or C_WHITE
+    run.font.name = font or FONT_B
 
 
-def net_note(slide, text="※ネットより"):
-    tb(slide, Inches(8.5), Inches(5.38), Inches(1.4), Emu(200000),
-       text, 7, color=C_GRAY, align=PP_ALIGN.RIGHT)
+def hdr(slide, title_text, pg=""):
+    rect(slide, 0, 0, SLIDE_W, Inches(0.58), C_CARD)
+    rect(slide, 0, 0, Emu(45000), Inches(0.58), C_PUR)
+    tb(slide, Inches(0.15), Emu(28000), Inches(8.5), Emu(410000),
+       title_text, 14, bold=True, color=C_ORG, font=FONT_H)
+    if pg:
+        tb(slide, Inches(8.8), Emu(45000), Inches(1.0), Emu(340000),
+           pg, 8, color=C_GRAY, align=PP_ALIGN.RIGHT)
+    rect(slide, 0, Inches(0.58), SLIDE_W, Emu(7000), C_PUR)
 
 
-def hdr(slide, text, color=C_GOLD):
-    rect(slide, Inches(0), Inches(0), SLIDE_W, Emu(430000), RGBColor(0x12, 0x08, 0x02))
-    rect(slide, Inches(0), Inches(0), Emu(80000), Emu(430000), color)
-    tb(slide, Emu(150000), Emu(60000), Inches(9.5), Emu(340000),
-       text, 14, bold=True, color=color)
+def note(slide):
+    tb(slide, Inches(8.2), Inches(5.38), Inches(1.7), Emu(180000),
+       "※ネット解析情報より", 7, color=C_GRAY, align=PP_ALIGN.RIGHT)
 
 
-def mini_card(slide, l, t, w, h, title, body, tc=C_GOLD, bc=C_CREAM, bg=None, sz_body=9):
-    bg_col = bg or C_CARD
-    rect_b(slide, l, t, w, h, bg_col, tc, 1.5)
-    tb(slide, l + Emu(80000), t + Emu(60000), w - Emu(160000), Emu(320000),
-       title, 9.5, bold=True, color=tc)
-    tb(slide, l + Emu(80000), t + Emu(360000), w - Emu(160000), h - Emu(420000),
-       body, sz_body, color=bc)
-
-
-def flow_box(slide, l, t, w, h, text, fill, border, sz=9.5, bold=True):
-    rect_b(slide, l, t, w, h, fill, border, 1.5)
-    tb(slide, l, t, w, h, text, sz, bold=bold, color=C_WHITE, align=PP_ALIGN.CENTER)
-
-
-def arrow_r(slide, x, y, size=Emu(160000), color=C_GRAY):
-    shp = slide.shapes.add_shape(13, x, y - size // 4, size, size // 2)
+def arrow_r(slide, x, cy, col=None):
+    shp = slide.shapes.add_shape(13, x, cy - Emu(90000), Emu(200000), Emu(180000))
     shp.fill.solid()
-    shp.fill.fore_color.rgb = color
-    shp.line.fill.background()
-
-
-def arrow_d(slide, x, y, color=C_GRAY):
-    w, h = Emu(100000), Emu(180000)
-    shp = slide.shapes.add_shape(13, x - w // 2, y, w, h)
-    shp.rotation = 90
-    shp.fill.solid()
-    shp.fill.fore_color.rgb = color
+    shp.fill.fore_color.rgb = col or C_PUR
     shp.line.fill.background()
 
 
@@ -183,729 +130,445 @@ def arrow_d(slide, x, y, color=C_GRAY):
 # ══════════════════════════════════════════════════════════════
 def s_title(prs):
     s = new_slide(prs)
-    bg = make_title_bg(960, 540)
-    add_pic(s, bg, Inches(0), Inches(0), SLIDE_W, SLIDE_H)
 
-    # 左側オーバーレイ
-    rect(s, Inches(0), Inches(0), Inches(6.5), SLIDE_H, RGBColor(0x05, 0x03, 0x01))
+    # 左パネル
+    rect(s, 0, 0, Inches(5.4), SLIDE_H, RGBColor(0x06, 0x02, 0x10))
+    rect(s, 0, 0, Emu(55000), SLIDE_H, C_PUR)
+    rect(s, Inches(5.4), 0, Emu(8000), SLIDE_H, RGBColor(0x60, 0x10, 0x99))
 
-    # 縦アクセント線
-    rect(s, Inches(0.35), Inches(0.4), Emu(40000), Inches(3.2), C_GOLD)
+    tb(s, Inches(0.22), Inches(0.52), Inches(5.0), Emu(330000),
+       "機種分析資料", 12, color=C_GOLD, font=FONT_H)
+    tb(s, Inches(0.22), Inches(1.02), Inches(5.1), Emu(900000),
+       "L真打吉宗", 36, bold=True, color=C_ORG, font=FONT_H)
+    tb(s, Inches(0.22), Inches(2.9), Inches(5.0), Emu(330000),
+       "── 1G連×純増9枚で4号機の魂が甦る", 11, color=C_CREAM, font=FONT_H)
 
-    tb(s, Inches(0.55), Inches(0.45), Inches(5.5), Emu(380000),
-       "スマスロ 大都技研  2026年4月6日導入", 10, color=C_GRAY)
-    tb(s, Inches(0.55), Inches(0.9), Inches(5.8), Emu(600000),
-       "真打 吉宗", 48, bold=True, color=C_GOLD2)
-    tb(s, Inches(0.55), Inches(2.3), Inches(5.8), Emu(380000),
-       "2000枚が、次の1ゲームでもう1回来るかもしれない。それが怖くてたまらない台。", 11, italic=True, color=C_CREAM)
+    tb(s, Inches(0.22), Inches(3.5), Inches(4.9), Emu(230000),
+       "メーカー: 大都技研　　導入: 2026年4月6日", 9, color=C_GRAY)
+    tb(s, Inches(0.22), Inches(3.82), Inches(4.9), Emu(230000),
+       "設定: 1〜6段階　　BB純増: 約9.0枚/G", 9, color=C_GRAY)
+    tb(s, Inches(0.22), Inches(4.14), Inches(4.9), Emu(230000),
+       "1G連ループ: 真BB消化中に成立役で抽選", 9, color=C_GRAY)
 
-    # キャッチ
-    rect(s, Inches(0.55), Inches(3.1), Inches(5.5), Emu(700000), RGBColor(0x18, 0x08, 0x00))
-    rect(s, Inches(0.55), Inches(3.1), Emu(60000), Emu(700000), C_RED)
-    tb(s, Inches(0.75), Inches(3.18), Inches(5.1), Emu(650000),
-       "初代2003年から続く伝説のシリーズ最新作\n"
-       "「真BB 2000枚 × 1G連」で爆発する\n"
-       "一撃性能と周期システムを徹底解剖",
-       11, color=C_CREAM)
-
-    # 右下 導入情報
-    tb(s, Inches(6.6), Inches(4.8), Inches(3.2), Emu(320000),
-       "機械割  設定1: 97.8%  /  設定6: 114.0%",
-       9, color=C_GOLD, align=PP_ALIGN.RIGHT)
-
-
-# ══════════════════════════════════════════════════════════════
-#  SLIDE 2: 吉宗シリーズの歴史
-# ══════════════════════════════════════════════════════════════
-def _fetch_pil(url, w_px, h_px):
-    """URLから画像取得→アスペクト比を保ってリサイズ・中央配置。失敗時はプレースホルダーを返す"""
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            data = resp.read()
-        img = PILImage.open(io.BytesIO(data)).convert("RGB")
-        img.thumbnail((w_px, h_px), PILImage.LANCZOS)
-        canvas = PILImage.new("RGB", (w_px, h_px), (30, 20, 10))
-        offset_x = (w_px - img.width) // 2
-        offset_y = (h_px - img.height) // 2
-        canvas.paste(img, (offset_x, offset_y))
-        return canvas
-    except Exception:
-        return PILImage.new("RGB", (w_px, h_px), (30, 20, 10))
-
-
-def s_history(prs):
-    s = new_slide(prs)
-    hdr(s, "HISTORY  ──  吉宗シリーズの歴史と「真打」の意味")
-
-    machine_images = [
-        "https://img.p-gabu.jp/assets/machine/e6ae541d6d57ddd2db3074b9410a96f3/main_3d50d1ec9325ebd791acc1a191aac4d38ca5859d.jpg",
-        "https://img.p-gabu.jp/assets/machine/e30380ea91643047e0c358537d8ec4a5/main_f7170dd74a2447ecd6cc180d6ddabc7882079296.png",
-        "https://img.p-gabu.jp/assets/machine/7fbbd8d4343653d6b5587d6c3c321e9b/main_9548f239d08ef4508b86a51e812d0458a6895024.jpg",
-        "https://chonborista.com/wp-content/uploads/2023/12/l_yoshimune_rising_kyotai.jpg",
-        "https://images.1geki.jp/wp-content/uploads/2025/03/img_l_yoshimune.webp",
-        "https://images.1geki.jp/wp-content/uploads/2026/02/img_l_shinuchi_yoshimune.png",
+    # 右：3つのキーワード
+    kws = [
+        (C_PUR,  "勧善懲悪RUSH",    "CZ経由でAT突入\n真BBで出玉爆発"),
+        (C_ORG,  "真BB（純増9.0枚）", "1G連ループで連続BB\n究極鷹ブレイクで5000枚超"),
+        (C_GOLD, "究極鷹ブレイク",   "毎G1000枚ループ上乗せ\n実質5000枚以上確定"),
     ]
+    for i, (ac, kw, desc) in enumerate(kws):
+        y0 = Inches(0.7 + i * 1.55)
+        rect_b(s, Inches(5.65), y0, Inches(4.1), Inches(1.25), C_CARD, ac, 2.0)
+        rect(s, Inches(5.65), y0, Emu(60000), Inches(1.25), ac)
+        tb(s, Inches(5.85), y0 + Emu(55000), Inches(3.8), Emu(320000),
+           kw, 13, bold=True, color=ac, font=FONT_H)
+        tb(s, Inches(5.85), y0 + Emu(370000), Inches(3.8), Emu(420000),
+           desc, 8.5, color=C_WHITE)
 
-    timeline = [
-        ("2003", "初代 吉宗",
-         "BIG 711枚 × 1G連ボーナス機\n爆裂4号機・26万台設置\n吉宗/姫/爺の3種BB\n7を狙うゲーム性",
-         C_RED, C_CRIMSON),
-        ("2013", "吉宗",
-         "5号機AT機に転換\n純増約2.8枚・1セット40G\nシリーズを現代仕様に再構成",
-         C_GRAY, C_DARKGRAY),
-        ("2015", "吉宗 ～極～",
-         "BB払出320枚に強化\n1セット80G+αに拡張\nAT上乗せ性能を大幅強化",
-         C_GRAY, C_DARKGRAY),
-        ("2024", "吉宗RISING",
-         "スマスロ初復活\n純増4.0枚・AT平均711枚\n昇天ループ・爺と姫が仲間に",
-         C_GOLD, C_CARD),
-        ("2025", "L吉宗",
-         "純増7.11枚・BB 711枚\n1G連2回で「裏鷹狩り」\n期待枚数3600枚",
-         C_GOLD, C_CARD),
-        ("2026", "真打 吉宗",
-         "真BB 2000枚 × 1G連\n「7を狙う」DNA進化\n4月6日導入",
-         C_GOLD2, RGBColor(0x20, 0x10, 0x00)),
-    ]
-
-    IMG_H_EMU = Emu(800000)
-    IMG_W_PX, IMG_H_PX = 210, 120
-
-    bw = Inches(1.5)
-    bh = Inches(3.6)
-    by = Inches(0.85)
-    for i, ((year, name, desc, col, bg), img_url) in enumerate(zip(timeline, machine_images)):
-        bx = Inches(0.2) + i * (bw + Emu(80000))
-        is_latest = (i == 5)
-        border = C_GOLD2 if is_latest else (C_RED if i == 0 else C_DARKGRAY)
-        rect_b(s, bx, by, bw, bh, bg, border, 2.0 if is_latest else 1.0)
-
-        # 年ラベル
-        rect(s, bx, by, bw, Emu(380000), border)
-        tb(s, bx, by + Emu(50000), bw, Emu(300000),
-           year, 16, bold=True, color=C_WHITE if is_latest else C_BG,
-           align=PP_ALIGN.CENTER)
-
-        # 筐体画像
-        img = _fetch_pil(img_url, IMG_W_PX, IMG_H_PX)
-        add_pic(s, img, bx, by + Emu(390000), bw, IMG_H_EMU)
-
-        # 機種名・説明
-        tb(s, bx + Emu(80000), by + Emu(1230000), bw - Emu(160000), Emu(350000),
-           name, 9, bold=True, color=col)
-        tb(s, bx + Emu(80000), by + Emu(1570000), bw - Emu(160000), bh - Emu(1630000),
-           desc, 8, color=C_CREAM if is_latest else C_LTGRAY)
-
-    # 下部：歴史と真打の接続
-    rect(s, Inches(0.2), Inches(4.55), Inches(9.6), Emu(430000),
-         RGBColor(0x18, 0x10, 0x00))
-    tb(s, Inches(0.35), Inches(4.62), Inches(9.2), Emu(370000),
-       "初代から受け継がれる「7を狙う・1G連・711枚」のDNA ── 真打吉宗はそれを「真BB 2000枚 × 1G連」として昇華させた集大成だから「真打」を名乗れる。",
-       9.5, color=C_GOLD)
-    net_note(s)
+    note(s)
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 3: 基本スペック
+#  SLIDE 2: スペック
 # ══════════════════════════════════════════════════════════════
 def s_spec(prs):
     s = new_slide(prs)
-    hdr(s, "SPEC  ──  基本スペック一覧")
+    hdr(s, "スペック ── 基本数値", "2/7")
 
-    # 左カラム：スペック表
-    LX = Inches(0.2)
-    rect(s, LX, Inches(0.85), Inches(4.7), Emu(380000), C_RED)
-    tb(s, LX + Emu(80000), Inches(0.88), Inches(4.5), Emu(340000),
-       "基本スペック", 11, bold=True, color=C_WHITE)
-
-    specs = [
-        ("メーカー", "大都技研"),
-        ("タイプ", "スマスロ（L型）AT機"),
-        ("導入日", "2026年4月6日"),
-        ("AT純増", "約2.7枚/G（通常）/ 約9.0枚/G（真BB）"),
-        ("ベース", "約31G／50枚"),
-        ("CZ初当り", "設定1: 1/313.0  〜  設定6: 1/250.6"),
-        ("AT初当り", "設定1: 1/488.9  〜  設定6: 1/354.9"),
-        ("CZ天井", "1,000G（真BB後は700Gに短縮）"),
-        ("AT天井", "1,500G"),
+    bx, by = Inches(0.3), Inches(0.78)
+    cols_w = [Emu(520000), Emu(1020000), Emu(980000), Emu(1280000)]
+    col_labels = ["設定", "機械割", "BB初当り", "特記"]
+    rows = [
+        ("1", "—",      "—", ""),
+        ("2", "—",      "—", ""),
+        ("3", "—",      "—", ""),
+        ("4", "—",      "—", ""),
+        ("5", "—",      "—", ""),
+        ("6", "約110%", "—", "設定6確定で高機械割"),
     ]
-    sy = Inches(1.32)
-    for j, (k, v) in enumerate(specs):
-        bg = RGBColor(0x12, 0x08, 0x02) if j % 2 == 0 else RGBColor(0x18, 0x10, 0x04)
-        rect(s, LX, sy, Inches(4.7), Emu(325000), bg)
-        tb(s, LX + Emu(80000), sy + Emu(25000), Inches(1.4), Emu(280000),
-           k, 8.5, color=C_GRAY, wrap=False)
-        tb(s, LX + Emu(1580000), sy + Emu(25000), Inches(2.9), Emu(280000),
-           v, 9, bold=True, color=C_CREAM)
-        sy += Emu(330000)
+    row_h = Emu(370000)
+    hdr_h = Emu(360000)
 
-    # 右カラム：機械割グラフ
-    RX = Inches(5.2)
-    rect(s, RX, Inches(0.85), Inches(4.6), Emu(380000), C_RED)
-    tb(s, RX + Emu(80000), Inches(0.88), Inches(4.4), Emu(340000),
-       "設定別 機械割", 11, bold=True, color=C_WHITE)
+    rect(s, bx, by, sum(cols_w), hdr_h, RGBColor(0x55, 0x10, 0x88))
+    rx = bx
+    for cw, label in zip(cols_w, col_labels):
+        tb(s, rx + Emu(30000), by + Emu(45000), cw - Emu(50000), hdr_h - Emu(55000),
+           label, 8.5, bold=True, color=C_GOLD, align=PP_ALIGN.CENTER, wrap=False)
+        rx += cw
 
-    settings = [
-        ("設定1", 97.8,  "97.8%",  C_LTGRAY),
-        ("設定2", 100.5, "100.5%", C_LTGRAY),
-        ("設定3", 102.1, "102.1%", C_LTGRAY),
-        ("設定4", 104.5, "104.5%", C_YELLOW),
-        ("設定5", 107.8, "107.8%", C_ORANGE),
-        ("設定6", 114.0, "114.0%", C_GOLD2),
+    for i, row in enumerate(rows):
+        ry = by + hdr_h + i * row_h
+        bg = C_CARD if i % 2 == 0 else C_ROW
+        rect(s, bx, ry, sum(cols_w), row_h, bg)
+        rx = bx
+        hi = row[0] == "6"
+        for j, (cw, val) in enumerate(zip(cols_w, row)):
+            col = C_PUR2 if j == 0 and hi else (C_GOLD if j == 1 and hi else C_WHITE)
+            bold = j == 0 or (j == 1 and hi)
+            tb(s, rx + Emu(30000), ry + Emu(50000), cw - Emu(50000), row_h - Emu(65000),
+               val, 8.5, bold=bold, color=col, align=PP_ALIGN.CENTER, wrap=False)
+            rx += cw
+
+    # 右：KVカード
+    rx2, ry2 = Inches(4.6), Inches(0.78)
+    kv = [
+        ("真BB純増",         "約9.0枚/G（現行最高クラス）",        C_ORG),
+        ("真BB獲得枚数",     "約2000枚（1セット）",                 C_ORG2),
+        ("1G連",             "真BB消化中に成立役→抽選",             C_PUR),
+        ("究極鷹ブレイク",   "毎G1000枚ループ",                     C_GOLD),
+        ("AT天井",           "1500G",                               C_WHITE),
+        ("CZ天井",           "1000G or 6周期",                      C_GRAY),
     ]
-    bar_lx   = RX + Emu(700000)
-    bar_wmax = Inches(2.0)           # バーを短くしてラベル幅を確保
-    bar_h    = Emu(240000)
-    gy = Inches(1.35)
-    for lbl, val, val_str, col in settings:
-        ratio = (val - 95) / (114 - 95)
-        rect(s, bar_lx, gy, bar_wmax, bar_h, RGBColor(0x20, 0x15, 0x05))
-        rect(s, bar_lx, gy, int(bar_wmax * ratio), bar_h, col)
-        tb(s, RX + Emu(80000), gy + Emu(30000), Emu(580000), Emu(240000),
-           lbl, 9, color=C_CREAM, wrap=False)
-        tb(s, bar_lx + bar_wmax + Emu(100000), gy + Emu(20000), Emu(900000), Emu(260000),
-           val_str, 10, bold=True, color=col, wrap=False)
-        gy += Emu(345000)
+    for i, (key, val, ac) in enumerate(kv):
+        ry3 = ry2 + i * Emu(530000)
+        rect_b(s, rx2, ry3, Inches(5.1), Emu(485000), C_CARD, ac, 1.2)
+        rect(s, rx2, ry3, Emu(40000), Emu(485000), ac)
+        tb(s, rx2 + Emu(70000), ry3 + Emu(40000), Inches(2.5), Emu(210000),
+           key, 8, bold=True, color=ac)
+        tb(s, rx2 + Emu(70000), ry3 + Emu(250000), Inches(4.6), Emu(210000),
+           val, 9, color=C_WHITE)
 
-    # 注記
-    rect(s, Inches(0.2), Inches(4.55), Inches(9.6), Emu(450000), RGBColor(0x08, 0x04, 0x00))
-    tb(s, Inches(0.35), Inches(4.62), Inches(9.2), Emu(390000),
-       "設定6の114.0%は現行スマスロの中でも高水準。設定1の97.8%は微マイナスだが天井（CZ間1000G / AT間1500G）がカバー。",
-       9, color=C_GOLD)
+    note(s)
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 4: 通常時の仕組み
-# ══════════════════════════════════════════════════════════════
-def s_normal(prs):
-    s = new_slide(prs)
-    hdr(s, "通常時の仕組み  ──  夜回りカウンター × 周期システム × CZモード4種")
-
-    # ── 夜回りカウンター（左上）──
-    rect_b(s, Inches(0.2), Inches(0.85), Inches(3.1), Inches(2.1),
-           C_CARD, C_GOLD, 1.5)
-    tb(s, Inches(0.3), Inches(0.9), Inches(2.8), Emu(330000),
-       "① 夜回りカウンター", 10, bold=True, color=C_GOLD)
-    tb(s, Inches(0.3), Inches(1.25), Inches(2.9), Inches(1.4),
-       "画面左下に常時表示するポイントゲージ。\n毎ゲーム役に応じてPTが加算される。\n\n"
-       "  ハズレ     ▶  1PT\n"
-       "  リプレイ   ▶  5PT以上\n"
-       "  弱スイカ   ▶  10PT以上\n"
-       "  強チェリー ▶  さらに大量PT\n\n"
-       "規定PT（100〜600PT）到達で周期進行！",
-       8.5, color=C_CREAM)
-
-    # ── 周期システム（中上）──
-    rect_b(s, Inches(3.45), Inches(0.85), Inches(3.1), Inches(2.1),
-           C_CARD, C_RED, 1.5)
-    tb(s, Inches(3.55), Inches(0.9), Inches(2.9), Emu(330000),
-       "② 周期システム", 10, bold=True, color=C_RED)
-    tb(s, Inches(3.55), Inches(1.25), Inches(2.9), Inches(1.4),
-       "規定PT到達 = 1周期クリア。\n規定周期数に到達するとCZ「悪人成敗チャンス」へ。\n\n"
-       "周期カウンターの色が示唆する：\n"
-       "  白…通常  /  青…やや期待\n"
-       "  赤…大チャンス  /  金…CZ濃厚",
-       8.5, color=C_CREAM)
-
-    # ── CZモード4種（右上）──
-    rect_b(s, Inches(6.7), Inches(0.85), Inches(3.1), Inches(2.1),
-           C_CARD, C_GOLD2, 1.5)
-    tb(s, Inches(6.8), Inches(0.9), Inches(2.9), Emu(330000),
-       "③ CZモード4種（内部管理）", 10, bold=True, color=C_GOLD2)
-    modes = [
-        ("通常A", "最大6周期でCZ当選", C_LTGRAY),
-        ("通常B", "通常Aより少ない周期", C_LTGRAY),
-        ("通常C", "最速ルート（少周期）", C_YELLOW),
-        ("天国",  "1周期のみ・CZ最速", C_GOLD2),
-    ]
-    my = Inches(1.27)
-    for m_name, m_desc, m_col in modes:
-        tb(s, Inches(6.8), my, Inches(0.85), Emu(280000), m_name, 8.5, bold=True, color=m_col)
-        tb(s, Inches(7.65), my, Inches(2.0), Emu(280000), m_desc, 8.5, color=C_CREAM)
-        my += Emu(285000)
-
-    # ── 抜刀チャンス（左下）──
-    rect_b(s, Inches(0.2), Inches(3.1), Inches(4.7), Inches(1.5),
-           RGBColor(0x14, 0x05, 0x00), C_RED, 1.5)
-    tb(s, Inches(0.3), Inches(3.15), Inches(4.4), Emu(330000),
-       "④ 抜刀チャンス（ベル10PT到達で発生）", 10, bold=True, color=C_RED)
-    tb(s, Inches(0.3), Inches(3.55), Inches(4.4), Inches(0.9),
-       "刀エフェクトが走る演出バトル。\n"
-       "成功 → ポイント特化ゾーン or CZ直当選\n"
-       "スイカ契機なら「人馬一体チャンス以上」濃厚！\n"
-       "刀エフェクトが豪華なほど期待度UP",
-       8.5, color=C_CREAM)
-
-    # ── 通常時フロー図（右下）──
-    rect_b(s, Inches(5.1), Inches(3.1), Inches(4.7), Inches(1.5),
-           RGBColor(0x08, 0x08, 0x18), C_BLUE, 1.5)
-    tb(s, Inches(5.2), Inches(3.15), Inches(4.4), Emu(330000),
-       "通常時フロー（ざっくり）", 10, bold=True, color=C_BLUE)
-    tb(s, Inches(5.2), Inches(3.55), Inches(4.4), Inches(0.9),
-       "毎ゲーム夜回りPT加算\n  ↓ 規定PT到達\n周期クリア（最大6周期）\n  ↓ 規定周期到達\nCZ「悪人成敗チャンス」へ！",
-       8.5, color=C_LTBLUE)
-
-    # ── 下注記 ──
-    rect(s, Inches(0.2), Inches(4.7), Inches(9.6), Emu(380000), RGBColor(0x08, 0x05, 0x00))
-    tb(s, Inches(0.35), Inches(4.76), Inches(9.2), Emu(330000),
-       "★ 天国モード時は1周期のみでCZ到達。AT後は天国移行率約43%なので「連チャンしやすい状態」が頻繁に発生する。",
-       9, color=C_GOLD)
-    net_note(s)
-
-
-# ══════════════════════════════════════════════════════════════
-#  SLIDE 5: CZ → AT「勧善懲悪RUSH」
-# ══════════════════════════════════════════════════════════════
-def s_cz_at(prs):
-    s = new_slide(prs)
-    hdr(s, "CZ → AT  ──  悪人成敗チャンス → 勧善懲悪RUSH")
-
-    # CZブロック（左）
-    rect_b(s, Inches(0.2), Inches(0.85), Inches(4.4), Inches(3.0),
-           RGBColor(0x14, 0x06, 0x00), C_RED, 2.0)
-    tb(s, Inches(0.3), Inches(0.90), Inches(4.1), Emu(330000),
-       "CZ「悪人成敗チャンス」", 12, bold=True, color=C_RED)
-    tb(s, Inches(0.3), Inches(1.28), Inches(4.1), Inches(2.3),
-       "成功期待度：約55%\n\n"
-       "【ルール】\n"
-       "「BARを狙え！」演出が最大3回発生。\n"
-       "対戦相手は5種類（強さで期待度変化）。\n"
-       "対応役（強チェリー/強スイカ等）成立で\n"
-       "大チャンス演出に格上げ。\n\n"
-       "成功 → AT「勧善懲悪RUSH」へ直行\n"
-       "失敗 → 天国移行抽選（継続のチャンス）",
-       9.5, color=C_CREAM)
-
-    # 矢印
-    arrow_r(s, Inches(4.65), Inches(2.35), Emu(280000), C_RED)
-
-    # ATブロック（右）
-    rect_b(s, Inches(5.1), Inches(0.85), Inches(4.7), Inches(3.0),
-           RGBColor(0x06, 0x06, 0x18), C_BLUE, 2.0)
-    tb(s, Inches(5.2), Inches(0.90), Inches(4.4), Emu(330000),
-       "AT「勧善懲悪RUSH」", 12, bold=True, color=C_LTBLUE)
-    tb(s, Inches(5.2), Inches(1.28), Inches(4.4), Inches(2.3),
-       "差枚数管理型AT  /  純増：約2.7枚/G\n初期差枚数：150枚\n\n"
-       "【消化中の仕組み】\n"
-       "  ・毎G：弱スイカ等でPT直乗せ抽選\n"
-       "  ・強レア役：上乗せ100%確定\n"
-       "  ・弱スイカ：約15%で上乗せ\n\n"
-       "  ・40G周期：「勧善懲悪チャンス」\n"
-       "    　→ 上乗せ ＋ 真高確率ジャッジ\n"
-       "  ・周期10・20G目：柳生一族対決濃厚",
-       9.5, color=C_CREAM)
-
-    # 下段：AT内の主な分岐
-    rect(s, Inches(0.2), Inches(3.95), Inches(9.6), Emu(40000), C_GOLD)
-    tb(s, Inches(0.35), Inches(4.05), Inches(9.2), Emu(330000),
-       "AT内の上乗せ分岐", 10, bold=True, color=C_GOLD)
-
-    branches = [
-        ("差枚数直乗せ", "毎G小役成立時に\n枚数を直接加算", C_LTGRAY),
-        ("ビジョンチャンス", "演出発展で\n大量上乗せ抽選", C_YELLOW),
-        ("勧善懲悪チャンス", "40G周期で必ず発生\n勝利で大量上乗せ", C_ORANGE),
-        ("真高確率突入", "最大の分岐点\n真BBへの入口", C_RED),
-    ]
-    bx = Inches(0.25)
-    for title, desc, col in branches:
-        rect_b(s, bx, Inches(4.42), Inches(2.28), Emu(650000),
-               RGBColor(0x10, 0x10, 0x1C), col, 1.2)
-        tb(s, bx + Emu(80000), Inches(4.47), Inches(2.1), Emu(290000),
-           title, 9, bold=True, color=col)
-        tb(s, bx + Emu(80000), Inches(4.75), Inches(2.1), Emu(340000),
-           desc, 8, color=C_CREAM)
-        bx += Inches(2.42)
-    net_note(s)
-
-
-# ══════════════════════════════════════════════════════════════
-#  SLIDE 6: 真高確率 → 真BB → 1G連
-# ══════════════════════════════════════════════════════════════
-def s_truemode(prs):
-    s = new_slide(prs)
-    hdr(s, "クライマックス  ──  真高確率 → 真BB（2000枚）→ 1G連")
-
-    # 真高確率（左）
-    rect_b(s, Inches(0.2), Inches(0.85), Inches(2.9), Inches(3.3),
-           RGBColor(0x10, 0x05, 0x00), C_ORANGE, 2)
-    tb(s, Inches(0.3), Inches(0.90), Inches(2.6), Emu(330000),
-       "真高確率ゾーン", 11, bold=True, color=C_ORANGE)
-    tb(s, Inches(0.3), Inches(1.28), Inches(2.6), Inches(2.5),
-       "AT内「勧善懲悪チャンス」勝利後に\n突入する上乗せ特化状態。\n\n"
-       "消化中は「青7を狙え」\nカットインが頻発！\n\n"
-       "  青7揃い（約1/168）\n  　↓ 真BIG BONUS確定！\n\n"
-       "真BB1枚ごとに上乗せ抽選も走る。\n平均上乗せ：約150枚",
-       9, color=C_CREAM)
-
-    # 矢印
-    arrow_r(s, Inches(3.2), Inches(2.5), Emu(270000), C_RED)
-
-    # 真BB（中）
-    rect_b(s, Inches(3.65), Inches(0.85), Inches(3.1), Inches(3.3),
-           RGBColor(0x18, 0x08, 0x00), C_RED, 2.5)
-    tb(s, Inches(3.75), Inches(0.90), Inches(2.9), Emu(330000),
-       "真 BIG BONUS", 13, bold=True, color=C_GOLD2)
-    tb(s, Inches(3.75), Inches(1.28), Inches(2.9), Inches(2.5),
-       "獲得枚数：約 2,000枚\n純増：約 9.0枚/G\n\n"
-       "【1G連抽選（核心！）】\n消化中に「成敗役」成立で\n次ゲームに連チャン抽選！\n\n"
-       "  非成敗役  ▶  約 5.5%で1G連\n"
-       "  成敗役   ▶  約30〜100%で1G連\n\n"
-       "「月下ノ花道」演出が発生すると\n次の真BB確定！",
-       9, color=C_CREAM)
-
-    # 矢印
-    arrow_r(s, Inches(6.85), Inches(2.5), Emu(270000), C_GOLD)
-
-    # 1G連（右）
-    rect_b(s, Inches(7.3), Inches(0.85), Inches(2.5), Inches(3.3),
-           RGBColor(0x1C, 0x14, 0x00), C_GOLD2, 2.5)
-    tb(s, Inches(7.4), Inches(0.90), Inches(2.3), Emu(330000),
-       "1G連 ループ", 11, bold=True, color=C_GOLD2)
-    tb(s, Inches(7.4), Inches(1.28), Inches(2.3), Inches(2.5),
-       "真BB終了後、\n次の1ゲームで\n再び真BBが発動！\n\n"
-       "ループするたびに\n2000枚×N回が\n積み上がる。\n\n"
-       "★ 4〜5連で\n   1万枚超えも夢ではない",
-       9, color=C_CREAM)
-
-    # 下段：まとめ
-    rect(s, Inches(0.2), Inches(4.25), Inches(9.6), Emu(750000),
-         RGBColor(0x14, 0x0A, 0x00))
-    rect(s, Inches(0.2), Inches(4.25), Emu(60000), Emu(750000), C_GOLD)
-
-    tb(s, Inches(0.45), Inches(4.3), Inches(9.2), Emu(330000),
-       "この台の爆発力の仕組み", 10, bold=True, color=C_GOLD)
-    tb(s, Inches(0.45), Inches(4.65), Inches(9.2), Emu(330000),
-       "AT（勧善懲悪RUSH）→ 真高確率 → 真BB（2000枚）→ 1G連ループ\n"
-       "1G連が連続すれば「2000枚 × 複数回」の大爆発。これが真打吉宗の醍醐味。",
-       9.5, color=C_CREAM)
-    net_note(s)
-
-
-# ══════════════════════════════════════════════════════════════
-#  SLIDE 7: 全体ゲームフロー図
+#  SLIDE 3: ゲームフロー
 # ══════════════════════════════════════════════════════════════
 def s_flow(prs):
     s = new_slide(prs)
-    hdr(s, "ゲームフロー全体図  ──  通常時から爆発まで")
+    hdr(s, "ゲームフロー ── CZモード → 勧善懲悪RUSH → 真BB → 1G連", "3/7")
 
-    # ── 蛇行2段レイアウト ─────────────────────────────────────────
-    # 上段 (左→右): 通常時/周期 → CZ → AT
-    # 下段 (右→左): 真高確率 → 真BB → 1G連ループ
-    BW      = Inches(3.0)
-    BH      = Inches(1.2)
-    GAP     = Inches(0.2)
-    R1Y     = Inches(0.55)
-    R2Y     = Inches(2.35)
-    BOT_Y   = Inches(3.75)
+    # 上段：通常時CZモード
+    rect(s, Inches(0.3), Inches(0.72), Inches(9.4), Emu(280000), C_CARD2)
+    tb(s, Inches(0.45), Inches(0.74), Inches(3.0), Emu(250000),
+       "通常時CZモード", 8.5, bold=True, color=C_GOLD)
 
-    X1 = Inches(0.2)
-    X2 = X1 + BW + GAP
-    X3 = X2 + BW + GAP
-
-    # ── 上段ボックス ──────────────────────────────────────────────
-    row1 = [
-        (X1, "通常時 / 周期到達",
-         "夜回りPTを毎G積算\n規定PT × 最大6周期でCZへ",
-         RGBColor(0x12, 0x0C, 0x04), C_GRAY),
-        (X2, "CZ  悪人成敗チャンス",
-         "成功率 約55%\n成功 → AT直行",
-         RGBColor(0x18, 0x06, 0x00), C_RED),
-        (X3, "AT  勧善懲悪RUSH",
-         "純増 2.7枚/G\n40G周期で真高確率へのジャッジ",
-         RGBColor(0x06, 0x06, 0x18), C_BLUE),
+    modes = [
+        ("6周期制",       "CZ発生タイミングが\nモードで管理される"),
+        ("天国モード相当", "1周期目でCZ確定"),
+        ("鷹CZ",          "最高格CZ"),
     ]
-    for x, title, desc, fill, bdr in row1:
-        rect_b(s, x, R1Y, BW, BH, fill, bdr, 1.8)
-        tb(s, x + Emu(80000), R1Y + Emu(60000), BW - Emu(160000), Emu(340000),
-           title, 10, bold=True, color=C_WHITE)
-        tb(s, x + Emu(80000), R1Y + Emu(420000), BW - Emu(160000), BH - Emu(490000),
-           desc, 9, color=C_CREAM)
+    mw = Inches(9.4) / 3
+    for i, (mt, md) in enumerate(modes):
+        mx = Inches(0.3) + i * mw
+        bc = C_GOLD if i == 0 else (C_PUR if i == 1 else C_ORG)
+        rect_b(s, mx + Emu(30000), Inches(1.04), mw - Emu(50000), Emu(700000),
+               C_CARD, bc, 1.2)
+        tb(s, mx + Emu(60000), Inches(1.07), mw - Emu(90000), Emu(270000),
+           mt, 8.5, bold=True, color=bc,
+           align=PP_ALIGN.CENTER, wrap=False)
+        tb(s, mx + Emu(60000), Inches(1.35), mw - Emu(90000), Emu(330000),
+           md, 7.5, color=C_GRAY, align=PP_ALIGN.CENTER)
 
-    # 上段右向き矢印
-    for x_left in [X1, X2]:
-        arrow_r(s, x_left + BW + Emu(40000), R1Y + BH // 2, GAP - Emu(80000), C_RED)
-
-    # ── 折り返し下向き矢印: ATの中心 → 真高確率の中心 ──────────────
-    AT_CX = X3 + BW // 2
-    _aw, _ah = Emu(130000), Emu(380000)
-    shp_d = s.shapes.add_shape(13, AT_CX - _aw // 2,
-                                R1Y + BH + Emu(60000), _aw, _ah)
-    shp_d.rotation = 90
-    shp_d.fill.solid()
-    shp_d.fill.fore_color.rgb = C_ORANGE
-    shp_d.line.fill.background()
-
-    # ── 下段ボックス (右→左の流れ) ────────────────────────────────
-    row2 = [
-        (X3, "真高確率ゾーン",
-         "青7を狙え！\n約1/168 で真BIG BONUS確定",
-         RGBColor(0x18, 0x0A, 0x00), C_ORANGE),
-        (X2, "真 BIG BONUS",
-         "約2,000枚 / 純増9.0枚/G\n消化中に「1G連抽選」！",
-         RGBColor(0x1C, 0x08, 0x00), C_RED),
-        (X1, "1G連ループ",
-         "次の1Gで再び真BB発動！\n2,000枚 × N回 積み上がる",
-         RGBColor(0x1C, 0x14, 0x00), C_GOLD2),
+    # 下段フロー4ボックス
+    boxes = [
+        (C_CARD2,                        C_PUR,  "CZ\n「悪人成敗チャンス」",   "CZモードから発生\nAT当選を目指す"),
+        (C_CARD2,                        C_PUR2, "AT\n「勧善懲悪RUSH」",        "AT突入\n真BBを目指すメインルート"),
+        (RGBColor(0x20, 0x08, 0x04),     C_ORG,  "真BB",                        "純増9.0枚/G\n2000枚獲得\n1G連抽選が走る"),
+        (RGBColor(0x18, 0x10, 0x00),     C_GOLD, "1G連 / 究極鷹ブレイク",       "1G連ループで連続BB\n究極鷹ブレイクで5000枚超"),
     ]
-    for x, title, desc, fill, bdr in row2:
-        rect_b(s, x, R2Y, BW, BH, fill, bdr, 1.8)
-        tb(s, x + Emu(80000), R2Y + Emu(60000), BW - Emu(160000), Emu(340000),
-           title, 10, bold=True, color=C_WHITE)
-        tb(s, x + Emu(80000), R2Y + Emu(420000), BW - Emu(160000), BH - Emu(490000),
-           desc, 9, color=C_CREAM)
+    bw, bh = Inches(1.8), Inches(1.4)
+    gap = Inches(0.28)
+    total = 4 * bw + 3 * gap
+    sx = (Inches(10) - total) / 2
+    cy = Inches(3.85)
 
-    # 下段左向き矢印（真高確率→真BB, 真BB→1G連）
-    for x_right in [X3, X2]:
-        _w = GAP - Emu(80000)
-        _h = Emu(150000)
-        shp = s.shapes.add_shape(13,
-                                  x_right - GAP + Emu(40000),
-                                  R2Y + BH // 2 - _h // 2,
-                                  _w, _h)
-        shp.rotation = 180
-        shp.fill.solid()
-        shp.fill.fore_color.rgb = C_RED
-        shp.line.fill.background()
+    for i, (fill, bc, lbl, sub) in enumerate(boxes):
+        bx0 = sx + i * (bw + gap)
+        rect_b(s, bx0, cy - bh / 2, bw, bh, fill, bc, 1.8)
+        tb(s, bx0 + Emu(40000), cy - bh / 2 + Emu(80000),
+           bw - Emu(80000), Emu(380000), lbl, 10, bold=True,
+           color=bc, align=PP_ALIGN.CENTER, font=FONT_H)
+        tb(s, bx0 + Emu(30000), cy - bh / 2 + Emu(450000),
+           bw - Emu(60000), Emu(280000), sub, 7.5,
+           color=C_GRAY, align=PP_ALIGN.CENTER)
+        if i < 3:
+            arrow_r(s, bx0 + bw + Emu(10000), cy)
 
-    # ── 1G連ループバック (⊓コネクタ: 1G連 → 真BB) ─────────────────
-    LW     = Emu(55000)
-    cx_1g  = X1 + BW // 2
-    cx_trb = X2 + BW // 2
-    loop_y = R2Y - Emu(350000)   # ⊓の頂辺（上段と下段の間）
-
-    rect(s, cx_1g  - LW // 2, loop_y, LW, R2Y - loop_y, C_GOLD)          # 左脚
-    rect(s, cx_1g  - LW // 2, loop_y - LW // 2,
-         cx_trb - cx_1g + LW, LW, C_GOLD)                                 # 頂辺
-    rect(s, cx_trb - LW // 2, loop_y, LW, R2Y - loop_y, C_GOLD)          # 右脚
-    tb(s, cx_1g + Emu(80000), loop_y + Emu(40000),
-       cx_trb - cx_1g - Emu(80000), Emu(250000),
-       "↺ 1G連成功でループ！", 8, bold=True, color=C_GOLD2, align=PP_ALIGN.CENTER)
-
-    # ── 下部バー: 天井ルート + 解説 ───────────────────────────────
-    rect_b(s, X1, BOT_Y, Inches(2.5), Emu(900000),
-           RGBColor(0x06, 0x08, 0x28), C_BLUE, 1.5)
-    tb(s, X1 + Emu(80000), BOT_Y + Emu(80000), Inches(2.2), Emu(780000),
-       "天井ルート\nCZ間 1,000G\nAT間 1,500G\n天井到達でAT保証",
-       9, color=C_LTBLUE)
-
-    rect(s, Inches(2.95), BOT_Y, Inches(6.85), Emu(900000), RGBColor(0x08, 0x05, 0x00))
-    tb(s, Inches(3.1), BOT_Y + Emu(100000), Inches(6.5), Emu(750000),
-       "★ 鍵は「真BB + 1G連」。AT自体の純増は2.7枚とおとなしいが、"
-       "真高確率→真BBに到達すれば\n2,000枚×複数ループが現実的になる。"
-       "「当たりをいくつ引けるか」よりも「真BBを連鎖できるか」が勝負。",
-       9, color=C_GOLD)
+    note(s)
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 8: 設定示唆・設定差
+#  SLIDE 4: 真BB × 1G連 × 究極鷹ブレイク
 # ══════════════════════════════════════════════════════════════
-def s_setting(prs):
+def s_bb(prs):
     s = new_slide(prs)
-    hdr(s, "設定示唆 & 設定差  ──  高設定を見抜く判別ポイント")
+    hdr(s, "真BB構成 ── 1G連ループ × 究極鷹ブレイクの爆裂設計", "4/7")
 
-    # 左：設定示唆一覧
-    LX = Inches(0.2)
-    rect_b(s, LX, Inches(0.85), Inches(4.7), Inches(3.65),
-           C_CARD, C_GOLD, 1.5)
-    tb(s, LX + Emu(80000), Inches(0.90), Inches(4.4), Emu(330000),
-       "設定示唆演出", 11, bold=True, color=C_GOLD)
+    lx, ly = Inches(0.28), Inches(0.72)
+    lw = Inches(4.5)
+    half_h = Emu(2150000)
+    gap = Emu(80000)
+    by2 = ly + half_h + gap
+    half_h2 = SLIDE_H - by2 - Emu(180000)
 
-    hints = [
-        ("コパンダトロフィー色",
-         "銅→設定2以上 / 銀→設定3以上\n金→設定4以上 / 虹→設定6濃厚！", C_GOLD2),
-        ("真BB中ボイス",
-         "特定キャラのセリフで示唆\n「江戸を守る！」→ 設定6濃厚", C_RED),
-        ("御白洲ビジョン",
-         "吉宗＜大岡越前＜天英院\n天英院出現で高設定期待大", C_LTBLUE),
-        ("AT終了画面（差枚表示）",
-         "456枚→設4以上 / 555枚→設5以上\n666枚→設定6濃厚！", C_ORANGE),
-    ]
-    hy = Inches(1.3)
-    for h_name, h_desc, h_col in hints:
-        rect(s, LX + Emu(80000), hy, Inches(4.4), Emu(50000), h_col)
-        tb(s, LX + Emu(80000), hy + Emu(60000), Inches(4.4), Emu(270000),
-           h_name, 9, bold=True, color=h_col)
-        tb(s, LX + Emu(80000), hy + Emu(320000), Inches(4.4), Emu(360000),
-           h_desc, 8.5, color=C_CREAM)
-        hy += Emu(750000)
+    # 左上：真BBの仕組み
+    rect_b(s, lx, ly, lw, half_h, C_CARD, C_ORG, 1.5)
+    rect(s, lx, ly, Emu(45000), half_h, C_ORG)
+    tb(s, lx + Emu(75000), ly + Emu(45000), lw - Emu(100000), Emu(260000),
+       "真BBの仕組み", 11, bold=True, color=C_ORG, font=FONT_H)
+    tb(s, lx + Emu(75000), ly + Emu(305000), lw - Emu(100000), half_h - Emu(360000),
+       "純増約9.0枚/G（現行機最高クラス）\n"
+       "1セットで約2000枚獲得\n"
+       "BB消化中、成立役に応じて1G連抽選\n"
+       "1G連=次のBBがBB終了の1G後に開始",
+       8, color=C_WHITE)
 
-    # 右：設定差比較表
-    RX = Inches(5.2)
-    rect(s, RX, Inches(0.85), Inches(4.6), Emu(380000), C_RED)
-    tb(s, RX + Emu(80000), Inches(0.90), Inches(4.4), Emu(340000),
-       "設定差まとめ", 11, bold=True, color=C_WHITE)
+    # 左下：究極鷹ブレイク
+    rect_b(s, lx, by2, lw, half_h2, C_CARD, C_GOLD, 1.5)
+    rect(s, lx, by2, Emu(45000), half_h2, C_GOLD)
+    tb(s, lx + Emu(75000), by2 + Emu(45000), lw - Emu(100000), Emu(260000),
+       "究極鷹ブレイク", 11, bold=True, color=C_GOLD, font=FONT_H)
+    tb(s, lx + Emu(75000), by2 + Emu(305000), lw - Emu(100000), half_h2 - Emu(360000),
+       "本機最強の特化ゾーン\n"
+       "毎ゲーム1000枚のループ上乗せが発生\n"
+       "実質5000枚以上確定\n"
+       "「天文学的な出玉」体験を提供する最高峰",
+       8, color=C_WHITE)
 
-    cols = ["設定", "CZ初当り", "AT初当り", "機械割"]
-    cxs  = [RX + Emu(50000), RX + Emu(800000), RX + Emu(1700000), RX + Emu(2700000)]
-    cws  = [Emu(700000), Emu(850000), Emu(900000), Emu(850000)]
-    for c, cx, cw in zip(cols, cxs, cws):
-        tb(s, cx, Inches(1.3), cw, Emu(320000), c, 9, bold=True, color=C_GOLD, align=PP_ALIGN.CENTER)
+    # 右上：1G連の衝撃体験
+    rx = Inches(5.0)
+    rw = Inches(4.7)
+    rect_b(s, rx, ly, rw, half_h, C_CARD, C_PUR, 1.5)
+    rect(s, rx, ly, Emu(45000), half_h, C_PUR)
+    tb(s, rx + Emu(75000), ly + Emu(45000), rw - Emu(100000), Emu(260000),
+       "1G連の衝撃体験", 11, bold=True, color=C_PUR, font=FONT_H)
+    tb(s, rx + Emu(75000), ly + Emu(305000), rw - Emu(100000), half_h - Emu(360000),
+       "真BB終了の1G後に即座に次のBBが始まる\n"
+       "「終わった！」から「え、また!?」の衝撃体験\n"
+       "4号機吉宗の代名詞を現代スマスロで再現\n"
+       "1G連が連続すると指数的に興奮が高まる",
+       8, color=C_WHITE)
 
-    setting_data = [
-        ("1", "1/313.0", "1/488.9", "97.8%",  C_LTGRAY),
-        ("2", "1/300.3", "1/465.2", "100.5%", C_LTGRAY),
-        ("3", "1/288.1", "1/441.8", "102.1%", C_LTGRAY),
-        ("4", "1/274.6", "1/415.3", "104.5%", C_YELLOW),
-        ("5", "1/261.9", "1/388.4", "107.8%", C_ORANGE),
-        ("6", "1/250.6", "1/354.9", "114.0%", C_GOLD2),
-    ]
-    ry = Inches(1.65)
-    for row in setting_data:
-        sd, cz, at_prob, mw, col = row
-        bg = RGBColor(0x10, 0x08, 0x02) if int(sd) % 2 == 1 else RGBColor(0x16, 0x0E, 0x04)
-        rect(s, RX, ry, Inches(4.6), Emu(330000), bg)
-        vals = [sd, cz, at_prob, mw]
-        for val, cx, cw in zip(vals, cxs, cws):
-            c = col if val == mw else (C_GOLD2 if val == sd else C_CREAM)
-            tb(s, cx, ry + Emu(30000), cw, Emu(280000),
-               val, 9, bold=(val == mw), color=c, align=PP_ALIGN.CENTER, wrap=False)
-        ry += Emu(335000)
+    # 右下：コイン単価と荒波
+    rect_b(s, rx, by2, rw, half_h2,
+           RGBColor(0x18, 0x04, 0x04), C_RED, 1.5)
+    rect(s, rx, by2, Emu(45000), half_h2, C_RED)
+    tb(s, rx + Emu(75000), by2 + Emu(45000), rw - Emu(100000), Emu(260000),
+       "コイン単価と荒波", 11, bold=True, color=C_RED, font=FONT_H)
+    tb(s, rx + Emu(75000), by2 + Emu(305000), rw - Emu(100000), half_h2 - Emu(360000),
+       "真BB純増9.0枚は速いが荒波も激しい\n"
+       "真BBを引けないと消化不良になりやすい\n"
+       "設定1は特に初当たりが遠い設計\n"
+       "「当たれば爆発・当たらなければ深みにハマる」二極体験",
+       8, color=C_WHITE)
 
-    # 注記
-    rect(s, Inches(0.2), Inches(4.55), Inches(9.6), Emu(450000), RGBColor(0x08, 0x04, 0x00))
-    tb(s, Inches(0.35), Inches(4.62), Inches(9.2), Emu(390000),
-       "設定差はCZ・AT当選率に集中。設定6の114%は高水準だが「荒い」機種なので、設定4でも厳しい局面あり。判別は累積示唆演出で総合判断が重要。",
-       9, color=C_GOLD)
-    net_note(s)
+    note(s)
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 9: 市場評価・総評
+#  SLIDE 5: ゲーム体験の核心
 # ══════════════════════════════════════════════════════════════
-def s_review(prs):
+def s_experience(prs):
     s = new_slide(prs)
-    hdr(s, "この台の正直なところ  ──  知ってから打てばもっと楽しい")
+    hdr(s, "ゲーム体験の核心 ── 4号機の記憶と現行最速9枚が生む興奮体験", "5/7")
 
-    # 上段：一言フック
-    rect_b(s, Inches(0.2), Inches(0.82), Inches(9.6), Emu(900000),
-           RGBColor(0x14, 0x08, 0x00), C_GOLD, 2)
-    tb(s, Inches(0.35), Inches(0.88), Inches(9.2), Emu(310000),
-       "一言で言うと", 10, bold=True, color=C_GOLD)
-    tb(s, Inches(0.35), Inches(1.20), Inches(9.2), Emu(480000),
-       "初代吉宗の「7を狙う・1G連」をスマスロで進化させた爆裂機。"
-       "真BBに辿り着くまでは地味だが、辿り着いた瞬間から別の台になる。\n"
-       "勝ってるのに、次の1ゲームが怖くてたまらない ── それがこの台の本質。",
-       9.5, color=C_CREAM)
+    # 上段：5ステップ体験フロー
+    bw = Inches(1.60)
+    gap = Inches(0.36)
+    bh = Emu(1380000)
+    sx0 = Inches(0.20)
+    flow_y = Inches(0.72)
+    cy = flow_y + bh // 2
 
-    # 中段：好評 / 批評
-    rect_b(s, Inches(0.2), Inches(1.92), Inches(4.6), Inches(1.55),
-           RGBColor(0x06, 0x14, 0x06), C_GREEN, 1.5)
-    tb(s, Inches(0.3), Inches(1.97), Inches(4.3), Emu(310000),
-       "打ってよかった声", 10, bold=True, color=C_GREEN)
-    tb(s, Inches(0.3), Inches(2.30), Inches(4.3), Emu(1050000),
-       "✔ 「2000枚が複数回来た時の興奮は別格」\n"
-       "✔ 「1G連が来るかどうかの1ゲームが忘れられない」\n"
-       "✔ 「周期システムが分かると見え方が変わる」\n"
-       "✔ 「吉宗世代には刺さりまくる」",
-       9, color=C_CREAM)
+    steps = [
+        (C_CARD2,                        C_PUR,   "CZ突入",
+         "悪人成敗チャンス\n鷹CZで期待度MAX"),
+        (RGBColor(0x14, 0x08, 0x20),     C_PUR2,  "AT突入",
+         "勧善懲悪RUSH\n真BBを目指す"),
+        (RGBColor(0x20, 0x08, 0x04),     C_ORG,   "真BB発動",
+         "純増9.0枚の嵐\n2000枚を爆速獲得"),
+        (RGBColor(0x14, 0x0A, 0x00),     C_GOLD,  "1G連！",
+         "終わったと思ったら\n次のBBが始まる衝撃"),
+        (RGBColor(0x18, 0x12, 0x04),     C_GOLD2, "究極鷹ブレイク",
+         "毎G1000枚ループ\n現実が変わる体験"),
+    ]
+    for i, (fill, ac, title, desc) in enumerate(steps):
+        bx = sx0 + i * (bw + gap)
+        rect_b(s, bx, flow_y, bw, bh, fill, ac, 1.5)
+        tb(s, bx + Emu(40000), flow_y + Emu(60000), bw - Emu(60000), Emu(380000),
+           title, 9.5, bold=True, color=ac, align=PP_ALIGN.CENTER, font=FONT_H)
+        tb(s, bx + Emu(35000), flow_y + Emu(460000), bw - Emu(55000), Emu(820000),
+           desc, 8, color=C_WHITE, align=PP_ALIGN.CENTER)
+        if i < 4:
+            arrow_r(s, bx + bw + Emu(80000), cy)
 
-    rect_b(s, Inches(5.1), Inches(1.92), Inches(4.7), Inches(1.55),
-           RGBColor(0x14, 0x06, 0x06), C_RED, 1.5)
-    tb(s, Inches(5.2), Inches(1.97), Inches(4.4), Emu(310000),
-       "知っておくべきリスク", 10, bold=True, color=C_RED)
-    tb(s, Inches(5.2), Inches(2.30), Inches(4.4), Emu(1050000),
-       "✗ 低設定は真BBまでの道のりが長く苦しい\n"
-       "✗ CZスルーが続くとペースが掴めない\n"
-       "✗ 真高確率に入っても真BBを引けないことも\n"
-       "✗ コイン単価が高め・荒波耐性が必要",
-       9, color=C_CREAM)
+    # 下段左：4号機記憶との接続
+    lx = Inches(0.28)
+    ly = flow_y + bh + Emu(120000)
+    lw = Inches(4.5)
+    lh = Emu(2650000)
 
-    # 下段：向いているユーザー
-    rect_b(s, Inches(0.2), Inches(3.57), Inches(9.6), Emu(480000),
-           RGBColor(0x10, 0x08, 0x00), C_GOLD, 1.2)
-    tb(s, Inches(0.35), Inches(3.63), Inches(9.2), Emu(390000),
-       "導入台数 約15,000台（2026年4月）  /  吉宗シリーズファン多数  /  4月導入組で稼働独走中",
-       9.5, color=C_GOLD)
+    rect_b(s, lx, ly, lw, lh, C_CARD, C_PUR, 1.5)
+    rect(s, lx, ly, Emu(45000), lh, C_PUR)
+    tb(s, lx + Emu(75000), ly + Emu(45000), lw - Emu(100000), Emu(260000),
+       "4号機記憶との接続", 11, bold=True, color=C_PUR, font=FONT_H)
+    tb(s, lx + Emu(75000), ly + Emu(300000), lw - Emu(100000), lh - Emu(360000),
+       "「1G連」は4号機吉宗の代名詞だった。\n\n"
+       "スマスロ版で同じ体験ができるという事実が\n"
+       "30〜40代の休眠層を引き戻す力を持つ。\n\n"
+       "純増9.0枚という圧倒的なスピードは\n"
+       "「あの頃の爆発感」を現代のスペックで再現。\n\n"
+       "ノスタルジアと現行最高水準の性能が\n"
+       "一台に共存している稀有な設計。",
+       8, color=C_WHITE)
 
-    rect(s, Inches(0.2), Inches(4.15), Inches(9.6), Emu(700000), RGBColor(0x08, 0x05, 0x00))
-    tb(s, Inches(0.35), Inches(4.22), Inches(9.2), Emu(600000),
-       "この資料では、「真BBまでの道のり」と「1G連が生まれる瞬間」を順を追って解説します。\n"
-       "仕組みを知ってから打つと、1ゲームごとの意味が変わります。",
-       9, color=C_CREAM)
+    # 下段右：1G連という設計的天才
+    rx = Inches(5.0)
+    rw = Inches(4.7)
+
+    rect_b(s, rx, ly, rw, lh, RGBColor(0x18, 0x08, 0x00), C_ORG, 1.5)
+    rect(s, rx, ly, Emu(45000), lh, C_ORG)
+    tb(s, rx + Emu(75000), ly + Emu(45000), rw - Emu(100000), Emu(260000),
+       "1G連という設計的天才", 11, bold=True, color=C_ORG, font=FONT_H)
+    tb(s, rx + Emu(75000), ly + Emu(300000), rw - Emu(100000), lh - Emu(360000),
+       "1G連は単なるボーナス連続ではなく\n"
+       "「終わり → 始まり」の体験を1Gで完結させる設計。\n\n"
+       "通常のAT継続と違い:\n"
+       "① 「終わった」という感情が生まれる（一旦落ちる）\n"
+       "② 「また始まった」という驚きが来る（爆上がる）\n"
+       "この感情の波が興奮を最大化する。\n\n"
+       "究極鷹ブレイクはこの1G連体験の\n"
+       "究極形として機能する。",
+       8, color=C_WHITE)
+
+    note(s)
 
 
 # ══════════════════════════════════════════════════════════════
-#  SLIDE 10: まとめ
+#  SLIDE 6: 設定判別 + 課題
+# ══════════════════════════════════════════════════════════════
+def s_hanbet(prs):
+    s = new_slide(prs)
+    hdr(s, "設定判別 ── 実戦で使えるポイント", "6/7")
+
+    cols_x = [Inches(0.28), Inches(3.48), Inches(6.68)]
+    cols_w = [Inches(3.0), Inches(3.0), Inches(3.0)]
+    col_hdrs = ["CZ確率", "真BB中の1G連率", "終了画面示唆"]
+    col_colors = [C_PUR, C_ORG, C_GOLD]
+    contents = [
+        [
+            ("設定差あり",        "設定差あり・高設定ほど\nCZ発生が早い。"),
+            ("周期の短さで判断",  "周期の短さで判断する。"),
+            ("高設定の目安",      "CZが早く来る台は\n高設定の可能性あり。"),
+        ],
+        [
+            ("高設定優遇",        "高設定ほど1G連抽選優遇。"),
+            ("BB後すぐ確認",      "BB後すぐ次BBが始まるか確認。"),
+            ("連続1G連",          "1G連が連続するほど\n高設定期待度UP。"),
+        ],
+        [
+            ("終了画面示唆",      "BBやAT終了後の画面に\n設定示唆が出る。"),
+            ("鷹の衣装・色",      "鷹の衣装・色で示唆が変化。"),
+            ("複数回で精度UP",    "複数回の確認で\n総合的に判断する。"),
+        ],
+    ]
+
+    for ci, (col_x, col_w, col_hdr, col_col, items) in enumerate(
+            zip(cols_x, cols_w, col_hdrs, col_colors, contents)):
+        rect(s, col_x, Inches(0.72), col_w - Inches(0.12), Emu(360000), col_col)
+        tb(s, col_x + Emu(30000), Inches(0.72) + Emu(45000),
+           col_w - Inches(0.17), Emu(275000),
+           col_hdr, 9.5, bold=True, color=C_BG, align=PP_ALIGN.CENTER, wrap=False)
+
+        for ri, (title, body) in enumerate(items):
+            ry0 = Inches(0.72) + Emu(360000) + ri * Emu(1270000)
+            bg = C_CARD if ri % 2 == 0 else C_ROW
+            rect_b(s, col_x, ry0, col_w - Inches(0.12), Emu(1210000), bg, col_col, 0.5)
+            tb(s, col_x + Emu(50000), ry0 + Emu(55000), col_w - Inches(0.2), Emu(255000),
+               title, 8.5, bold=True, color=col_col)
+            tb(s, col_x + Emu(50000), ry0 + Emu(305000), col_w - Inches(0.2), Emu(780000),
+               body, 8, color=C_WHITE)
+
+    note(s)
+
+
+# ══════════════════════════════════════════════════════════════
+#  SLIDE 7: まとめ
 # ══════════════════════════════════════════════════════════════
 def s_matome(prs):
     s = new_slide(prs)
-    hdr(s, "まとめ  ──  真打吉宗で覚えておくべき3つのこと")
+    hdr(s, "まとめ ── 設計から学べること", "7/7")
 
-    # キャッチバック
-    rect_b(s, Inches(0.2), Inches(0.82), Inches(9.6), Emu(760000),
-           RGBColor(0x14, 0x08, 0x00), C_GOLD, 2)
-    tb(s, Inches(0.35), Inches(0.9), Inches(9.2), Emu(620000),
-       "「2000枚が、次の1ゲームでもう1回来るかもしれない。それが怖くてたまらない台。」",
-       13, bold=True, italic=True, color=C_GOLD2)
+    bx, by = Inches(0.28), Inches(0.72)
+    bw3 = Inches(4.5)
 
-    # 3つのポイント
-    points = [
-        ("① 真BBが本番",
-         "通常ATは「真BBへの道のり」。\n"
-         "真高確率に入って青7が揃った瞬間、\n"
-         "2000枚×9枚/Gの別の台が始まる。",
-         C_ORANGE),
-        ("② 次の1Gに全部かかっている",
-         "真BB中の1G連抽選がこの台の核心。\n"
-         "成敗役を引くたびにループのチャンス。\n"
-         "連鎖するほど2000枚が積み上がる。",
-         C_RED),
-        ("③ 設定が入る日を選ぶ",
-         "設定6は機械割114%・業界最高水準。\n"
-         "設定1と設定6では別の台と思うべき。\n"
-         "高設定確保が最大の攻略。",
-         C_GOLD),
+    rect(s, bx, by, bw3, Emu(300000), RGBColor(0x55, 0x10, 0x88))
+    tb(s, bx + Emu(60000), by + Emu(50000), bw3 - Emu(80000), Emu(230000),
+       "設計から学べること", 11, bold=True, color=C_GOLD, font=FONT_H)
+
+    elems = [
+        (C_PUR,  "1G連という設計資産",
+         "4号機から引き継いだ1G連は\n"
+         "「終わりと始まり」の感情波を1Gで生む。\n"
+         "設計的天才として今も機能している。"),
+        (C_ORG,  "純増9.0枚の爆発力",
+         "現行最高クラスの純増速度が\n"
+         "「速く大きく勝つ」体験を実現。\n"
+         "究極鷹ブレイクとの組み合わせが頂点体験。"),
+        (C_GOLD, "荒波という諸刃の剣",
+         "爆発力と引き換えに荒波も激しい。\n"
+         "勝つ時の快感が大きい分、負ける時の傷も深い。\n"
+         "コアユーザーへの訴求が最大の課題。"),
     ]
-    bx = Inches(0.2)
-    bw = Inches(3.1)
-    for title, body, col in points:
-        rect_b(s, bx, Inches(1.77), bw, Inches(2.35), C_CARD, col, 2.0)
-        rect(s, bx, Inches(1.77), bw, Emu(380000), col)
-        tb(s, bx + Emu(80000), Inches(1.83), bw - Emu(160000), Emu(290000),
-           title, 11, bold=True, color=C_BG)
-        tb(s, bx + Emu(80000), Inches(2.26), bw - Emu(160000), Inches(1.7),
-           body, 9.5, color=C_CREAM)
-        bx += bw + Emu(180000)
+    for i, (ac, t, b) in enumerate(elems):
+        ey = by + Emu(300000) + i * Emu(1270000)
+        rect_b(s, bx, ey, bw3, Emu(1200000), C_CARD, ac, 1.5)
+        rect(s, bx, ey, Emu(45000), Emu(1200000), ac)
+        tb(s, bx + Emu(75000), ey + Emu(50000), bw3 - Emu(95000), Emu(260000),
+           t, 9, bold=True, color=ac)
+        tb(s, bx + Emu(75000), ey + Emu(305000), bw3 - Emu(95000), Emu(800000),
+           b, 8, color=C_WHITE)
 
-    # DNA締め
-    rect(s, Inches(0.2), Inches(4.22), Inches(9.6), Emu(680000),
-         RGBColor(0x08, 0x05, 0x00))
-    rect(s, Inches(0.2), Inches(4.22), Emu(60000), Emu(680000), C_GOLD)
-    tb(s, Inches(0.45), Inches(4.28), Inches(9.1), Emu(300000),
-       "初代から受け継がれた「7を狙う・1G連・711枚」のDNA", 10, bold=True, color=C_GOLD)
-    tb(s, Inches(0.45), Inches(4.62), Inches(9.1), Emu(300000),
-       "真打吉宗はそれを「真BB 2000枚 × 1G連ループ」として昇華させたシリーズの集大成。"
-       "怖くてたまらない1ゲームを、ぜひ体験してください。",
-       9.5, color=C_CREAM)
+    rx, ry = Inches(5.0), Inches(0.72)
+    rw = Inches(4.7)
+
+    rect(s, rx, ry, rw, Emu(280000), C_CARD2)
+    tb(s, rx + Emu(50000), ry + Emu(45000), rw - Emu(70000), Emu(210000),
+       "設計原則", 11, bold=True, color=C_GOLD, font=FONT_H)
+
+    principles = [
+        (C_PUR,  "1G連の「終わり→始まり」体験が興奮を最大化する"),
+        (C_ORG,  "純増9枚×1G連×究極鷹ブレイクの三位一体が爆発を生む"),
+        (C_GOLD, "IP記憶との接続が休眠層を呼び戻す武器になる"),
+        (C_GRAY, "荒波設計はコアファン向けに徹した潔い設計判断"),
+    ]
+    for i, (ac, p) in enumerate(principles):
+        py0 = ry + Emu(280000) + i * Emu(540000)
+        rect(s, rx, py0, Emu(20000), Emu(490000), ac)
+        tb(s, rx + Emu(50000), py0 + Emu(75000), rw - Emu(60000), Emu(380000),
+           p, 8.5, color=C_WHITE)
+
+    rect_b(s, rx, ry + Emu(2450000), rw, Emu(800000),
+           RGBColor(0x14, 0x06, 0x20), C_PUR, 1.5)
+    tb(s, rx + Emu(55000), ry + Emu(2500000), rw - Emu(75000), Emu(260000),
+       "総括", 9, bold=True, color=C_PUR)
+    tb(s, rx + Emu(55000), ry + Emu(2760000), rw - Emu(75000), Emu(430000),
+       "4号機吉宗の遺産を現行最高スペックで昇華した一台。\n"
+       "1G連という普遍的な興奮体験は時代を超えて機能し続ける。",
+       8, color=C_WHITE)
+
+    note(s)
 
 
 # ══════════════════════════════════════════════════════════════
 #  MAIN
 # ══════════════════════════════════════════════════════════════
 def main():
-    print("=" * 55)
-    print("  真打吉宗 完全解説 PowerPoint ジェネレーター")
-    print("=" * 55)
-
     prs = Presentation()
-    prs.slide_width  = SLIDE_W
+    prs.slide_width = SLIDE_W
     prs.slide_height = SLIDE_H
 
-    print("\n📊 スライド生成中...")
-    s_title(prs);    print("   1/10 タイトル")
-    s_review(prs);   print("   2/10 この台のいいところ・悪いところ")
-    s_history(prs);  print("   3/10 吉宗シリーズの歴史")
-    s_spec(prs);     print("   4/10 基本スペック")
-    s_flow(prs);     print("   5/10 全体ゲームフロー図")
-    s_normal(prs);   print("   6/10 通常時の仕組み")
-    s_cz_at(prs);    print("   7/10 CZ → AT")
-    s_truemode(prs); print("   8/10 真高確率 → 真BB → 1G連")
-    s_setting(prs);  print("   9/10 設定示唆・設定差")
-    s_matome(prs);   print("  10/10 まとめ")
+    s_title(prs)
+    s_spec(prs)
+    s_flow(prs)
+    s_bb(prs)
+    s_experience(prs)
+    s_hanbet(prs)
+    s_matome(prs)
 
-    os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     prs.save(OUT_PATH)
-    print(f"\n✅ 保存完了: {OUT_PATH}")
+    print(f"Saved: {OUT_PATH}")
 
 
 if __name__ == "__main__":
