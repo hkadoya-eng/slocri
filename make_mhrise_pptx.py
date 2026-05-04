@@ -207,13 +207,15 @@ def s_title(prs):
          "経由で上位AT突入。純増が2.7→4.0枚/Gに上昇。\n"
          "業界最大18.5インチ液晶で圧倒的映像体験。"),
     ]
+    bx_h = Inches(1.25)   # ボックス高さ（1.3→1.25に縮小）
+    bx_gap = Emu(1490000)  # ボックス間隔（3つで合計: 0.4 + 3*1.25 + 2*gap = 4.9 → gap=(4.9-0.4-3.75)/2=0.375inch=342900EMU）
     for i, (ac, kw, desc) in enumerate(kws):
-        y0 = Inches(0.55) + i * Emu(1540000)
-        rect_b(s, Inches(5.65), y0, Inches(4.1), Inches(1.3), C_CARD, ac, 2.0)
-        rect(s, Inches(5.65), y0, Emu(60000), Inches(1.3), ac)
-        tb(s, Inches(5.85), y0 + Emu(65000), Inches(3.8), Emu(310000),
+        y0 = Inches(0.40) + i * Emu(1490000)
+        rect_b(s, Inches(5.65), y0, Inches(4.1), bx_h, C_CARD, ac, 2.0)
+        rect(s, Inches(5.65), y0, Emu(60000), bx_h, ac)
+        tb(s, Inches(5.85), y0 + Emu(55000), Inches(3.8), Emu(290000),
            kw, 10.5, bold=True, color=ac, font=FONT_H)
-        tb(s, Inches(5.85), y0 + Emu(380000), Inches(3.8), Emu(450000),
+        tb(s, Inches(5.85), y0 + Emu(350000), Inches(3.8), Emu(430000),
            desc, 8, color=C_WHITE)
 
     net_note(s)
@@ -226,82 +228,83 @@ def s_title(prs):
 # ══════════════════════════════════════════════════════════════
 def s_flow(prs):
     s = new_slide(prs)
-    hdr(s, "ゲームフロー全体図 ── 通常時→CZ→AT→上位ATの全ルート", "2/9")
+    hdr(s, "ゲームフロー全体図 ── 通常3ルート→AT集会所ループ→気焔万丈", "2/9")
 
-    # 上段：通常→初当り→狩猟ボーナス の基本フロー
+    # ── 上段：通常→AT入口（3ルート並列）──
     top_y = Inches(0.75)
-    top_h = Emu(1100000)
-
-    flow1 = [
-        (C_CARD2, C_GRAY,   "通常遊技",          "カムラポイント蓄積\nレア役直撃抽選\nリプレイ規定でCZ"),
-        (C_CARD,  C_GREEN2, "アイルーだるま\n落とし(CZ)",  "リプレイ規定回数\n（最大200回）で\n突入するメインCZ"),
-        (C_CARD,  C_GREEN,  "百竜夜行\n(上位CZ)",  "12G継続CZ\n成功率約70%\n大連続ボーナス濃厚"),
-        (C_CARD,  C_ORG,    "狩猟ボーナス\n(メインAT)",  "純増2.7or4.0枚/G\nモンスター討伐で\n継続するループ型"),
-        (C_CARD,  C_GOLD,   "剥ぎ取り\nチャンス", "討伐後の報酬タイム\n銀/金/G/超の4種\n金以上でストック確定"),
-    ]
-    bw1 = Inches(1.62)
+    top_h = Emu(1350000)
+    bw1 = Inches(1.55)
     gap1 = Inches(0.14)
     sx1 = Inches(0.28)
     cy1 = top_y + top_h // 2
 
+    # 5ボックス合計幅: 0.28 + 5*1.55 + 4*0.14 = 8.59in ✓
+    flow1 = [
+        (C_CARD2, C_GRAY,   "通常遊技",               "カムラポイント蓄積\nステージ変化\n[大社跡→溶岩洞]"),
+        (C_CARD,  C_CYAN,   "クエスト\n(規定PT到達)",  "カムラPT到達で\nクエスト発展\n成功でAT直入り"),
+        (C_CARD,  C_GREEN2, "だるま落とし\n(CZ)",      "リプレイ規定回数\n到達で突入\n自力突破タイプ"),
+        (C_CARD,  C_GREEN,  "百竜夜行\n(上位CZ)",      "規定PT到達の一部\n成功率約70%\n大連続BONUS確定"),
+        (C_CARD,  C_ORG,    "狩猟ボーナス\n(AT入口)",  "BAR/赤7/紫7の3種\n純増2.7or4.0枚/G\n超抽選バトル"),
+    ]
+
     for i, (fill, ac, lbl, sub) in enumerate(flow1):
         bx = sx1 + i * (bw1 + gap1)
         rect_b(s, bx, top_y, bw1, top_h, fill, ac, 1.8)
-        tb(s, bx + Emu(35000), top_y + Emu(70000), bw1 - Emu(60000), Emu(360000),
+        tb(s, bx + Emu(35000), top_y + Emu(80000), bw1 - Emu(60000), Emu(390000),
            lbl, 9.5, bold=True, color=ac, align=PP_ALIGN.CENTER, font=FONT_H)
-        tb(s, bx + Emu(25000), top_y + Emu(480000), bw1 - Emu(45000), Emu(520000),
+        tb(s, bx + Emu(25000), top_y + Emu(520000), bw1 - Emu(45000), Emu(760000),
            sub, 7.5, color=C_GRAY, align=PP_ALIGN.CENTER)
         if i < 4:
-            arrow_r(s, bx + bw1 + Emu(8000), cy1, C_GREEN)
+            col = C_CYAN if i == 0 else C_GREEN
+            arrow_r(s, bx + bw1 + Emu(8000), cy1, col)
 
-    # 天井アノテーション
-    tb(s, sx1, top_y + Emu(1120000), Inches(3.5), Emu(260000),
-       "天井：リプレイ規定5セット目（累計200回）でCZ確定", 7.5, color=C_CYAN)
-    rect(s, sx1, top_y + Emu(1360000), Inches(3.8), Emu(5000), C_CYAN)
-    tb(s, sx1 + Inches(4.0), top_y + Emu(1120000), Inches(3.5), Emu(260000),
-       "有利区間差枚+2100枚到達→エンディング→上位AT抽選", 7.5, color=C_GOLD)
+    # アノテーション：ライズゾーンと天井
+    tb(s, sx1, top_y + Emu(1370000), Inches(4.2), Emu(250000),
+       "レア役→ライズゾーン(PT特化・20セット完走でAT濃厚)→クエストへ合流", 7.5, color=C_CYAN)
+    rect(s, sx1, top_y + Emu(1600000), Inches(4.2), Emu(5000), C_CYAN)
+    tb(s, sx1 + Inches(4.5), top_y + Emu(1370000), Inches(3.2), Emu(250000),
+       "天井：リプレイ規定5セット目（累計200回）でCZ確定突入", 7.5, color=C_GRAY)
 
     # 中段区切り線
-    rect(s, 0, Inches(2.12), SLIDE_W, Emu(5000), RGBColor(0x30, 0x50, 0x18))
+    rect(s, 0, Inches(2.68), SLIDE_W, Emu(5000), RGBColor(0x30, 0x50, 0x18))
 
-    # 下段：AT内→上位ATへの昇格ルート
-    bot_y = Inches(2.20)
-    bot_h = Emu(1080000)
-
-    flow2 = [
-        (C_CARD,  C_ORG,   "狩猟ボーナス\n（基本AT）",   "純増約2.7枚/G\nモンスターと戦闘\n討伐率約52%"),
-        (C_CARD,  C_GREEN, "百竜刀\n-千変万化MODE-", "早期討伐時突入\nボーナスストック\n特化ゾーン"),
-        (C_CARD,  C_GOLD2, "エンディング\n(10頭討伐)",   "規定10頭討伐で\n突入する特殊フェーズ\n上位AT抽選の起点"),
-        (RGBColor(0x14,0x10,0x02), C_GOLD,
-         "気焔万丈\n（上位AT）",    "純増約4.0枚/G\n通常ATと同ゲーム性\n百竜ノ淵源経由"),
-    ]
-    bw2 = Inches(2.0)
-    gap2 = Inches(0.22)
+    # ── 下段：AT内ループ→上位AT昇格 ──
+    bot_y = Inches(2.76)
+    bot_h = Emu(1350000)
+    bw2 = Inches(1.65)
+    gap2 = Inches(0.17)
     sx2 = Inches(0.28)
     cy2 = bot_y + bot_h // 2
+
+    # 5ボックス合計幅: 0.28 + 5*1.65 + 4*0.17 = 9.21in ✓
+    flow2 = [
+        (C_CARD2, C_GRAY,  "集会所\n(ループ起点)",      "AT継続の起点\n討伐失敗でも\nストックで復帰"),
+        (C_CARD,  C_ORG,   "狩猟ボーナス\n(超抽選バトル)", "BAR/赤7/紫7の3種\n討伐成功→剥ぎ取り\n討伐失敗→集会所"),
+        (C_CARD,  C_GREEN, "剥ぎ取りチャンス\n/百竜刀",  "討伐後の報酬タイム\n早期討伐で百竜刀\n(ストック特化)へ"),
+        (C_CARD,  C_GOLD2, "エンディング\n(10頭討伐)",   "10頭討伐達成で\n百竜ノ淵源\nチャレンジへ"),
+        (RGBColor(0x14, 0x10, 0x02), C_GOLD,
+         "気焔万丈\n(上位AT)",         "百竜ノ淵源BONUS\n成功(約72%)で突入\n全ボーナス純増UP"),
+    ]
 
     for i, (fill, ac, lbl, sub) in enumerate(flow2):
         bx = sx2 + i * (bw2 + gap2)
         rect_b(s, bx, bot_y, bw2, bot_h, fill, ac, 1.8)
-        tb(s, bx + Emu(40000), bot_y + Emu(70000), bw2 - Emu(70000), Emu(370000),
-           lbl, 10, bold=True, color=ac, align=PP_ALIGN.CENTER, font=FONT_H)
-        tb(s, bx + Emu(30000), bot_y + Emu(490000), bw2 - Emu(55000), Emu(470000),
+        tb(s, bx + Emu(35000), bot_y + Emu(80000), bw2 - Emu(60000), Emu(390000),
+           lbl, 9.5, bold=True, color=ac, align=PP_ALIGN.CENTER, font=FONT_H)
+        tb(s, bx + Emu(25000), bot_y + Emu(520000), bw2 - Emu(45000), Emu(760000),
            sub, 7.5, color=C_GRAY, align=PP_ALIGN.CENTER)
-        if i < 3:
-            arrow_r(s, bx + bw2 + Emu(12000), cy2, C_GOLD)
+        if i < 4:
+            col = C_ORG if i == 0 else C_GOLD
+            arrow_r(s, bx + bw2 + Emu(10000), cy2, col)
 
-    # 右端補足ボックス
-    rx_al = sx2 + 4 * (bw2 + gap2)
-    rect_b(s, rx_al, bot_y, Inches(1.42), bot_h, C_CARD, C_CYAN, 1.5)
-    rect(s, rx_al, bot_y, Emu(30000), bot_h, C_CYAN)
-    tb(s, rx_al + Emu(50000), bot_y + Emu(70000), Inches(1.2), Emu(310000),
-       "百竜ノ\n淵源\nBONUS", 9, bold=True, color=C_CYAN, font=FONT_H, align=PP_ALIGN.CENTER)
-    tb(s, rx_al + Emu(50000), bot_y + Emu(490000), Inches(1.2), Emu(460000),
-       "討伐成功\n(約72%)で\n気焔万丈へ", 7.5, color=C_WHITE, align=PP_ALIGN.CENTER)
+    # ループアノテーション
+    tb(s, sx2, bot_y + Emu(1370000), Inches(3.8), Emu(250000),
+       "↺ 討伐失敗+ストックあり→集会所に戻り何度でも継続", 7.5, color=C_ORG)
+    rect(s, sx2, bot_y + Emu(1600000), Inches(3.8), Emu(5000), C_ORG)
 
     net_note(s)
-    footer(s, "上段=通常〜狩猟ボーナス突入ルート（カムラPT・CZ・レア役直撃）、下段=AT内昇格ルート（討伐→エンディング→気焔万丈）",
-           "討伐するたびに次の戦いが始まるモンハンサイクルがそのままスロットのAT継続設計に")
+    footer(s, "上段=通常時3ルート（クエスト/だるま落とし/百竜夜行）＋レア役ライズゾーンでPT加速",
+           "下段=AT集会所ループ（討伐失敗でも継続）→10頭達成→百竜ノ淵源→気焔万丈へ昇格")
 
 
 # ══════════════════════════════════════════════════════════════
