@@ -120,8 +120,8 @@ def hdr(slide, title, subtitle=None):
     bar.fill.fore_color.rgb = RGBColor(0x55, 0x00, 0x44)
     bar.line.fill.background()
     # タイトル文字
-    tb(slide, title, 0.15, 0.08, 7.5, 0.55,
-       font_name=FONT_H, font_size=20, color=C_WHITE, bold=True)
+    tb(slide, title, 0.15, 0.08, 8.5, 0.55,
+       font_name=FONT_H, font_size=16, color=C_WHITE, bold=True)
     # サブタイトル（右寄せ）
     if subtitle:
         tb(slide, subtitle, 7.0, 0.10, 2.8, 0.45,
@@ -275,75 +275,109 @@ def slide2_gameflow(prs):
     make_bg(slide, glow_x=0.5, glow_y=0.3)
     hdr(slide, "ゲームフロー全体図", "全ルートを蛇行2段で可視化")
 
-    # ─ 上段：通常 → CZ → ボーナス → AT ─
-    tb(slide, "上段ルート（メインフロー）", 0.2, 0.72, 4.0, 0.3,
+    _bw  = 1.50   # ボックス幅（前: 1.3in）
+    _bh  = 0.80   # 上段高さ（前: 0.72in）
+    _bh2 = 1.00   # 下段高さ（前: 0.82in）
+    _gap = 0.13   # ボックス間隔
+    _mx  = 0.12   # 左右マージン
+    # 幅チェック: 0.12 + 6*1.50 + 5*0.13 + 末端 = 9.77in ✓
+
+    _top1_y = 0.98
+    _top2_y = 2.65
+    _ann_y  = 3.90
+
+    # ─ 上段ラベル ─
+    tb(slide, "上段ルート（メインフロー）", _mx, 0.72, 5.0, 0.26,
        font_size=9, color=C_LPINK, bold=True)
 
     boxes_top = [
-        ("通常時\n（ポイント蓄積）", 0.15, 1.05, C_BOX, C_PINK),
-        ("マギア\nチャレンジ(CZ)", 1.9,  1.05, RGBColor(0x20,0x10,0x30), C_PINK),
-        ("ボーナス\n4種",          3.65, 1.05, RGBColor(0x10,0x10,0x35), C_CYAN),
-        ("マギアラッシュ\n(AT)",   5.4,  1.05, RGBColor(0x30,0x00,0x30), C_GOLD),
-        ("ストーリー\nコンプリート", 7.15, 1.05, RGBColor(0x15,0x25,0x10), C_GREEN),
-        ("エンディング\n到達",     8.9,  1.05, RGBColor(0x30,0x10,0x00), C_GOLD),
+        ("通常時\n（ポイント蓄積）",  C_BOX,                    C_PINK),
+        ("マギア\nチャレンジCZ",      RGBColor(0x20,0x10,0x30), C_PINK),
+        ("ボーナス\n4種",             RGBColor(0x10,0x10,0x35), C_CYAN),
+        ("マギア\nラッシュAT",        RGBColor(0x30,0x00,0x30), C_GOLD),
+        ("ストーリー\nコンプリート",  RGBColor(0x15,0x25,0x10), C_GREEN),
+        ("エンディング\n到達",        RGBColor(0x30,0x10,0x00), C_GOLD),
     ]
-    for label, lx, ly, fill, bc in boxes_top:
-        rect_b(slide, lx, ly, 1.6, 0.72, fill, border_color=bc, border_pt=1.5)
-        tb(slide, label, lx + 0.06, ly + 0.06, 1.48, 0.60,
-           font_size=8.5, color=C_WHITE, align=PP_ALIGN.CENTER)
+    for i, (label, fill, bc) in enumerate(boxes_top):
+        lx = _mx + i * (_bw + _gap)
+        rect_b(slide, lx, _top1_y, _bw, _bh, fill, border_color=bc, border_pt=1.5)
+        tb(slide, label, lx + 0.06, _top1_y + 0.08, _bw - 0.12, _bh - 0.14,
+           font_size=9.5, color=C_WHITE, align=PP_ALIGN.CENTER)
 
-    # 矢印（上段）
-    arrow_positions_top = [1.75, 3.5, 5.25, 7.0, 8.75]
-    for ax in arrow_positions_top:
-        arrow_r(slide, ax, 1.27, length=0.14)
+    # 天井アノテーション（通常時ボックス直下）
+    tb(slide, "▼ 天井 950pt+α", _mx, _top1_y + _bh + 0.04, _bw, 0.22,
+       font_size=8, color=C_GOLD, bold=True, align=PP_ALIGN.CENTER)
 
-    # 折り返し矢印（右端 → 下段左端）
-    # 右端から下へ
-    fold = slide.shapes.add_shape(1, Inches(9.75), Inches(1.62), Inches(0.12), Inches(0.65))
-    fold.fill.solid(); fold.fill.fore_color.rgb = C_PINK; fold.line.fill.background()
-    fold2 = slide.shapes.add_shape(1, Inches(0.15), Inches(2.12), Inches(9.72), Inches(0.12))
-    fold2.fill.solid(); fold2.fill.fore_color.rgb = C_PINK; fold2.line.fill.background()
-    tb(slide, "↩ 折り返し", 4.0, 2.0, 2.0, 0.22,
+    # 上段矢印
+    for i in range(len(boxes_top) - 1):
+        ax = _mx + i * (_bw + _gap) + _bw + 0.01
+        arrow_r(slide, ax, _top1_y + _bh / 2 - 0.12, length=_gap - 0.02)
+
+    # 折り返し矢印（右端縦バー → 横バー）
+    r_edge = _mx + 5 * (_bw + _gap) + _bw   # ≈ 9.77in
+
+    fold_v = slide.shapes.add_shape(1,
+        Inches(r_edge), Inches(_top1_y + _bh * 0.5),
+        Inches(0.12), Inches(0.70))
+    fold_v.fill.solid(); fold_v.fill.fore_color.rgb = C_PINK; fold_v.line.fill.background()
+
+    fold_h_y = _top1_y + _bh * 0.5 + 0.70   # ≈ 2.08
+    fold_h = slide.shapes.add_shape(1,
+        Inches(_mx), Inches(fold_h_y),
+        Inches(r_edge - _mx + 0.12), Inches(0.10))
+    fold_h.fill.solid(); fold_h.fill.fore_color.rgb = C_PINK; fold_h.line.fill.background()
+
+    tb(slide, "↩ 折り返し（エンディング → 上位AT突入）",
+       3.3, fold_h_y + 0.02, 3.5, 0.22,
        font_size=8, color=C_PINK, align=PP_ALIGN.CENTER)
 
-    # ─ 下段：上位AT → ドッペル → エンド ─
-    tb(slide, "下段ルート（上位AT・爆発ルート）", 0.2, 2.32, 5.0, 0.3,
+    # ─ 下段ラベル ─
+    tb(slide, "下段ルート（上位AT・爆発ルート）", _mx, _top2_y - 0.26, 5.5, 0.26,
        font_size=9, color=C_GOLD, bold=True)
 
     boxes_bot = [
-        ("エンブリオ\nイブ覚醒\n(上位AT)",    0.15,  2.65, RGBColor(0x35,0x10,0x30), C_GOLD),
-        ("エンブリオ\nイブアタック\n(特化)",   1.9,   2.65, RGBColor(0x30,0x15,0x00), C_GOLD),
-        ("決戦神浜聖女\n(ST特化)",            3.65,  2.65, RGBColor(0x00,0x15,0x35), C_CYAN),
-        ("ドッペル\nモード\n(穢れ爆発)",      5.4,   2.65, RGBColor(0x30,0x00,0x10), C_RED),
-        ("マギウス\nバトル",                  7.15,  2.65, RGBColor(0x25,0x00,0x25), C_PINK),
-        ("AT終了\n→有利区間\nリセット",       8.9,   2.65, RGBColor(0x10,0x10,0x10), C_GRAY),
+        ("エンブリオ\nイブ覚醒\n(上位AT)",    RGBColor(0x35,0x10,0x30), C_GOLD),
+        ("エンブリオ\nイブアタック\n(特化)",   RGBColor(0x30,0x15,0x00), C_GOLD),
+        ("決戦\n神浜聖女\n(ST特化)",           RGBColor(0x00,0x15,0x35), C_CYAN),
+        ("ドッペル\nモード\n(穢れ爆発)",       RGBColor(0x35,0x00,0x08), C_RED),
+        ("マギウス\nバトル",                   RGBColor(0x25,0x00,0x25), C_PINK),
+        ("AT終了\n→有利区間\nリセット",        RGBColor(0x10,0x10,0x10), C_GRAY),
     ]
-    for label, lx, ly, fill, bc in boxes_bot:
-        rect_b(slide, lx, ly, 1.6, 0.82, fill, border_color=bc, border_pt=1.5)
-        tb(slide, label, lx + 0.06, ly + 0.06, 1.48, 0.70,
-           font_size=8, color=C_WHITE, align=PP_ALIGN.CENTER)
+    for i, (label, fill, bc) in enumerate(boxes_bot):
+        lx = _mx + i * (_bw + _gap)
+        bpt = 2.5 if bc == C_RED else 1.5
+        rect_b(slide, lx, _top2_y, _bw, _bh2, fill, border_color=bc, border_pt=bpt)
+        tb(slide, label, lx + 0.06, _top2_y + 0.10, _bw - 0.12, _bh2 - 0.18,
+           font_size=9.0, color=C_WHITE, align=PP_ALIGN.CENTER)
 
-    arrow_positions_bot = [1.75, 3.5, 5.25, 7.0, 8.75]
-    for ax in arrow_positions_bot:
-        arrow_r(slide, ax, 2.98, length=0.14)
+    # 下段矢印
+    for i in range(len(boxes_bot) - 1):
+        ax = _mx + i * (_bw + _gap) + _bw + 0.01
+        arrow_r(slide, ax, _top2_y + _bh2 / 2 - 0.12, length=_gap - 0.02)
 
-    # ─ 凡例 ─
-    rect_b(slide, 0.15, 3.60, 9.7, 1.3, RGBColor(0x08, 0x08, 0x20),
-           border_color=C_GRAY, border_pt=0.8)
-    tb(slide, "凡例・補足", 0.3, 3.63, 2.0, 0.28,
-       font_size=9, color=C_GRAY, bold=True)
-
-    legends = [
-        (C_PINK,  "マギアチャレンジ：スイカ/ポイント/黒江CZからCZ突入"),
-        (C_CYAN,  "ボーナス4種：50G・30G+α・ベルナビ8回・30Gの4タイプ"),
-        (C_GOLD,  "エンブリオイブ覚醒：ストーリー8種コンプ後に突入する上位AT"),
-        (C_RED,   "ドッペルモード：穢れ解放で突入。AT終了まで高上乗せ継続"),
+    # ─ キーポイント 3パネル（凡例に代わる設計補足）─
+    n_panels = 3
+    gap_p = 0.14
+    panel_w = (10.0 - _mx * 2 - gap_p * (n_panels - 1)) / n_panels   # ≈ 3.16in
+    ann_items = [
+        ("天井 950pt+α",
+         "ポイント蓄積上限で強制ボーナス当選。スルー回数が増えるほど初当たりAT期待値が上昇",
+         C_GOLD),
+        ("ドッペル爆発 3000枚超",
+         "穢れ解放で突入。AT終了まで上乗せ倍増。設定6以外でも3000枚超は十分現実的",
+         C_RED),
+        ("コンプ体験",
+         "8ストーリーをATで収集してエンディングへ。明確なゴールがAT継続モチベを維持",
+         C_CYAN),
     ]
-    ly2 = 3.93
-    for lc, ltx in legends:
-        rect_b(slide, 0.25, ly2 + 0.06, 0.14, 0.14, lc)
-        tb(slide, ltx, 0.45, ly2, 9.3, 0.28, font_size=8, color=C_GRAY)
-        ly2 += 0.24
+    for j, (ak, av, ac) in enumerate(ann_items):
+        lx = _mx + j * (panel_w + gap_p)
+        rect_b(slide, lx, _ann_y, panel_w, 0.72, RGBColor(0x08, 0x08, 0x20),
+               border_color=ac, border_pt=1)
+        tb(slide, ak, lx + 0.09, _ann_y + 0.05, panel_w - 0.18, 0.26,
+           font_size=9.5, color=ac, bold=True)
+        tb(slide, av, lx + 0.09, _ann_y + 0.30, panel_w - 0.18, 0.38,
+           font_size=7.5, color=C_GRAY)
 
     net_note(slide,
              "ゲームフロー：一撃/flick7/ちょんぼりすた 各解析より構成",
@@ -636,8 +670,8 @@ def slide6_upper_at(prs):
        0.3, 4.15, 5.5, 0.3, font_size=8, color=C_RED, bold=True)
 
     # 右：ドッペルモード
-    rect_b(slide, 6.05, 0.78, 3.8, 3.5, C_BOX, border_color=C_RED, border_pt=2)
-    badge(slide, "ドッペルモード（穢れ爆発）", 6.15, 0.82, w=3.6, h=0.38,
+    rect_b(slide, 6.05, 0.78, 3.72, 3.5, C_BOX, border_color=C_RED, border_pt=2)
+    badge(slide, "ドッペルモード（穢れ爆発）", 6.15, 0.82, w=3.52, h=0.38,
           bg=RGBColor(0x35, 0x00, 0x10), fc=C_RED)
 
     doppel_info = [
@@ -650,11 +684,11 @@ def slide6_upper_at(prs):
     dy = 1.28
     for dk, dv in doppel_info:
         tb(slide, f"◆ {dk}：", 6.15, dy, 1.6, 0.3, font_size=9, color=C_LPINK, bold=True)
-        tb(slide, dv, 7.7, dy, 2.1, 0.3, font_size=9, color=C_WHITE)
+        tb(slide, dv, 7.7, dy, 2.0, 0.3, font_size=9, color=C_WHITE)
         dy += 0.37
 
     # ドッペルモード演出ガイド
-    rect_b(slide, 6.15, 3.05, 3.6, 0.95, RGBColor(0x25, 0x00, 0x08),
+    rect_b(slide, 6.15, 3.05, 3.52, 0.95, RGBColor(0x25, 0x00, 0x08),
            border_color=C_RED, border_pt=1)
     tb(slide, "ドッペルモード演出サイン",
        6.25, 3.09, 3.3, 0.28, font_size=9, color=C_RED, bold=True)
