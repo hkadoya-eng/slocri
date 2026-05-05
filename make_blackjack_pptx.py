@@ -327,26 +327,40 @@ def s_normal(prs):
     for i, (col, fill, ttl, body, note) in enumerate(routes):
         rx = Inches(0.22 + i * 3.25)
         ry = Inches(0.78)
-        rect_b(s, rx, ry, Inches(3.0), Inches(3.25), fill, col, 1.5)
+        rect_b(s, rx, ry, Inches(3.0), Inches(2.18), fill, col, 1.5)
         rect(s, rx, ry, Inches(3.0), Emu(58000), col)
         tb(s, rx + Emu(40000), ry + Emu(70000), Inches(2.7), Emu(270000),
            ttl, 10, bold=True, color=col)
-        tb(s, rx + Emu(40000), ry + Emu(340000), Inches(2.7), Emu(1150000),
+        tb(s, rx + Emu(40000), ry + Emu(340000), Inches(2.7), Emu(920000),
            body, 8.5, color=C_DARK_TEXT)
-        rect_b(s, rx + Emu(40000), ry + Emu(1560000), Inches(2.7), Emu(330000),
+        rect_b(s, rx + Emu(40000), ry + Emu(1330000), Inches(2.7), Emu(290000),
                C_FILL_DEFAULT, col, 0.8)
-        tb(s, rx + Emu(70000), ry + Emu(1580000), Inches(2.6), Emu(310000),
+        tb(s, rx + Emu(70000), ry + Emu(1350000), Inches(2.6), Emu(270000),
            note, 7.5, color=C_MID_GRAY)
 
-    # BIG BONUS 2種類
-    rect_b(s, Inches(0.22), Inches(4.17), Inches(9.6), Emu(680000),
-           C_FILL_GREEN, C_GREEN, 1.0)
-    tb(s, Inches(0.35), Inches(4.20), Inches(9.2), Emu(260000),
-       "BIG BONUS 2種類", 10, bold=True, color=C_GREEN)
-    tb(s, Inches(0.35), Inches(4.48), Inches(4.4), Emu(310000),
-       "青7揃い BIG（300枚払い出し）→ RC高確確定・SBJループ突入", 8.5, color=C_DARK_TEXT)
-    tb(s, Inches(4.9), Inches(4.48), Inches(4.9), Emu(310000),
-       "赤7揃い BIG（100枚払い出し）→ RC高確移行・ループ期待度やや低", 8.5, color=C_RED)
+    # カジノバトル4種
+    tb(s, Inches(0.22), Inches(3.10), Inches(9.0), Emu(260000),
+       "通常時 カジノバトル演出（4種）── ボーナス告知の舞台", 10, bold=True, color=C_GREEN)
+    casino = [
+        (C_GREEN, C_FILL_GREEN, "ブラックジャック",
+         "相手チップがなくなるとBONUS以上確定\n対戦相手（ハワード/ローザ等）で期待度変化"),
+        (C_RED,   C_FILL_RED,   "ポーカー",
+         "継続するほど期待度UP\n勝利濃厚パターンあり"),
+        (C_GOLD,  C_FILL_GOLD,  "ルーレット",
+         "ボールがWINに落ちれば勝利\nチップ乱入で期待度UP"),
+        (C_MINT,  C_FILL_MINT,  "ダーツ",
+         "小役告知演出\n外れればBONUS以上確定"),
+    ]
+    _cw = Inches(2.22)
+    for i, (col, fill, ttl, desc) in enumerate(casino):
+        cx = Inches(0.22 + i * 2.42)
+        cy = Inches(3.38)
+        rect_b(s, cx, cy, _cw, Inches(1.58), fill, col, 1.5)
+        rect(s, cx, cy, _cw, Emu(52000), col)
+        tb(s, cx + Emu(40000), cy + Emu(62000), _cw - Emu(60000), Emu(260000),
+           ttl, 9.5, bold=True, color=col)
+        tb(s, cx + Emu(40000), cy + Emu(330000), _cw - Emu(60000), Emu(820000),
+           desc, 8, color=C_DARK_TEXT)
 
     footer(s,
            "通常時は「いかに早くBIGを引くか」に集約。スイカ天井はAT直撃（ST）で中間狙いも有効",
@@ -393,21 +407,24 @@ def s_bjmechanism(prs):
 
     # 下段：ST / SST説明
     st_data = [
-        (C_MINT, C_FILL_MINT, "ストックタイム（ST）",
+        (C_MINT,  C_FILL_MINT,  "ストックタイム（ST）",
          "50G〜777G継続　リプ・レア役でRC抽選\n平均ストック数: 約2個　50Gごとに放出"),
-        (C_GOLD, C_FILL_GOLD, "スーパーストックタイム（SST）",
+        (C_GOLD,  C_FILL_GOLD,  "スーパーストックタイム（SST）",
          "100G+α　純増約5.1枚/G　500枚超可能\nRC大量ストック→放出で爆発力抜群"),
         (C_GREEN, C_FILL_GREEN, "RC3回→金BAR昇格",
          "REGをRCで3回引くと金BARシナリオへ\n4回目のREG→ジョーカーモード大チャンス"),
+        (C_BLUE,  C_FILL_BLUE,  "ダイスチェック",
+         "サブ液晶の2サイコロでスイカ天井\nまでの残り回数を示唆\nゾロ目は設定示唆も兼ねる"),
     ]
+    _sw = Inches(2.22)
     for i, (col, fill, ttl, desc) in enumerate(st_data):
-        sx = Inches(0.22 + i * 3.25)
+        sx = Inches(0.22 + i * 2.42)
         sy = Inches(3.65)
-        rect_b(s, sx, sy, Inches(3.0), Inches(1.22), fill, col, 1.5)
-        tb(s, sx + Emu(50000), sy + Emu(40000), Inches(2.7), Emu(270000),
+        rect_b(s, sx, sy, _sw, Inches(1.22), fill, col, 1.5)
+        tb(s, sx + Emu(40000), sy + Emu(40000), _sw - Emu(60000), Emu(260000),
            ttl, 9, bold=True, color=col)
-        tb(s, sx + Emu(50000), sy + Emu(310000), Inches(2.7), Emu(620000),
-           desc, 8, color=C_DARK_TEXT)
+        tb(s, sx + Emu(40000), sy + Emu(300000), _sw - Emu(60000), Emu(660000),
+           desc, 7.5, color=C_DARK_TEXT)
 
     footer(s,
            "「カードをめくって昇格確認」→「外れたら逆転」の2段ドキドキ構造が核心",
