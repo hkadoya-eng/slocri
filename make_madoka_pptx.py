@@ -124,8 +124,8 @@ def hdr(slide, title, subtitle=None):
        font_name=FONT_H, font_size=16, color=C_WHITE, bold=True)
     # サブタイトル（右寄せ）
     if subtitle:
-        tb(slide, subtitle, 7.0, 0.10, 2.8, 0.45,
-           font_name=FONT_B, font_size=11, color=C_LPINK,
+        tb(slide, subtitle, 6.0, 0.08, 3.8, 0.52,
+           font_name=FONT_B, font_size=10, color=C_LPINK,
            bold=False, align=PP_ALIGN.RIGHT)
 
 
@@ -191,12 +191,8 @@ def slide1_title(prs):
         "スマスロ マギアレコード 魔法少女まどか☆マギカ外伝",
         "Part A: 機種解説")
 
-    # アワードバッジ
-    badge(slide, "パチスロアワード 2025 SILVER", 6.5, 0.75, w=3.35, h=0.38,
-          bg=RGBColor(0x44, 0x22, 0x00), fc=C_GOLD)
-
     # 機種基本情報（左半分）
-    rect_b(slide, 0.2, 0.78, 4.7, 1.95, C_BOX, border_color=C_PINK, border_pt=1.5)
+    rect_b(slide, 0.2, 0.78, 4.7, 2.30, C_BOX, border_color=C_PINK, border_pt=1.5)
     tb(slide, "基本スペック", 0.35, 0.82, 2.0, 0.35,
        font_name=FONT_H, font_size=12, color=C_LPINK, bold=True)
 
@@ -212,10 +208,10 @@ def slide1_title(prs):
     for k, v in specs:
         tb(slide, f"◆ {k}：", 0.35, y, 1.55, 0.28, font_size=9, color=C_LPINK, bold=True)
         tb(slide, v, 1.88, y, 2.85, 0.28, font_size=9, color=C_WHITE)
-        y += 0.31
+        y += 0.28
 
     # この台の3ポイント（右半分）
-    rect_b(slide, 5.15, 0.78, 4.65, 1.95, C_BOX, border_color=C_CYAN, border_pt=1.5)
+    rect_b(slide, 5.15, 0.78, 4.65, 2.30, C_BOX, border_color=C_CYAN, border_pt=1.5)
     tb(slide, "この台の3ポイント", 5.3, 0.82, 3.5, 0.35,
        font_name=FONT_H, font_size=12, color=C_CYAN, bold=True)
 
@@ -233,21 +229,25 @@ def slide1_title(prs):
            font_size=10, color=C_GOLD, bold=True)
         tb(slide, desc, 5.3, y + 0.28, 4.3, 0.26,
            font_size=8, color=C_GRAY)
-        y += 0.62
+        y += 0.54   # 3ポイント全て＋バッジが収まるステップ
+
+    # アワードバッジ（ボックスより後に描画→最前面。③の下に配置）
+    badge(slide, "パチスロアワード 2025 SILVER", 5.25, 2.84, w=4.45, h=0.22,
+          bg=RGBColor(0x44, 0x22, 0x00), fc=C_GOLD)
 
     # キャッチコピー
-    rect_b(slide, 0.2, 2.85, 9.6, 0.52, RGBColor(0x22, 0x00, 0x22),
+    rect_b(slide, 0.2, 3.12, 9.6, 0.52, RGBColor(0x22, 0x00, 0x22),
            border_color=C_PINK, border_pt=1)
     tb(slide,
        "初代『SLOT魔法少女まどか☆マギカ』のDNAを受け継ぎ、スマスロで進化──"
        "ストーリー攻略＋穢れ爆発の二重構造が今の等価市場で輝く",
-       0.35, 2.89, 9.3, 0.44,
+       0.35, 3.16, 9.3, 0.44,
        font_size=9.5, color=C_WHITE, align=PP_ALIGN.CENTER)
 
     # ボーナス4種
-    rect_b(slide, 0.2, 3.48, 9.6, 1.42, C_BOX, border_color=C_CYAN, border_pt=1.2)
+    rect_b(slide, 0.2, 3.73, 9.6, 1.35, C_BOX, border_color=C_CYAN, border_pt=1.2)
     tb(slide, "ボーナス4種類（AT突入への足掛かり）",
-       0.35, 3.52, 5.0, 0.3, font_size=10, color=C_CYAN, bold=True)
+       0.35, 3.77, 5.0, 0.3, font_size=10, color=C_CYAN, bold=True)
     bonuses = [
         ("エピソードボーナス", "50G継続", C_PINK),
         ("ビッグボーナス",     "30G+α",  C_GOLD),
@@ -256,11 +256,11 @@ def slide1_title(prs):
     ]
     bx = 0.3
     for bname, bdesc, bc in bonuses:
-        rect_b(slide, bx, 3.85, 2.28, 0.88, RGBColor(0x18, 0x08, 0x28),
+        rect_b(slide, bx, 4.10, 2.28, 0.82, RGBColor(0x18, 0x08, 0x28),
                border_color=bc, border_pt=1.5)
-        tb(slide, bname, bx + 0.08, 3.89, 2.1, 0.35,
+        tb(slide, bname, bx + 0.08, 4.14, 2.1, 0.32,
            font_size=9, color=bc, bold=True, align=PP_ALIGN.CENTER)
-        tb(slide, bdesc, bx + 0.08, 4.24, 2.1, 0.28,
+        tb(slide, bdesc, bx + 0.08, 4.46, 2.1, 0.28,
            font_size=8.5, color=C_WHITE, align=PP_ALIGN.CENTER)
         bx += 2.38
 
@@ -391,7 +391,7 @@ def slide3_normal(prs):
     hdr(slide, "通常時の遊び方", "全ルート・天井・魔法少女モード")
 
     # ─ 左：ポイント蓄積システム ─
-    rect_b(slide, 0.15, 0.78, 4.6, 2.55, C_BOX, border_color=C_PINK, border_pt=1.5)
+    rect_b(slide, 0.15, 0.78, 4.6, 2.00, C_BOX, border_color=C_PINK, border_pt=1.5)
     tb(slide, "ポイント蓄積システム（メイン突入経路）",
        0.3, 0.82, 4.3, 0.32, font_size=10, color=C_PINK, bold=True)
 
@@ -404,19 +404,19 @@ def slide3_normal(prs):
     ]
     y = 1.18
     for item in pt_items:
-        tb(slide, f"・{item}", 0.3, y, 4.3, 0.3, font_size=8.5, color=C_WHITE)
-        y += 0.32
+        tb(slide, f"・{item}", 0.3, y, 4.3, 0.28, font_size=8.5, color=C_WHITE)
+        y += 0.30
 
-    # 天井
-    rect_b(slide, 0.15, 3.38, 4.6, 0.65, RGBColor(0x20,0x00,0x20),
+    # 天井（左列・ポイント蓄積の直下）
+    rect_b(slide, 0.15, 2.85, 4.6, 0.65, RGBColor(0x20,0x00,0x20),
            border_color=C_GOLD, border_pt=1.8)
     tb(slide, "天井：ボーナス間 950pt+α 到達で強制当選",
-       0.3, 3.42, 4.3, 0.28, font_size=9.5, color=C_GOLD, bold=True)
+       0.3, 2.89, 4.3, 0.28, font_size=9.5, color=C_GOLD, bold=True)
     tb(slide, "＊スルー回数が増えるほど初当たりAT期待値UP（スルー狙い有効）",
-       0.3, 3.70, 4.3, 0.28, font_size=8, color=C_GRAY)
+       0.3, 3.17, 4.3, 0.28, font_size=8, color=C_GRAY)
 
     # ─ 右：CZ種別と魔法少女モード ─
-    rect_b(slide, 4.95, 0.78, 4.85, 1.55, C_BOX, border_color=C_CYAN, border_pt=1.5)
+    rect_b(slide, 4.95, 0.78, 4.85, 1.90, C_BOX, border_color=C_CYAN, border_pt=1.5)
     tb(slide, "CZ種別", 5.1, 0.82, 2.0, 0.32,
        font_size=10, color=C_CYAN, bold=True)
 
@@ -427,39 +427,39 @@ def slide3_normal(prs):
     ]
     y = 1.18
     for cn, cd, cc in czs:
-        tb(slide, f"▶ {cn}", 5.1, y, 4.6, 0.26, font_size=9, color=cc, bold=True)
-        tb(slide, f"   {cd}", 5.1, y + 0.24, 4.6, 0.26, font_size=8, color=C_GRAY)
-        y += 0.54
+        tb(slide, f"▶ {cn}", 5.1, y, 4.6, 0.24, font_size=9, color=cc, bold=True)
+        tb(slide, f"   {cd}", 5.1, y + 0.24, 4.6, 0.22, font_size=8, color=C_GRAY)
+        y += 0.46   # 0.54 → 0.46 で3項目がボックス内に収まる
 
-    rect_b(slide, 4.95, 2.42, 4.85, 1.62, C_BOX, border_color=C_PINK, border_pt=1.5)
+    rect_b(slide, 4.95, 2.77, 4.85, 1.40, C_BOX, border_color=C_PINK, border_pt=1.5)
     tb(slide, "魔法少女モード（隠し内部モード）",
-       5.1, 2.46, 4.6, 0.32, font_size=10, color=C_PINK, bold=True)
+       5.1, 2.81, 4.6, 0.32, font_size=10, color=C_PINK, bold=True)
 
     modes = [
         ("モードA（通常）", "標準的な抽選テーブルで運用"),
         ("モードB（高確）", "CZ突入率・AT直撃率が大幅アップ"),
         ("モード移行",      "ボーナス/AT終了時・特定役で再抽選"),
     ]
-    y = 2.82
+    y = 3.17
     for mn, md in modes:
         tb(slide, f"・{mn}：", 5.1, y, 2.0, 0.28, font_size=9, color=C_LPINK, bold=True)
         tb(slide, md, 7.05, y, 2.7, 0.28, font_size=9, color=C_WHITE)
         y += 0.34
 
     # ─ 下：打ち方メモ ─
-    rect_b(slide, 0.15, 4.10, 9.65, 0.85, RGBColor(0x0C,0x0C,0x28),
+    rect_b(slide, 0.15, 4.24, 9.65, 0.88, RGBColor(0x0C,0x0C,0x28),
            border_color=C_CYAN, border_pt=1)
-    tb(slide, "打ち方メモ", 0.3, 4.13, 1.5, 0.28,
+    tb(slide, "打ち方メモ", 0.3, 4.27, 1.5, 0.28,
        font_size=9, color=C_CYAN, bold=True)
     memo = [
         "通常時：左リール枠上〜上段にBARを目押し（チェリー・スイカ取得のため）",
         "ナビ発生時：押し順ナビに従う（ペナルティあり）",
         "朝一：設定変更後は有利区間ランプ消灯→規定ptリセット→狙い目",
     ]
-    my = 4.42
+    my = 4.50
     for m in memo:
-        tb(slide, f"・{m}", 0.3, my, 9.3, 0.23, font_size=8, color=C_GRAY)
-        my += 0.23
+        tb(slide, f"・{m}", 0.3, my, 9.3, 0.21, font_size=8, color=C_GRAY)
+        my += 0.20
 
     net_note(slide,
              "通常時の核心：ポイント蓄積＋モード管理でCZ/ボーナスを引く",
@@ -652,22 +652,22 @@ def slide6_upper_at(prs):
         ("STEP 4", "エンブリオ・イブアタック突入（10G+α特化）", C_GOLD),
         ("STEP 5", "特化中に大量G数を上乗せ → 超長期AT突入", C_GREEN),
     ]
-    sy = 1.62
+    sy = 1.55   # 少し上から開始して警告テキストの余白を確保
     for sn, sd, sc in steps:
-        rect_b(slide, 0.25, sy, 1.0, 0.38, RGBColor(0x28,0x10,0x00),
+        rect_b(slide, 0.25, sy, 1.0, 0.36, RGBColor(0x28,0x10,0x00),
                border_color=sc, border_pt=1)
-        tb(slide, sn, 0.27, sy + 0.04, 0.96, 0.30,
+        tb(slide, sn, 0.27, sy + 0.03, 0.96, 0.30,
            font_size=8.5, color=sc, bold=True, align=PP_ALIGN.CENTER)
-        tb(slide, sd, 1.32, sy + 0.06, 4.45, 0.30, font_size=8.5, color=C_WHITE)
-        if sy < 3.6:
+        tb(slide, sd, 1.32, sy + 0.05, 4.45, 0.30, font_size=8.5, color=C_WHITE)
+        if sy < 3.5:
             fold_bar = slide.shapes.add_shape(1,
-                Inches(0.68), Inches(sy + 0.38), Inches(0.12), Inches(0.14))
+                Inches(0.68), Inches(sy + 0.36), Inches(0.12), Inches(0.12))
             fold_bar.fill.solid(); fold_bar.fill.fore_color.rgb = sc
             fold_bar.line.fill.background()
-        sy += 0.52
+        sy += 0.48
 
     tb(slide, "※準備区間中はペナルティあり。必ず左第一停止を守ること！",
-       0.3, 4.15, 5.5, 0.3, font_size=8, color=C_RED, bold=True)
+       0.3, 4.00, 5.5, 0.28, font_size=8, color=C_RED, bold=True)
 
     # 右：ドッペルモード
     rect_b(slide, 6.05, 0.78, 3.72, 3.5, C_BOX, border_color=C_RED, border_pt=2)
@@ -683,8 +683,8 @@ def slide6_upper_at(prs):
     ]
     dy = 1.28
     for dk, dv in doppel_info:
-        tb(slide, f"◆ {dk}：", 6.15, dy, 1.6, 0.3, font_size=9, color=C_LPINK, bold=True)
-        tb(slide, dv, 7.7, dy, 2.0, 0.3, font_size=9, color=C_WHITE)
+        tb(slide, f"◆ {dk}：", 6.15, dy, 1.3, 0.3, font_size=9, color=C_LPINK, bold=True)
+        tb(slide, dv, 7.45, dy, 2.3, 0.3, font_size=8.5, color=C_WHITE)
         dy += 0.37
 
     # ドッペルモード演出ガイド
