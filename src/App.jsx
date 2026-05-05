@@ -938,7 +938,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
     <div style={{minWidth:0}}>
       {fullscreenImg && (
         <div onClick={() => setFullscreenImg(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.92)",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",cursor:"zoom-out"}}>
-          <img src={fullscreenImg} alt="" style={{maxWidth:"100%",maxHeight:"100%",objectFit:"contain"}} onClick={e => e.stopPropagation()} />
+          <img src={fullscreenImg} alt="" decoding="async" style={{maxWidth:"100%",maxHeight:"100%",objectFit:"contain"}} onClick={e => e.stopPropagation()} />
           <button onClick={() => setFullscreenImg(null)} style={{position:"absolute",top:16,right:16,background:"rgba(255,255,255,0.15)",border:"none",borderRadius:"50%",width:36,height:36,fontSize:20,color:"#fff",cursor:"pointer",lineHeight:1}}>×</button>
         </div>
       )}
@@ -960,10 +960,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
               <div style={{fontSize:16,fontWeight:500,color:"#333",marginBottom:6,overflowWrap:"anywhere"}}>{imgSelectedPost.title}</div>
               <div style={{fontSize:15,color:"#666",lineHeight:1.65,marginBottom:8,overflowWrap:"anywhere"}}>{imgSelectedPost.body}</div>
               {imgSelectedPost.internal?.imageUrl && (
-                <img src={imgSelectedPost.internal.imageUrl} alt="" onClick={() => setFullscreenImg(imgSelectedPost.internal.imageUrl)} style={{width:"100%",maxHeight:340,objectFit:"contain",borderRadius:8,marginBottom:8,display:"block",background:"#f9f9f9",cursor:"zoom-in"}} />
+                <img src={imgSelectedPost.internal.imageUrl} alt="" decoding="async" onClick={() => setFullscreenImg(imgSelectedPost.internal.imageUrl)} style={{width:"100%",maxHeight:340,objectFit:"contain",borderRadius:8,marginBottom:8,display:"block",background:"#f9f9f9",cursor:"zoom-in"}} />
               )}
               {imgSelectedPost.url && imgSelectedPost.internal?.ogImageUrl && !imgSelectedPost.internal?.imageUrl && (
-                <img src={imgSelectedPost.internal.ogImageUrl} alt="" style={{width:"100%",maxHeight:220,objectFit:"contain",borderRadius:8,marginBottom:8,display:"block",background:"#f9f9f9"}} />
+                <img src={imgSelectedPost.internal.ogImageUrl} alt="" decoding="async" style={{width:"100%",maxHeight:220,objectFit:"contain",borderRadius:8,marginBottom:8,display:"block",background:"#f9f9f9"}} />
               )}
               {imgSelectedPost.url && (
                 <a href={imgSelectedPost.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",textDecoration:"none",overflow:"hidden",marginBottom:8}}>
@@ -1121,7 +1121,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:12}}>
           {filtered.map(p => (
             <div key={p.id} onClick={() => setImgSelectedPost(p)} style={{borderRadius:12,overflow:"hidden",background:"#E8ECF0",boxShadow:"3px 3px 8px #C5C9D4, -3px -3px 8px #FFFFFF",cursor:"pointer",position:"relative"}}>
-              <img src={p.internal.imageUrl || p.internal.ogImageUrl} alt="" style={{width:"100%",aspectRatio:"1",objectFit:"cover",display:"block"}}/>
+              <img src={p.internal.imageUrl || p.internal.ogImageUrl} alt="" loading="lazy" decoding="async" style={{width:"100%",aspectRatio:"1",objectFit:"cover",display:"block"}}/>
               <div style={{padding:"6px 8px"}}>
                 <div style={{display:"flex",gap:4,alignItems:"center",marginBottom:3}}><CatBadge cat={p.cat}/></div>
                 <div style={{fontSize:13,fontWeight:500,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</div>
@@ -1202,7 +1202,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   );
                 })()}
                 {p.internal?.imageUrl && (
-                  <img src={p.internal.imageUrl} alt="" onClick={() => setFullscreenImg(p.internal.imageUrl)} style={{width:"100%",maxHeight:360,objectFit:"contain",borderRadius:8,marginBottom:6,display:"block",background:"#f9f9f9",cursor:"zoom-in"}} />
+                  <img src={p.internal.imageUrl} alt="" loading="lazy" decoding="async" onClick={() => setFullscreenImg(p.internal.imageUrl)} style={{width:"100%",maxHeight:360,objectFit:"contain",borderRadius:8,marginBottom:6,display:"block",background:"#f9f9f9",cursor:"zoom-in"}} />
                 )}
                 {p.url && p.internal?.ogImageUrl && !p.internal?.imageUrl ? (() => {
                   const isYT = /youtube\.com|youtu\.be/.test(p.url);
@@ -1212,7 +1212,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                         <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
                           <span style={{fontSize:36,opacity:0.3}}>{isYT ? "▶" : "🔗"}</span>
                         </div>
-                        <img src={p.internal.ogImageUrl} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}} onError={e=>{e.target.style.display="none";}}/>
+                        <img src={p.internal.ogImageUrl} alt="" loading="lazy" decoding="async" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}} onError={e=>{e.target.style.display="none";}}/>
                         {isYT && <span style={{position:"absolute",top:6,right:6,background:"#ff0000",color:"#fff",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:4}}>▶ YouTube</span>}
                       </div>
                       <div style={{display:"flex",alignItems:"center",gap:6,padding:"6px 10px",background: isYT ? "#fff1f0" : "#f4f3ec",overflow:"hidden"}}>
@@ -1665,7 +1665,7 @@ function OverviewTab({ posts, updatePost }) {
               <div style={{fontSize:16,fontWeight:500,color:"#333",marginBottom:6,overflowWrap:"anywhere"}}>{selectedPost.title}</div>
               <div style={{fontSize:15,color:"#666",lineHeight:1.65,marginBottom:8,overflowWrap:"anywhere"}}>{selectedPost.body}</div>
               {selectedPost.internal?.imageUrl && (
-                <img src={selectedPost.internal.imageUrl} alt="" style={{width:"100%",maxHeight:300,objectFit:"contain",borderRadius:8,marginBottom:8,display:"block",background:"#f9f9f9"}} />
+                <img src={selectedPost.internal.imageUrl} alt="" decoding="async" style={{width:"100%",maxHeight:300,objectFit:"contain",borderRadius:8,marginBottom:8,display:"block",background:"#f9f9f9"}} />
               )}
               {selectedPost.url && (
                 <a href={selectedPost.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",textDecoration:"none",overflow:"hidden",marginBottom:8}}>
@@ -1755,7 +1755,7 @@ function OverviewTab({ posts, updatePost }) {
                             </div>
                             <div style={{fontSize:13,color:"#aaa",marginBottom:4}}>@{p.internal?.author||p.author||"ゲスト"} · {p.machine}</div>
                             <div style={{fontSize:15,color:"#333",lineHeight:1.65,marginBottom:6,overflowWrap:"anywhere"}}>{p.body}</div>
-                            {p.internal?.imageUrl && <img src={p.internal.imageUrl} alt="" style={{width:"100%",maxHeight:260,objectFit:"contain",borderRadius:8,marginBottom:6,display:"block",background:"#f9f9f9"}}/>}
+                            {p.internal?.imageUrl && <img src={p.internal.imageUrl} alt="" loading="lazy" decoding="async" style={{width:"100%",maxHeight:260,objectFit:"contain",borderRadius:8,marginBottom:6,display:"block",background:"#f9f9f9"}}/>}
                             {p.url && (
                               <a href={p.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",textDecoration:"none"}}>
                                 <span style={{fontSize:13,color:"#888",flexShrink:0}}>🔗</span>
@@ -1809,14 +1809,14 @@ function OverviewTab({ posts, updatePost }) {
                             <div style={{padding:"0 12px 12px",borderTop:"0.5px solid #f0f0f0"}}>
                               <div style={{fontSize:13,color:"#aaa",margin:"8px 0 4px"}}>@{mp.internal?.author||mp.author||"ゲスト"}</div>
                               <div style={{fontSize:15,color:"#444",lineHeight:1.65,overflowWrap:"anywhere",marginBottom:8}}>{mp.body}</div>
-                              {mp.internal?.imageUrl && <img src={mp.internal.imageUrl} alt="" style={{width:"100%",maxHeight:260,objectFit:"contain",borderRadius:8,marginBottom:8,display:"block",background:"#f9f9f9"}}/>}
+                              {mp.internal?.imageUrl && <img src={mp.internal.imageUrl} alt="" loading="lazy" decoding="async" style={{width:"100%",maxHeight:260,objectFit:"contain",borderRadius:8,marginBottom:8,display:"block",background:"#f9f9f9"}}/>}
                               {mp.url && mp.internal?.ogImageUrl && !mp.internal?.imageUrl ? (() => {
                                 const isYT = /youtube\.com|youtu\.be/.test(mp.url);
                                 return (
                                   <a href={mp.url} target="_blank" rel="noopener noreferrer" style={{display:"block",borderRadius:10,overflow:"hidden",marginBottom:8,textDecoration:"none",border: isYT ? "1.5px solid #ff0000" : "0.5px solid #ddd"}}>
                                     <div style={{position:"relative",height:120,background:"#e8e4dc"}}>
                                       <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:28,opacity:0.3}}>{isYT ? "▶" : "🔗"}</span></div>
-                                      <img src={mp.internal.ogImageUrl} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}} onError={e=>{e.target.style.display="none";}}/>
+                                      <img src={mp.internal.ogImageUrl} alt="" loading="lazy" decoding="async" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}} onError={e=>{e.target.style.display="none";}}/>
                                       {isYT && <span style={{position:"absolute",top:6,right:6,background:"#ff0000",color:"#fff",fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:4}}>▶ YouTube</span>}
                                     </div>
                                     <div style={{display:"flex",alignItems:"center",gap:6,padding:"5px 10px",background: isYT ? "#fff1f0" : "#f4f3ec",overflow:"hidden"}}>
