@@ -558,13 +558,13 @@ export default function App() {
       {!loading && tab === "overview" && <OverviewTab posts={normalPosts} updatePost={updatePost} />}
       {!loading && tab === "research" && <ResearchTab posts={normalPosts} aiEnabled={aiEnabled} updatePost={updatePost} />}
 
-      {/* フローティングフィードバックボタン */}
-      <div style={{position:"fixed",bottom:24,left:16,zIndex:200}}>
+      {/* フローティングフィードバックボタン（投稿タブのみ表示） */}
+      {tab === "feed" && <div style={{position:"fixed",bottom:80,right:16,zIndex:200}}>
         <button onClick={() => { setShowFeedback(true); setFbDone(false); }}
           style={{background:"#D85A30",color:"#fff",border:"none",borderRadius:"50%",width:50,height:50,fontSize:20,cursor:"pointer",boxShadow:"3px 3px 10px rgba(0,0,0,0.25)",display:"flex",alignItems:"center",justifyContent:"center"}}>
           💬
         </button>
-      </div>
+      </div>}
 
       {/* フィードバック送信モーダル */}
       {showFeedback && (
