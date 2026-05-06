@@ -42,7 +42,7 @@ author候補: 編集部AI, スロ好き編集マン, スロキー編集部, パ�
 
 ---
 
-### ② 機種分析更新（2日に1回 10:17）
+### ② 機種分析更新（2日に1回 4:00 UTC）
 
 ```
 cron: "0 4 */2 * *"
@@ -51,20 +51,37 @@ recurring: true
 ```
 
 **prompt:**
-【自動機種分析更新タスク／日曜 10:17実行】
+【自動機種分析更新タスク／2日に1回実行】
 作業ディレクトリ: C:\Users\h.kadoya\Desktop\slocri
 
-以下の手順でsrc/machineAnalysis.jsonを更新してください。
+ユーザーに確認せず全ステップを最後まで自律実行してください。
+外部APIは呼び出さず、クロード自身が分析を生成してください（追加費用ゼロ）。
 
-1. Supabaseから投稿取得:
+1. Supabaseから全投稿を取得:
    curl -s "https://vpzbtuucopucablwyqeq.supabase.co/rest/v1/posts?select=machine,cat,title,body&cat=neq.fun&machine=neq.&limit=2000" -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwemJ0dXVjb3B1Y2FibHd5cWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjk2MzEsImV4cCI6MjA5MTIwNTYzMX0.qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA"
+
 2. src/machineAnalysis.json を読む
-3. 機種ごとにグループ化（「全般」含む機種は除外）
-4. 投稿数3件以上かつ（未登録 OR 前回postCountから3件以上増加）の機種を分析
-5. 各機種のsummary/highlight/pros/cons/postCount/updatedAtを生成・更新
-6. machineAnalysis.jsonを保存
+
+3. 投稿を機種ごとにグループ化（「全般」含む機種名は除外）
+
+4. 以下の条件を満たす機種を対象に分析を実施:
+   - 投稿数が3件以上
+   - かつ（machineAnalysis.jsonに未登録 OR 前回postCountから3件以上増加）
+
+5. 対象機種ごとに、投稿内容（title/body）を読んでクロード自身が以下を生成:
+   - summary: 20文字以内の一言まとめ（機種の核心を端的に）
+   - highlight: 100〜200文字。打感・演出・爆発力・天井設計などを打ち手視点で具体的に記述
+   - pros: 良い点を2〜6件（各80〜150文字、具体的数値・演出名・ユーザーの声を含める）
+   - cons: 気になる点を2〜4件（同上）
+   - postCount: 今回の投稿件数
+   - updatedAt: 今日の日付（YYYY-MM-DD形式）
+   ※ releaseDate / spec / scores / scoreReason / aliases は既存値をそのまま保持
+
+6. src/machineAnalysis.json を更新して保存（Edit/Writeツールで直接書き込む）
+
 7. git add src/machineAnalysis.json → git commit → git push
-8. CronCreate で次回機種分析を再登録（同じ設定で）
+
+8. CronCreate で次回機種分析を再登録（cron:"0 4 */2 * *"、durable:true、recurring:true）
 
 ---
 
