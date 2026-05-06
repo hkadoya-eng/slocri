@@ -361,8 +361,8 @@ export default function App() {
     setTimeout(() => setToast(""), 2500);
   }
 
-  const TABS = ["feed","collect","overview","research","propose","chat"];
-  const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"リサーチ", propose:"企画", chat:"チャット" };
+  const TABS = ["feed","collect","overview","research"];
+  const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"リサーチ" };
   const normalPosts = posts.filter(p => p.cat !== "feedback");
   const feedbackPosts = posts.filter(p => p.cat === "feedback");
 
@@ -557,8 +557,6 @@ export default function App() {
       {!loading && tab === "collect"  && <CollectTab  posts={normalPosts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
       {!loading && tab === "overview" && <OverviewTab posts={normalPosts} updatePost={updatePost} />}
       {!loading && tab === "research" && <ResearchTab posts={normalPosts} aiEnabled={aiEnabled} updatePost={updatePost} />}
-      {tab === "propose" && <ProposeTab />}
-      {tab === "chat"    && <ChatTab />}
 
       {/* フローティングフィードバックボタン */}
       <div style={{position:"fixed",bottom:24,left:16,zIndex:200}}>
@@ -2183,7 +2181,7 @@ ${policyText}
   return (
     <div style={{minWidth:0}}>
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"wrap"}}>
-        {[["browse","絞り込み"],["rank","ランキング"],["gap","ギャップ表"],["analyze","機種分析"],["chat","チャット"],["propose","提案書"]].map(([k,l]) => {
+        {[["browse","絞り込み"],["rank","ランキング"],["gap","ギャップ表"],["analyze","機種分析"],["chat","チャット"],["propose","提案書"],["ai_chat","AIチャット"],["ai_propose","AI企画"]].map(([k,l]) => {
           const on = mode===k;
           return <button key={k} onClick={() => setMode(k)} style={{padding:"5px 12px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{l}</button>;
         })}
@@ -2551,6 +2549,9 @@ ${policyText}
           )}
         </div>
       )}
+
+      {mode==="ai_chat" && <ChatTab />}
+      {mode==="ai_propose" && <ProposeTab />}
     </div>
   );
 }
