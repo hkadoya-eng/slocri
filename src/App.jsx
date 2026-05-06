@@ -1564,10 +1564,6 @@ async function autoCollect() {
         <p style={{fontSize:11,color:"#aaa",marginTop:8,textAlign:"center",lineHeight:1.5}}>30分以内に自動処理・機種情報にも反映されます</p>
       </div>
 
-      <div style={{marginBottom:"1.25rem"}}>
-        <div style={{fontSize:14,color:"#888",marginBottom:6}}>自動収集</div>
-        <button onClick={autoCollect} disabled={!aiEnabled||autoLoading} title={!aiEnabled?"APIキーが未設定です":""} style={{width:"100%",padding:"10px 0",background:(!aiEnabled||autoLoading)?"#e0e0e0":"#185FA5",color:(!aiEnabled||autoLoading)?"#aaa":"#fff",border:"none",borderRadius:10,fontSize:15,fontWeight:500,cursor:(!aiEnabled||autoLoading)?"not-allowed":"pointer"}}>{autoLoading?"ネットを巡回中...":"ネットを巡回して収集 ↗"}</button>
-      </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:"1.25rem"}}>
         {["aimH","memory","spec","hall","episode","quote","bonus","game","fun"].map(k => (
