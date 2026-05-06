@@ -7,16 +7,11 @@ import ProposeTab from "./ProposeTab";
 import ChatTab from "./ChatTab";
 
 const CATS = {
-  new:     { label:"新台情報",     bg:"#FFF3E0", color:"#BF360C", border:"#FF8A65" },
-  aimH:    { label:"お店狙い目",   bg:"#FFF8E1", color:"#E65100", border:"#FFB74D" },
-  memory:  { label:"勝＆負エピ",  bg:"#EEEDFE", color:"#3C3489", border:"#AFA9EC" },
-  spec:    { label:"機種情報",     bg:"#E6F1FB", color:"#185FA5", border:"#85B7EB" },
-  hall:    { label:"業界情報",     bg:"#F0F4E8", color:"#4A6B1A", border:"#A0C050" },
-  episode: { label:"昔の機種",     bg:"#FFF0F5", color:"#A0306A", border:"#F0A0C0" },
-  quote:   { label:"版権ネタ",     bg:"#EAF3DE", color:"#3B6D11", border:"#97C459" },
-  bonus:   { label:"演出・表現",   bg:"#FAECE7", color:"#993C1D", border:"#F0997B" },
-  game:    { label:"ゲーム性評価", bg:"#E8F5E9", color:"#2E7D32", border:"#81C784" },
-  fun:     { label:"その他雑談",   bg:"#F3EFF9", color:"#6B3FA0", border:"#C4A8E8" },
+  new:     { label:"新台",     bg:"#FFF3E0", color:"#BF360C", border:"#FF8A65" },
+  info:    { label:"機種情報", bg:"#E6F1FB", color:"#185FA5", border:"#85B7EB" },
+  jissen:  { label:"実戦",     bg:"#EEEDFE", color:"#3C3489", border:"#AFA9EC" },
+  hall:    { label:"業界",     bg:"#F0F4E8", color:"#4A6B1A", border:"#A0C050" },
+  episode: { label:"名機",     bg:"#FFF0F5", color:"#A0306A", border:"#F0A0C0" },
 };
 const SRC_COLORS = {
   twitter:      { bg:"#E6F1FB", color:"#185FA5" },
@@ -92,15 +87,10 @@ function relativeTime(ts) {
 
 const TEMPLATES = {
   new:     "導入前後の新台情報・スペック速報など",
-  aimH:    "どの台を狙った？根拠は？",
-  memory:  "どんな展開だった？",
-  spec:    "天井・ゾーン・設定判別のポイントなど",
+  info:    "天井・ゾーン・設定判別・解析情報など",
+  jissen:  "実戦報告・演出・体験談・評判など",
   hall:    "ホール・メーカー・業界の話題",
-  episode: "その機種の思い出・特徴など",
-  quote:   "原作・キャラ・楽曲などについて",
-  bonus:   "演出の法則・好きなシーンなど",
-  game:    "面白い・つまらない・打感・ゲーム性の評価など",
-  fun:     "なんでも",
+  episode: "4号機・5号機の思い出・名機の特徴など",
 };
 
 function blank() {
@@ -653,7 +643,7 @@ export default function App() {
 
 function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFilter = "all", onFilterChange, directPost, onDirectPostClear }) {
   const [filter, setFilter] = useState(initialFilter);
-  const CAT_KEYS = ["new","aimH","memory","spec","hall","episode","quote","bonus","game","fun"];
+  const CAT_KEYS = ["new","info","jissen","hall","episode"];
   const [showCats, setShowCats] = useState(() => CAT_KEYS.includes(initialFilter));
   function updateFilter(v) { setFilter(v); onFilterChange?.(v); if (!CAT_KEYS.includes(v)) setShowCats(false); }
   const [query, setQuery] = useState("");
@@ -662,13 +652,13 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const [commentText, setCommentText] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [fMachine, setFMachine] = useState("");
-  const [fCat, setFCat] = useState("spec");
+  const [fCat, setFCat] = useState("info");
   const [fBody, setFBody] = useState("");
   const [fName, setFName] = useState(MY_NAME);
   const [currentName, setCurrentName] = useState(() => localStorage.getItem("slotkey_name") || "ゲスト");
   const [editId, setEditId] = useState(null);
   const [eMachine, setEMachine] = useState("");
-  const [eCat, setECat] = useState("bonus");
+  const [eCat, setECat] = useState("jissen");
   const [eBody, setEBody] = useState("");
   const [eUrl, setEUrl] = useState("");
   const [eImage, setEImage] = useState(null);
@@ -743,7 +733,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
     setMachineSuggestion(best);
   }
 
-  function resetForm() { setShowForm(false); setFMachine(""); setFCat("bonus"); setFBody(""); setFUrl(""); setFOgImage(""); setFShopName(""); setFImage(null); setFImagePreview(null); }
+  function resetForm() { setShowForm(false); setFMachine(""); setFCat("info"); setFBody(""); setFUrl(""); setFOgImage(""); setFShopName(""); setFImage(null); setFImagePreview(null); }
 
   function onImageChange(e) {
     const file = e.target.files[0];
@@ -885,7 +875,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         cat: fCat, source: "manual", machine: fMachine.trim() || "全般",
         title: b.length > 30 ? b.slice(0,30)+"..." : b,
         body: b, url: fUrl.trim(), quality: 3, dupKey: "", author: authorName, eng: {},
-        internal: { ...blank(), imageUrl, ogImageUrl: fImage ? "" : fOgImage, shopName: fCat === "aimH" ? fShopName.trim() : "" },
+        internal: { ...blank(), imageUrl, ogImageUrl: fImage ? "" : fOgImage, shopName: "" },
       });
     } catch(e) {
       console.error("投稿エラー:", e);
@@ -933,7 +923,6 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
     if (filter === "fav") return favMachines.includes(p.machine);
     if (filter === "img") return !!(p.internal?.imageUrl || p.internal?.ogImageUrl);
     if (filter !== "all" && p.cat !== filter) return false;
-    if (filter === "aimH" && shopFilter && p.internal?.shopName !== shopFilter) return false;
     if (query.trim() && !(p.machine+p.title+p.body).toLowerCase().includes(query.toLowerCase())) return false;
     return true;
   }).sort((a,b) => sortBy === "internal" ? (b.internal?.likes?.length||0) - (a.internal?.likes?.length||0) : new Date(b.created_at) - new Date(a.created_at));
@@ -1039,12 +1028,11 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
             {(()=>{const lbl={fontSize:13,color:"#888",whiteSpace:"nowrap",minWidth:52,paddingTop:2};const row={display:"flex",alignItems:"flex-start",gap:8,marginBottom:8};const inp={flex:1,fontSize:16,padding:"9px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"};return(<>
             <div style={row}><span style={lbl}>名前</span><input value={fName} onChange={e=>setFName(e.target.value)} placeholder="例: ゲスト" style={inp}/></div>
             {fCat!=="fun"&&<div style={row}><span style={lbl}>機種名</span><div style={{flex:1,position:"relative"}}>{(()=>{const allM=[...new Set(posts.map(p=>p.machine).filter(Boolean))].sort((a,b)=>{const s=n=>n.replace(/^(Lパチスロ\s*|LB|L\s*|e|スマスロ\s*|すますろ\s*|Sパチスロ\s*|S|Pパチスロ\s*|P)/,"").trim();const r=n=>n.startsWith("L")?0:n.startsWith("スマスロ")||n.startsWith("すますろ")?1:n.startsWith("e")?2:3;const d=s(a).localeCompare(s(b),"ja");return d!==0?d:r(a)-r(b);});const filtered=fMachine.trim()?allM.filter(m=>m.includes(fMachine)):allM;return(<><input value={fMachine} onChange={e=>{setFMachine(e.target.value);setMachineSuggestion(null);setFMachineOpen(true);}} onFocus={()=>setFMachineOpen(true)} onBlur={()=>setTimeout(()=>{setFMachineOpen(false);checkMachineName(fMachine);},150)} placeholder="例: バジリスク絆2（任意）" style={{...inp,width:"100%",marginBottom:machineSuggestion?4:0,boxSizing:"border-box"}}/>{fMachineOpen&&filtered.length>0&&<div style={{position:"absolute",top:"100%",left:0,right:0,background:"#fff",borderRadius:10,boxShadow:"0 4px 20px rgba(0,0,0,0.15)",zIndex:200,maxHeight:220,overflowY:"auto",marginTop:4}}>{filtered.map(name=><div key={name} onMouseDown={()=>{setFMachine(name);setFMachineOpen(false);setMachineSuggestion(null);}} style={{padding:"10px 14px",fontSize:14,color:"#333",borderBottom:"0.5px solid #f0f0f0",cursor:"pointer"}}>{name}</div>)}</div>}{machineSuggestion&&<div style={{fontSize:14,color:"#666",marginTop:4,display:"flex",alignItems:"center",gap:6}}>もしかして:<button onClick={()=>{setFMachine(machineSuggestion);setMachineSuggestion(null);}} style={{fontSize:14,color:"#D85A30",background:"none",border:"none",cursor:"pointer",padding:0,fontWeight:500,textDecoration:"underline"}}>{machineSuggestion}</button><button onClick={()=>setMachineSuggestion(null)} style={{fontSize:13,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:0}}>✕</button></div>}</>);})()}</div></div>}
-            <div style={row}><span style={lbl}>カテゴリ</span><select value={fCat} onChange={e=>setFCat(e.target.value)} style={{...inp,color:CATS[fCat]?.color||"#555",fontWeight:700,background:CATS[fCat]?.bg||"#E8ECF0",boxShadow:`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF, inset 0 0 0 2px ${CATS[fCat]?.border||"#ddd"}`,fontSize:15}}><option value="aimH">お店狙い目</option><option value="memory">勝＆負エピ</option><option value="spec">機種情報</option><option value="hall">業界情報</option><option value="episode">昔の機種</option><option value="quote">版権ネタ</option><option value="bonus">演出・表現</option><option value="game">ゲーム性評価</option><option value="fun">その他雑談</option></select></div>
+            <div style={row}><span style={lbl}>カテゴリ</span><select value={fCat} onChange={e=>setFCat(e.target.value)} style={{...inp,color:CATS[fCat]?.color||"#555",fontWeight:700,background:CATS[fCat]?.bg||"#E8ECF0",boxShadow:`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF, inset 0 0 0 2px ${CATS[fCat]?.border||"#ddd"}`,fontSize:15}}><option value="new">新台</option><option value="info">機種情報</option><option value="jissen">実戦</option><option value="hall">業界</option><option value="episode">名機</option></select></div>
             <div style={row}><span style={lbl}>URL</span><div style={{flex:1,display:"flex",gap:6,alignItems:"center"}}><input value={fUrl} onChange={e=>{setFUrl(e.target.value);if(!e.target.value.trim())setFOgImage("");}} placeholder="引用元URL（任意）" style={{...inp,flex:1,fontSize:15,minWidth:0}}/>{fUrl.trim()&&<button type="button" onClick={fetchBodyFromUrl} disabled={fBodyFetching} style={{padding:"8px 10px",border:"none",borderRadius:10,background:fBodyFetching?"#ddd":"#E8ECF0",boxShadow:fBodyFetching?"none":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:13,color:fBodyFetching?"#aaa":"#555",cursor:fBodyFetching?"default":"pointer",whiteSpace:"nowrap",flexShrink:0}}>{fBodyFetching?"取得中…":"本文取得"}</button>}</div></div>
             {fOgImage&&!fImage&&<div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,paddingLeft:60}}><img src={fOgImage} alt="OGP" style={{width:80,height:52,objectFit:"cover",borderRadius:6,flexShrink:0,background:"#ddd"}} onError={e=>{e.target.style.display="none";}}/><span style={{fontSize:12,color:"#aaa"}}>URLのサムネイル</span><button onClick={()=>setFOgImage("")} style={{marginLeft:"auto",background:"none",border:"none",color:"#aaa",cursor:"pointer",fontSize:16,padding:"0 4px",lineHeight:1}}>×</button></div>}
             <div style={{...row,alignItems:"flex-start"}}><span style={{...lbl,paddingTop:10}}>本文<br/><span style={{fontSize:11,color:"#bbb",fontWeight:400}}>任意</span></span><textarea value={fBody} onChange={e=>setFBody(e.target.value)} placeholder={fBodyFetching?"取得中...":(TEMPLATES[fCat]||"URLから自動取得、または手動入力")} disabled={fBodyFetching} style={{...inp,resize:"vertical",minHeight:88,opacity:fBodyFetching?0.6:1}}/></div>
             {!fBody.trim()&&<div style={{fontSize:12,color:"#aaa",marginTop:-4,marginBottom:6,paddingLeft:60}}>画像やURLがあれば本文なしでそのまま投稿できます</div>}
-            {fCat==="aimH" && <div style={row}><span style={lbl}>店舗名</span><input value={fShopName} onChange={e=>setFShopName(e.target.value)} placeholder="例: ○○店（任意）" style={inp}/></div>}
             </>);})()}
             <div style={{display:"flex",alignItems:"flex-start",gap:8,marginBottom:10}}>
               <span style={{fontSize:13,color:"#888",whiteSpace:"nowrap",minWidth:52,paddingTop:9}}>画像</span>
@@ -1105,20 +1093,6 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         )}
       </div>
 
-      {filter === "aimH" && (() => {
-        const shops = [...new Set(posts.filter(p => p.cat==="aimH" && p.internal?.shopName).map(p => p.internal.shopName))];
-        if (!shops.length) return null;
-        return (
-          <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap",alignItems:"center"}}>
-            <span style={{fontSize:13,color:"#aaa",flexShrink:0}}>店舗:</span>
-            {["", ...shops].map(s => (
-              <button key={s||"all"} onClick={() => setShopFilter(s)} style={{padding:"4px 12px",border:"none",borderRadius:16,fontSize:13,background:"#E8ECF0",color:shopFilter===s?"#E65100":"#999",fontWeight:shopFilter===s?600:400,cursor:"pointer",boxShadow:shopFilter===s?"inset 2px 2px 4px #C5C9D4, inset -2px -2px 4px #FFFFFF":"2px 2px 4px #C5C9D4, -2px -2px 4px #FFFFFF",whiteSpace:"nowrap"}}>
-                {s||"すべて"}
-              </button>
-            ))}
-          </div>
-        );
-      })()}
       {filtered.length === 0 && <div style={{textAlign:"center",padding:"2rem",color:"#aaa",fontSize:15}}>投稿がありません</div>}
 
       {filter === "img" && filtered.length > 0 && (
@@ -1150,15 +1124,11 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
             {isEditing ? (
               <div>
                 <select value={eCat} onChange={e => setECat(e.target.value)} style={{width:"100%",fontSize:15,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}}>
-                  <option value="new">新台情報</option>
-                  <option value="aimH">お店狙い目</option>
-                  <option value="memory">勝＆負エピ</option>
-                  <option value="spec">機種情報</option>
-                  <option value="hall">業界情報</option>
-                  <option value="episode">昔の機種</option>
-                  <option value="quote">版権ネタ</option>
-                  <option value="bonus">演出・表現</option>
-                  <option value="game">ゲーム性評価</option>
+                  <option value="new">新台</option>
+                  <option value="info">機種情報</option>
+                  <option value="jissen">実戦</option>
+                  <option value="hall">業界</option>
+                  <option value="episode">名機</option>
                 </select>
                 <input value={eMachine} onChange={e => setEMachine(e.target.value)} placeholder="機種名" style={{width:"100%",fontSize:15,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}} />
                 <textarea value={eBody} onChange={e => setEBody(e.target.value)} style={{width:"100%",fontSize:15,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",resize:"vertical",minHeight:80,marginBottom:8,boxSizing:"border-box"}} />
@@ -1188,7 +1158,6 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                 <div style={{fontSize:14,color:"#888",marginBottom:3,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
                   <span style={{fontWeight:500,color:isOwn?"#D85A30":"#555",whiteSpace:"nowrap"}}>@{postAuthor}{isOwn&&<span style={{fontSize:12,marginLeft:3,color:"#D85A30"}}>（自分）</span>}</span>
                   <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0}}>機種: <span onClick={e => { e.stopPropagation(); setMachineModal(p.machine); }} style={{color:"#185FA5",fontWeight:500,cursor:"pointer",textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:2}}>{p.machine}</span></span>
-                  {p.cat==="aimH" && p.internal?.shopName && <span style={{fontSize:12,padding:"1px 7px",borderRadius:10,background:"#FFF8E1",color:"#E65100",fontWeight:500,whiteSpace:"nowrap",flexShrink:0}}>🏪 {p.internal.shopName}</span>}
                   <span style={{fontSize:12,color:"#bbb",whiteSpace:"nowrap",flexShrink:0,marginLeft:"auto"}}>{relativeTime(p.created_at)}</span>
                 </div>
                 <div style={{fontSize:16,fontWeight:500,color:"#333",marginBottom:4,overflowWrap:"anywhere"}}>{p.title}</div>
@@ -1394,7 +1363,7 @@ function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick, loadPost
     setCsvImporting(true);
     const rows = csvPreview.filter(r => !r._dup);
     const records = rows.map(r => ({
-      cat: r.cat || "spec", source: r.source || "WebSearch",
+      cat: r.cat || "info", source: r.source || "WebSearch",
       machine: r.machine || "全般", title: r.title, body: r.body,
       url: r.url || "", quality: Number(r.quality) || 3,
       dup_key: r.dup_key || "", author: r.author || "編集部AI", eng: {},
@@ -1409,7 +1378,7 @@ function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick, loadPost
   }
 
   const counts = {};
-  ["new","aimH","memory","spec","hall","episode","quote","bonus","game","fun"].forEach(k => { counts[k] = posts.filter(p => p.cat===k).length; });
+  ["new","info","jissen","hall","episode"].forEach(k => { counts[k] = posts.filter(p => p.cat===k).length; });
 
   function isDup(candidate) {
     return posts.some(p => candidate.dupKey && p.dup_key && candidate.dupKey === p.dup_key);
@@ -1427,7 +1396,7 @@ function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick, loadPost
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-4-6", max_tokens: 600,
-          system: 'パチスロライブラリの収集アシスタントです。実在する機種名・具体的な情報のみ使用。JSON形式のみで返答: {"cat":"bonus|spec|quote|memory","source":"manual","machine":"機種名","title":"30文字以内","body":"20〜40文字の短文。2ch風の書き方（〜らしいぞ、〜って話題、思ったより〜だった、これ知ってた？など）と、リンクを押したくなる一言をバランスよく混ぜる。煽りすぎず自然なテンションで。","quality":3,"dupKey":"機種名_キー","eng":{}}',
+          system: 'パチスロライブラリの収集アシスタントです。実在する機種名・具体的な情報のみ使用。JSON形式のみで返答: {"cat":"info|jissen|hall","source":"manual","machine":"機種名","title":"30文字以内","body":"20〜40文字の短文。2ch風の書き方（〜らしいぞ、〜って話題、思ったより〜だった、これ知ってた？など）と、リンクを押したくなる一言をバランスよく混ぜる。煽りすぎず自然なテンションで。","quality":3,"dupKey":"機種名_キー","eng":{}}',
           messages: [{ role: "user", content: userMsg }]
         })
       });
@@ -1436,7 +1405,7 @@ function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick, loadPost
       if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || JSON.stringify(data.error)));
       const txt = (data.content||[]).filter(b => b.type==="text").map(b => b.text).join("");
       const parsed = JSON.parse(txt.replace(/```json|```/g,"").trim());
-      const item = { cat:parsed.cat||"memory", source:parsed.source||"manual", machine:parsed.machine||input.trim(), title:parsed.title||"無題", body:parsed.body||input.slice(0,150), url:"", quality:parsed.quality||3, dupKey:parsed.dupKey||"", eng:parsed.eng||{}, author:randomAuthor(), internal:blank() };
+      const item = { cat:parsed.cat||"jissen", source:parsed.source||"manual", machine:parsed.machine||input.trim(), title:parsed.title||"無題", body:parsed.body||input.slice(0,150), url:"", quality:parsed.quality||3, dupKey:parsed.dupKey||"", eng:parsed.eng||{}, author:randomAuthor(), internal:blank() };
       setStatus("");
       if (isDup(item)) { pending.current=item; setDupModal({ item, dups:posts.filter(p=>p.dup_key===item.dupKey) }); setInput(""); }
       else { await addPost(item); setInput(""); }
@@ -1461,9 +1430,9 @@ async function autoCollect() {
       const systemPrompt =
         `あなたはパチスロ業界の専門家です。実在するパチスロ・パチンコ機種の演出・スペック・名言・エピソードについて豊富な知識を持っています。
 指定テーマで、パチスロファンが「面白い・懐かしい・役立つ」と感じる情報を厳選して3件生成し、必ずJSON配列のみを返してください。他のテキストは一切不要です。
-形式: [{"cat":"bonus|spec|quote|memory","machine":"実在する機種名","title":"30文字以内","body":"60〜100文字の具体的な説明","quality":3,"dupKey":"機種名_キーワード"}]
+形式: [{"cat":"info|jissen","machine":"実在する機種名","title":"30文字以内","body":"60〜100文字の具体的な説明","quality":3,"dupKey":"機種名_キーワード"}]
 ・qualityは情報の有力さ: 3=具体的な数字・固有名詞・確実な情報, 2=ある程度具体的, 1=一般的・曖昧な情報
-・catはbonus=演出・ボーナス, spec=スペック・攻略, quote=名言・煽り文句, memory=思い出・エピソード
+・catはinfo=機種情報・スペック・解析, jissen=実戦報告・演出・体験談・評判
 ・実在する機種名を必ず使うこと。架空の機種は禁止。
 ・bodyは20〜40文字の短文。2ch風（〜らしいぞ、〜って話題、思ったより〜だった、これ知ってた？など）とリンクを押したくなる一言をバランスよく混ぜる。煽りすぎず自然なテンションで。説明しすぎない。` + badContext;
 
@@ -1489,7 +1458,7 @@ async function autoCollect() {
       let added = 0;
       for (const p of items) {
         const item = {
-          cat: p.cat || "memory",
+          cat: p.cat || "jissen",
           source: "AI生成",
           machine: p.machine || "不明",
           title: p.title || "無題",
@@ -1569,7 +1538,7 @@ async function autoCollect() {
 
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:"1.25rem"}}>
-        {["new","aimH","memory","spec","hall","episode","quote","bonus","game","fun"].map(k => (
+        {["new","info","jissen","hall","episode"].map(k => (
           <div key={k} onClick={() => onCatClick?.(k)} style={{background:"#E8ECF0",borderRadius:10,boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",padding:"8px 10px",cursor:"pointer",border:`0.5px solid ${CATS[k].border}`,transition:"background 0.1s"}}
             onMouseEnter={e=>e.currentTarget.style.background=CATS[k].bg}
             onMouseLeave={e=>e.currentTarget.style.background="#f9f9f9"}>
@@ -1665,18 +1634,13 @@ function OverviewTab({ posts, updatePost }) {
   }, [posts]);
 
   const catDist = useMemo(() => {
-    const analysisPosts = posts.filter(p => p.cat !== "fun");
-    const base = analysisPosts.length;
-    const main = ["new","aimH","memory","spec","hall","episode","quote","bonus","game"].map(k => {
-      const ps = analysisPosts.filter(p => p.cat===k);
+    const base = posts.length;
+    return ["new","info","jissen","hall","episode"].map(k => {
+      const ps = posts.filter(p => p.cat===k);
       const likes = ps.reduce((s,p) => s+(p.internal?.likes?.length||0), 0);
       const top = ps.slice().sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0))[0];
       return { key:k, label:CATS[k].label, bg:CATS[k].bg, color:CATS[k].color, cnt:ps.length, pct:base?Math.round(ps.length/base*100):0, likes, top, isFun:false };
     });
-    const funPs = posts.filter(p => p.cat==="fun");
-    const funLikes = funPs.reduce((s,p) => s+(p.internal?.likes?.length||0), 0);
-    const funTop = funPs.slice().sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0))[0];
-    return [...main, { key:"fun", label:CATS.fun.label, bg:CATS.fun.bg, color:CATS.fun.color, cnt:funPs.length, pct:null, likes:funLikes, top:funTop, isFun:true }];
   }, [posts]);
 
   const ranked = useMemo(() => {
@@ -2276,8 +2240,8 @@ ${policyText}
       )}
 
       {mode==="gap" && (() => {
-        const GAP_CATS = ["new","spec","aimH","memory","bonus","game","episode","quote","hall"];
-        const CAT_SHORT = { new:"新台情報", spec:"機種情報", aimH:"狙い目", memory:"勝負エピ", bonus:"演出", game:"ゲーム性", episode:"昔の機種", quote:"版権", hall:"業界" };
+        const GAP_CATS = ["new","info","jissen","hall","episode"];
+        const CAT_SHORT = { new:"新台", info:"機種情報", jissen:"実戦", hall:"業界", episode:"名機" };
         const machineMap = {};
         posts.filter(p => p.cat !== "fun" && p.machine !== "全般").forEach(p => {
           if (!machineMap[p.machine]) machineMap[p.machine] = {};
@@ -2420,15 +2384,11 @@ ${policyText}
               </select>
               <select value={filter.cat} onChange={e => setFilter(f=>({...f,cat:e.target.value}))} style={{flex:1,fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#333",minWidth:0,width:0}}>
                 <option value="">すべてのカテゴリ</option>
-                <option value="new">新台情報</option>
-                <option value="aimH">お店狙い目</option>
-                <option value="memory">勝＆負エピ</option>
-                <option value="spec">機種情報</option>
-                <option value="hall">業界情報</option>
-                <option value="episode">昔の機種</option>
-                <option value="quote">版権ネタ</option>
-                <option value="bonus">演出・表現</option>
-                <option value="game">ゲーム性評価</option>
+                <option value="new">新台</option>
+                <option value="info">機種情報</option>
+                <option value="jissen">実戦</option>
+                <option value="hall">業界</option>
+                <option value="episode">名機</option>
               </select>
             </div>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
