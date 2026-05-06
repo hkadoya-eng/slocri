@@ -90,7 +90,7 @@ export default function ProposeTab() {
               style={S.input}
               value={ipName}
               onChange={e => setIpName(e.target.value)}
-              placeholder="例：モンスターストライク、北斗の拳、バイオハザード…"
+              placeholder="例：北斗の拳、バイオハザード、エヴァンゲリオン…"
               required
             />
           </div>
@@ -109,7 +109,7 @@ export default function ProposeTab() {
               style={{ ...S.input, resize: "vertical", minHeight: 80, lineHeight: 1.6 }}
               value={memo}
               onChange={e => setMemo(e.target.value)}
-              placeholder="こんなゲーム性にしたい、このシーンを使いたい、感情の山谷のイメージ…"
+              placeholder="こんなゲーム性にしたい、このシーンを使いたい、感情の起伏のイメージ…"
             />
           </div>
           <button

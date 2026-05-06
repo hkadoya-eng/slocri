@@ -1323,6 +1323,31 @@ function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick, loadPost
   const [csvImporting, setCsvImporting] = useState(false);
   const csvRef = useRef(null);
   const pending = useRef(null);
+  const [collectRequests, setCollectRequests] = useState([]);
+  const [collectTheme, setCollectTheme] = useState("");
+  const [collectSubmitting, setCollectSubmitting] = useState(false);
+
+  useEffect(() => {
+    loadCollectRequests();
+    const ch = supabase
+      .channel("collection_requests_ch")
+      .on("postgres_changes", { event: "*", schema: "public", table: "collection_requests" }, loadCollectRequests)
+      .subscribe();
+    return () => supabase.removeChannel(ch);
+  }, []);
+
+  async function loadCollectRequests() {
+    const { data } = await supabase.from("collection_requests").select("*").order("created_at", { ascending: false }).limit(5);
+    if (data) setCollectRequests(data);
+  }
+
+  async function requestCollect() {
+    setCollectSubmitting(true);
+    await supabase.from("collection_requests").insert({ theme: collectTheme.trim(), status: "pending" });
+    setCollectTheme("");
+    setCollectSubmitting(false);
+    showToast("収集を依頼しました。30分以内に反映されます");
+  }
 
   function parseCsv(text) {
     const lines = text.trim().split("\n").filter(l => l.trim());
@@ -1503,6 +1528,41 @@ async function autoCollect() {
           </div>
         </div>
       )}
+
+      {/* Claude収集依頼（サーバー側） */}
+      <div style={{background:"#E8ECF0",borderRadius:14,boxShadow:"4px 4px 8px #C5C9D4, -3px -3px 6px #FFFFFF",padding:"14px 14px",marginBottom:"1.25rem"}}>
+        <div style={{fontWeight:700,fontSize:15,color:"#444",marginBottom:10,display:"flex",alignItems:"center",gap:6}}>
+          <span style={{fontSize:18}}>🤖</span> Claudeに収集を依頼
+        </div>
+        <input
+          style={{width:"100%",padding:"9px 12px",borderRadius:10,border:"none",background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -2px -2px 5px #FFFFFF",fontSize:14,outline:"none",boxSizing:"border-box",color:"#333",fontFamily:"inherit",marginBottom:10}}
+          value={collectTheme}
+          onChange={e => setCollectTheme(e.target.value)}
+          placeholder="テーマ（任意）例：GW明け新台動向、スマスロ注目機…"
+        />
+        <button
+          onClick={requestCollect}
+          disabled={collectSubmitting}
+          style={{width:"100%",padding:"11px 0",borderRadius:12,border:"none",background:collectSubmitting?"#C5C9D4":"#D85A30",color:"#fff",fontSize:14,fontWeight:700,cursor:collectSubmitting?"not-allowed":"pointer",boxShadow:collectSubmitting?"none":"3px 3px 8px #C5C9D4, -1px -1px 4px #FFFFFF",transition:"all 0.15s"}}
+        >
+          {collectSubmitting ? "依頼中…" : "3〜5件の収集を依頼 ✉"}
+        </button>
+        {collectRequests.length > 0 && (
+          <div style={{marginTop:10,display:"flex",flexDirection:"column",gap:6}}>
+            {collectRequests.map(r => {
+              const stInfo = {pending:{label:"⏳ 待機中",color:"#888"},processing:{label:"⚙️ 収集中",color:"#2563EB"},done:{label:"✅ 完了",color:"#16A34A"},error:{label:"❌ エラー",color:"#DC2626"}};
+              const st = stInfo[r.status] || stInfo.pending;
+              return (
+                <div key={r.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:12,color:"#888",background:"#F0F2F5",borderRadius:8,padding:"5px 10px"}}>
+                  <span>{r.theme || "（テーマなし）"}{r.result_count > 0 && <span style={{color:"#16A34A",marginLeft:6}}>{r.result_count}件追加</span>}{r.result_machines && <span style={{color:"#555",marginLeft:6}}>{r.result_machines}</span>}</span>
+                  <span style={{color:st.color,fontWeight:600,flexShrink:0,marginLeft:8}}>{st.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <p style={{fontSize:11,color:"#aaa",marginTop:8,textAlign:"center",lineHeight:1.5}}>30分以内に自動処理・機種情報にも反映されます</p>
+      </div>
 
       <div style={{marginBottom:"1.25rem"}}>
         <div style={{fontSize:14,color:"#888",marginBottom:6}}>自動収集</div>
