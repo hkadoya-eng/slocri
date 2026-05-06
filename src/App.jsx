@@ -7,6 +7,7 @@ import ProposeTab from "./ProposeTab";
 import ChatTab from "./ChatTab";
 
 const CATS = {
+  new:     { label:"新台情報",     bg:"#FFF3E0", color:"#BF360C", border:"#FF8A65" },
   aimH:    { label:"お店狙い目",   bg:"#FFF8E1", color:"#E65100", border:"#FFB74D" },
   memory:  { label:"勝＆負エピ",  bg:"#EEEDFE", color:"#3C3489", border:"#AFA9EC" },
   spec:    { label:"機種情報",     bg:"#E6F1FB", color:"#185FA5", border:"#85B7EB" },
@@ -90,6 +91,7 @@ function relativeTime(ts) {
 }
 
 const TEMPLATES = {
+  new:     "導入前後の新台情報・スペック速報など",
   aimH:    "どの台を狙った？根拠は？",
   memory:  "どんな展開だった？",
   spec:    "天井・ゾーン・設定判別のポイントなど",
@@ -651,7 +653,7 @@ export default function App() {
 
 function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFilter = "all", onFilterChange, directPost, onDirectPostClear }) {
   const [filter, setFilter] = useState(initialFilter);
-  const CAT_KEYS = ["aimH","memory","spec","hall","episode","quote","bonus","game","fun"];
+  const CAT_KEYS = ["new","aimH","memory","spec","hall","episode","quote","bonus","game","fun"];
   const [showCats, setShowCats] = useState(() => CAT_KEYS.includes(initialFilter));
   function updateFilter(v) { setFilter(v); onFilterChange?.(v); if (!CAT_KEYS.includes(v)) setShowCats(false); }
   const [query, setQuery] = useState("");
@@ -1148,6 +1150,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
             {isEditing ? (
               <div>
                 <select value={eCat} onChange={e => setECat(e.target.value)} style={{width:"100%",fontSize:15,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}}>
+                  <option value="new">新台情報</option>
                   <option value="aimH">お店狙い目</option>
                   <option value="memory">勝＆負エピ</option>
                   <option value="spec">機種情報</option>
@@ -1406,7 +1409,7 @@ function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick, loadPost
   }
 
   const counts = {};
-  ["aimH","memory","spec","hall","episode","quote","bonus","game","fun"].forEach(k => { counts[k] = posts.filter(p => p.cat===k).length; });
+  ["new","aimH","memory","spec","hall","episode","quote","bonus","game","fun"].forEach(k => { counts[k] = posts.filter(p => p.cat===k).length; });
 
   function isDup(candidate) {
     return posts.some(p => candidate.dupKey && p.dup_key && candidate.dupKey === p.dup_key);
@@ -1566,7 +1569,7 @@ async function autoCollect() {
 
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:"1.25rem"}}>
-        {["aimH","memory","spec","hall","episode","quote","bonus","game","fun"].map(k => (
+        {["new","aimH","memory","spec","hall","episode","quote","bonus","game","fun"].map(k => (
           <div key={k} onClick={() => onCatClick?.(k)} style={{background:"#E8ECF0",borderRadius:10,boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",padding:"8px 10px",cursor:"pointer",border:`0.5px solid ${CATS[k].border}`,transition:"background 0.1s"}}
             onMouseEnter={e=>e.currentTarget.style.background=CATS[k].bg}
             onMouseLeave={e=>e.currentTarget.style.background="#f9f9f9"}>
@@ -1664,7 +1667,7 @@ function OverviewTab({ posts, updatePost }) {
   const catDist = useMemo(() => {
     const analysisPosts = posts.filter(p => p.cat !== "fun");
     const base = analysisPosts.length;
-    const main = ["aimH","memory","spec","hall","episode","quote","bonus","game"].map(k => {
+    const main = ["new","aimH","memory","spec","hall","episode","quote","bonus","game"].map(k => {
       const ps = analysisPosts.filter(p => p.cat===k);
       const likes = ps.reduce((s,p) => s+(p.internal?.likes?.length||0), 0);
       const top = ps.slice().sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0))[0];
@@ -2273,8 +2276,8 @@ ${policyText}
       )}
 
       {mode==="gap" && (() => {
-        const GAP_CATS = ["spec","aimH","memory","bonus","game","episode","quote","hall"];
-        const CAT_SHORT = { spec:"機種情報", aimH:"狙い目", memory:"勝負エピ", bonus:"演出", game:"ゲーム性", episode:"昔の機種", quote:"版権", hall:"業界" };
+        const GAP_CATS = ["new","spec","aimH","memory","bonus","game","episode","quote","hall"];
+        const CAT_SHORT = { new:"新台情報", spec:"機種情報", aimH:"狙い目", memory:"勝負エピ", bonus:"演出", game:"ゲーム性", episode:"昔の機種", quote:"版権", hall:"業界" };
         const machineMap = {};
         posts.filter(p => p.cat !== "fun" && p.machine !== "全般").forEach(p => {
           if (!machineMap[p.machine]) machineMap[p.machine] = {};
@@ -2417,6 +2420,7 @@ ${policyText}
               </select>
               <select value={filter.cat} onChange={e => setFilter(f=>({...f,cat:e.target.value}))} style={{flex:1,fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#333",minWidth:0,width:0}}>
                 <option value="">すべてのカテゴリ</option>
+                <option value="new">新台情報</option>
                 <option value="aimH">お店狙い目</option>
                 <option value="memory">勝＆負エピ</option>
                 <option value="spec">機種情報</option>
