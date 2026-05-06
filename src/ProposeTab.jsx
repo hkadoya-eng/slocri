@@ -100,7 +100,7 @@ export default function ProposeTab() {
               style={S.input}
               value={target}
               onChange={e => setTarget(e.target.value)}
-              placeholder="例：30代男性・元モン廃、20代女性・アニメファン…"
+              placeholder="例：30代男性・格ゲー好き、20代女性・アニメファン…"
             />
           </div>
           <div style={{ marginBottom: 16 }}>
