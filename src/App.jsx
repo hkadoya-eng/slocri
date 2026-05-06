@@ -178,10 +178,21 @@ async function unregisterPush() {
   await sub.unsubscribe();
 }
 
-function MachineListTab({ posts, onGoToFeed }) {
+function lookupAnalysis(machineName) {
+  if (!machineName) return null;
+  if (MACHINE_ANALYSIS[machineName]) return MACHINE_ANALYSIS[machineName];
+  for (const [key, val] of Object.entries(MACHINE_ANALYSIS)) {
+    if ((val.aliases || []).includes(machineName)) return val;
+  }
+  return null;
+}
+
+function MachineListTab({ posts, onGoToFeed, isAdmin }) {
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("posts");
   const [selected, setSelected] = useState(null);
+  const [triggerStatus, setTriggerStatus] = useState("");
+  const [triggering, setTriggering] = useState(false);
   const sheetRef = React.useRef(null);
   React.useEffect(() => { sheetRef.current?.scrollTo(0,0); }, [selected]);
 
@@ -207,24 +218,77 @@ function MachineListTab({ posts, onGoToFeed }) {
     selected ? posts.filter(p => p.machine === selected).sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0)) : []
   , [posts, selected]);
 
+  const selAnalysis = useMemo(() => selected ? lookupAnalysis(selected) : null, [selected]);
+
+  async function triggerAnalysis() {
+    setTriggering(true);
+    setTriggerStatus("");
+    try {
+      const r = await fetch("/api/trigger-analysis", { method: "POST" });
+      const d = await r.json();
+      setTriggerStatus(d.ok ? "ワークフロー起動しました。数分後に反映されます。" : `エラー: ${d.error}`);
+    } catch {
+      setTriggerStatus("通信エラーが発生しました");
+    }
+    setTriggering(false);
+  }
+
   return (
     <div style={{minWidth:0}}>
       {selected && (
         <>
           <div onClick={() => setSelected(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:198}}/>
-          <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:199,background:"#E8ECF0",borderRadius:"20px 20px 0 0",maxHeight:"88vh",display:"flex",flexDirection:"column",maxWidth:740,margin:"0 auto"}}>
+          <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:199,background:"#E8ECF0",borderRadius:"20px 20px 0 0",maxHeight:"92vh",display:"flex",flexDirection:"column",maxWidth:740,margin:"0 auto"}}>
             <div style={{padding:"12px 16px 0",flexShrink:0}}>
               <div style={{width:40,height:4,background:"#C5C9D4",borderRadius:2,margin:"0 auto 14px"}}/>
-              <div style={{display:"flex",alignItems:"flex-start",gap:8,marginBottom:14}}>
+              <div style={{display:"flex",alignItems:"flex-start",gap:8,marginBottom:10}}>
                 <div style={{flex:1}}>
                   <div style={{fontSize:18,fontWeight:700,color:"#333"}}>{selected}</div>
-                  <div style={{fontSize:13,color:"#aaa",marginTop:2}}>{selPosts.length}件の投稿</div>
+                  {selAnalysis?.releaseDate && (
+                    <div style={{fontSize:12,color:"#888",marginTop:2}}>導入日: {selAnalysis.releaseDate}</div>
+                  )}
+                  <div style={{fontSize:13,color:"#aaa",marginTop:1}}>{selPosts.length}件の投稿</div>
                 </div>
                 <button onClick={() => { onGoToFeed(selected); setSelected(null); }} style={{padding:"6px 14px",background:"#D85A30",color:"#fff",border:"none",borderRadius:20,fontSize:13,cursor:"pointer",fontWeight:600,flexShrink:0}}>フィードで見る</button>
                 <button onClick={() => setSelected(null)} style={{background:"none",border:"none",fontSize:22,color:"#bbb",cursor:"pointer",padding:"0 4px",lineHeight:1,flexShrink:0}}>×</button>
               </div>
             </div>
             <div ref={sheetRef} style={{overflowY:"auto",padding:"0 16px 40px",flex:1}}>
+
+              {/* 機種分析カード */}
+              {selAnalysis && (
+                <div style={{background:"#fff",borderRadius:14,padding:"14px 16px",marginBottom:14,border:"0.5px solid #E0E4E8"}}>
+                  {selAnalysis.spec && (
+                    <div style={{fontSize:11,color:"#888",marginBottom:10,lineHeight:1.5,borderBottom:"1px solid #F0F0F0",paddingBottom:8}}>{selAnalysis.spec}</div>
+                  )}
+                  {selAnalysis.summary && (
+                    <div style={{fontSize:14,fontWeight:700,color:"#333",marginBottom:8}}>{selAnalysis.summary}</div>
+                  )}
+                  {selAnalysis.highlight && (
+                    <div style={{fontSize:13,color:"#555",lineHeight:1.7,marginBottom:10}}>{selAnalysis.highlight}</div>
+                  )}
+                  {selAnalysis.pros?.length > 0 && (
+                    <div style={{marginBottom:8}}>
+                      <div style={{fontSize:12,fontWeight:700,color:"#2E7D32",marginBottom:4}}>良い点</div>
+                      {selAnalysis.pros.map((p, i) => (
+                        <div key={i} style={{fontSize:12,color:"#444",lineHeight:1.6,paddingLeft:10,borderLeft:"2px solid #A0C050",marginBottom:5}}>{p}</div>
+                      ))}
+                    </div>
+                  )}
+                  {selAnalysis.cons?.length > 0 && (
+                    <div>
+                      <div style={{fontSize:12,fontWeight:700,color:"#B71C1C",marginBottom:4}}>気になる点</div>
+                      {selAnalysis.cons.map((c, i) => (
+                        <div key={i} style={{fontSize:12,color:"#444",lineHeight:1.6,paddingLeft:10,borderLeft:"2px solid #EF9A9A",marginBottom:5}}>{c}</div>
+                      ))}
+                    </div>
+                  )}
+                  {selAnalysis.updatedAt && (
+                    <div style={{fontSize:11,color:"#bbb",marginTop:8,textAlign:"right"}}>分析更新: {selAnalysis.updatedAt}</div>
+                  )}
+                </div>
+              )}
+
               {selPosts.map(p => (
                 <div key={p.id} style={{background:"#fff",borderRadius:12,padding:"12px 14px",marginBottom:10,border:"0.5px solid #eee"}}>
                   <div style={{display:"flex",gap:5,alignItems:"center",marginBottom:6}}>
@@ -248,7 +312,7 @@ function MachineListTab({ posts, onGoToFeed }) {
         </>
       )}
 
-      <div style={{display:"flex",gap:8,marginBottom:12}}>
+      <div style={{display:"flex",gap:8,marginBottom:12,alignItems:"center"}}>
         <div style={{position:"relative",flex:1}}>
           <input value={query} onChange={e => setQuery(e.target.value)} placeholder="機種名で絞り込み..." style={{width:"100%",fontSize:16,padding:"8px 30px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"}}/>
           <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",fontSize:15,color:"#aaa",pointerEvents:"none"}}>⌕</span>
@@ -259,6 +323,17 @@ function MachineListTab({ posts, onGoToFeed }) {
           <option value="likes">いいね順</option>
         </select>
       </div>
+
+      {isAdmin && (
+        <div style={{marginBottom:12,padding:"10px 14px",background:"#FFF3E0",borderRadius:12,border:"1px solid #FF8A65"}}>
+          <div style={{fontSize:12,fontWeight:700,color:"#BF360C",marginBottom:6}}>管理者：機種分析を更新</div>
+          <button onClick={triggerAnalysis} disabled={triggering} style={{padding:"7px 16px",background:triggering?"#C5C9D4":"#D85A30",color:"#fff",border:"none",borderRadius:20,fontSize:13,cursor:triggering?"not-allowed":"pointer",fontWeight:600}}>
+            {triggering ? "起動中..." : "GitHub Actions を実行"}
+          </button>
+          {triggerStatus && <div style={{fontSize:12,color:"#555",marginTop:6}}>{triggerStatus}</div>}
+          <div style={{fontSize:11,color:"#888",marginTop:4}}>update_analysis.py が実行され、数分後に machineAnalysis.json が更新されます</div>
+        </div>
+      )}
 
       <div style={{fontSize:13,color:"#aaa",marginBottom:8}}>{filtered.length}機種</div>
 
@@ -310,6 +385,7 @@ export default function App() {
   const [fbSending, setFbSending] = useState(false);
   const [fbDone, setFbDone] = useState(false);
   const [showFbInbox, setShowFbInbox] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const logoTapRef = useRef(0);
   const logoTapTimerRef = useRef(null);
 
@@ -319,7 +395,7 @@ export default function App() {
     logoTapRef.current++;
     clearTimeout(logoTapTimerRef.current);
     logoTapTimerRef.current = setTimeout(() => { logoTapRef.current = 0; }, 2000);
-    if (logoTapRef.current >= 5) { logoTapRef.current = 0; setShowFbInbox(true); }
+    if (logoTapRef.current >= 5) { logoTapRef.current = 0; setShowFbInbox(true); setIsAdmin(true); }
   }
 
   async function submitFeedback() {
@@ -652,7 +728,7 @@ export default function App() {
       {loading && <div style={{textAlign:"center",padding:"2rem",color:"#888"}}>読み込み中...</div>}
 
       {!loading && tab === "feed"     && <FeedTab     posts={normalPosts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} directPost={directPost} onDirectPostClear={() => setDirectPost(null)} />}
-      {!loading && tab === "machines" && <MachineListTab posts={normalPosts} onGoToFeed={name => { setFeedFilter("all"); setTab("feed"); }} />}
+      {!loading && tab === "machines" && <MachineListTab posts={normalPosts} onGoToFeed={name => { setFeedFilter("all"); setTab("feed"); }} isAdmin={isAdmin} />}
       {!loading && tab === "collect"  && <CollectTab  posts={normalPosts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
       {!loading && tab === "overview" && <OverviewTab posts={normalPosts} updatePost={updatePost} />}
       {!loading && tab === "research" && <ResearchTab posts={normalPosts} aiEnabled={aiEnabled} updatePost={updatePost} />}

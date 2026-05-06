@@ -178,12 +178,17 @@ def run():
         try:
             result = analyze_machine(machine, machine_posts, client)
             key = existing_key or machine
+            existing = analysis.get(key, {})
             analysis[key] = {
-                "aliases": analysis.get(key, {}).get("aliases", []),
+                "aliases": existing.get("aliases", []),
+                "releaseDate": existing.get("releaseDate", ""),
+                "spec": existing.get("spec", ""),
                 "summary": result["summary"],
-                "highlight": result.get("highlight", analysis.get(key, {}).get("highlight", "")),
+                "highlight": result.get("highlight", existing.get("highlight", "")),
                 "pros": result["pros"],
                 "cons": result["cons"],
+                "scores": existing.get("scores", {}),
+                "scoreReason": existing.get("scoreReason", {}),
                 "postCount": len(machine_posts),
                 "updatedAt": today,
             }
