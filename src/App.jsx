@@ -3,6 +3,7 @@ import { supabase } from "./supabase";
 import MACHINE_ANALYSIS from "./machineAnalysis.json";
 import GAME_LIBRARY from "./gameDesignLibrary.json";
 import MACHINE_LIBRARY from "./machineLibrary.json";
+import ProposeTab from "./ProposeTab";
 
 const CATS = {
   aimH:    { label:"お店狙い目",   bg:"#FFF8E1", color:"#E65100", border:"#FFB74D" },
@@ -359,8 +360,8 @@ export default function App() {
     setTimeout(() => setToast(""), 2500);
   }
 
-  const TABS = ["feed","collect","overview","research"];
-  const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"リサーチ" };
+  const TABS = ["feed","collect","overview","research","propose"];
+  const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"リサーチ", propose:"企画" };
   const normalPosts = posts.filter(p => p.cat !== "feedback");
   const feedbackPosts = posts.filter(p => p.cat === "feedback");
 
@@ -555,6 +556,7 @@ export default function App() {
       {!loading && tab === "collect"  && <CollectTab  posts={normalPosts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
       {!loading && tab === "overview" && <OverviewTab posts={normalPosts} updatePost={updatePost} />}
       {!loading && tab === "research" && <ResearchTab posts={normalPosts} aiEnabled={aiEnabled} updatePost={updatePost} />}
+      {tab === "propose" && <ProposeTab />}
 
       {/* フローティングフィードバックボタン */}
       <div style={{position:"fixed",bottom:24,left:16,zIndex:200}}>
