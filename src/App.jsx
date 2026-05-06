@@ -335,6 +335,148 @@ function MachineListTab({ posts, onGoToFeed }) {
   );
 }
 
+function SisTab() {
+  const PASS_KEY = "sis_auth_v1";
+  const CORRECT = import.meta.env.VITE_SIS_PASSWORD || "";
+  const [authed, setAuthed] = useState(() => !!CORRECT && localStorage.getItem(PASS_KEY) === CORRECT);
+  const [pw, setPw] = useState("");
+  const [pwErr, setPwErr] = useState(false);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [dates, setDates] = useState([]);
+  const [dateIdx, setDateIdx] = useState(0);
+
+  useEffect(() => {
+    if (!authed) return;
+    setLoading(true);
+    supabase
+      .from("sis_data")
+      .select("machine,date,out_coins,coin_price,payout_rate,gross_profit,operation_ratio,machine_count")
+      .order("date", { ascending: false })
+      .limit(2000)
+      .then(({ data }) => {
+        if (data) {
+          setRows(data);
+          const ds = [...new Set(data.map(r => r.date))].sort().reverse();
+          setDates(ds);
+          setDateIdx(0);
+        }
+        setLoading(false);
+      });
+  }, [authed]);
+
+  function handleLogin(e) {
+    e.preventDefault();
+    if (pw === CORRECT) {
+      localStorage.setItem(PASS_KEY, pw);
+      setAuthed(true);
+      setPwErr(false);
+    } else {
+      setPwErr(true);
+    }
+  }
+
+  if (!authed) {
+    return (
+      <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"48px 24px"}}>
+        <div style={{fontSize:32,marginBottom:12}}>🔒</div>
+        <div style={{fontSize:18,fontWeight:700,marginBottom:6,color:"#333"}}>稼働データ</div>
+        <div style={{fontSize:13,color:"#888",marginBottom:24,textAlign:"center"}}>社内専用。パスワードを入力してください。</div>
+        <form onSubmit={handleLogin} style={{width:"100%",maxWidth:300}}>
+          <input
+            type="password"
+            value={pw}
+            onChange={e => setPw(e.target.value)}
+            placeholder="パスワード"
+            autoFocus
+            style={{width:"100%",padding:"11px 14px",border:`1.5px solid ${pwErr?"#E53935":"#ddd"}`,borderRadius:10,fontSize:16,boxSizing:"border-box",marginBottom:8,outline:"none"}}
+          />
+          {pwErr && <div style={{color:"#E53935",fontSize:13,marginBottom:8}}>パスワードが違います</div>}
+          <button type="submit" style={{width:"100%",padding:"11px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:10,fontSize:16,fontWeight:700,cursor:"pointer"}}>ログイン</button>
+        </form>
+      </div>
+    );
+  }
+
+  if (loading) return <div style={{textAlign:"center",padding:"2rem",color:"#888"}}>読み込み中...</div>;
+
+  const selDate = dates[dateIdx] || null;
+  const dayRows = rows.filter(r => r.date === selDate).sort((a, b) => (b.out_coins || 0) - (a.out_coins || 0));
+
+  function fmtNum(n) { return n == null ? "—" : n.toLocaleString(); }
+  function fmtRate(n) { return n == null ? "—" : n.toFixed(1) + "%"; }
+  function rateColor(n) {
+    if (n == null) return "#888";
+    if (n >= 110) return "#2a9d3f";
+    if (n >= 100) return "#5a9d6f";
+    if (n >= 90) return "#bf8c00";
+    return "#E53935";
+  }
+  function fmtDateLabel(d) {
+    if (!d) return "";
+    const dt = new Date(d);
+    const w = ["日","月","火","水","木","金","土"][dt.getDay()];
+    return `${dt.getMonth()+1}/${dt.getDate()}（${w}）`;
+  }
+
+  return (
+    <div>
+      {/* 日付ナビ */}
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,background:"#fff",borderRadius:12,padding:"10px 14px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
+        <button onClick={() => setDateIdx(i => Math.min(i+1, dates.length-1))} disabled={dateIdx >= dates.length-1}
+          style={{border:"none",background:"none",fontSize:22,cursor:"pointer",color:dateIdx>=dates.length-1?"#ccc":"#555",padding:"0 8px"}}>‹</button>
+        <div style={{textAlign:"center"}}>
+          <div style={{fontSize:17,fontWeight:700,color:"#333"}}>{fmtDateLabel(selDate)}</div>
+          <div style={{fontSize:12,color:"#aaa"}}>{selDate || "—"}</div>
+        </div>
+        <button onClick={() => setDateIdx(i => Math.max(i-1, 0))} disabled={dateIdx <= 0}
+          style={{border:"none",background:"none",fontSize:22,cursor:"pointer",color:dateIdx<=0?"#ccc":"#555",padding:"0 8px"}}>›</button>
+      </div>
+
+      {/* 機種カード一覧 */}
+      {dayRows.length === 0 && <div style={{textAlign:"center",color:"#aaa",padding:"2rem"}}>データなし</div>}
+      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+        {dayRows.map(r => (
+          <div key={r.machine} style={{background:"#fff",borderRadius:12,padding:"12px 14px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
+            <div style={{fontSize:14,fontWeight:700,color:"#333",marginBottom:8,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.machine}</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"6px 4px",fontSize:12}}>
+              <div style={{textAlign:"center"}}>
+                <div style={{color:"#aaa",marginBottom:2}}>アウト</div>
+                <div style={{fontWeight:600,color:"#333"}}>{fmtNum(r.out_coins)}</div>
+              </div>
+              <div style={{textAlign:"center"}}>
+                <div style={{color:"#aaa",marginBottom:2}}>出玉率</div>
+                <div style={{fontWeight:700,color:rateColor(r.payout_rate)}}>{fmtRate(r.payout_rate)}</div>
+              </div>
+              <div style={{textAlign:"center"}}>
+                <div style={{color:"#aaa",marginBottom:2}}>粗利</div>
+                <div style={{fontWeight:600,color:r.gross_profit!=null&&r.gross_profit<0?"#2a9d3f":"#E53935"}}>{r.gross_profit==null?"—":(r.gross_profit<0?"▲":"▼")+" ¥"+Math.abs(r.gross_profit).toLocaleString()}</div>
+              </div>
+              <div style={{textAlign:"center"}}>
+                <div style={{color:"#aaa",marginBottom:2}}>台数</div>
+                <div style={{fontWeight:600,color:"#333"}}>{r.machine_count != null ? r.machine_count + "台" : "—"}</div>
+              </div>
+              <div style={{textAlign:"center"}}>
+                <div style={{color:"#aaa",marginBottom:2}}>コイン単価</div>
+                <div style={{fontWeight:600,color:"#333"}}>{r.coin_price != null ? r.coin_price.toFixed(2) + "円" : "—"}</div>
+              </div>
+              <div style={{textAlign:"center"}}>
+                <div style={{color:"#aaa",marginBottom:2}}>稼働割合</div>
+                <div style={{fontWeight:600,color:"#333"}}>{r.operation_ratio != null ? r.operation_ratio.toFixed(1) + "%" : "—"}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{textAlign:"right",marginTop:16}}>
+        <button onClick={() => { localStorage.removeItem(PASS_KEY); setAuthed(false); setPw(""); }}
+          style={{fontSize:12,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:"4px 0"}}>ログアウト</button>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -510,8 +652,8 @@ export default function App() {
     setTimeout(() => setToast(""), 2500);
   }
 
-  const TABS = ["feed","machines","collect","overview","research"];
-  const LABELS = { feed:"投稿", machines:"機種", collect:"追加", overview:"まとめ", research:"調査" };
+  const TABS = ["feed","machines","collect","overview","research","sis"];
+  const LABELS = { feed:"投稿", machines:"機種", collect:"追加", overview:"まとめ", research:"調査", sis:"稼働" };
   const normalPosts = posts.filter(p => p.cat !== "feedback");
   const feedbackPosts = posts.filter(p => p.cat === "feedback");
 
@@ -707,6 +849,7 @@ export default function App() {
       {!loading && tab === "collect"  && <CollectTab  posts={normalPosts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
       {!loading && tab === "overview" && <OverviewTab posts={normalPosts} updatePost={updatePost} />}
       {!loading && tab === "research" && <ResearchTab posts={normalPosts} aiEnabled={aiEnabled} updatePost={updatePost} />}
+      {tab === "sis"      && <SisTab />}
 
       {/* フローティングフィードバックボタン（投稿タブのみ表示） */}
       {tab === "feed" && <div style={{position:"fixed",bottom:80,right:16,zIndex:200}}>
