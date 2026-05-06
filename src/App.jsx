@@ -178,6 +178,112 @@ async function unregisterPush() {
   await sub.unsubscribe();
 }
 
+function MachineListTab({ posts, onGoToFeed }) {
+  const [query, setQuery] = useState("");
+  const [sortBy, setSortBy] = useState("posts");
+  const [selected, setSelected] = useState(null);
+  const sheetRef = React.useRef(null);
+  React.useEffect(() => { sheetRef.current?.scrollTo(0,0); }, [selected]);
+
+  const machines = useMemo(() => {
+    const m = {};
+    posts.filter(p => p.machine && !p.machine.includes("全般")).forEach(p => {
+      if (!m[p.machine]) m[p.machine] = { name: p.machine, count: 0, likes: 0, cats: {} };
+      m[p.machine].count++;
+      m[p.machine].likes += (p.internal?.likes?.length || 0);
+      m[p.machine].cats[p.cat] = (m[p.machine].cats[p.cat] || 0) + 1;
+    });
+    return Object.values(m);
+  }, [posts]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return machines
+      .filter(m => !q || m.name.toLowerCase().includes(q))
+      .sort((a, b) => sortBy === "likes" ? b.likes - a.likes : b.count - a.count);
+  }, [machines, query, sortBy]);
+
+  const selPosts = useMemo(() =>
+    selected ? posts.filter(p => p.machine === selected).sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0)) : []
+  , [posts, selected]);
+
+  return (
+    <div style={{minWidth:0}}>
+      {selected && (
+        <>
+          <div onClick={() => setSelected(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:198}}/>
+          <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:199,background:"#E8ECF0",borderRadius:"20px 20px 0 0",maxHeight:"88vh",display:"flex",flexDirection:"column",maxWidth:740,margin:"0 auto"}}>
+            <div style={{padding:"12px 16px 0",flexShrink:0}}>
+              <div style={{width:40,height:4,background:"#C5C9D4",borderRadius:2,margin:"0 auto 14px"}}/>
+              <div style={{display:"flex",alignItems:"flex-start",gap:8,marginBottom:14}}>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:18,fontWeight:700,color:"#333"}}>{selected}</div>
+                  <div style={{fontSize:13,color:"#aaa",marginTop:2}}>{selPosts.length}件の投稿</div>
+                </div>
+                <button onClick={() => { onGoToFeed(selected); setSelected(null); }} style={{padding:"6px 14px",background:"#D85A30",color:"#fff",border:"none",borderRadius:20,fontSize:13,cursor:"pointer",fontWeight:600,flexShrink:0}}>フィードで見る</button>
+                <button onClick={() => setSelected(null)} style={{background:"none",border:"none",fontSize:22,color:"#bbb",cursor:"pointer",padding:"0 4px",lineHeight:1,flexShrink:0}}>×</button>
+              </div>
+            </div>
+            <div ref={sheetRef} style={{overflowY:"auto",padding:"0 16px 40px",flex:1}}>
+              {selPosts.map(p => (
+                <div key={p.id} style={{background:"#fff",borderRadius:12,padding:"12px 14px",marginBottom:10,border:"0.5px solid #eee"}}>
+                  <div style={{display:"flex",gap:5,alignItems:"center",marginBottom:6}}>
+                    <CatBadge cat={p.cat}/>
+                    {AUTO_AUTHORS.includes(p.internal?.author||p.author) ? <QualityBadge q={p.quality||1}/> : null}
+                    <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:500,flexShrink:0}}>♥ {p.internal?.likes?.length||0}</span>
+                  </div>
+                  <div style={{fontSize:15,fontWeight:600,color:"#333",marginBottom:4,overflowWrap:"anywhere"}}>{p.title}</div>
+                  <div style={{fontSize:14,color:"#666",lineHeight:1.65,overflowWrap:"anywhere"}}>{p.body}</div>
+                  {p.url && (
+                    <a href={p.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:5,marginTop:8,fontSize:13,color:"#185FA5",textDecoration:"none",overflow:"hidden"}}>
+                      <span style={{flexShrink:0}}>🔗</span>
+                      <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.url}</span>
+                    </a>
+                  )}
+                </div>
+              ))}
+              {selPosts.length === 0 && <div style={{textAlign:"center",color:"#aaa",padding:"32px 0"}}>投稿がありません</div>}
+            </div>
+          </div>
+        </>
+      )}
+
+      <div style={{display:"flex",gap:8,marginBottom:12}}>
+        <div style={{position:"relative",flex:1}}>
+          <input value={query} onChange={e => setQuery(e.target.value)} placeholder="機種名で絞り込み..." style={{width:"100%",fontSize:16,padding:"8px 30px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"}}/>
+          <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",fontSize:15,color:"#aaa",pointerEvents:"none"}}>⌕</span>
+          {query && <button onClick={() => setQuery("")} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:16,color:"#aaa",padding:0}}>×</button>}
+        </div>
+        <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={{fontSize:14,padding:"8px 6px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666",flexShrink:0}}>
+          <option value="posts">投稿数順</option>
+          <option value="likes">いいね順</option>
+        </select>
+      </div>
+
+      <div style={{fontSize:13,color:"#aaa",marginBottom:8}}>{filtered.length}機種</div>
+
+      {filtered.map(m => (
+        <div key={m.name} onClick={() => setSelected(m.name)} style={{background:"#E8ECF0",boxShadow:"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF",borderRadius:14,padding:"12px 14px",marginBottom:10,cursor:"pointer",transition:"box-shadow 0.15s"}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+            <div style={{flex:1,fontWeight:600,fontSize:15,color:"#333",overflowWrap:"anywhere"}}>{m.name}</div>
+            <div style={{fontSize:13,color:"#888",flexShrink:0,textAlign:"right"}}>
+              <span>{m.count}件</span>
+              {m.likes > 0 && <span style={{marginLeft:6,color:"#D85A30"}}>♥ {m.likes}</span>}
+            </div>
+          </div>
+          <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+            {Object.entries(m.cats).sort((a,b)=>b[1]-a[1]).map(([cat, cnt]) => {
+              const c = CATS[cat];
+              if (!c) return null;
+              return <span key={cat} style={{fontSize:11,padding:"2px 7px",borderRadius:6,background:c.bg,color:c.color,border:`1px solid ${c.border}`,fontWeight:600,whiteSpace:"nowrap"}}>{c.label} {cnt}</span>;
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function App() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -353,8 +459,8 @@ export default function App() {
     setTimeout(() => setToast(""), 2500);
   }
 
-  const TABS = ["feed","collect","overview","research"];
-  const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"リサーチ" };
+  const TABS = ["feed","machines","collect","overview","research"];
+  const LABELS = { feed:"投稿", machines:"機種", collect:"追加", overview:"まとめ", research:"調査" };
   const normalPosts = posts.filter(p => p.cat !== "feedback");
   const feedbackPosts = posts.filter(p => p.cat === "feedback");
 
@@ -546,6 +652,7 @@ export default function App() {
       {loading && <div style={{textAlign:"center",padding:"2rem",color:"#888"}}>読み込み中...</div>}
 
       {!loading && tab === "feed"     && <FeedTab     posts={normalPosts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} directPost={directPost} onDirectPostClear={() => setDirectPost(null)} />}
+      {!loading && tab === "machines" && <MachineListTab posts={normalPosts} onGoToFeed={name => { setFeedFilter("all"); setTab("feed"); }} />}
       {!loading && tab === "collect"  && <CollectTab  posts={normalPosts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
       {!loading && tab === "overview" && <OverviewTab posts={normalPosts} updatePost={updatePost} />}
       {!loading && tab === "research" && <ResearchTab posts={normalPosts} aiEnabled={aiEnabled} updatePost={updatePost} />}
