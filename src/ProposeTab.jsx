@@ -16,7 +16,7 @@ const RATINGS = {
 };
 
 const S = {
-  card: { background: "#E8ECF0", borderRadius: 14, boxShadow: "4px 4px 8px #C5C9D4, -3px -3px 6px #FFFFFF", padding: "16px 16px", marginBottom: 12 },
+  card: { background: "#E8ECF0", borderRadius: 14, boxShadow: "4px 4px 8px #C5C9D4, -3px -3px 6px #FFFFFF", padding: "16px 16px", marginBottom: 12, overflow: "hidden" },
   input: { width: "100%", padding: "10px 12px", borderRadius: 10, border: "none", background: "#E8ECF0", boxShadow: "inset 3px 3px 6px #C5C9D4, inset -2px -2px 5px #FFFFFF", fontSize: 15, outline: "none", boxSizing: "border-box", color: "#333", fontFamily: "inherit" },
 };
 
@@ -253,7 +253,7 @@ export default function ProposeTab() {
                       {h.rating === 0 && " ✏️"}
                       {h.rating === -1 && " 👎"}
                     </div>
-                    <div style={{ background: "#F8F9FA", borderRadius: 8, padding: "10px 12px", fontSize: 12, color: "#555", lineHeight: 1.7, whiteSpace: "pre-wrap", maxHeight: 200, overflowY: "auto", border: "1px solid #E0E4E8", opacity: 0.75 }}>
+                    <div style={{ background: "#F8F9FA", borderRadius: 8, padding: "10px 12px", fontSize: 12, color: "#555", lineHeight: 1.7, whiteSpace: "pre-wrap", maxHeight: 200, overflowY: "auto", overflowX: "hidden", border: "1px solid #E0E4E8", opacity: 0.75 }}>
                       {h.result}
                     </div>
                     {h.feedback && (
@@ -272,7 +272,7 @@ export default function ProposeTab() {
             {/* 提案書展開 */}
             {req.result && isOpen && (
               <div style={{ marginTop: revisionHistory.length > 0 ? 0 : 10 }} onClick={e => e.stopPropagation()}>
-                <div style={{ background: "#F8F9FA", borderRadius: 10, padding: 14, fontSize: 13, color: "#333", lineHeight: 1.8, whiteSpace: "pre-wrap", maxHeight: 500, overflowY: "auto", border: "1px solid #E0E4E8" }}>
+                <div style={{ background: "#F8F9FA", borderRadius: 10, padding: 14, fontSize: 13, color: "#333", lineHeight: 1.8, whiteSpace: "pre-wrap", maxHeight: 500, overflowY: "auto", overflowX: "hidden", border: "1px solid #E0E4E8" }}>
                   {req.result}
                 </div>
                 <button
