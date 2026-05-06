@@ -9,6 +9,12 @@ const STATUS = {
   error:        { label: "❌ エラー",   color: "#DC2626", bg: "#FEF2F2" },
 };
 
+const RATINGS = {
+  1:  { label: "👍 良い",    color: "#16A34A", bg: "#D1FAE5", activeBg: "#A7F3D0" },
+  0:  { label: "✏️ 修正希望", color: "#B45309", bg: "#FEF3C7", activeBg: "#FDE68A" },
+  "-1": { label: "👎 悪い",  color: "#DC2626", bg: "#FEE2E2", activeBg: "#FECACA" },
+};
+
 const S = {
   card: { background: "#E8ECF0", borderRadius: 14, boxShadow: "4px 4px 8px #C5C9D4, -3px -3px 6px #FFFFFF", padding: "16px 16px", marginBottom: 12 },
   input: { width: "100%", padding: "10px 12px", borderRadius: 10, border: "none", background: "#E8ECF0", boxShadow: "inset 3px 3px 6px #C5C9D4, inset -2px -2px 5px #FFFFFF", fontSize: 15, outline: "none", boxSizing: "border-box", color: "#333", fontFamily: "inherit" },
@@ -24,6 +30,9 @@ export default function ProposeTab() {
   const [toast, setToast] = useState("");
   const [answers, setAnswers] = useState({});
   const [answerSubmitting, setAnswerSubmitting] = useState({});
+  const [proposalRatings, setProposalRatings] = useState({});
+  const [revisionInputs, setRevisionInputs] = useState({});
+  const [revisionSubmitting, setRevisionSubmitting] = useState({});
 
   useEffect(() => {
     load();
@@ -40,7 +49,12 @@ export default function ProposeTab() {
       .select("*")
       .order("created_at", { ascending: false })
       .limit(30);
-    if (data) setRequests(data);
+    if (data) {
+      setRequests(data);
+      const r = {};
+      data.forEach(req => { if (req.rating != null) r[req.id] = req.rating; });
+      setProposalRatings(prev => ({ ...prev, ...r }));
+    }
   }
 
   function showToast(msg) {
@@ -77,6 +91,42 @@ export default function ProposeTab() {
     }).eq("id", req.id);
     setAnswerSubmitting(prev => ({ ...prev, [req.id]: false }));
     showToast("回答を送信しました。提案書を生成します（〜30分）");
+    load();
+  }
+
+  async function rateProposal(req, value) {
+    const current = proposalRatings[req.id];
+    const next = current === value ? null : value;
+    setProposalRatings(prev => ({ ...prev, [req.id]: next }));
+    await supabase.from("proposal_requests").update({ rating: next }).eq("id", req.id);
+    if (next === 1) showToast("👍 確定済みとして蓄積しました！");
+  }
+
+  async function submitRevision(req) {
+    const comment = (revisionInputs[req.id] || "").trim();
+    if (!comment) return;
+    setRevisionSubmitting(prev => ({ ...prev, [req.id]: true }));
+
+    const history = req.revision_history || [];
+    const newHistory = [...history, {
+      round: history.length + 1,
+      result: req.result,
+      rating: proposalRatings[req.id] ?? null,
+      feedback: comment,
+      revised_at: new Date().toISOString(),
+    }];
+
+    await supabase.from("proposal_requests").update({
+      rating: proposalRatings[req.id] ?? null,
+      revision_request: comment,
+      revision_history: newHistory,
+      status: "pending",
+      updated_at: new Date().toISOString(),
+    }).eq("id", req.id);
+
+    setRevisionInputs(prev => ({ ...prev, [req.id]: "" }));
+    setRevisionSubmitting(prev => ({ ...prev, [req.id]: false }));
+    showToast("修正依頼を送信しました。改善版を生成します（〜30分）");
     load();
   }
 
@@ -134,6 +184,9 @@ export default function ProposeTab() {
         const isOpen = expanded === req.id;
         const questions = req.questions ? req.questions.split("\n").filter(Boolean) : [];
         const isClickable = req.result || req.status === "questioning";
+        const currentRating = proposalRatings[req.id] ?? null;
+        const showRevisionForm = (currentRating === 0 || currentRating === -1) && req.status === "done";
+        const revisionHistory = req.revision_history || [];
 
         return (
           <div key={req.id} style={{ ...S.card, cursor: isClickable ? "pointer" : "default" }}
@@ -144,7 +197,12 @@ export default function ProposeTab() {
                 <div style={{ fontWeight: 700, fontSize: 16, color: "#333", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{req.ip_name}</div>
                 {req.target && <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>🎯 {req.target}</div>}
               </div>
-              <span style={{ fontSize: 12, padding: "4px 10px", borderRadius: 20, background: st.bg, color: st.color, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0 }}>{st.label}</span>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                <span style={{ fontSize: 12, padding: "4px 10px", borderRadius: 20, background: st.bg, color: st.color, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0 }}>{st.label}</span>
+                {revisionHistory.length > 0 && (
+                  <span style={{ fontSize: 11, color: "#888" }}>第{revisionHistory.length + 1}稿</span>
+                )}
+              </div>
             </div>
 
             {req.concept_memo && (
@@ -184,9 +242,36 @@ export default function ProposeTab() {
               </div>
             )}
 
+            {/* 修正履歴 */}
+            {isOpen && revisionHistory.length > 0 && (
+              <div style={{ marginTop: 10 }} onClick={e => e.stopPropagation()}>
+                {revisionHistory.map((h, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#888", marginBottom: 4 }}>
+                      第{h.round}稿
+                      {h.rating === 1 && " 👍"}
+                      {h.rating === 0 && " ✏️"}
+                      {h.rating === -1 && " 👎"}
+                    </div>
+                    <div style={{ background: "#F8F9FA", borderRadius: 8, padding: "10px 12px", fontSize: 12, color: "#555", lineHeight: 1.7, whiteSpace: "pre-wrap", maxHeight: 200, overflowY: "auto", border: "1px solid #E0E4E8", opacity: 0.75 }}>
+                      {h.result}
+                    </div>
+                    {h.feedback && (
+                      <div style={{ marginTop: 6, padding: "6px 10px", background: "#FEF3C7", borderRadius: 8, fontSize: 12, color: "#92400E", borderLeft: "3px solid #F59E0B" }}>
+                        💬 修正依頼：{h.feedback}
+                      </div>
+                    )}
+                  </div>
+                ))}
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#444", marginBottom: 4 }}>
+                  第{revisionHistory.length + 1}稿（最新）
+                </div>
+              </div>
+            )}
+
             {/* 提案書展開 */}
             {req.result && isOpen && (
-              <div style={{ marginTop: 10 }}>
+              <div style={{ marginTop: revisionHistory.length > 0 ? 0 : 10 }} onClick={e => e.stopPropagation()}>
                 <div style={{ background: "#F8F9FA", borderRadius: 10, padding: 14, fontSize: 13, color: "#333", lineHeight: 1.8, whiteSpace: "pre-wrap", maxHeight: 500, overflowY: "auto", border: "1px solid #E0E4E8" }}>
                   {req.result}
                 </div>
@@ -196,6 +281,73 @@ export default function ProposeTab() {
                 >
                   📋 コピー
                 </button>
+
+                {/* 評価ボタン */}
+                {req.status === "done" && (
+                  <div style={{ marginTop: 14 }}>
+                    <div style={{ fontSize: 12, color: "#888", marginBottom: 8 }}>この提案書を評価してください</div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {[1, 0, -1].map(val => {
+                        const r = RATINGS[val];
+                        const isActive = currentRating === val;
+                        return (
+                          <button
+                            key={val}
+                            onClick={() => rateProposal(req, val)}
+                            style={{
+                              flex: 1, padding: "9px 4px", borderRadius: 10, border: "none",
+                              background: isActive ? r.activeBg : "#E8ECF0",
+                              color: isActive ? r.color : "#888",
+                              fontSize: 13, fontWeight: isActive ? 700 : 400,
+                              cursor: "pointer",
+                              boxShadow: isActive
+                                ? `inset 2px 2px 5px ${r.activeBg}`
+                                : "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF",
+                              transition: "all 0.15s",
+                            }}
+                          >
+                            {r.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* 確定メッセージ */}
+                    {currentRating === 1 && (
+                      <div style={{ fontSize: 12, color: "#16A34A", marginTop: 8, padding: "7px 12px", background: "#F0FDF4", borderRadius: 8 }}>
+                        ✅ 確定済みとして蓄積されました
+                      </div>
+                    )}
+
+                    {/* 修正フォーム */}
+                    {showRevisionForm && (
+                      <div style={{ marginTop: 12 }}>
+                        <div style={{ fontSize: 12, color: currentRating === -1 ? "#DC2626" : "#B45309", marginBottom: 6, fontWeight: 600 }}>
+                          {currentRating === -1 ? "👎 どこが問題でしたか？" : "✏️ どのような修正を希望しますか？"}
+                        </div>
+                        <textarea
+                          style={{ ...S.input, resize: "vertical", minHeight: 100, lineHeight: 1.7, marginBottom: 8 }}
+                          value={revisionInputs[req.id] || ""}
+                          onChange={e => setRevisionInputs(prev => ({ ...prev, [req.id]: e.target.value }))}
+                          placeholder="例：スペック設定を変えてほしい、演出アイデアをもっと原作に寄せてほしい…"
+                        />
+                        <button
+                          onClick={() => submitRevision(req)}
+                          disabled={revisionSubmitting[req.id] || !(revisionInputs[req.id] || "").trim()}
+                          style={{
+                            width: "100%", padding: "11px 0", borderRadius: 10, border: "none",
+                            background: !(revisionInputs[req.id] || "").trim() ? "#C5C9D4" : "#D85A30",
+                            color: "#fff", fontSize: 14, fontWeight: 700,
+                            cursor: !(revisionInputs[req.id] || "").trim() ? "not-allowed" : "pointer",
+                            transition: "all 0.15s",
+                          }}
+                        >
+                          {revisionSubmitting[req.id] ? "送信中…" : "修正を依頼する →"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
