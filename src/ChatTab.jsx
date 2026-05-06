@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "./supabase";
 
 const SESSION_KEY = "slocri_chat_session";
@@ -30,6 +30,8 @@ export default function ChatTab() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [ratings, setRatings] = useState({});
+  const [ratingToast, setRatingToast] = useState("");
   const sessionId = useRef(getOrCreateSession());
   const bottomRef = useRef(null);
 
@@ -53,7 +55,21 @@ export default function ChatTab() {
       .eq("session_id", sessionId.current)
       .order("created_at", { ascending: true })
       .limit(100);
-    if (data) setMessages(data);
+    if (data) {
+      setMessages(data);
+      const r = {};
+      data.forEach(m => { if (m.rating) r[m.id] = m.rating; });
+      setRatings(r);
+    }
+  }
+
+  async function rate(msgId, value) {
+    const current = ratings[msgId];
+    const next = current === value ? null : value;
+    setRatings(prev => ({ ...prev, [msgId]: next }));
+    await supabase.from("chat_messages").update({ rating: next }).eq("id", msgId);
+    if (next === 1) { setRatingToast("👍 ありがとうございます！"); setTimeout(() => setRatingToast(""), 2000); }
+    if (next === -1) { setRatingToast("👎 フィードバックありがとうございます"); setTimeout(() => setRatingToast(""), 2000); }
   }
 
   async function send(e) {
@@ -84,7 +100,12 @@ export default function ChatTab() {
   const lastIsUser = messages.length > 0 && messages[messages.length - 1].role === "user";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 120px)", maxWidth: 640, margin: "0 auto" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 120px)", maxWidth: 640, margin: "0 auto", position: "relative" }}>
+      {ratingToast && (
+        <div style={{ position: "fixed", bottom: 80, left: "50%", transform: "translateX(-50%)", background: "#333", color: "#fff", padding: "8px 18px", borderRadius: 20, fontSize: 13, zIndex: 999, whiteSpace: "nowrap", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
+          {ratingToast}
+        </div>
+      )}
 
       {/* ヘッダー */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px 6px", borderBottom: "1px solid #E0E4E8" }}>
@@ -105,8 +126,22 @@ export default function ChatTab() {
         )}
 
         {messages.map(msg => (
-          <div key={msg.id} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start" }}>
+          <div key={msg.id} style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start" }}>
             <div style={bubble(msg.role === "user")}>{msg.content}</div>
+            {msg.role === "assistant" && (
+              <div style={{ display: "flex", gap: 6, marginTop: 4, marginLeft: 4 }}>
+                <button
+                  onClick={() => rate(msg.id, 1)}
+                  title="良い回答"
+                  style={{ padding: "3px 10px", borderRadius: 20, border: "none", fontSize: 13, cursor: "pointer", background: ratings[msg.id] === 1 ? "#D1FAE5" : "#E8ECF0", color: ratings[msg.id] === 1 ? "#16A34A" : "#aaa", boxShadow: ratings[msg.id] === 1 ? "inset 2px 2px 4px #A7F3D0" : "2px 2px 4px #C5C9D4, -1px -1px 3px #FFFFFF", transition: "all 0.15s", fontWeight: ratings[msg.id] === 1 ? 700 : 400 }}
+                >👍</button>
+                <button
+                  onClick={() => rate(msg.id, -1)}
+                  title="改善が必要"
+                  style={{ padding: "3px 10px", borderRadius: 20, border: "none", fontSize: 13, cursor: "pointer", background: ratings[msg.id] === -1 ? "#FEE2E2" : "#E8ECF0", color: ratings[msg.id] === -1 ? "#DC2626" : "#aaa", boxShadow: ratings[msg.id] === -1 ? "inset 2px 2px 4px #FECACA" : "2px 2px 4px #C5C9D4, -1px -1px 3px #FFFFFF", transition: "all 0.15s", fontWeight: ratings[msg.id] === -1 ? 700 : 400 }}
+                >👎</button>
+              </div>
+            )}
           </div>
         ))}
 
