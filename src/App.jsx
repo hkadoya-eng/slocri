@@ -187,12 +187,10 @@ function lookupAnalysis(machineName) {
   return null;
 }
 
-function MachineListTab({ posts, onGoToFeed, isAdmin }) {
+function MachineListTab({ posts, onGoToFeed }) {
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("posts");
   const [selected, setSelected] = useState(null);
-  const [triggerStatus, setTriggerStatus] = useState("");
-  const [triggering, setTriggering] = useState(false);
   const sheetRef = React.useRef(null);
   React.useEffect(() => { sheetRef.current?.scrollTo(0,0); }, [selected]);
 
@@ -219,19 +217,6 @@ function MachineListTab({ posts, onGoToFeed, isAdmin }) {
   , [posts, selected]);
 
   const selAnalysis = useMemo(() => selected ? lookupAnalysis(selected) : null, [selected]);
-
-  async function triggerAnalysis() {
-    setTriggering(true);
-    setTriggerStatus("");
-    try {
-      const r = await fetch("/api/trigger-analysis", { method: "POST" });
-      const d = await r.json();
-      setTriggerStatus(d.ok ? "ワークフロー起動しました。数分後に反映されます。" : `エラー: ${d.error}`);
-    } catch {
-      setTriggerStatus("通信エラーが発生しました");
-    }
-    setTriggering(false);
-  }
 
   return (
     <div style={{minWidth:0}}>
@@ -324,16 +309,7 @@ function MachineListTab({ posts, onGoToFeed, isAdmin }) {
         </select>
       </div>
 
-      {isAdmin && (
-        <div style={{marginBottom:12,padding:"10px 14px",background:"#FFF3E0",borderRadius:12,border:"1px solid #FF8A65"}}>
-          <div style={{fontSize:12,fontWeight:700,color:"#BF360C",marginBottom:6}}>管理者：機種分析を更新</div>
-          <button onClick={triggerAnalysis} disabled={triggering} style={{padding:"7px 16px",background:triggering?"#C5C9D4":"#D85A30",color:"#fff",border:"none",borderRadius:20,fontSize:13,cursor:triggering?"not-allowed":"pointer",fontWeight:600}}>
-            {triggering ? "起動中..." : "GitHub Actions を実行"}
-          </button>
-          {triggerStatus && <div style={{fontSize:12,color:"#555",marginTop:6}}>{triggerStatus}</div>}
-          <div style={{fontSize:11,color:"#888",marginTop:4}}>update_analysis.py が実行され、数分後に machineAnalysis.json が更新されます</div>
-        </div>
-      )}
+
 
       <div style={{fontSize:13,color:"#aaa",marginBottom:8}}>{filtered.length}機種</div>
 
@@ -385,7 +361,6 @@ export default function App() {
   const [fbSending, setFbSending] = useState(false);
   const [fbDone, setFbDone] = useState(false);
   const [showFbInbox, setShowFbInbox] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const logoTapRef = useRef(0);
   const logoTapTimerRef = useRef(null);
 
@@ -395,7 +370,7 @@ export default function App() {
     logoTapRef.current++;
     clearTimeout(logoTapTimerRef.current);
     logoTapTimerRef.current = setTimeout(() => { logoTapRef.current = 0; }, 2000);
-    if (logoTapRef.current >= 5) { logoTapRef.current = 0; setShowFbInbox(true); setIsAdmin(true); }
+    if (logoTapRef.current >= 5) { logoTapRef.current = 0; setShowFbInbox(true); }
   }
 
   async function submitFeedback() {
@@ -728,7 +703,7 @@ export default function App() {
       {loading && <div style={{textAlign:"center",padding:"2rem",color:"#888"}}>読み込み中...</div>}
 
       {!loading && tab === "feed"     && <FeedTab     posts={normalPosts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} directPost={directPost} onDirectPostClear={() => setDirectPost(null)} />}
-      {!loading && tab === "machines" && <MachineListTab posts={normalPosts} onGoToFeed={name => { setFeedFilter("all"); setTab("feed"); }} isAdmin={isAdmin} />}
+      {!loading && tab === "machines" && <MachineListTab posts={normalPosts} onGoToFeed={name => { setFeedFilter("all"); setTab("feed"); }} />}
       {!loading && tab === "collect"  && <CollectTab  posts={normalPosts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
       {!loading && tab === "overview" && <OverviewTab posts={normalPosts} updatePost={updatePost} />}
       {!loading && tab === "research" && <ResearchTab posts={normalPosts} aiEnabled={aiEnabled} updatePost={updatePost} />}
