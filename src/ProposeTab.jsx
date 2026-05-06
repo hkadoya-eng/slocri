@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 
 const STATUS = {
-  pending:    { label: "⏳ 待機中", color: "#888",    bg: "#F3F4F6" },
-  processing: { label: "⚙️ 生成中", color: "#2563EB", bg: "#EFF6FF" },
-  done:       { label: "✅ 完成",   color: "#16A34A", bg: "#F0FDF4" },
-  error:      { label: "❌ エラー", color: "#DC2626", bg: "#FEF2F2" },
+  pending:      { label: "⏳ 待機中",   color: "#888",    bg: "#F3F4F6" },
+  questioning:  { label: "💬 回答待ち", color: "#7C3AED", bg: "#F5F3FF" },
+  processing:   { label: "⚙️ 生成中",  color: "#2563EB", bg: "#EFF6FF" },
+  done:         { label: "✅ 完成",     color: "#16A34A", bg: "#F0FDF4" },
+  error:        { label: "❌ エラー",   color: "#DC2626", bg: "#FEF2F2" },
 };
 
 const S = {
@@ -21,6 +22,8 @@ export default function ProposeTab() {
   const [submitting, setSubmitting] = useState(false);
   const [expanded, setExpanded] = useState(null);
   const [toast, setToast] = useState("");
+  const [answers, setAnswers] = useState({});
+  const [answerSubmitting, setAnswerSubmitting] = useState({});
 
   useEffect(() => {
     load();
@@ -57,9 +60,23 @@ export default function ProposeTab() {
     });
     if (!error) {
       setIpName(""); setTarget(""); setMemo("");
-      showToast("依頼を送信しました。次回のCron実行時に生成されます。");
+      showToast("依頼しました。まずヒアリング質問が届きます（〜30分）");
     }
     setSubmitting(false);
+    load();
+  }
+
+  async function submitAnswers(req) {
+    const ans = (answers[req.id] || "").trim();
+    if (!ans) return;
+    setAnswerSubmitting(prev => ({ ...prev, [req.id]: true }));
+    await supabase.from("proposal_requests").update({
+      answers: ans,
+      status: "pending",
+      updated_at: new Date().toISOString(),
+    }).eq("id", req.id);
+    setAnswerSubmitting(prev => ({ ...prev, [req.id]: false }));
+    showToast("回答を送信しました。提案書を生成します（〜30分）");
     load();
   }
 
@@ -71,7 +88,6 @@ export default function ProposeTab() {
   return (
     <div style={{ maxWidth: 640, margin: "0 auto", padding: "14px 12px 100px", position: "relative" }}>
 
-      {/* トースト */}
       {toast && (
         <div style={{ position: "fixed", bottom: 80, left: "50%", transform: "translateX(-50%)", background: "#333", color: "#fff", padding: "10px 20px", borderRadius: 20, fontSize: 13, zIndex: 999, whiteSpace: "nowrap", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
           {toast}
@@ -86,92 +102,89 @@ export default function ProposeTab() {
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: 12 }}>
             <label style={{ fontSize: 13, color: "#666", display: "block", marginBottom: 5 }}>IP名 / 台名 <span style={{ color: "#D85A30" }}>*</span></label>
-            <input
-              style={S.input}
-              value={ipName}
-              onChange={e => setIpName(e.target.value)}
-              placeholder="例：北斗の拳、バイオハザード、エヴァンゲリオン…"
-              required
-            />
+            <input style={S.input} value={ipName} onChange={e => setIpName(e.target.value)} placeholder="例：北斗の拳、バイオハザード、エヴァンゲリオン…" required />
           </div>
           <div style={{ marginBottom: 12 }}>
             <label style={{ fontSize: 13, color: "#666", display: "block", marginBottom: 5 }}>ターゲット層（任意）</label>
-            <input
-              style={S.input}
-              value={target}
-              onChange={e => setTarget(e.target.value)}
-              placeholder="例：30代男性・格ゲー好き、20代女性・アニメファン…"
-            />
+            <input style={S.input} value={target} onChange={e => setTarget(e.target.value)} placeholder="例：30代男性・格ゲー好き、20代女性・アニメファン…" />
           </div>
           <div style={{ marginBottom: 16 }}>
             <label style={{ fontSize: 13, color: "#666", display: "block", marginBottom: 5 }}>コンセプトメモ（任意）</label>
-            <textarea
-              style={{ ...S.input, resize: "vertical", minHeight: 80, lineHeight: 1.6 }}
-              value={memo}
-              onChange={e => setMemo(e.target.value)}
-              placeholder="こんなゲーム性にしたい、このシーンを使いたい、感情の起伏のイメージ…"
-            />
+            <textarea style={{ ...S.input, resize: "vertical", minHeight: 80, lineHeight: 1.6 }} value={memo} onChange={e => setMemo(e.target.value)} placeholder="こんなゲーム性にしたい、このシーンを使いたい、感情の起伏のイメージ…" />
           </div>
-          <button
-            type="submit"
-            disabled={submitting || !ipName.trim()}
-            style={{
-              width: "100%", padding: "13px 0", borderRadius: 12, border: "none",
-              background: (submitting || !ipName.trim()) ? "#C5C9D4" : "#D85A30",
-              color: "#fff", fontSize: 15, fontWeight: 700,
-              cursor: (submitting || !ipName.trim()) ? "not-allowed" : "pointer",
-              boxShadow: (submitting || !ipName.trim()) ? "none" : "3px 3px 8px #C5C9D4, -1px -1px 4px #FFFFFF",
-              transition: "all 0.15s",
-            }}
-          >
+          <button type="submit" disabled={submitting || !ipName.trim()} style={{ width: "100%", padding: "13px 0", borderRadius: 12, border: "none", background: (submitting || !ipName.trim()) ? "#C5C9D4" : "#D85A30", color: "#fff", fontSize: 15, fontWeight: 700, cursor: (submitting || !ipName.trim()) ? "not-allowed" : "pointer", boxShadow: (submitting || !ipName.trim()) ? "none" : "3px 3px 8px #C5C9D4, -1px -1px 4px #FFFFFF", transition: "all 0.15s" }}>
             {submitting ? "送信中…" : "企画書を依頼する ✉"}
           </button>
           <p style={{ fontSize: 12, color: "#aaa", marginTop: 8, textAlign: "center", lineHeight: 1.5 }}>
-            Claude Codeが次回処理時に自動生成します（数分〜数時間後）
+            まずヒアリング質問が届き、回答後に提案書が生成されます
           </p>
         </form>
       </div>
 
-      {/* 一覧 */}
       <div style={{ fontWeight: 600, fontSize: 13, color: "#888", marginBottom: 10, paddingLeft: 4 }}>
         依頼履歴（最新30件）
       </div>
 
       {requests.length === 0 && (
-        <div style={{ textAlign: "center", color: "#bbb", padding: "40px 0", fontSize: 14 }}>
-          まだ依頼がありません
-        </div>
+        <div style={{ textAlign: "center", color: "#bbb", padding: "40px 0", fontSize: 14 }}>まだ依頼がありません</div>
       )}
 
       {requests.map(req => {
         const st = STATUS[req.status] || STATUS.pending;
         const isOpen = expanded === req.id;
+        const questions = req.questions ? req.questions.split("\n").filter(Boolean) : [];
+        const isClickable = req.result || req.status === "questioning";
+
         return (
-          <div key={req.id} style={{ ...S.card, cursor: req.result ? "pointer" : "default" }}
-               onClick={() => req.result && setExpanded(isOpen ? null : req.id)}>
+          <div key={req.id} style={{ ...S.card, cursor: isClickable ? "pointer" : "default" }}
+               onClick={() => isClickable && setExpanded(isOpen ? null : req.id)}>
+
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, marginBottom: 6 }}>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700, fontSize: 16, color: "#333", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {req.ip_name}
-                </div>
-                {req.target && (
-                  <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>
-                    🎯 {req.target}
-                  </div>
-                )}
+                <div style={{ fontWeight: 700, fontSize: 16, color: "#333", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{req.ip_name}</div>
+                {req.target && <div style={{ fontSize: 12, color: "#888", marginTop: 2 }}>🎯 {req.target}</div>}
               </div>
-              <span style={{ fontSize: 12, padding: "4px 10px", borderRadius: 20, background: st.bg, color: st.color, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0 }}>
-                {st.label}
-              </span>
+              <span style={{ fontSize: 12, padding: "4px 10px", borderRadius: 20, background: st.bg, color: st.color, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0 }}>{st.label}</span>
             </div>
 
             {req.concept_memo && (
-              <div style={{ fontSize: 12, color: "#999", background: "#F0F2F5", borderRadius: 8, padding: "6px 10px", marginBottom: 6 }}>
-                {req.concept_memo}
+              <div style={{ fontSize: 12, color: "#999", background: "#F0F2F5", borderRadius: 8, padding: "6px 10px", marginBottom: 6 }}>{req.concept_memo}</div>
+            )}
+
+            {/* ヒアリング質問 */}
+            {req.status === "questioning" && questions.length > 0 && isOpen && (
+              <div style={{ marginTop: 10 }} onClick={e => e.stopPropagation()}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#7C3AED", marginBottom: 10 }}>💬 以下の質問に回答してください</div>
+                {questions.map((q, i) => (
+                  <div key={i} style={{ fontSize: 13, color: "#555", marginBottom: 6, padding: "7px 12px", background: "#F5F3FF", borderRadius: 8, borderLeft: "3px solid #7C3AED" }}>
+                    <span style={{ fontWeight: 700, color: "#7C3AED" }}>Q{i + 1}.</span> {q}
+                  </div>
+                ))}
+                {!req.answers ? (
+                  <>
+                    <textarea
+                      style={{ ...S.input, resize: "vertical", minHeight: 120, lineHeight: 1.7, marginTop: 10, marginBottom: 8 }}
+                      value={answers[req.id] || ""}
+                      onChange={e => setAnswers(prev => ({ ...prev, [req.id]: e.target.value }))}
+                      placeholder={questions.map((_, i) => `Q${i + 1}: `).join("\n")}
+                    />
+                    <button
+                      onClick={() => submitAnswers(req)}
+                      disabled={answerSubmitting[req.id] || !(answers[req.id] || "").trim()}
+                      style={{ width: "100%", padding: "11px 0", borderRadius: 10, border: "none", background: !(answers[req.id] || "").trim() ? "#C5C9D4" : "#7C3AED", color: "#fff", fontSize: 14, fontWeight: 700, cursor: !(answers[req.id] || "").trim() ? "not-allowed" : "pointer", transition: "all 0.15s" }}
+                    >
+                      {answerSubmitting[req.id] ? "送信中…" : "回答して提案書を生成 →"}
+                    </button>
+                  </>
+                ) : (
+                  <div style={{ fontSize: 12, color: "#16A34A", marginTop: 8, padding: "7px 12px", background: "#F0FDF4", borderRadius: 8 }}>
+                    ✅ 回答済み。提案書を生成中です…
+                  </div>
+                )}
               </div>
             )}
 
-            {/* 企画書展開 */}
+            {/* 提案書展開 */}
             {req.result && isOpen && (
               <div style={{ marginTop: 10 }}>
                 <div style={{ background: "#F8F9FA", borderRadius: 10, padding: 14, fontSize: 13, color: "#333", lineHeight: 1.8, whiteSpace: "pre-wrap", maxHeight: 500, overflowY: "auto", border: "1px solid #E0E4E8" }}>
@@ -186,9 +199,9 @@ export default function ProposeTab() {
               </div>
             )}
 
-            {req.result && (
+            {isClickable && (
               <div style={{ fontSize: 12, color: "#D85A30", textAlign: "right", marginTop: 4, fontWeight: 600 }}>
-                {isOpen ? "▲ 閉じる" : "▼ 企画書を見る"}
+                {isOpen ? "▲ 閉じる" : req.status === "questioning" ? "▼ 質問に回答する" : "▼ 提案書を見る"}
               </div>
             )}
 
