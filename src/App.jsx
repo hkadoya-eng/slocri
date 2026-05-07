@@ -347,24 +347,34 @@ function SisTab() {
   const [dateIdx, setDateIdx] = useState(0);
   const [sortKey, setSortKey] = useState("out_coins");
   const [sortAsc, setSortAsc] = useState(false);
+  const [machineStats, setMachineStats] = useState({});
 
   useEffect(() => {
     if (!authed) return;
     setLoading(true);
-    supabase
-      .from("sis_data")
-      .select("machine,date,out_coins,coin_price,payout_rate,gross_profit,operation_ratio,machine_count")
-      .order("date", { ascending: false })
-      .limit(10000)
-      .then(({ data }) => {
-        if (data) {
-          setRows(data);
-          const ds = [...new Set(data.map(r => r.date))].sort().reverse();
-          setDates(ds);
-          setDateIdx(0);
-        }
-        setLoading(false);
-      });
+    Promise.all([
+      supabase
+        .from("sis_data")
+        .select("machine,date,out_coins,coin_price,payout_rate,gross_profit,operation_ratio,machine_count")
+        .order("date", { ascending: false })
+        .limit(10000),
+      supabase
+        .from("sis_machine_stats")
+        .select("machine,contrib_weeks"),
+    ]).then(([{ data }, { data: stats }]) => {
+      if (data) {
+        setRows(data);
+        const ds = [...new Set(data.map(r => r.date))].sort().reverse();
+        setDates(ds);
+        setDateIdx(0);
+      }
+      if (stats) {
+        const m = {};
+        stats.forEach(s => { m[s.machine] = s.contrib_weeks; });
+        setMachineStats(m);
+      }
+      setLoading(false);
+    });
   }, [authed]);
 
   function handleLogin(e) {
@@ -405,38 +415,6 @@ function SisTab() {
   const selDate = dates[dateIdx] || null;
   const dayRows = rows.filter(r => r.date === selDate);
 
-  // 機種ごとの稼働貢献週数（平均operation_ratioを超えた週の累積数）
-  const contribWeeks = useMemo(() => {
-    // 日付→ISO週キー
-    function isoWeek(d) {
-      const dt = new Date(d + "T00:00:00");
-      const thu = new Date(dt); thu.setDate(dt.getDate() - ((dt.getDay() + 6) % 7) + 3);
-      const jan4 = new Date(thu.getFullYear(), 0, 4);
-      return `${thu.getFullYear()}-W${String(Math.round((thu - jan4) / 604800000) + 1).padStart(2,"0")}`;
-    }
-    // 週×機種ごとにoperation_ratioを集計
-    const byWeekMachine = {};
-    rows.forEach(r => {
-      if (r.operation_ratio == null) return;
-      const wk = isoWeek(r.date);
-      if (!byWeekMachine[wk]) byWeekMachine[wk] = {};
-      if (!byWeekMachine[wk][r.machine]) byWeekMachine[wk][r.machine] = { sum: 0, cnt: 0 };
-      byWeekMachine[wk][r.machine].sum += r.operation_ratio;
-      byWeekMachine[wk][r.machine].cnt += 1;
-    });
-    // 各週の全機種平均を算出して、機種ごとに平均超え週数をカウント
-    const count = {};
-    Object.entries(byWeekMachine).forEach(([wk, machines]) => {
-      const vals = Object.values(machines).map(v => v.sum / v.cnt);
-      const wkAvg = vals.reduce((s, v) => s + v, 0) / vals.length;
-      Object.entries(machines).forEach(([machine, v]) => {
-        if (v.sum / v.cnt > wkAvg) {
-          count[machine] = (count[machine] || 0) + 1;
-        }
-      });
-    });
-    return count;
-  }, [rows]);
 
   function avg(arr, key) {
     const valid = arr.filter(r => r[key] != null);
@@ -567,8 +545,8 @@ function SisTab() {
                   </div>
                   <div>
                     <div style={{color:"#bbb",marginBottom:1}}>貢献週</div>
-                    <div style={{fontWeight:700,color:(contribWeeks[r.machine]||0)>0?"#2a7ae8":"#ccc"}}>
-                      {contribWeeks[r.machine] || 0}週
+                    <div style={{fontWeight:700,color:(machineStats[r.machine]||0)>0?"#2a7ae8":"#ccc"}}>
+                      {machineStats[r.machine] != null ? machineStats[r.machine]+"週" : "—"}
                     </div>
                   </div>
                 </div>
