@@ -694,6 +694,8 @@ export default function App() {
   const [fbBody, setFbBody] = useState("");
   const [fbSending, setFbSending] = useState(false);
   const [fbDone, setFbDone] = useState(false);
+  const [analysisUnlocked, setAnalysisUnlocked] = useState(() => sessionStorage.getItem("analysis_unlocked") === "1");
+  const [analysisPinInput, setAnalysisPinInput] = useState("");
   const [showFbInbox, setShowFbInbox] = useState(false);
   const [favMachines, setFavMachines] = useState(() => JSON.parse(localStorage.getItem("slotkey_favs") || "[]"));
   function toggleFavMachine(machine) {
@@ -853,7 +855,7 @@ export default function App() {
   }
 
   const TABS = ["feed","collect","overview","research","sis"];
-  const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"調査", sis:"稼働" };
+  const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"分析", sis:"稼働" };
   const normalPosts = posts.filter(p => p.cat !== "feedback");
   const feedbackPosts = posts.filter(p => p.cat === "feedback");
 
@@ -1006,7 +1008,31 @@ export default function App() {
       {!loading && tab === "feed"     && <FeedTab     posts={normalPosts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} directPost={directPost} onDirectPostClear={() => setDirectPost(null)} favMachines={favMachines} toggleFavMachine={toggleFavMachine} />}
       {!loading && tab === "collect"  && <CollectTab  posts={normalPosts} showToast={showToast} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
       {!loading && tab === "overview" && <OverviewTab posts={normalPosts} updatePost={updatePost} />}
-      {!loading && tab === "research" && <ResearchTab posts={normalPosts} aiEnabled={aiEnabled} updatePost={updatePost} />}
+      {!loading && tab === "research" && (analysisUnlocked ? (
+        <ResearchTab posts={normalPosts} aiEnabled={aiEnabled} updatePost={updatePost} />
+      ) : (
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:320,gap:20}}>
+          <div style={{fontSize:32}}>🔒</div>
+          <div style={{fontSize:17,fontWeight:600,color:"#333"}}>分析タブ</div>
+          <div style={{fontSize:14,color:"#aaa",textAlign:"center"}}>このタブはパスワードで保護されています</div>
+          <div style={{display:"flex",gap:8}}>
+            <input
+              type="password"
+              value={analysisPinInput}
+              onChange={e => setAnalysisPinInput(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") { if (analysisPinInput === "slokey") { sessionStorage.setItem("analysis_unlocked","1"); setAnalysisUnlocked(true); setAnalysisPinInput(""); } else { setAnalysisPinInput(""); } } }}
+              placeholder="パスワード"
+              style={{fontSize:16,padding:"10px 14px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",width:160}}
+              autoFocus
+            />
+            <button
+              onClick={() => { if (analysisPinInput === "slokey") { sessionStorage.setItem("analysis_unlocked","1"); setAnalysisUnlocked(true); setAnalysisPinInput(""); } else { setAnalysisPinInput(""); } }}
+              style={{padding:"10px 18px",border:"none",borderRadius:10,background:"#D85A30",color:"#fff",fontSize:15,fontWeight:500,cursor:"pointer"}}>
+              入る
+            </button>
+          </div>
+        </div>
+      ))}
       {tab === "sis"      && <SisTab />}
 
       {/* フローティングフィードバックボタン（投稿タブのみ表示） */}
@@ -1847,9 +1873,9 @@ function CollectTab({ posts, showToast, onCatClick, loadPosts }) {
 
 function OverviewTab({ posts, updatePost }) {
   const [view, setView] = useState("rank");
-  const [rankBy, setRankBy] = useState("likes");
   const [selM, setSelM] = useState(null);
-  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState({ machine:"", cat:"" });
+  const [rankSort, setRankSort] = useState("posts");
   const [selectedPost, setSelectedPost] = useState(null);
   const [postList, setPostList] = useState([]);
   const postIdx = postList.findIndex(p => p.id === selectedPost?.id);
@@ -1888,15 +1914,10 @@ function OverviewTab({ posts, updatePost }) {
     });
   }, [posts]);
 
-  const ranked = useMemo(() => {
-    const q = query.toLowerCase();
-    return posts.slice().filter(p => p.cat !== "fun" && (!q||(p.machine+p.title+p.body).toLowerCase().includes(q)))
-      .sort((a,b) => {
-        if (rankBy==="likes") return (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0);
-        if (rankBy==="bookmarks") return (b.internal?.bookmarks?.length||0)-(a.internal?.bookmarks?.length||0);
-        return (b.quality||0)-(a.quality||0);
-      });
-  }, [posts, rankBy, query]);
+  const filteredPosts = useMemo(() =>
+    posts.filter(p => (!filter.machine||p.machine===filter.machine)&&(!filter.cat||p.cat===filter.cat))
+      .sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0))
+  , [posts, filter]);
 
   const authorRank = useMemo(() => {
     const a = {};
@@ -1971,69 +1992,65 @@ function OverviewTab({ posts, updatePost }) {
         </div>
       )}
       <div className="scroll-x" style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"nowrap"}}>
-        {[["rank","ランキング"],["machine","機種別"],["cat","カテゴリ分布"],["author","投稿者"]].map(([k,l]) => {
+        {[["rank","ランキング"],["machine","機種別"],["cat","カテゴリ分布"],["author","投稿者"],["browse","絞り込み"],["gap","ギャップ表"]].map(([k,l]) => {
           const on = view===k;
-          return <button key={k} onClick={() => { setView(k); setSelM(null); setQuery(""); }} style={{padding:"5px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:14,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{l}</button>;
+          return <button key={k} onClick={() => { setView(k); setSelM(null); }} style={{padding:"5px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:14,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{l}</button>;
         })}
       </div>
 
-      {view==="rank" && (
-        <div>
-          <div style={{display:"flex",gap:8,marginBottom:10}}>
-            <div style={{position:"relative",flex:1}}>
-              <input value={query} onChange={e => setQuery(e.target.value)} placeholder="絞り込み..." style={{width:"100%",fontSize:16,padding:"6px 28px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"}} />
-              <span style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",fontSize:15,color:"#aaa",pointerEvents:"none"}}>⌕</span>
-              {query && <button onClick={() => setQuery("")} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:15,color:"#aaa",padding:0}}>×</button>}
+      {view==="rank" && (() => {
+        const TWO_WEEKS = Date.now() - 14 * 24 * 60 * 60 * 1000;
+        const machineMap = {};
+        posts.filter(p => p.machine && p.machine !== "全般").forEach(p => {
+          if (!machineMap[p.machine]) machineMap[p.machine] = { posts:0, likes:0, quality:[], recent:0 };
+          const m = machineMap[p.machine];
+          m.posts++;
+          m.likes += (p.internal?.likes?.length || 0);
+          if (p.quality) m.quality.push(p.quality);
+          if (p.created_at && new Date(p.created_at).getTime() > TWO_WEEKS) m.recent++;
+        });
+        const rows = Object.entries(machineMap).map(([name, d]) => ({
+          name,
+          posts: d.posts,
+          likes: d.likes,
+          quality: d.quality.length ? Math.round(d.quality.reduce((a,b)=>a+b,0) / d.quality.length * 10) / 10 : null,
+          recent: d.recent,
+        }));
+        const SORTS = [["posts","投稿数"],["likes","いいね"],["quality","品質"],["recent","直近2週"]];
+        const sorted = [...rows].sort((a,b) => {
+          if (rankSort === "quality") return (b.quality||0) - (a.quality||0);
+          return b[rankSort] - a[rankSort];
+        });
+        return (
+          <div>
+            <div style={{display:"flex",gap:6,marginBottom:14,flexWrap:"wrap"}}>
+              {SORTS.map(([k,l]) => {
+                const on = rankSort===k;
+                return <button key={k} onClick={() => setRankSort(k)} style={{padding:"5px 14px",border:`0.5px solid ${on?"#185FA5":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#E6F1FB":"#fff",color:on?"#185FA5":"#888",cursor:"pointer",fontWeight:on?600:400}}>{l}</button>;
+              })}
             </div>
-            <select value={rankBy} onChange={e => setRankBy(e.target.value)} style={{fontSize:14,padding:"6px 8px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666"}}>
-              <option value="likes">社内いいね順</option>
-              <option value="bookmarks">ブックマーク順</option>
-              <option value="quality">品質スコア順</option>
-            </select>
+            <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:14,overflow:"hidden"}}>
+              <div style={{display:"grid",gridTemplateColumns:"28px 1fr 44px 44px 52px 52px",padding:"6px 12px",background:"#E8ECF0",fontSize:12,color:"#888",fontWeight:500,gap:4,alignItems:"center"}}>
+                <span>#</span><span>機種</span><span style={{textAlign:"right"}}>投稿</span><span style={{textAlign:"right"}}>いいね</span><span style={{textAlign:"right"}}>品質</span><span style={{textAlign:"right"}}>直近2週</span>
+              </div>
+              {sorted.map((r,i) => {
+                const isTop = i === 0;
+                const medal = i===0?"🥇":i===1?"🥈":i===2?"🥉":null;
+                return (
+                  <div key={r.name} style={{display:"grid",gridTemplateColumns:"28px 1fr 44px 44px 52px 52px",padding:"9px 12px",borderTop:"0.5px solid #f0f0f0",background:isTop?"#FFFDE7":"#fff",fontSize:14,gap:4,alignItems:"center"}}>
+                    <span style={{fontSize:15}}>{medal || <span style={{color:"#bbb",fontSize:12}}>{i+1}</span>}</span>
+                    <span style={{fontWeight:isTop?600:400,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",fontSize:13}}>{r.name}</span>
+                    <span style={{textAlign:"right",color:rankSort==="posts"?"#185FA5":"#555",fontWeight:rankSort==="posts"?600:400}}>{r.posts}</span>
+                    <span style={{textAlign:"right",color:rankSort==="likes"?"#185FA5":"#555",fontWeight:rankSort==="likes"?600:400}}>{r.likes}</span>
+                    <span style={{textAlign:"right",color:rankSort==="quality"?"#185FA5":"#555",fontWeight:rankSort==="quality"?600:400}}>{r.quality ?? "—"}</span>
+                    <span style={{textAlign:"right",color:rankSort==="recent"?"#185FA5":"#555",fontWeight:rankSort==="recent"?600:400}}>{r.recent > 0 ? `+${r.recent}` : "—"}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <div className="scroll-x" style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12}}>
-            <table style={{width:"100%",borderCollapse:"collapse",tableLayout:"fixed",minWidth:360}}>
-              <colgroup><col style={{width:30}}/><col/><col style={{width:96}}/><col style={{width:36}}/><col style={{width:42}}/></colgroup>
-              <thead><tr style={{background:"#f9f9f9"}}><th style={{...th,textAlign:"center"}}>#</th><th style={th}>タイトル・機種</th><th style={th}>カテゴリ</th><th style={{...th,textAlign:"right"}}>♥</th><th style={{...th,textAlign:"center"}}>品質</th></tr></thead>
-              <tbody>
-                {ranked.map((p,i) => {
-                  const isExp = expandedRankId === p.id;
-                  return (
-                    <React.Fragment key={p.id}>
-                      <tr onClick={() => setExpandedRankId(isExp ? null : p.id)} style={{background:isExp?"#FFF8F5":i%2===0?"#fff":"#fafafa",cursor:"pointer"}}>
-                        <td style={{...td,textAlign:"center",fontWeight:500,fontSize:14,color:i<3?"#D85A30":"#aaa"}}>{i+1}</td>
-                        <td style={{...td,maxWidth:0}}><div style={{fontWeight:500,fontSize:15,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</div><div style={{fontSize:13,color:"#888",marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.machine}</div></td>
-                        <td style={td}><CatBadge cat={p.cat}/></td>
-                        <td style={{...td,textAlign:"right",fontWeight:500,color:"#D85A30"}}>{p.internal?.likes?.length||0}</td>
-                        <td style={{...td,textAlign:"center",color:isExp?"#D85A30":"#aaa",fontSize:12}}>{isExp?"▲":"▼"}</td>
-                      </tr>
-                      {isExp && (
-                        <tr>
-                          <td colSpan={5} style={{padding:"12px 14px",background:"#FFF8F5",borderBottom:"0.5px solid #F0997B"}}>
-                            <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",marginBottom:6}}>
-                              <CatBadge cat={p.cat}/>
-                              {AUTO_AUTHORS.includes(p.internal?.author||p.author) ? <QualityBadge q={p.quality || 1}/> : null}
-                            </div>
-                            <div style={{fontSize:13,color:"#aaa",marginBottom:4}}>@{p.internal?.author||p.author||"ゲスト"} · {p.machine}</div>
-                            <div style={{fontSize:15,color:"#333",lineHeight:1.65,marginBottom:6,overflowWrap:"anywhere"}}>{p.body}</div>
-                            {p.internal?.imageUrl && <img src={p.internal.imageUrl} alt="" loading="lazy" decoding="async" style={{width:"100%",maxHeight:260,objectFit:"contain",borderRadius:8,marginBottom:6,display:"block",background:"#f9f9f9"}}/>}
-                            {p.url && (
-                              <a href={p.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#f4f3ec",borderRadius:8,padding:"6px 10px",textDecoration:"none"}}>
-                                <span style={{fontSize:13,color:"#888",flexShrink:0}}>🔗</span>
-                                <span style={{fontSize:13,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0}}>{p.url}</span>
-                              </a>
-                            )}
-                          </td>
-                        </tr>
-                      )}
-                    </React.Fragment>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {view==="machine" && (
         <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,overflow:"hidden"}}>
@@ -2177,29 +2194,123 @@ function OverviewTab({ posts, updatePost }) {
           })}
         </div>
       )}
+
+      {view==="browse" && (
+        <div>
+          <div style={{marginBottom:12}}>
+            <div style={{display:"flex",gap:8,marginBottom:6}}>
+              <select value={filter.machine} onChange={e => setFilter(f=>({...f,machine:e.target.value}))} style={{flex:1,fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#333",minWidth:0,width:0}}>
+                <option value="">すべての機種</option>
+                {machines.map(m => <option key={m.name} value={m.name}>{m.name}</option>)}
+              </select>
+              <select value={filter.cat} onChange={e => setFilter(f=>({...f,cat:e.target.value}))} style={{flex:1,fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#333",minWidth:0,width:0}}>
+                <option value="">すべてのカテゴリ</option>
+                <option value="new">新台</option>
+                <option value="info">機種情報</option>
+                <option value="jissen">実戦</option>
+                <option value="hall">業界</option>
+                <option value="episode">名機</option>
+              </select>
+            </div>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <span style={{fontSize:14,color:"#aaa"}}>{filteredPosts.length}件</span>
+              {(filter.machine||filter.cat) && <button onClick={() => setFilter({machine:"",cat:""})} style={{fontSize:14,padding:"5px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666",cursor:"pointer"}}>リセット</button>}
+            </div>
+          </div>
+          {filteredPosts.map(p => {
+            const iLiked = (p.internal?.likes||[]).indexOf(MY_UID) >= 0;
+            const toggleLike = async () => {
+              const newLikes = toggleArr(p.internal?.likes||[], MY_UID);
+              await updatePost(p.id, { internal: { ...p.internal, likes: newLikes } });
+            };
+            return (
+              <div key={p.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"10px 14px",marginBottom:8}}>
+                <div style={{display:"flex",gap:5,marginBottom:4,alignItems:"center"}}><CatBadge cat={p.cat}/></div>
+                <div style={{fontSize:14,color:"#888",marginBottom:3}}>{p.machine}</div>
+                <div style={{fontSize:15,fontWeight:500,color:"#333",marginBottom:3}}>{p.title}</div>
+                <div style={{fontSize:14,color:"#666",lineHeight:1.6,marginBottom:8,overflowWrap:"anywhere"}}>{p.body}</div>
+                <button onClick={toggleLike} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iLiked?"#F0997B":"#ddd"}`,borderRadius:8,background:iLiked?"#FAECE7":"#f9f9f9",color:iLiked?"#993C1D":"#888",fontSize:14,cursor:"pointer",fontWeight:iLiked?500:400}}>♥ {(p.internal?.likes||[]).length}</button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {view==="gap" && (() => {
+        const GAP_CATS = ["new","info","jissen","hall","episode"];
+        const CAT_SHORT = { new:"新台", info:"機種情報", jissen:"実戦", hall:"業界", episode:"名機" };
+        const machineMap = {};
+        posts.filter(p => p.cat !== "fun" && p.machine !== "全般").forEach(p => {
+          if (!machineMap[p.machine]) machineMap[p.machine] = {};
+          machineMap[p.machine][p.cat] = (machineMap[p.machine][p.cat] || 0) + 1;
+        });
+        const machineList = Object.entries(machineMap)
+          .map(([name, cats]) => ({ name, total: Object.values(cats).reduce((a,b)=>a+b,0), cats }))
+          .sort((a,b) => b.total - a.total);
+        const totalGaps = machineList.reduce((sum,m) => sum + GAP_CATS.filter(k=>!m.cats[k]).length, 0);
+        return (
+          <div>
+            <div style={{fontSize:14,color:"#888",marginBottom:10}}>
+              {machineList.length}機種 × {GAP_CATS.length}カテゴリ ／ ギャップ <span style={{color:"#C62828",fontWeight:600}}>{totalGaps}個</span>
+            </div>
+            <div style={{fontSize:12,color:"#aaa",marginBottom:8,display:"flex",gap:12}}>
+              <span><span style={{color:"#C62828",fontWeight:600}}>✕</span> 未収録</span>
+              <span><span style={{color:"#E65100",fontWeight:600}}>1</span> 1件のみ</span>
+              <span><span style={{color:"#2E7D32",fontWeight:600}}>2+</span> 充足</span>
+            </div>
+            <div className="scroll-x" style={{overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
+              <table style={{borderCollapse:"collapse",fontSize:13,whiteSpace:"nowrap"}}>
+                <thead>
+                  <tr>
+                    <th style={{padding:"6px 10px",background:"#E8ECF0",fontWeight:500,color:"#555",textAlign:"left",position:"sticky",left:0,zIndex:2,borderRight:"0.5px solid #C5C9D4",minWidth:100}}>機種</th>
+                    {GAP_CATS.map(k => (
+                      <th key={k} style={{padding:"6px 8px",background:"#E8ECF0",fontWeight:500,color:CATS[k].color,textAlign:"center",minWidth:54,borderLeft:"0.5px solid #C5C9D4"}}>{CAT_SHORT[k]}</th>
+                    ))}
+                    <th style={{padding:"6px 8px",background:"#E8ECF0",fontWeight:500,color:"#555",textAlign:"center",borderLeft:"0.5px solid #C5C9D4"}}>計</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {machineList.map(m => (
+                    <tr key={m.name}>
+                      <td style={{padding:"5px 10px",background:"#fff",fontWeight:500,color:"#333",position:"sticky",left:0,zIndex:1,borderBottom:"0.5px solid #eee",borderRight:"0.5px solid #C5C9D4",fontSize:13}}>{m.name}</td>
+                      {GAP_CATS.map(k => {
+                        const cnt = m.cats[k] || 0;
+                        const bg = cnt===0?"#FDECEA":cnt===1?"#FFF8E1":"#F0F9F0";
+                        const col = cnt===0?"#C62828":cnt===1?"#E65100":"#2E7D32";
+                        return (
+                          <td key={k} onClick={() => { setFilter({machine:m.name,cat:k}); setView("browse"); }}
+                            style={{padding:"5px 8px",textAlign:"center",background:bg,color:col,fontWeight:cnt===0?600:400,cursor:"pointer",borderBottom:"0.5px solid #eee",borderLeft:"0.5px solid #eee"}}>
+                            {cnt===0?"✕":cnt}
+                          </td>
+                        );
+                      })}
+                      <td style={{padding:"5px 8px",textAlign:"center",background:"#f5f5f5",color:"#555",fontWeight:500,borderBottom:"0.5px solid #eee",borderLeft:"0.5px solid #C5C9D4"}}>{m.total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
 
 function ResearchTab({ posts, aiEnabled, updatePost }) {
-  const [mode, setMode] = useState("browse");
+  const [mode, setMode] = useState("analyze");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState({ machine:"", cat:"" });
   const bottomRef = useRef(null);
   const [analyzeM, setAnalyzeM] = useState("");
   const [analyzeResult, setAnalyzeResult] = useState(null);
   const [analyzeLoading, setAnalyzeLoading] = useState(false);
-  const [rankSort, setRankSort] = useState("posts");
   const [proposePolicy, setProposePolicy] = useState({ targets:[], coinUnit:"standard", patterns:[], avoids:[], reference:"", extra:"" });
   const [proposeResult, setProposeResult] = useState(null);
   const [proposeLoading, setProposeLoading] = useState(false);
 
   useEffect(() => { if(bottomRef.current) bottomRef.current.scrollIntoView({behavior:"smooth"}); }, [messages]);
-
-  const machines = useMemo(() => { const seen={},r=[]; posts.forEach(p=>{if(!seen[p.machine]){seen[p.machine]=true;r.push(p.machine);}}); return r; }, [posts]);
-  const filteredPosts = posts.filter(p => (!filter.machine||p.machine===filter.machine)&&(!filter.cat||p.cat===filter.cat)).sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0));
 
   const analyzeMachines = useMemo(() => {
     const m = {};
@@ -2384,65 +2495,12 @@ ${policyText}
   return (
     <div style={{minWidth:0}}>
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"wrap"}}>
-        {[["browse","絞り込み"],["rank","ランキング"],["gap","ギャップ表"],["analyze","機種分析"],["ai_chat","チャット"],["ai_propose","企画"]].map(([k,l]) => {
+        {[["analyze","機種分析"],["ai_chat","チャット"],["ai_propose","企画"]].map(([k,l]) => {
           const on = mode===k;
           return <button key={k} onClick={() => setMode(k)} style={{padding:"5px 12px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0,minWidth:56,textAlign:"center"}}>{l}</button>;
         })}
       </div>
 
-      {mode==="rank" && (() => {
-        const TWO_WEEKS = Date.now() - 14 * 24 * 60 * 60 * 1000;
-        const machineMap = {};
-        posts.filter(p => p.machine && p.machine !== "全般").forEach(p => {
-          if (!machineMap[p.machine]) machineMap[p.machine] = { posts:0, likes:0, quality:[], recent:0 };
-          const m = machineMap[p.machine];
-          m.posts++;
-          m.likes += (p.internal?.likes?.length || 0);
-          if (p.quality) m.quality.push(p.quality);
-          if (p.created_at && new Date(p.created_at).getTime() > TWO_WEEKS) m.recent++;
-        });
-        const rows = Object.entries(machineMap).map(([name, d]) => ({
-          name,
-          posts: d.posts,
-          likes: d.likes,
-          quality: d.quality.length ? Math.round(d.quality.reduce((a,b)=>a+b,0) / d.quality.length * 10) / 10 : null,
-          recent: d.recent,
-        }));
-        const SORTS = [["posts","投稿数"],["likes","いいね"],["quality","品質"],["recent","直近2週"]];
-        const sorted = [...rows].sort((a,b) => {
-          if (rankSort === "quality") return (b.quality||0) - (a.quality||0);
-          return b[rankSort] - a[rankSort];
-        });
-        return (
-          <div>
-            <div style={{display:"flex",gap:6,marginBottom:14,flexWrap:"wrap"}}>
-              {SORTS.map(([k,l]) => {
-                const on = rankSort===k;
-                return <button key={k} onClick={() => setRankSort(k)} style={{padding:"5px 14px",border:`0.5px solid ${on?"#185FA5":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#E6F1FB":"#fff",color:on?"#185FA5":"#888",cursor:"pointer",fontWeight:on?600:400}}>{l}</button>;
-              })}
-            </div>
-            <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:14,overflow:"hidden"}}>
-              <div style={{display:"grid",gridTemplateColumns:"28px 1fr 44px 44px 52px 52px",padding:"6px 12px",background:"#E8ECF0",fontSize:12,color:"#888",fontWeight:500,gap:4,alignItems:"center"}}>
-                <span>#</span><span>機種</span><span style={{textAlign:"right"}}>投稿</span><span style={{textAlign:"right"}}>いいね</span><span style={{textAlign:"right"}}>品質</span><span style={{textAlign:"right"}}>直近2週</span>
-              </div>
-              {sorted.map((r,i) => {
-                const isTop = i === 0;
-                const medal = i===0?"🥇":i===1?"🥈":i===2?"🥉":null;
-                return (
-                  <div key={r.name} style={{display:"grid",gridTemplateColumns:"28px 1fr 44px 44px 52px 52px",padding:"9px 12px",borderTop:"0.5px solid #f0f0f0",background:isTop?"#FFFDE7":"#fff",fontSize:14,gap:4,alignItems:"center"}}>
-                    <span style={{fontSize:15}}>{medal || <span style={{color:"#bbb",fontSize:12}}>{i+1}</span>}</span>
-                    <span style={{fontWeight:isTop?600:400,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",fontSize:13}}>{r.name}</span>
-                    <span style={{textAlign:"right",color:rankSort==="posts"?"#185FA5":"#555",fontWeight:rankSort==="posts"?600:400}}>{r.posts}</span>
-                    <span style={{textAlign:"right",color:rankSort==="likes"?"#185FA5":"#555",fontWeight:rankSort==="likes"?600:400}}>{r.likes}</span>
-                    <span style={{textAlign:"right",color:rankSort==="quality"?"#185FA5":"#555",fontWeight:rankSort==="quality"?600:400}}>{r.quality ?? "—"}</span>
-                    <span style={{textAlign:"right",color:rankSort==="recent"?"#185FA5":"#555",fontWeight:rankSort==="recent"?600:400}}>{r.recent > 0 ? `+${r.recent}` : "—"}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      })()}
 
       {mode==="chat" && (
         <div>
@@ -2474,64 +2532,6 @@ ${policyText}
           {messages.length>0 && <button onClick={() => setMessages([])} style={{marginTop:6,background:"none",border:"none",fontSize:14,color:"#aaa",cursor:"pointer",padding:0}}>会話をリセット</button>}
         </div>
       )}
-
-      {mode==="gap" && (() => {
-        const GAP_CATS = ["new","info","jissen","hall","episode"];
-        const CAT_SHORT = { new:"新台", info:"機種情報", jissen:"実戦", hall:"業界", episode:"名機" };
-        const machineMap = {};
-        posts.filter(p => p.cat !== "fun" && p.machine !== "全般").forEach(p => {
-          if (!machineMap[p.machine]) machineMap[p.machine] = {};
-          machineMap[p.machine][p.cat] = (machineMap[p.machine][p.cat] || 0) + 1;
-        });
-        const machineList = Object.entries(machineMap)
-          .map(([name, cats]) => ({ name, total: Object.values(cats).reduce((a,b)=>a+b,0), cats }))
-          .sort((a,b) => b.total - a.total);
-        const totalGaps = machineList.reduce((sum,m) => sum + GAP_CATS.filter(k=>!m.cats[k]).length, 0);
-        return (
-          <div>
-            <div style={{fontSize:14,color:"#888",marginBottom:10}}>
-              {machineList.length}機種 × {GAP_CATS.length}カテゴリ ／ ギャップ <span style={{color:"#C62828",fontWeight:600}}>{totalGaps}個</span>
-            </div>
-            <div style={{fontSize:12,color:"#aaa",marginBottom:8,display:"flex",gap:12}}>
-              <span><span style={{color:"#C62828",fontWeight:600}}>✕</span> 未収録</span>
-              <span><span style={{color:"#E65100",fontWeight:600}}>1</span> 1件のみ</span>
-              <span><span style={{color:"#2E7D32",fontWeight:600}}>2+</span> 充足</span>
-            </div>
-            <div className="scroll-x" style={{overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
-              <table style={{borderCollapse:"collapse",fontSize:13,whiteSpace:"nowrap"}}>
-                <thead>
-                  <tr>
-                    <th style={{padding:"6px 10px",background:"#E8ECF0",fontWeight:500,color:"#555",textAlign:"left",position:"sticky",left:0,zIndex:2,borderRight:"0.5px solid #C5C9D4",minWidth:100}}>機種</th>
-                    {GAP_CATS.map(k => (
-                      <th key={k} style={{padding:"6px 8px",background:"#E8ECF0",fontWeight:500,color:CATS[k].color,textAlign:"center",minWidth:54,borderLeft:"0.5px solid #C5C9D4"}}>{CAT_SHORT[k]}</th>
-                    ))}
-                    <th style={{padding:"6px 8px",background:"#E8ECF0",fontWeight:500,color:"#555",textAlign:"center",borderLeft:"0.5px solid #C5C9D4"}}>計</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {machineList.map(m => (
-                    <tr key={m.name}>
-                      <td style={{padding:"5px 10px",background:"#fff",fontWeight:500,color:"#333",position:"sticky",left:0,zIndex:1,borderBottom:"0.5px solid #eee",borderRight:"0.5px solid #C5C9D4",fontSize:13}}>{m.name}</td>
-                      {GAP_CATS.map(k => {
-                        const cnt = m.cats[k] || 0;
-                        const bg = cnt===0?"#FDECEA":cnt===1?"#FFF8E1":"#F0F9F0";
-                        const col = cnt===0?"#C62828":cnt===1?"#E65100":"#2E7D32";
-                        return (
-                          <td key={k} onClick={() => { setFilter({machine:m.name,cat:k}); setMode("browse"); }}
-                            style={{padding:"5px 8px",textAlign:"center",background:bg,color:col,fontWeight:cnt===0?600:400,cursor:"pointer",borderBottom:"0.5px solid #eee",borderLeft:"0.5px solid #eee"}}>
-                            {cnt===0?"✕":cnt}
-                          </td>
-                        );
-                      })}
-                      <td style={{padding:"5px 8px",textAlign:"center",background:"#f5f5f5",color:"#555",fontWeight:500,borderBottom:"0.5px solid #eee",borderLeft:"0.5px solid #C5C9D4"}}>{m.total}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        );
-      })()}
 
       {mode==="analyze" && (
         <div>
@@ -2606,52 +2606,6 @@ ${policyText}
           )}
           {analyzeResult?.error && (
             <div style={{fontSize:14,color:"#e57373",padding:"10px 14px",background:"#fff5f5",borderRadius:10,border:"0.5px solid #e57373"}}>エラー: {analyzeResult.error}</div>
-          )}
-        </div>
-      )}
-
-      {mode==="browse" && (
-        <div>
-          <div style={{marginBottom:12}}>
-            <div style={{display:"flex",gap:8,marginBottom:6}}>
-              <select value={filter.machine} onChange={e => setFilter(f=>({...f,machine:e.target.value}))} style={{flex:1,fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#333",minWidth:0,width:0}}>
-                <option value="">すべての機種</option>
-                {machines.map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
-              <select value={filter.cat} onChange={e => setFilter(f=>({...f,cat:e.target.value}))} style={{flex:1,fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#333",minWidth:0,width:0}}>
-                <option value="">すべてのカテゴリ</option>
-                <option value="new">新台</option>
-                <option value="info">機種情報</option>
-                <option value="jissen">実戦</option>
-                <option value="hall">業界</option>
-                <option value="episode">名機</option>
-              </select>
-            </div>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-              <span style={{fontSize:14,color:"#aaa"}}>{filteredPosts.length}件</span>
-              {(filter.machine||filter.cat) && <button onClick={() => setFilter({machine:"",cat:""})} style={{fontSize:14,padding:"5px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666",cursor:"pointer"}}>リセット</button>}
-            </div>
-          </div>
-          {filteredPosts.map(p => {
-            const iLiked = (p.internal?.likes||[]).indexOf(MY_UID) >= 0;
-            const toggleLike = async () => {
-              const newLikes = toggleArr(p.internal?.likes||[], MY_UID);
-              await updatePost(p.id, { internal: { ...p.internal, likes: newLikes } });
-            };
-            return (
-              <div key={p.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"10px 14px",marginBottom:8}}>
-                <div style={{display:"flex",gap:5,marginBottom:4,alignItems:"center"}}><CatBadge cat={p.cat}/></div>
-                <div style={{fontSize:14,color:"#888",marginBottom:3}}>{p.machine}</div>
-                <div style={{fontSize:15,fontWeight:500,color:"#333",marginBottom:3}}>{p.title}</div>
-                <div style={{fontSize:14,color:"#666",lineHeight:1.6,marginBottom:8,overflowWrap:"anywhere"}}>{p.body}</div>
-                <button onClick={toggleLike} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 10px",border:`0.5px solid ${iLiked?"#F0997B":"#ddd"}`,borderRadius:8,background:iLiked?"#FAECE7":"#f9f9f9",color:iLiked?"#993C1D":"#888",fontSize:14,cursor:"pointer",fontWeight:iLiked?500:400}}>♥ {(p.internal?.likes||[]).length}</button>
-              </div>
-            );
-          })}
-          {filteredPosts.length>0&&(filter.machine||filter.cat) && (
-            <button onClick={() => { const q=filter.machine?filter.machine+(filter.cat?"の"+(CATS[filter.cat]?.label):"")+"について企画のヒントを教えて":(CATS[filter.cat]?.label)+"カテゴリで人気の投稿の共通点を教えて"; setMode("chat"); setTimeout(()=>send(q),100); }} style={{marginTop:4,width:"100%",padding:"10px 0",border:"0.5px solid #D85A30",borderRadius:8,background:"#FAECE7",color:"#993C1D",fontSize:15,fontWeight:500,cursor:"pointer"}}>
-              この絞り込み結果をチャットで深掘り ↗
-            </button>
           )}
         </div>
       )}
