@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { supabase } from "./supabase";
 import MACHINE_ANALYSIS from "./machineAnalysis.json";
+import COLUMN_DATA from "./columnData.json";
 import GAME_LIBRARY from "./gameDesignLibrary.json";
 import MACHINE_LIBRARY from "./machineLibrary.json";
 import ProposeTab from "./ProposeTab";
@@ -1762,6 +1763,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
 function CollectTab({ posts, showToast, onCatClick, loadPosts }) {
   const [collectRequests, setCollectRequests] = useState([]);
   const [collectTheme, setCollectTheme] = useState("");
+  const [collectCat, setCollectCat] = useState("");
   const [collectSubmitting, setCollectSubmitting] = useState(false);
   const [openCat, setOpenCat] = useState(null);
 
@@ -1781,8 +1783,12 @@ function CollectTab({ posts, showToast, onCatClick, loadPosts }) {
 
   async function requestCollect() {
     setCollectSubmitting(true);
-    await supabase.from("collection_requests").insert({ theme: collectTheme.trim(), status: "pending" });
+    const themeVal = collectTheme.trim();
+    const catLabel = collectCat ? { new:"新台情報", info:"機種情報", jissen:"実戦", hall:"業界ニュース", episode:"名機エピソード" }[collectCat] : "";
+    const fullTheme = [catLabel, themeVal].filter(Boolean).join("・");
+    await supabase.from("collection_requests").insert({ theme: fullTheme, status: "pending" });
     setCollectTheme("");
+    setCollectCat("");
     setCollectSubmitting(false);
     showToast("収集を依頼しました。30分以内に反映されます");
   }
@@ -1798,11 +1804,17 @@ function CollectTab({ posts, showToast, onCatClick, loadPosts }) {
         <div style={{fontWeight:700,fontSize:15,color:"#444",marginBottom:10,display:"flex",alignItems:"center",gap:6}}>
           <span style={{fontSize:18}}>🤖</span> Claudeに収集を依頼
         </div>
+        <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:8}}>
+          {[["","なんでも"],["new","新台"],["info","機種情報"],["jissen","実戦"],["hall","業界"],["episode","名機"]].map(([val,label]) => {
+            const on = collectCat === val;
+            return <button key={val} onClick={() => setCollectCat(val)} style={{padding:"4px 10px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:16,fontSize:12,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?600:400,whiteSpace:"nowrap"}}>{label}</button>;
+          })}
+        </div>
         <input
           style={{width:"100%",padding:"9px 12px",borderRadius:10,border:"none",background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -2px -2px 5px #FFFFFF",fontSize:16,outline:"none",boxSizing:"border-box",color:"#333",fontFamily:"inherit",marginBottom:10}}
           value={collectTheme}
           onChange={e => setCollectTheme(e.target.value)}
-          placeholder="テーマ（任意）例：GW明け新台動向、スマスロ注目機…"
+          placeholder="機種名やテーマ（任意）例：バイオRE3天井、夏の新台…"
         />
         <button
           onClick={requestCollect}
@@ -2298,7 +2310,7 @@ function OverviewTab({ posts, updatePost }) {
 }
 
 function ResearchTab({ posts, aiEnabled, updatePost }) {
-  const [mode, setMode] = useState("analyze");
+  const [mode, setMode] = useState("column");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -2495,7 +2507,7 @@ ${policyText}
   return (
     <div style={{minWidth:0}}>
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"wrap"}}>
-        {[["analyze","機種分析"],["ai_chat","チャット"],["ai_propose","企画"]].map(([k,l]) => {
+        {[["column","コラム"],["analyze","機種分析"],["ai_chat","チャット"],["ai_propose","企画"]].map(([k,l]) => {
           const on = mode===k;
           return <button key={k} onClick={() => setMode(k)} style={{padding:"5px 12px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0,minWidth:56,textAlign:"center"}}>{l}</button>;
         })}
@@ -2530,6 +2542,56 @@ ${policyText}
             <button onClick={() => send()} disabled={!aiEnabled||loading||!input.trim()} style={{padding:"0 18px",background:(!aiEnabled||loading||!input.trim())?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:10,fontSize:15,fontWeight:500,cursor:(!aiEnabled||loading||!input.trim())?"not-allowed":"pointer",height:46,whiteSpace:"nowrap",flexShrink:0}}>送信</button>
           </div>
           {messages.length>0 && <button onClick={() => setMessages([])} style={{marginTop:6,background:"none",border:"none",fontSize:14,color:"#aaa",cursor:"pointer",padding:0}}>会話をリセット</button>}
+        </div>
+      )}
+
+      {mode==="column" && (
+        <div>
+          <div style={{fontSize:13,color:"#888",marginBottom:14,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <span>スロキー編集部の機種分析コラム</span>
+            <span style={{fontSize:12,color:"#bbb"}}>更新: {COLUMN_DATA.updatedAt}</span>
+          </div>
+          {COLUMN_DATA.columns.map(col => (
+            <div key={col.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:14,marginBottom:12,overflow:"hidden"}}>
+              <div style={{padding:"10px 14px",borderBottom:"0.5px solid #f0f0f0",display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8}}>
+                <div style={{minWidth:0,flex:1}}>
+                  <div style={{fontSize:15,fontWeight:600,color:"#333",marginBottom:4,overflowWrap:"anywhere"}}>{col.name}</div>
+                  <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+                    <span style={{fontSize:12,fontWeight:600,color:col.tagColor,background:col.tagBg,borderRadius:6,padding:"2px 8px",whiteSpace:"nowrap"}}>{col.tag}</span>
+                    <span style={{fontSize:12,color:"#aaa"}}>投稿{col.postCount}件</span>
+                    {col.releaseDate && <span style={{fontSize:12,color:"#aaa"}}>{col.releaseDate.slice(0,7)}導入</span>}
+                  </div>
+                </div>
+                {(col.longevityMin || col.sisPrevWeeks) && (
+                  <div style={{flexShrink:0,textAlign:"center",background:"#F1F8E9",borderRadius:10,padding:"6px 10px",minWidth:70}}>
+                    {col.sisPrevWeeks && !col.sisWeeks ? (
+                      <>
+                        <div style={{fontSize:10,color:"#558B2F",fontWeight:600,marginBottom:2}}>前作SIS実績</div>
+                        <div style={{fontSize:18,fontWeight:700,color:"#2E7D32",lineHeight:1}}>{col.sisPrevWeeks}<span style={{fontSize:11}}>週</span></div>
+                        <div style={{fontSize:10,color:"#aaa",marginTop:1}}>{col.sisPrevTitle?.replace("Lパチスロ","")?.replace("Lスマスロ","")}</div>
+                      </>
+                    ) : col.sisWeeks ? (
+                      <>
+                        <div style={{fontSize:10,color:"#558B2F",fontWeight:600,marginBottom:2}}>SIS稼働</div>
+                        <div style={{fontSize:18,fontWeight:700,color:"#2E7D32",lineHeight:1}}>{col.sisWeeks}<span style={{fontSize:11}}>週</span></div>
+                      </>
+                    ) : col.longevityMin ? (
+                      <>
+                        <div style={{fontSize:10,color:"#1565C0",fontWeight:600,marginBottom:2}}>稼働予測</div>
+                        <div style={{fontSize:14,fontWeight:700,color:"#1565C0",lineHeight:1}}>{col.longevityMin}〜{col.longevityMax}<span style={{fontSize:10}}>週</span></div>
+                      </>
+                    ) : null}
+                  </div>
+                )}
+              </div>
+              <div style={{padding:"12px 14px"}}>
+                <div style={{fontSize:14,color:"#444",lineHeight:1.75,overflowWrap:"anywhere"}}>{col.column}</div>
+                {col.longevityNote && (
+                  <div style={{marginTop:10,fontSize:12,color:"#aaa",borderTop:"0.5px solid #f5f5f5",paddingTop:8}}>📊 {col.longevityNote}</div>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
