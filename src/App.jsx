@@ -888,12 +888,12 @@ export default function App() {
                 <div style={{marginBottom:10}}>
                   <div style={{fontSize:13,color:"#888",marginBottom:4}}>名前 <span style={{color:"#bbb",fontSize:12}}>（省略可・匿名になります）</span></div>
                   <input value={fbName} onChange={e => setFbName(e.target.value)} placeholder="例：田中"
-                    style={{width:"100%",padding:"9px 12px",border:"none",borderRadius:10,background:"#fff",fontSize:15,boxSizing:"border-box"}}/>
+                    style={{width:"100%",padding:"9px 12px",border:"none",borderRadius:10,background:"#fff",fontSize:16,boxSizing:"border-box"}}/>
                 </div>
                 <div style={{marginBottom:16}}>
                   <div style={{fontSize:13,color:"#888",marginBottom:4}}>内容 <span style={{color:"#e57373"}}>*</span></div>
                   <textarea value={fbBody} onChange={e => setFbBody(e.target.value)} placeholder="気になった点・改善してほしい点など" rows={4}
-                    style={{width:"100%",padding:"9px 12px",border:"none",borderRadius:10,background:"#fff",fontSize:15,resize:"vertical",boxSizing:"border-box"}}/>
+                    style={{width:"100%",padding:"9px 12px",border:"none",borderRadius:10,background:"#fff",fontSize:16,resize:"vertical",boxSizing:"border-box"}}/>
                 </div>
                 <div style={{display:"flex",gap:8}}>
                   <button onClick={() => setShowFeedback(false)}
@@ -1329,8 +1329,8 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
             {(()=>{const lbl={fontSize:13,color:"#888",whiteSpace:"nowrap",minWidth:52,paddingTop:2};const row={display:"flex",alignItems:"flex-start",gap:8,marginBottom:8};const inp={flex:1,fontSize:16,padding:"9px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"};return(<>
             <div style={row}><span style={lbl}>名前</span><input value={fName} onChange={e=>setFName(e.target.value)} placeholder="例: ゲスト" style={inp}/></div>
             {fCat!=="fun"&&<div style={row}><span style={lbl}>機種名</span><div style={{flex:1,position:"relative"}}>{(()=>{const allM=[...new Set(posts.map(p=>p.machine).filter(Boolean))].sort((a,b)=>{const s=n=>n.replace(/^(Lパチスロ\s*|LB|L\s*|e|スマスロ\s*|すますろ\s*|Sパチスロ\s*|S|Pパチスロ\s*|P)/,"").trim();const r=n=>n.startsWith("L")?0:n.startsWith("スマスロ")||n.startsWith("すますろ")?1:n.startsWith("e")?2:3;const d=s(a).localeCompare(s(b),"ja");return d!==0?d:r(a)-r(b);});const filtered=fMachine.trim()?allM.filter(m=>m.includes(fMachine)):allM;return(<><input value={fMachine} onChange={e=>{setFMachine(e.target.value);setMachineSuggestion(null);setFMachineOpen(true);}} onFocus={()=>setFMachineOpen(true)} onBlur={()=>setTimeout(()=>{setFMachineOpen(false);checkMachineName(fMachine);},150)} placeholder="例: バジリスク絆2（任意）" style={{...inp,width:"100%",marginBottom:machineSuggestion?4:0,boxSizing:"border-box"}}/>{fMachineOpen&&filtered.length>0&&<div style={{position:"absolute",top:"100%",left:0,right:0,background:"#fff",borderRadius:10,boxShadow:"0 4px 20px rgba(0,0,0,0.15)",zIndex:200,maxHeight:220,overflowY:"auto",marginTop:4}}>{filtered.map(name=><div key={name} onMouseDown={()=>{setFMachine(name);setFMachineOpen(false);setMachineSuggestion(null);}} style={{padding:"10px 14px",fontSize:14,color:"#333",borderBottom:"0.5px solid #f0f0f0",cursor:"pointer"}}>{name}</div>)}</div>}{machineSuggestion&&<div style={{fontSize:14,color:"#666",marginTop:4,display:"flex",alignItems:"center",gap:6}}>もしかして:<button onClick={()=>{setFMachine(machineSuggestion);setMachineSuggestion(null);}} style={{fontSize:14,color:"#D85A30",background:"none",border:"none",cursor:"pointer",padding:0,fontWeight:500,textDecoration:"underline"}}>{machineSuggestion}</button><button onClick={()=>setMachineSuggestion(null)} style={{fontSize:13,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:0}}>✕</button></div>}</>);})()}</div></div>}
-            <div style={row}><span style={lbl}>カテゴリ</span><select value={fCat} onChange={e=>setFCat(e.target.value)} style={{...inp,color:CATS[fCat]?.color||"#555",fontWeight:700,background:CATS[fCat]?.bg||"#E8ECF0",boxShadow:`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF, inset 0 0 0 2px ${CATS[fCat]?.border||"#ddd"}`,fontSize:15}}><option value="new">新台</option><option value="info">機種情報</option><option value="jissen">実戦</option><option value="hall">業界</option><option value="episode">名機</option></select></div>
-            <div style={row}><span style={lbl}>URL</span><div style={{flex:1,display:"flex",gap:6,alignItems:"center"}}><input value={fUrl} onChange={e=>{setFUrl(e.target.value);if(!e.target.value.trim())setFOgImage("");}} placeholder="引用元URL（任意）" style={{...inp,flex:1,fontSize:15,minWidth:0}}/>{fUrl.trim()&&<button type="button" onClick={fetchBodyFromUrl} disabled={fBodyFetching} style={{padding:"8px 10px",border:"none",borderRadius:10,background:fBodyFetching?"#ddd":"#E8ECF0",boxShadow:fBodyFetching?"none":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:13,color:fBodyFetching?"#aaa":"#555",cursor:fBodyFetching?"default":"pointer",whiteSpace:"nowrap",flexShrink:0}}>{fBodyFetching?"取得中…":"本文取得"}</button>}</div></div>
+            <div style={row}><span style={lbl}>カテゴリ</span><select value={fCat} onChange={e=>setFCat(e.target.value)} style={{...inp,color:CATS[fCat]?.color||"#555",fontWeight:700,background:CATS[fCat]?.bg||"#E8ECF0",boxShadow:`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF, inset 0 0 0 2px ${CATS[fCat]?.border||"#ddd"}`,fontSize:16}}><option value="new">新台</option><option value="info">機種情報</option><option value="jissen">実戦</option><option value="hall">業界</option><option value="episode">名機</option></select></div>
+            <div style={row}><span style={lbl}>URL</span><div style={{flex:1,display:"flex",gap:6,alignItems:"center"}}><input value={fUrl} onChange={e=>{setFUrl(e.target.value);if(!e.target.value.trim())setFOgImage("");}} placeholder="引用元URL（任意）" style={{...inp,flex:1,fontSize:16,minWidth:0}}/>{fUrl.trim()&&<button type="button" onClick={fetchBodyFromUrl} disabled={fBodyFetching} style={{padding:"8px 10px",border:"none",borderRadius:10,background:fBodyFetching?"#ddd":"#E8ECF0",boxShadow:fBodyFetching?"none":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:13,color:fBodyFetching?"#aaa":"#555",cursor:fBodyFetching?"default":"pointer",whiteSpace:"nowrap",flexShrink:0}}>{fBodyFetching?"取得中…":"本文取得"}</button>}</div></div>
             {fOgImage&&!fImage&&<div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,paddingLeft:60}}><img src={fOgImage} alt="OGP" style={{width:80,height:52,objectFit:"cover",borderRadius:6,flexShrink:0,background:"#ddd"}} onError={e=>{e.target.style.display="none";}}/><span style={{fontSize:12,color:"#aaa"}}>URLのサムネイル</span><button onClick={()=>setFOgImage("")} style={{marginLeft:"auto",background:"none",border:"none",color:"#aaa",cursor:"pointer",fontSize:16,padding:"0 4px",lineHeight:1}}>×</button></div>}
             <div style={{...row,alignItems:"flex-start"}}><span style={{...lbl,paddingTop:10}}>本文<br/><span style={{fontSize:11,color:"#bbb",fontWeight:400}}>任意</span></span><textarea value={fBody} onChange={e=>setFBody(e.target.value)} placeholder={fBodyFetching?"取得中...":(TEMPLATES[fCat]||"URLから自動取得、または手動入力")} disabled={fBodyFetching} style={{...inp,resize:"vertical",minHeight:88,opacity:fBodyFetching?0.6:1}}/></div>
             {!fBody.trim()&&<div style={{fontSize:12,color:"#aaa",marginTop:-4,marginBottom:6,paddingLeft:60}}>画像やURLがあれば本文なしでそのまま投稿できます</div>}
@@ -1431,9 +1431,9 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <option value="hall">業界</option>
                   <option value="episode">名機</option>
                 </select>
-                <input value={eMachine} onChange={e => setEMachine(e.target.value)} placeholder="機種名" style={{width:"100%",fontSize:15,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}} />
-                <textarea value={eBody} onChange={e => setEBody(e.target.value)} style={{width:"100%",fontSize:15,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",resize:"vertical",minHeight:80,marginBottom:8,boxSizing:"border-box"}} />
-                <input value={eUrl} onChange={e => setEUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:15,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}} />
+                <input value={eMachine} onChange={e => setEMachine(e.target.value)} placeholder="機種名" style={{width:"100%",fontSize:16,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}} />
+                <textarea value={eBody} onChange={e => setEBody(e.target.value)} style={{width:"100%",fontSize:16,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",resize:"vertical",minHeight:80,marginBottom:8,boxSizing:"border-box"}} />
+                <input value={eUrl} onChange={e => setEUrl(e.target.value)} placeholder="引用元URL（任意）" style={{width:"100%",fontSize:16,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",marginBottom:8,boxSizing:"border-box"}} />
                 <label style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,cursor:"pointer"}}>
                   <div style={{padding:"6px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",fontSize:15,color:"#555",whiteSpace:"nowrap"}}>📷 画像を変更</div>
                   <span style={{fontSize:14,color:"#aaa",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{eImage ? eImage.name : "未選択（自動リサイズあり）"}</span>
@@ -1565,14 +1565,14 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                         ))}
                         {replyTo?.postId===p.id && replyTo?.idx===i && (
                           <div style={{display:"flex",gap:6,marginTop:6,paddingLeft:32}}>
-                            <input value={replyText} onChange={e=>setReplyText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"){e.preventDefault();addReply(p,i);}}} placeholder="返信を入力… (Enter)" style={{flex:1,fontSize:14,padding:"5px 8px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF"}} autoFocus />
+                            <input value={replyText} onChange={e=>setReplyText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"){e.preventDefault();addReply(p,i);}}} placeholder="返信を入力… (Enter)" style={{flex:1,fontSize:16,padding:"5px 8px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF"}} autoFocus />
                             <button onClick={()=>addReply(p,i)} style={{padding:"5px 12px",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:14,cursor:"pointer"}}>送信</button>
                           </div>
                         )}
                       </div>
                     ))}
                     <div style={{display:"flex",gap:6}}>
-                      <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => { if(e.key==="Enter"){e.preventDefault();addComment(p);}}} placeholder="コメントを入力… (Enter)" style={{flex:1,fontSize:15,padding:"6px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF"}} />
+                      <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => { if(e.key==="Enter"){e.preventDefault();addComment(p);}}} placeholder="コメントを入力… (Enter)" style={{flex:1,fontSize:16,padding:"6px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF"}} />
                       <button onClick={() => addComment(p)} style={{padding:"6px 14px",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:15,cursor:"pointer"}}>送信</button>
                     </div>
                   </div>
@@ -1808,7 +1808,7 @@ async function autoCollect() {
           <span style={{fontSize:18}}>🤖</span> Claudeに収集を依頼
         </div>
         <input
-          style={{width:"100%",padding:"9px 12px",borderRadius:10,border:"none",background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -2px -2px 5px #FFFFFF",fontSize:14,outline:"none",boxSizing:"border-box",color:"#333",fontFamily:"inherit",marginBottom:10}}
+          style={{width:"100%",padding:"9px 12px",borderRadius:10,border:"none",background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -2px -2px 5px #FFFFFF",fontSize:16,outline:"none",boxSizing:"border-box",color:"#333",fontFamily:"inherit",marginBottom:10}}
           value={collectTheme}
           onChange={e => setCollectTheme(e.target.value)}
           placeholder="テーマ（任意）例：GW明け新台動向、スマスロ注目機…"
@@ -1851,7 +1851,7 @@ async function autoCollect() {
 
       <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"1rem",marginBottom:12}}>
         <div style={{fontSize:14,color:"#888",marginBottom:8}}>機種名・テキストを入力すると編集部AIが自動分類・要約して登録します</div>
-        <textarea value={input} onChange={e => setInput(e.target.value)} style={{width:"100%",fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",resize:"vertical",minHeight:72,marginBottom:8,boxSizing:"border-box"}} placeholder="機種名やメモを入力" />
+        <textarea value={input} onChange={e => setInput(e.target.value)} style={{width:"100%",fontSize:16,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",resize:"vertical",minHeight:72,marginBottom:8,boxSizing:"border-box"}} placeholder="機種名やメモを入力" />
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <span style={{fontSize:14,color:"#3B6D11",fontWeight:500}}>{status}</span>
           <button onClick={collect} disabled={!aiEnabled||loading} title={!aiEnabled?"APIキーが未設定です":""} style={{padding:"7px 18px",background:(!aiEnabled||loading)?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:15,fontWeight:500,cursor:(!aiEnabled||loading)?"not-allowed":"pointer"}}>{loading?"解析中...":"編集部AIで収集 ↗"}</button>
@@ -2046,7 +2046,7 @@ function OverviewTab({ posts, updatePost }) {
         <div>
           <div style={{display:"flex",gap:8,marginBottom:10}}>
             <div style={{position:"relative",flex:1}}>
-              <input value={query} onChange={e => setQuery(e.target.value)} placeholder="絞り込み..." style={{width:"100%",fontSize:15,padding:"6px 28px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"}} />
+              <input value={query} onChange={e => setQuery(e.target.value)} placeholder="絞り込み..." style={{width:"100%",fontSize:16,padding:"6px 28px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"}} />
               <span style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",fontSize:15,color:"#aaa",pointerEvents:"none"}}>⌕</span>
               {query && <button onClick={() => setQuery("")} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:15,color:"#aaa",padding:0}}>×</button>}
             </div>
@@ -2779,11 +2779,11 @@ ${policyText}
                 ])}
                 <div style={{marginBottom:10}}>
                   <div style={{fontSize:12,fontWeight:600,color:"#888",marginBottom:4,letterSpacing:"0.05em"}}>⑤ 参考にしたい機種・要素（任意）</div>
-                  <textarea value={proposePolicy.reference} onChange={e=>setProposePolicy(p=>({...p,reference:e.target.value}))} placeholder="例: カバネリの自力演出の爽快感を残しつつ、虚構推理のループ設計を組み合わせたい" rows={2} style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",lineHeight:1.5,color:"#333",boxSizing:"border-box"}}/>
+                  <textarea value={proposePolicy.reference} onChange={e=>setProposePolicy(p=>({...p,reference:e.target.value}))} placeholder="例: カバネリの自力演出の爽快感を残しつつ、虚構推理のループ設計を組み合わせたい" rows={2} style={{width:"100%",fontSize:16,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",lineHeight:1.5,color:"#333",boxSizing:"border-box"}}/>
                 </div>
                 <div>
                   <div style={{fontSize:12,fontWeight:600,color:"#888",marginBottom:4,letterSpacing:"0.05em"}}>⑥ その他こだわり・備考（任意）</div>
-                  <textarea value={proposePolicy.extra} onChange={e=>setProposePolicy(p=>({...p,extra:e.target.value}))} placeholder="例: IPはアニメ系、スマスロ、やめ時がないような設計にしたい" rows={2} style={{width:"100%",fontSize:13,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",lineHeight:1.5,color:"#333",boxSizing:"border-box"}}/>
+                  <textarea value={proposePolicy.extra} onChange={e=>setProposePolicy(p=>({...p,extra:e.target.value}))} placeholder="例: IPはアニメ系、スマスロ、やめ時がないような設計にしたい" rows={2} style={{width:"100%",fontSize:16,padding:"8px 10px",border:"0.5px solid #ddd",borderRadius:8,background:"#f9f9f9",resize:"vertical",lineHeight:1.5,color:"#333",boxSizing:"border-box"}}/>
                 </div>
               </div>
             );
