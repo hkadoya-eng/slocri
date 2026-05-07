@@ -852,8 +852,8 @@ export default function App() {
     setTimeout(() => setToast(""), 2500);
   }
 
-  const TABS = ["feed","machines","collect","overview","research","sis"];
-  const LABELS = { feed:"投稿", machines:"機種", collect:"追加", overview:"まとめ", research:"調査", sis:"稼働" };
+  const TABS = ["feed","collect","overview","research","sis"];
+  const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"調査", sis:"稼働" };
   const normalPosts = posts.filter(p => p.cat !== "feedback");
   const feedbackPosts = posts.filter(p => p.cat === "feedback");
 
@@ -1004,7 +1004,6 @@ export default function App() {
       {loading && <div style={{textAlign:"center",padding:"2rem",color:"#888"}}>読み込み中...</div>}
 
       {!loading && tab === "feed"     && <FeedTab     posts={normalPosts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} directPost={directPost} onDirectPostClear={() => setDirectPost(null)} favMachines={favMachines} toggleFavMachine={toggleFavMachine} />}
-      {!loading && tab === "machines" && <MachineListTab posts={normalPosts} onGoToFeed={name => { setFeedFilter("all"); setTab("feed"); }} favMachines={favMachines} toggleFavMachine={toggleFavMachine} />}
       {!loading && tab === "collect"  && <CollectTab  posts={normalPosts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
       {!loading && tab === "overview" && <OverviewTab posts={normalPosts} updatePost={updatePost} />}
       {!loading && tab === "research" && <ResearchTab posts={normalPosts} aiEnabled={aiEnabled} updatePost={updatePost} />}
@@ -1103,9 +1102,10 @@ export default function App() {
 
 function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFilter = "all", onFilterChange, directPost, onDirectPostClear, favMachines, toggleFavMachine }) {
   const [filter, setFilter] = useState(initialFilter);
+  const [showMachines, setShowMachines] = useState(false);
   const CAT_KEYS = ["new","info","jissen","hall","episode"];
   const [showCats, setShowCats] = useState(() => CAT_KEYS.includes(initialFilter));
-  function updateFilter(v) { setFilter(v); onFilterChange?.(v); if (!CAT_KEYS.includes(v)) setShowCats(false); }
+  function updateFilter(v) { setFilter(v); onFilterChange?.(v); if (!CAT_KEYS.includes(v)) setShowCats(false); setShowMachines(false); }
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("new");
   const [commentOpen, setCommentOpen] = useState(null);
@@ -1526,10 +1526,11 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
             ["all","すべて","#D85A30"],
             ["img","🖼 画像","#6B3FA0"],
           ].map(([k,label,activeColor]) => {
-            const on = filter === k;
+            const on = filter === k && !showMachines;
             return <button key={k} onClick={() => updateFilter(k)} style={{padding:"6px 9px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?activeColor:"#999",cursor:"pointer",fontWeight:on?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>{label}</button>;
           })}
-          {(() => { const on = CAT_KEYS.includes(filter); return <button onClick={() => setShowCats(v => !v)} style={{padding:"6px 9px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?"#D85A30":showCats?"#555":"#999",cursor:"pointer",fontWeight:on||showCats?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on||showCats?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>カテゴリ {showCats?"▲":"▼"}</button>; })()}
+          {(() => { const on = CAT_KEYS.includes(filter) && !showMachines; return <button onClick={() => { setShowCats(v => !v); setShowMachines(false); }} style={{padding:"6px 9px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:on?"#D85A30":showCats?"#555":"#999",cursor:"pointer",fontWeight:on||showCats?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:on||showCats?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>カテゴリ {showCats?"▲":"▼"}</button>; })()}
+          <button onClick={() => { setShowMachines(v => !v); setShowCats(false); }} style={{padding:"6px 9px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:showMachines?"#2E7D32":"#999",cursor:"pointer",fontWeight:showMachines?700:400,whiteSpace:"nowrap",flexShrink:0,boxShadow:showMachines?`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF`:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.15s"}}>機種 {showMachines?"▲":"▼"}</button>
         </div>
         {showCats && (
           <div style={{display:"flex",gap:5,flexWrap:"wrap",paddingBottom:2}}>
@@ -1541,9 +1542,11 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         )}
       </div>
 
-      {filtered.length === 0 && <div style={{textAlign:"center",padding:"2rem",color:"#aaa",fontSize:15}}>投稿がありません</div>}
+      {showMachines && <MachineListTab posts={posts} onGoToFeed={() => setShowMachines(false)} favMachines={favMachines} toggleFavMachine={toggleFavMachine} />}
 
-      {filter === "img" && filtered.length > 0 && (
+      {!showMachines && filtered.length === 0 && <div style={{textAlign:"center",padding:"2rem",color:"#aaa",fontSize:15}}>投稿がありません</div>}
+
+      {!showMachines && filter === "img" && filtered.length > 0 && (
         <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:12}}>
           {filtered.map(p => (
             <div key={p.id} onClick={() => setImgSelectedPost(p)} style={{borderRadius:12,overflow:"hidden",background:"#E8ECF0",boxShadow:"3px 3px 8px #C5C9D4, -3px -3px 8px #FFFFFF",cursor:"pointer",position:"relative"}}>
@@ -1558,7 +1561,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         </div>
       )}
 
-      {filter !== "img" && filtered.map(p => {
+      {!showMachines && filter !== "img" && filtered.map(p => {
         const engDefs = ENG_DEFS[p.source] || [];
         const hasEng = engDefs.some(d => fmtNum(p.eng?.[d.key]));
         const iLiked = (p.internal?.likes || []).indexOf(MY_UID) >= 0;
