@@ -479,7 +479,7 @@ function SisTab() {
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:6,marginBottom:10}}>
           {[
             {label:"平均出玉率", val: avgRate != null ? avgRate.toFixed(1)+"%" : "—", color: avgRate != null ? rateColor(avgRate) : "#888"},
-            {label:"平均稼働",   val: avgOp  != null ? avgOp.toFixed(1)+"%" : "—",  color:"#555"},
+            {label:"平均アウト", val: dayRows.length ? Math.round(totalOut / dayRows.length).toLocaleString() : "—", color:"#555"},
             {label:"粗利合計",   val: "¥"+(totalProfit/10000).toFixed(0)+"万",       color: totalProfit < 0 ? "#2a9d3f" : "#E53935"},
             {label:"アウト合計", val: (totalOut/10000).toFixed(0)+"万",              color:"#555"},
           ].map(s => (
