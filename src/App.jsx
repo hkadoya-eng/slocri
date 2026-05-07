@@ -1654,11 +1654,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   );
                 })() : null}
 
-                {(hasEng || p.source !== "manual") && (
+                {hasEng && (
                   <div style={{background:"#E8ECF0",borderRadius:10,boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",padding:"6px 10px",marginBottom:10,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
                     <span style={{fontSize:13,color:"#aaa"}}>外部</span>
                     {engDefs.map(d => { const v=fmtNum(p.eng?.[d.key]); if(!v)return null; return <span key={d.key} style={{fontSize:14,display:"flex",alignItems:"center",gap:3}}><span style={{color:"#aaa"}}>{d.icon}</span><span style={{fontWeight:500,color:"#333"}}>{v}</span><span style={{fontSize:13,color:"#aaa"}}>{d.label}</span></span>; })}
-                    {!hasEng && <span style={{fontSize:13,color:"#aaa"}}>数値なし</span>}
                   </div>
                 )}
 
