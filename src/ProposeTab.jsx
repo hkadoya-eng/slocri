@@ -253,7 +253,7 @@ export default function ProposeTab() {
                       {h.rating === 0 && " ✏️"}
                       {h.rating === -1 && " 👎"}
                     </div>
-                    <div style={{ background: "#F8F9FA", borderRadius: 8, padding: "10px 12px", fontSize: 12, color: "#555", lineHeight: 1.7, whiteSpace: "pre-wrap", maxHeight: 200, overflowY: "auto", overflowX: "hidden", border: "1px solid #E0E4E8", opacity: 0.75 }}>
+                    <div style={{ background: "#F8F9FA", borderRadius: 8, padding: "10px 12px", fontSize: 13, color: "#555", lineHeight: 1.8, whiteSpace: "pre-wrap", maxHeight: 200, overflowY: "auto", overflowX: "hidden", border: "1px solid #E0E4E8", opacity: 0.75 }}>
                       {h.result}
                     </div>
                     {h.feedback && (
