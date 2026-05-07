@@ -372,7 +372,7 @@ function SisTab() {
       }
       if (stats) {
         const m = {};
-        stats.forEach(s => { m[s.machine] = s.contrib_weeks; });
+        stats.forEach(s => { m[s.machine.replace(/\s/g, "")] = s.contrib_weeks; });
         setMachineStats(m);
       }
       setLoading(false);
@@ -571,11 +571,12 @@ function SisTab() {
                 <div style={{minWidth:28,fontWeight:700,fontSize:15,color:idx<3?"#D85A30":"#bbb",paddingTop:1}}>{idx+1}</div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:13,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:6}}>{r.machine}</div>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:"4px 2px",fontSize:11}}>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:"4px 2px",fontSize:10}}>
                     <div><div style={{color:"#bbb",marginBottom:1}}>IN枚数</div><div style={{fontWeight:600,color:"#444"}}>{fmtNum(r.out_coins)}</div></div>
                     <div><div style={{color:"#bbb",marginBottom:1}}>出玉率</div><div style={{fontWeight:700,color:rateColor(r.payout_rate)}}>{fmtRate(r.payout_rate)}</div></div>
-                    <div><div style={{color:"#bbb",marginBottom:1}}>粗利</div><div style={{fontWeight:600,color:profitColor,fontSize:10}}>{profitLabel}</div></div>
-                    <div><div style={{color:"#bbb",marginBottom:1}}>貢献週</div><div style={{fontWeight:700,color:(machineStats[r.machine]||0)>0?"#2a7ae8":"#ccc"}}>{machineStats[r.machine] != null ? machineStats[r.machine]+"週" : "—"}</div></div>
+                    <div><div style={{color:"#bbb",marginBottom:1}}>粗利</div><div style={{fontWeight:600,color:profitColor}}>{profitLabel}</div></div>
+                    <div><div style={{color:"#bbb",marginBottom:1}}>単価</div><div style={{fontWeight:600,color:"#555"}}>{r.coin_price != null ? r.coin_price.toFixed(2)+"円" : "—"}</div></div>
+                    <div><div style={{color:"#bbb",marginBottom:1}}>貢献週</div><div style={{fontWeight:700,color:(machineStats[r.machine.replace(/\s/g,"")]||0)>0?"#2a7ae8":"#ccc"}}>{machineStats[r.machine.replace(/\s/g,"")] != null ? machineStats[r.machine.replace(/\s/g,"")]+"週" : "—"}</div></div>
                   </div>
                 </div>
                 <div style={{textAlign:"right",fontSize:11,color:"#aaa",paddingTop:2,whiteSpace:"nowrap"}}>{r.machine_count != null ? r.machine_count+"台" : ""}</div>
@@ -628,11 +629,12 @@ function SisTab() {
                 <div style={{minWidth:28,fontWeight:700,fontSize:15,color:idx<3?"#D85A30":"#bbb",paddingTop:1}}>{idx+1}</div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:13,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:6}}>{r.machine}</div>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:"4px 2px",fontSize:11}}>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:"4px 2px",fontSize:10}}>
                     <div><div style={{color:"#bbb",marginBottom:1}}>平均IN</div><div style={{fontWeight:600,color:"#444"}}>{fmtNum(r.out_coins)}</div></div>
                     <div><div style={{color:"#bbb",marginBottom:1}}>平均出玉率</div><div style={{fontWeight:700,color:rateColor(r.payout_rate)}}>{fmtRate(r.payout_rate)}</div></div>
-                    <div><div style={{color:"#bbb",marginBottom:1}}>平均粗利</div><div style={{fontWeight:600,color:profitColor,fontSize:10}}>{profitLabel}</div></div>
-                    <div><div style={{color:"#bbb",marginBottom:1}}>コイン単価</div><div style={{fontWeight:600,color:"#555"}}>{r.coin_price != null ? r.coin_price.toFixed(2)+"円" : "—"}</div></div>
+                    <div><div style={{color:"#bbb",marginBottom:1}}>平均粗利</div><div style={{fontWeight:600,color:profitColor}}>{profitLabel}</div></div>
+                    <div><div style={{color:"#bbb",marginBottom:1}}>単価</div><div style={{fontWeight:600,color:"#555"}}>{r.coin_price != null ? r.coin_price.toFixed(2)+"円" : "—"}</div></div>
+                    <div><div style={{color:"#bbb",marginBottom:1}}>貢献週</div><div style={{fontWeight:700,color:(machineStats[r.machine.replace(/\s/g,"")]||0)>0?"#2a7ae8":"#ccc"}}>{machineStats[r.machine.replace(/\s/g,"")] != null ? machineStats[r.machine.replace(/\s/g,"")]+"週" : "—"}</div></div>
                   </div>
                 </div>
               </div>
