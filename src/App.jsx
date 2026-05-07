@@ -1737,6 +1737,7 @@ function CollectTab({ posts, showToast, onCatClick, loadPosts }) {
   const [collectRequests, setCollectRequests] = useState([]);
   const [collectTheme, setCollectTheme] = useState("");
   const [collectSubmitting, setCollectSubmitting] = useState(false);
+  const [openCat, setOpenCat] = useState(null);
 
   useEffect(() => {
     loadCollectRequests();
@@ -1802,16 +1803,43 @@ function CollectTab({ posts, showToast, onCatClick, loadPosts }) {
       </div>
 
 
-      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:"1.25rem"}}>
-        {["new","info","jissen","hall","episode"].map(k => (
-          <div key={k} onClick={() => onCatClick?.(k)} style={{background:"#E8ECF0",borderRadius:10,boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",padding:"8px 10px",cursor:"pointer",border:`0.5px solid ${CATS[k].border}`,transition:"background 0.1s"}}
-            onMouseEnter={e=>e.currentTarget.style.background=CATS[k].bg}
-            onMouseLeave={e=>e.currentTarget.style.background="#f9f9f9"}>
-            <div style={{fontSize:22,fontWeight:500,color:"#333"}}>{counts[k]}</div>
-            <div style={{fontSize:13,color:CATS[k].color,marginTop:2,fontWeight:500}}>{CATS[k].label}</div>
-          </div>
-        ))}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom: openCat ? 8 : "1.25rem"}}>
+        {["new","info","jissen","hall","episode"].map(k => {
+          const isOpen = openCat === k;
+          return (
+            <div key={k} onClick={() => setOpenCat(isOpen ? null : k)}
+              style={{background: isOpen ? CATS[k].bg : "#E8ECF0",borderRadius:10,boxShadow: isOpen ? `0 0 0 2px ${CATS[k].border}` : "inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",padding:"8px 10px",cursor:"pointer",border:`1.5px solid ${isOpen ? CATS[k].border : "transparent"}`,transition:"all 0.15s"}}>
+              <div style={{fontSize:22,fontWeight:500,color:"#333"}}>{counts[k]}</div>
+              <div style={{fontSize:13,color:CATS[k].color,marginTop:2,fontWeight:500,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                <span>{CATS[k].label}</span>
+                <span style={{fontSize:11,color:"#bbb"}}>{isOpen ? "▲" : "▼"}</span>
+              </div>
+            </div>
+          );
+        })}
       </div>
+
+      {openCat && (() => {
+        const catPosts = posts.filter(p => p.cat === openCat).sort((a,b) => new Date(b.created_at||0) - new Date(a.created_at||0)).slice(0,5);
+        return (
+          <div style={{marginBottom:"1.25rem",background:"#fff",border:`1px solid ${CATS[openCat].border}`,borderRadius:12,overflow:"hidden"}}>
+            <div style={{background:CATS[openCat].bg,padding:"8px 12px",fontSize:13,fontWeight:700,color:CATS[openCat].color,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <span>{CATS[openCat].label} — 最新{catPosts.length}件</span>
+              <button onClick={() => { onCatClick?.(openCat); }} style={{fontSize:11,background:"none",border:"none",color:CATS[openCat].color,cursor:"pointer",textDecoration:"underline",padding:0}}>全件を投稿タブで見る →</button>
+            </div>
+            {catPosts.length === 0
+              ? <div style={{padding:"14px 12px",color:"#aaa",fontSize:13}}>まだ投稿がありません</div>
+              : catPosts.map(p => (
+                <div key={p.id} style={{padding:"10px 12px",borderTop:`0.5px solid #f0f0f0`}}>
+                  <div style={{fontSize:12,color:"#888",marginBottom:2}}>{p.machine || "全般"}</div>
+                  <div style={{fontSize:14,fontWeight:500,color:"#333",lineHeight:1.4}}>{p.title}</div>
+                  <div style={{fontSize:12,color:"#666",marginTop:3,lineHeight:1.4}}>{p.body?.slice(0,60)}{p.body?.length > 60 ? "…" : ""}</div>
+                </div>
+              ))
+            }
+          </div>
+        );
+      })()}
 
     </div>
   );
