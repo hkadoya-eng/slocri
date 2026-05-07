@@ -1371,7 +1371,6 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   }
 
   const filtered = posts.filter(p => {
-    if (filter === "saved") return (p.internal?.bookmarks||[]).indexOf(MY_UID) >= 0;
     if (filter === "img") return !!(p.internal?.imageUrl || p.internal?.ogImageUrl);
     if (filter !== "all" && p.cat !== filter) return false;
     if (query.trim() && !(p.machine+p.title+p.body).toLowerCase().includes(query.toLowerCase())) return false;
@@ -1525,7 +1524,6 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         <div className="scroll-x" style={{display:"flex",gap:5,paddingBottom:6}}>
           {[
             ["all","すべて","#D85A30"],
-            ["saved","🔖 保存済み","#185FA5"],
             ["img","🖼 画像","#6B3FA0"],
           ].map(([k,label,activeColor]) => {
             const on = filter === k;
@@ -1564,7 +1562,6 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         const engDefs = ENG_DEFS[p.source] || [];
         const hasEng = engDefs.some(d => fmtNum(p.eng?.[d.key]));
         const iLiked = (p.internal?.likes || []).indexOf(MY_UID) >= 0;
-        const iBM = (p.internal?.bookmarks || []).indexOf(MY_UID) >= 0;
         const isOpen = commentOpen === p.id;
         const postAuthor = p.internal?.author || p.author || "ゲスト";
         const isOwn = currentName !== "ゲスト" && postAuthor === currentName;
@@ -1668,7 +1665,6 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                 <div style={{paddingTop:10,marginTop:8,borderTop:"1px solid rgba(197,201,212,0.4)",display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
                   <button onClick={() => toggleLike(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:"none",borderRadius:20,background:"#E8ECF0",color:iLiked?"#D85A30":"#999",fontSize:13,cursor:"pointer",fontWeight:iLiked?600:400,whiteSpace:"nowrap",boxShadow:iLiked?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>♥</span><span>いいね</span><span style={{fontSize:12}}>{(p.internal?.likes||[]).length}</span></button>
                   <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:"none",borderRadius:20,background:"#E8ECF0",color:isOpen?"#3C3489":"#999",fontSize:13,cursor:"pointer",fontWeight:isOpen?600:400,whiteSpace:"nowrap",boxShadow:isOpen?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>💬</span><span style={{fontSize:12}}>{(p.internal?.comments||[]).length}</span></button>
-                  <button onClick={() => toggleBM(p)} title="保存" style={{padding:"5px 9px",border:"none",borderRadius:20,background:"#E8ECF0",color:iBM?"#185FA5":"#999",fontSize:16,cursor:"pointer",lineHeight:1,boxShadow:iBM?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>🔖</button>
                   {!p.machine?.includes("全般") && (() => { const isFav=favMachines.includes(p.machine); return <button onClick={()=>toggleFavMachine(p.machine)} title={isFav?"注目台から外す":"この機種を注目台に追加"} style={{padding:"5px 7px",border:"none",borderRadius:20,background:"#E8ECF0",color:isFav?"#E8B000":"#999",fontSize:16,cursor:"pointer",lineHeight:1,boxShadow:isFav?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>{isFav?"★":"☆"}</button>; })()}
                   <div style={{marginLeft:"auto",display:"flex",gap:4}}>
                     <div style={{position:"relative"}}>
