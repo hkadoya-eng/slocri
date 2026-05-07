@@ -388,10 +388,11 @@ function SisTab() {
       const key = mon.toISOString().slice(0,10);
       if (!wkMap[key]) wkMap[key] = { key, machines: {} };
       const m = wkMap[key].machines;
-      if (!m[r.machine]) m[r.machine] = { out: 0, profit: 0, rates: [], cnt: 0 };
+      if (!m[r.machine]) m[r.machine] = { out: 0, profit: 0, rates: [], prices: [], cnt: 0 };
       m[r.machine].out += r.out_coins || 0;
       m[r.machine].profit += r.gross_profit || 0;
       if (r.payout_rate != null) m[r.machine].rates.push(r.payout_rate);
+      if (r.coin_price != null) m[r.machine].prices.push(r.coin_price);
       m[r.machine].cnt += 1;
     });
     return Object.values(wkMap).sort((a,b) => b.key.localeCompare(a.key));
@@ -493,9 +494,10 @@ function SisTab() {
   const selWeek = weeks[weekIdx] || null;
   const weekRows = selWeek ? Object.entries(selWeek.machines).map(([machine, v]) => ({
     machine,
-    out_coins: v.out,
-    gross_profit: v.profit,
+    out_coins: v.cnt ? Math.round(v.out / v.cnt) : null,
+    gross_profit: v.cnt ? Math.round(v.profit / v.cnt) : null,
     payout_rate: v.rates.length ? v.rates.reduce((s,x)=>s+x,0)/v.rates.length : null,
+    coin_price: v.prices.length ? v.prices.reduce((s,x)=>s+x,0)/v.prices.length : null,
     days: v.cnt,
   })) : [];
 
@@ -513,7 +515,7 @@ function SisTab() {
     return sortAsc ? av - bv : bv - av;
   });
 
-  const wkTotalProfit = weekRows.reduce((s,r) => s + (r.gross_profit||0), 0);
+  const wkAvgProfit = weekRows.length ? weekRows.reduce((s,r)=>s+(r.gross_profit||0),0)/weekRows.length : null;
   const wkAvgRate = weekRows.length ? weekRows.filter(r=>r.payout_rate!=null).reduce((s,r)=>s+r.payout_rate,0) / weekRows.filter(r=>r.payout_rate!=null).length : null;
 
   return (
@@ -599,7 +601,7 @@ function SisTab() {
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:10}}>
             {[
               {label:"平均出玉率", val: wkAvgRate != null ? wkAvgRate.toFixed(1)+"%" : "—", color: wkAvgRate != null ? rateColor(wkAvgRate) : "#888"},
-              {label:"粗利合計",   val: "¥"+(wkTotalProfit/10000).toFixed(0)+"万",       color: wkTotalProfit < 0 ? "#2a9d3f" : "#E53935"},
+              {label:"平均粗利",   val: wkAvgProfit != null ? (wkAvgProfit < 0 ? "▲" : "▼")+" ¥"+Math.abs(Math.round(wkAvgProfit)).toLocaleString() : "—", color: wkAvgProfit != null ? (wkAvgProfit < 0 ? "#2a9d3f" : "#E53935") : "#888"},
             ].map(s => (
               <div key={s.label} style={{background:"#fff",borderRadius:10,padding:"8px 6px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
                 <div style={{fontSize:10,color:"#aaa",marginBottom:2}}>{s.label}</div>
@@ -627,10 +629,10 @@ function SisTab() {
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:13,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:6}}>{r.machine}</div>
                   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:"4px 2px",fontSize:11}}>
-                    <div><div style={{color:"#bbb",marginBottom:1}}>週IN枚数</div><div style={{fontWeight:600,color:"#444"}}>{fmtNum(r.out_coins)}</div></div>
+                    <div><div style={{color:"#bbb",marginBottom:1}}>平均IN</div><div style={{fontWeight:600,color:"#444"}}>{fmtNum(r.out_coins)}</div></div>
                     <div><div style={{color:"#bbb",marginBottom:1}}>平均出玉率</div><div style={{fontWeight:700,color:rateColor(r.payout_rate)}}>{fmtRate(r.payout_rate)}</div></div>
-                    <div><div style={{color:"#bbb",marginBottom:1}}>週粗利</div><div style={{fontWeight:600,color:profitColor,fontSize:10}}>{profitLabel}</div></div>
-                    <div><div style={{color:"#bbb",marginBottom:1}}>貢献週</div><div style={{fontWeight:700,color:(machineStats[r.machine]||0)>0?"#2a7ae8":"#ccc"}}>{machineStats[r.machine] != null ? machineStats[r.machine]+"週" : "—"}</div></div>
+                    <div><div style={{color:"#bbb",marginBottom:1}}>平均粗利</div><div style={{fontWeight:600,color:profitColor,fontSize:10}}>{profitLabel}</div></div>
+                    <div><div style={{color:"#bbb",marginBottom:1}}>コイン単価</div><div style={{fontWeight:600,color:"#555"}}>{r.coin_price != null ? r.coin_price.toFixed(2)+"円" : "—"}</div></div>
                   </div>
                 </div>
               </div>
