@@ -469,7 +469,7 @@ function SisTab() {
 
   function handleSort(k) {
     if (sortKey === k) setSortAsc(a => !a);
-    else { setSortKey(k); setSortAsc(k === "gross_profit"); }
+    else { setSortKey(k); setSortAsc(false); }
   }
 
   // ウィークリー集計
