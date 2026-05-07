@@ -1004,7 +1004,7 @@ export default function App() {
       {loading && <div style={{textAlign:"center",padding:"2rem",color:"#888"}}>読み込み中...</div>}
 
       {!loading && tab === "feed"     && <FeedTab     posts={normalPosts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} directPost={directPost} onDirectPostClear={() => setDirectPost(null)} favMachines={favMachines} toggleFavMachine={toggleFavMachine} />}
-      {!loading && tab === "collect"  && <CollectTab  posts={normalPosts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
+      {!loading && tab === "collect"  && <CollectTab  posts={normalPosts} showToast={showToast} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
       {!loading && tab === "overview" && <OverviewTab posts={normalPosts} updatePost={updatePost} />}
       {!loading && tab === "research" && <ResearchTab posts={normalPosts} aiEnabled={aiEnabled} updatePost={updatePost} />}
       {tab === "sis"      && <SisTab />}
@@ -1733,16 +1733,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   );
 }
 
-function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick, loadPosts }) {
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [autoLoading, setAutoLoading] = useState(false);
-  const [status, setStatus] = useState("");
-  const [dupModal, setDupModal] = useState(null);
-  const [csvPreview, setCsvPreview] = useState(null);
-  const [csvImporting, setCsvImporting] = useState(false);
-  const csvRef = useRef(null);
-  const pending = useRef(null);
+function CollectTab({ posts, showToast, onCatClick, loadPosts }) {
   const [collectRequests, setCollectRequests] = useState([]);
   const [collectTheme, setCollectTheme] = useState("");
   const [collectSubmitting, setCollectSubmitting] = useState(false);
@@ -1769,185 +1760,11 @@ function CollectTab({ posts, addPost, showToast, aiEnabled, onCatClick, loadPost
     showToast("収集を依頼しました。30分以内に反映されます");
   }
 
-  function parseCsv(text) {
-    const lines = text.trim().split("\n").filter(l => l.trim());
-    if (lines.length < 2) return null;
-    const headers = lines[0].split(",").map(h => h.trim());
-    const required = ["cat","machine","title","body"];
-    if (!required.every(r => headers.includes(r))) return null;
-    return lines.slice(1).map(line => {
-      // CSVのカンマ区切りを正しく処理（ダブルクォート考慮）
-      const vals = [];
-      let cur = "", inQ = false;
-      for (let i = 0; i < line.length; i++) {
-        if (line[i] === '"') { inQ = !inQ; }
-        else if (line[i] === ',' && !inQ) { vals.push(cur.trim()); cur = ""; }
-        else cur += line[i];
-      }
-      vals.push(cur.trim());
-      const row = {};
-      headers.forEach((h, i) => { row[h] = vals[i] || ""; });
-      return row;
-    });
-  }
-
-  function onCsvFile(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const rows = parseCsv(ev.target.result);
-      if (!rows) { showToast("CSVフォーマットが正しくありません"); return; }
-      const dupKeys = new Set(posts.map(p => p.dup_key).filter(Boolean));
-      const preview = rows.map(r => ({ ...r, _dup: r.dup_key && dupKeys.has(r.dup_key) }));
-      setCsvPreview(preview);
-    };
-    reader.readAsText(file, "utf-8");
-    e.target.value = "";
-  }
-
-  async function importCsv() {
-    if (!csvPreview) return;
-    setCsvImporting(true);
-    const rows = csvPreview.filter(r => !r._dup);
-    const records = rows.map(r => ({
-      cat: r.cat || "info", source: r.source || "WebSearch",
-      machine: r.machine || "全般", title: r.title, body: r.body,
-      url: r.url || "", quality: Number(r.quality) || 3,
-      dup_key: r.dup_key || "", author: r.author || "編集部AI", eng: {},
-      internal: { likes:[], bookmarks:[], bads:[], comments:[], author: r.author || "編集部AI", imageUrl:"", shopName:"" },
-    }));
-    const { error } = await supabase.from("posts").insert(records);
-    setCsvImporting(false);
-    setCsvPreview(null);
-    if (error) { showToast("インポートに失敗しました"); return; }
-    showToast(`${records.length}件インポート完了`);
-    loadPosts();
-  }
-
   const counts = {};
   ["new","info","jissen","hall","episode"].forEach(k => { counts[k] = posts.filter(p => p.cat===k).length; });
 
-  function isDup(candidate) {
-    return posts.some(p => candidate.dupKey && p.dup_key && candidate.dupKey === p.dup_key);
-  }
-
-  async function collect() {
-    if (!input.trim()) return;
-    setLoading(true); setStatus("編集部AIが解析中...");
-    const isShort = input.trim().length < 30;
-    const userMsg = isShort
-      ? `「${input.trim()}」というパチスロ機種について、ファンが興味を持つ情報（演出・スペック・名言・思い出など）を1件生成してください。`
-      : `以下のテキストを解析して1件の投稿データにまとめてください。\n\n${input}`;
-    try {
-      const res = await fetch("/api/claude", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-6", max_tokens: 600,
-          system: 'パチスロライブラリの収集アシスタントです。実在する機種名・具体的な情報のみ使用。JSON形式のみで返答: {"cat":"info|jissen|hall","source":"manual","machine":"機種名","title":"30文字以内","body":"20〜40文字の短文。2ch風の書き方（〜らしいぞ、〜って話題、思ったより〜だった、これ知ってた？など）と、リンクを押したくなる一言をバランスよく混ぜる。煽りすぎず自然なテンションで。","quality":3,"dupKey":"機種名_キー","eng":{}}',
-          messages: [{ role: "user", content: userMsg }]
-        })
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || JSON.stringify(data.error)));
-      const txt = (data.content||[]).filter(b => b.type==="text").map(b => b.text).join("");
-      const parsed = JSON.parse(txt.replace(/```json|```/g,"").trim());
-      const item = { cat:parsed.cat||"jissen", source:parsed.source||"manual", machine:parsed.machine||input.trim(), title:parsed.title||"無題", body:parsed.body||input.slice(0,150), url:"", quality:parsed.quality||3, dupKey:parsed.dupKey||"", eng:parsed.eng||{}, author:randomAuthor(), internal:blank() };
-      setStatus("");
-      if (isDup(item)) { pending.current=item; setDupModal({ item, dups:posts.filter(p=>p.dup_key===item.dupKey) }); setInput(""); }
-      else { await addPost(item); setInput(""); }
-    } catch(e) { setStatus("エラー: " + (e.message || "不明")); setTimeout(() => setStatus(""), 4000); }
-    setLoading(false);
-  }
-
-async function autoCollect() {
-    setAutoLoading(true);
-    setStatus("ネットを巡回中...");
-    const theme = AUTO_THEMES[Math.floor(Math.random() * AUTO_THEMES.length)];
-
-    // badが付いた投稿から「避けるべき傾向」を抽出
-    const badPosts = posts.filter(p => (p.internal?.bads?.length || 0) > 0);
-    const badContext = badPosts.length > 0
-      ? `\n\n【避けるべきコンテンツ（編集部がbad評価した投稿の傾向）】\n` +
-        badPosts.map(p => `- 機種「${p.machine}」カテゴリ「${p.cat}」: "${p.title}"`).join("\n") +
-        `\n上記に類似した内容・機種・表現は収集しないこと。`
-      : "";
-
-    try {
-      const systemPrompt =
-        `あなたはパチスロ業界の専門家です。実在するパチスロ・パチンコ機種の演出・スペック・名言・エピソードについて豊富な知識を持っています。
-指定テーマで、パチスロファンが「面白い・懐かしい・役立つ」と感じる情報を厳選して3件生成し、必ずJSON配列のみを返してください。他のテキストは一切不要です。
-形式: [{"cat":"info|jissen","machine":"実在する機種名","title":"30文字以内","body":"60〜100文字の具体的な説明","quality":3,"dupKey":"機種名_キーワード"}]
-・qualityは情報の有力さ: 3=具体的な数字・固有名詞・確実な情報, 2=ある程度具体的, 1=一般的・曖昧な情報
-・catはinfo=機種情報・スペック・解析, jissen=実戦報告・演出・体験談・評判
-・実在する機種名を必ず使うこと。架空の機種は禁止。
-・bodyは20〜40文字の短文。2ch風（〜らしいぞ、〜って話題、思ったより〜だった、これ知ってた？など）とリンクを押したくなる一言をバランスよく混ぜる。煽りすぎず自然なテンションで。説明しすぎない。` + badContext;
-
-      const res = await fetch("/api/claude", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-6",
-          max_tokens: 2000,
-          system: systemPrompt,
-          messages: [{ role: "user", content: "「" + theme + "」をテーマに、パチスロファンが喜ぶ情報を3件生成してJSON配列で返してください。" }]
-        })
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || JSON.stringify(data.error)));
-
-      const allText = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
-      const jsonMatch = allText.match(/\[[\s\S]*?\]/);
-      if (!jsonMatch) throw new Error("JSONが見つかりませんでした: " + allText.slice(0, 200));
-      const items = JSON.parse(jsonMatch[0]);
-
-      let added = 0;
-      for (const p of items) {
-        const item = {
-          cat: p.cat || "jissen",
-          source: "AI生成",
-          machine: p.machine || "不明",
-          title: p.title || "無題",
-          body: p.body || "",
-          url: "",
-          quality: p.quality || 3,
-          dupKey: p.dupKey || "",
-          author: randomAuthor(),
-          eng: p.eng || {},
-          internal: blank(),
-        };
-        if (!isDup(item)) {
-          await addPost(item);
-          added++;
-        }
-      }
-      setStatus("");
-      showToast(added > 0 ? added + "件を自動収集しました！" : "新しいコンテンツは見つかりませんでした");
-    } catch (e) {
-      console.error("autoCollect error:", e);
-      setStatus("エラー: " + (e.message || "不明なエラー"));
-      setTimeout(() => setStatus(""), 5000);
-    }
-    setAutoLoading(false);
-  }
-
-  function exportJSON() { const b=new Blob([JSON.stringify(posts,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="slotkey.json";a.click();showToast("JSONをエクスポートしました"); }
-  function exportCSV() { const h=["id","cat","source","machine","title","body","url","quality"];const rows=posts.map(p=>h.map(k=>'"'+String(p[k]||"").replace(/"/g,'""')+'"').join(","));const b=new Blob([[h.join(","),...rows].join("\n")],{type:"text/csv"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="slotkey.csv";a.click();showToast("CSVをエクスポートしました"); }
-
   return (
     <div>
-      {dupModal && (
-        <div style={{marginBottom:16,background:"#FAEEDA",border:"0.5px solid #EF9F27",borderRadius:12,padding:"1rem"}}>
-          <div style={{fontSize:16,fontWeight:500,color:"#633806",marginBottom:10}}>似たコンテンツが {dupModal.dups.length}件 見つかりました</div>
-          {dupModal.dups.map(d => <div key={d.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:8,padding:"8px 12px",marginBottom:8,fontSize:14}}><div style={{fontWeight:500,color:"#333",marginBottom:2}}>{d.title}</div><div style={{color:"#666"}}>{d.body?.slice(0,60)}...</div></div>)}
-          <div style={{display:"flex",gap:8,marginTop:10}}>
-            <button onClick={async () => { await addPost(pending.current); setDupModal(null); }} style={{flex:1,padding:"7px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:15,fontWeight:500,cursor:"pointer"}}>それでも追加する</button>
-            <button onClick={() => { setDupModal(null); showToast("キャンセルしました"); }} style={{flex:1,padding:"7px 0",background:"#f0f0f0",color:"#666",border:"0.5px solid #ddd",borderRadius:8,fontSize:15,cursor:"pointer"}}>キャンセル</button>
-          </div>
-        </div>
-      )}
 
       {/* Claude収集依頼（サーバー側） */}
       <div style={{background:"#E8ECF0",borderRadius:14,boxShadow:"4px 4px 8px #C5C9D4, -3px -3px 6px #FFFFFF",padding:"14px 14px",marginBottom:"1.25rem"}}>
@@ -1996,14 +1813,6 @@ async function autoCollect() {
         ))}
       </div>
 
-      <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:12,padding:"1rem",marginBottom:12}}>
-        <div style={{fontSize:14,color:"#888",marginBottom:8}}>機種名・テキストを入力すると編集部AIが自動分類・要約して登録します</div>
-        <textarea value={input} onChange={e => setInput(e.target.value)} style={{width:"100%",fontSize:16,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",resize:"vertical",minHeight:72,marginBottom:8,boxSizing:"border-box"}} placeholder="機種名やメモを入力" />
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <span style={{fontSize:14,color:"#3B6D11",fontWeight:500}}>{status}</span>
-          <button onClick={collect} disabled={!aiEnabled||loading} title={!aiEnabled?"APIキーが未設定です":""} style={{padding:"7px 18px",background:(!aiEnabled||loading)?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:15,fontWeight:500,cursor:(!aiEnabled||loading)?"not-allowed":"pointer"}}>{loading?"解析中...":"編集部AIで収集 ↗"}</button>
-        </div>
-      </div>
     </div>
   );
 }
