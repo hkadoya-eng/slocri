@@ -455,6 +455,12 @@ function SisTab() {
 
   function fmtNum(n) { return n == null ? "—" : n.toLocaleString(); }
   function fmtRate(n) { return n == null ? "—" : n.toFixed(1) + "%"; }
+  function fmtProfitShort(n) {
+    if (n == null) return "—";
+    const s = n < 0 ? "▲" : "▼";
+    const a = Math.abs(n);
+    return a >= 10000 ? s + Math.round(a/10000) + "万" : s + a.toLocaleString();
+  }
   function rateColor(n) {
     if (n == null) return "#888";
     if (n >= 110) return "#2a9d3f";
@@ -569,22 +575,20 @@ function SisTab() {
             const profitLabel = profit == null ? "—" : (profit < 0 ? "▲" : "▼") + " ¥" + Math.abs(profit).toLocaleString();
             return (
               <div key={r.machine} style={{background:"#fff",borderRadius:12,padding:"10px 12px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff",display:"flex",alignItems:"flex-start",gap:10}}>
-                <div style={{minWidth:28,fontWeight:700,fontSize:15,color:idx<3?"#D85A30":"#bbb",paddingTop:1}}>{idx+1}</div>
+                <div style={{minWidth:24,fontWeight:700,fontSize:14,color:idx<3?"#D85A30":"#bbb",paddingTop:2}}>{idx+1}</div>
                 <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:13,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:6}}>{r.machine}</div>
-                  <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"4px 6px",fontSize:11}}>
-                      <div><div style={{color:"#bbb",marginBottom:2}}>IN枚数</div><div style={{fontWeight:600,color:"#444"}}>{fmtNum(r.out_coins)}</div></div>
-                      <div><div style={{color:"#bbb",marginBottom:2}}>出玉率</div><div style={{fontWeight:700,color:rateColor(r.payout_rate)}}>{fmtRate(r.payout_rate)}</div></div>
-                      <div><div style={{color:"#bbb",marginBottom:2}}>粗利</div><div style={{fontWeight:600,color:profitColor}}>{profitLabel}</div></div>
-                    </div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"4px 6px",fontSize:11}}>
-                      <div><div style={{color:"#bbb",marginBottom:2}}>コイン単価</div><div style={{fontWeight:600,color:"#555"}}>{r.coin_price != null ? r.coin_price.toFixed(2)+"円" : "—"}</div></div>
-                      <div><div style={{color:"#bbb",marginBottom:2}}>貢献週</div><div style={{fontWeight:700,color:(machineStats[r.machine.replace(/\s/g,"")]||0)>0?"#2a7ae8":"#ccc"}}>{machineStats[r.machine.replace(/\s/g,"")] != null ? machineStats[r.machine.replace(/\s/g,"")]+"週" : "—"}</div></div>
-                    </div>
+                  <div style={{display:"flex",alignItems:"baseline",gap:6,marginBottom:6}}>
+                    <span style={{fontSize:13,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0}}>{r.machine}</span>
+                    {r.machine_count != null && <span style={{fontSize:10,color:"#aaa",whiteSpace:"nowrap",flexShrink:0}}>{r.machine_count}台</span>}
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:"2px 8px"}}>
+                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>IN枚数</div><div style={{fontWeight:600,color:"#444",fontSize:11}}>{fmtNum(r.out_coins)}</div></div>
+                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>出玉率</div><div style={{fontWeight:700,color:rateColor(r.payout_rate),fontSize:11}}>{fmtRate(r.payout_rate)}</div></div>
+                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>粗利</div><div style={{fontWeight:600,color:profitColor,fontSize:11}}>{fmtProfitShort(r.gross_profit)}</div></div>
+                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>単価</div><div style={{fontWeight:600,color:"#555",fontSize:11}}>{r.coin_price != null ? r.coin_price.toFixed(2)+"円" : "—"}</div></div>
+                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>貢献週</div><div style={{fontWeight:700,color:(machineStats[r.machine.replace(/\s/g,"")]||0)>0?"#2a7ae8":"#ccc",fontSize:11}}>{machineStats[r.machine.replace(/\s/g,"")] != null ? machineStats[r.machine.replace(/\s/g,"")]+"週" : "—"}</div></div>
                   </div>
                 </div>
-                <div style={{textAlign:"right",fontSize:11,color:"#aaa",paddingTop:2,whiteSpace:"nowrap"}}>{r.machine_count != null ? r.machine_count+"台" : ""}</div>
               </div>
             );
           })}
@@ -632,19 +636,15 @@ function SisTab() {
             const profitLabel = profit == null ? "—" : (profit < 0 ? "▲" : "▼") + " ¥" + Math.abs(profit).toLocaleString();
             return (
               <div key={r.machine} style={{background:"#fff",borderRadius:12,padding:"10px 12px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff",display:"flex",alignItems:"flex-start",gap:10}}>
-                <div style={{minWidth:28,fontWeight:700,fontSize:15,color:idx<3?"#D85A30":"#bbb",paddingTop:1}}>{idx+1}</div>
+                <div style={{minWidth:24,fontWeight:700,fontSize:14,color:idx<3?"#D85A30":"#bbb",paddingTop:2}}>{idx+1}</div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:13,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:6}}>{r.machine}</div>
-                  <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"4px 6px",fontSize:11}}>
-                      <div><div style={{color:"#bbb",marginBottom:2}}>平均IN</div><div style={{fontWeight:600,color:"#444"}}>{fmtNum(r.out_coins)}</div></div>
-                      <div><div style={{color:"#bbb",marginBottom:2}}>平均出玉率</div><div style={{fontWeight:700,color:rateColor(r.payout_rate)}}>{fmtRate(r.payout_rate)}</div></div>
-                      <div><div style={{color:"#bbb",marginBottom:2}}>平均粗利</div><div style={{fontWeight:600,color:profitColor}}>{profitLabel}</div></div>
-                    </div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"4px 6px",fontSize:11}}>
-                      <div><div style={{color:"#bbb",marginBottom:2}}>コイン単価</div><div style={{fontWeight:600,color:"#555"}}>{r.coin_price != null ? r.coin_price.toFixed(2)+"円" : "—"}</div></div>
-                      <div><div style={{color:"#bbb",marginBottom:2}}>貢献週</div><div style={{fontWeight:700,color:(machineStats[r.machine.replace(/\s/g,"")]||0)>0?"#2a7ae8":"#ccc"}}>{machineStats[r.machine.replace(/\s/g,"")] != null ? machineStats[r.machine.replace(/\s/g,"")]+"週" : "—"}</div></div>
-                    </div>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:"2px 8px"}}>
+                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>平均IN</div><div style={{fontWeight:600,color:"#444",fontSize:11}}>{fmtNum(r.out_coins)}</div></div>
+                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>出玉率</div><div style={{fontWeight:700,color:rateColor(r.payout_rate),fontSize:11}}>{fmtRate(r.payout_rate)}</div></div>
+                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>平均粗利</div><div style={{fontWeight:600,color:profitColor,fontSize:11}}>{fmtProfitShort(r.gross_profit)}</div></div>
+                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>単価</div><div style={{fontWeight:600,color:"#555",fontSize:11}}>{r.coin_price != null ? r.coin_price.toFixed(2)+"円" : "—"}</div></div>
+                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>貢献週</div><div style={{fontWeight:700,color:(machineStats[r.machine.replace(/\s/g,"")]||0)>0?"#2a7ae8":"#ccc",fontSize:11}}>{machineStats[r.machine.replace(/\s/g,"")] != null ? machineStats[r.machine.replace(/\s/g,"")]+"週" : "—"}</div></div>
                   </div>
                 </div>
               </div>
