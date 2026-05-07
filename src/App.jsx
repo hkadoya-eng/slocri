@@ -187,9 +187,10 @@ function lookupAnalysis(machineName) {
   return null;
 }
 
-function MachineListTab({ posts, onGoToFeed }) {
+function MachineListTab({ posts, onGoToFeed, favMachines = [], toggleFavMachine }) {
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("posts");
+  const [showFavOnly, setShowFavOnly] = useState(false);
   const [selected, setSelected] = useState(null);
   const sheetRef = React.useRef(null);
   React.useEffect(() => { sheetRef.current?.scrollTo(0,0); }, [selected]);
@@ -208,9 +209,9 @@ function MachineListTab({ posts, onGoToFeed }) {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return machines
-      .filter(m => !q || m.name.toLowerCase().includes(q))
+      .filter(m => (!q || m.name.toLowerCase().includes(q)) && (!showFavOnly || favMachines.includes(m.name)))
       .sort((a, b) => sortBy === "likes" ? b.likes - a.likes : b.count - a.count);
-  }, [machines, query, sortBy]);
+  }, [machines, query, sortBy, showFavOnly, favMachines]);
 
   const selPosts = useMemo(() =>
     selected ? posts.filter(p => p.machine === selected).sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0)) : []
@@ -297,7 +298,7 @@ function MachineListTab({ posts, onGoToFeed }) {
         </>
       )}
 
-      <div style={{display:"flex",gap:8,marginBottom:12,alignItems:"center"}}>
+      <div style={{display:"flex",gap:8,marginBottom:8,alignItems:"center"}}>
         <div style={{position:"relative",flex:1}}>
           <input value={query} onChange={e => setQuery(e.target.value)} placeholder="機種名で絞り込み..." style={{width:"100%",fontSize:16,padding:"8px 30px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"}}/>
           <span style={{position:"absolute",left:9,top:"50%",transform:"translateY(-50%)",fontSize:15,color:"#aaa",pointerEvents:"none"}}>⌕</span>
@@ -308,15 +309,21 @@ function MachineListTab({ posts, onGoToFeed }) {
           <option value="likes">いいね順</option>
         </select>
       </div>
-
-
+      <div style={{display:"flex",gap:6,marginBottom:10}}>
+        <button onClick={() => setShowFavOnly(v => !v)} style={{padding:"5px 12px",border:"none",borderRadius:10,fontSize:13,background:"#E8ECF0",color:showFavOnly?"#E8B000":"#999",cursor:"pointer",fontWeight:showFavOnly?700:400,boxShadow:showFavOnly?"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",whiteSpace:"nowrap"}}>
+          ★ 注目台{favMachines.length > 0 ? ` (${favMachines.length})` : ""}
+        </button>
+      </div>
 
       <div style={{fontSize:13,color:"#aaa",marginBottom:8}}>{filtered.length}機種</div>
 
-      {filtered.map(m => (
-        <div key={m.name} onClick={() => setSelected(m.name)} style={{background:"#E8ECF0",boxShadow:"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF",borderRadius:14,padding:"12px 14px",marginBottom:10,cursor:"pointer",transition:"box-shadow 0.15s"}}>
+      {filtered.map(m => {
+        const isFav = favMachines.includes(m.name);
+        return (
+        <div key={m.name} style={{background:"#E8ECF0",boxShadow:"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF",borderRadius:14,padding:"12px 14px",marginBottom:10,cursor:"pointer",transition:"box-shadow 0.15s"}} onClick={() => setSelected(m.name)}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
             <div style={{flex:1,fontWeight:600,fontSize:15,color:"#333",overflowWrap:"anywhere"}}>{m.name}</div>
+            <button onClick={e => { e.stopPropagation(); toggleFavMachine(m.name); }} style={{background:"none",border:"none",fontSize:18,cursor:"pointer",color:isFav?"#E8B000":"#ccc",padding:"0 2px",lineHeight:1,flexShrink:0}}>{isFav?"★":"☆"}</button>
             <div style={{fontSize:13,color:"#888",flexShrink:0,textAlign:"right"}}>
               <span>{m.count}件</span>
               {m.likes > 0 && <span style={{marginLeft:6,color:"#D85A30"}}>♥ {m.likes}</span>}
@@ -330,7 +337,8 @@ function MachineListTab({ posts, onGoToFeed }) {
             })}
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -687,6 +695,14 @@ export default function App() {
   const [fbSending, setFbSending] = useState(false);
   const [fbDone, setFbDone] = useState(false);
   const [showFbInbox, setShowFbInbox] = useState(false);
+  const [favMachines, setFavMachines] = useState(() => JSON.parse(localStorage.getItem("slotkey_favs") || "[]"));
+  function toggleFavMachine(machine) {
+    setFavMachines(prev => {
+      const next = prev.includes(machine) ? prev.filter(m => m !== machine) : [...prev, machine];
+      localStorage.setItem("slotkey_favs", JSON.stringify(next));
+      return next;
+    });
+  }
   const logoTapRef = useRef(0);
   const logoTapTimerRef = useRef(null);
 
@@ -973,47 +989,6 @@ export default function App() {
               ))}
             </div>
           )}
-          {/* 区切り */}
-          <div style={{height:"0.5px",background:"#C5C9D4",margin:"6px 0"}}/>
-          {/* 通知管理アコーディオン */}
-          <button onClick={() => setShowNotifDetail(v => !v)}
-            style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:14,color:"#555",cursor:"pointer",textAlign:"left",width:"100%"}}>
-            <span>⚙</span><span style={{flex:1}}>通知管理（管理者）</span><span style={{fontSize:12,color:"#bbb"}}>{showNotifDetail?"▲":"▼"}</span>
-          </button>
-          {showNotifDetail && (
-            <div style={{padding:"8px 4px 4px",display:"flex",flexDirection:"column",gap:8}}>
-              <div style={{display:"flex",alignItems:"center",gap:8}}>
-                <span style={{fontSize:13,color:"#555",flex:1}}>通知配信</span>
-                <button onClick={async () => {
-                  const next = !notifSettings.enabled;
-                  await supabase.from("notification_settings").update({ enabled: next, updated_at: new Date().toISOString() }).eq("id", 1);
-                  setNotifSettings(s => ({ ...s, enabled: next }));
-                  showToast(next ? "通知配信をONにしました" : "通知配信をOFFにしました");
-                }} style={{padding:"4px 14px",border:"none",borderRadius:20,fontSize:13,fontWeight:600,cursor:"pointer",background:notifSettings.enabled?"#2a9d3f":"#E8ECF0",color:notifSettings.enabled?"#fff":"#999",boxShadow:notifSettings.enabled?"none":"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF"}}>
-                  {notifSettings.enabled ? "ON" : "OFF"}
-                </button>
-                <select value={notifSettings.notify_threshold ?? 3} onChange={e => setNotifSettings(s => ({ ...s, notify_threshold: Number(e.target.value) }))}
-                  style={{fontSize:13,padding:"4px 6px",border:"none",borderRadius:8,background:"#E8ECF0",boxShadow:"inset 2px 2px 4px #C5C9D4, inset -2px -2px 4px #FFFFFF",color:"#555"}}>
-                  {[1,2,3,5,10].map(n => <option key={n} value={n}>{n}件ごと</option>)}
-                </select>
-                <span style={{fontSize:12,color:"#aaa",whiteSpace:"nowrap"}}>{notifSettings.pending_count ?? 0}件</span>
-                <button onClick={async () => {
-                  await supabase.from("notification_settings").update({ pending_count: 0, updated_at: new Date().toISOString() }).eq("id", 1);
-                  setNotifSettings(s => ({ ...s, pending_count: 0 }));
-                  showToast("リセットしました");
-                }} style={{fontSize:12,padding:"4px 8px",border:"none",borderRadius:8,background:"#E8ECF0",boxShadow:"2px 2px 4px #C5C9D4, -2px -2px 4px #FFFFFF",color:"#999",cursor:"pointer",whiteSpace:"nowrap"}}>リセット</button>
-              </div>
-              <div style={{display:"flex",gap:6}}>
-                <input value={notifSettings.maintenance_message} onChange={e => setNotifSettings(s => ({ ...s, maintenance_message: e.target.value }))}
-                  placeholder="メンテナンスメッセージ（空欄で非表示）"
-                  style={{flex:1,fontSize:13,padding:"7px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF"}}/>
-                <button onClick={async () => {
-                  await supabase.from("notification_settings").update({ maintenance_message: notifSettings.maintenance_message, notify_threshold: notifSettings.notify_threshold ?? 3, updated_at: new Date().toISOString() }).eq("id", 1);
-                  showToast("保存しました");
-                }} style={{padding:"7px 12px",background:"#D85A30",color:"#fff",border:"none",borderRadius:10,fontSize:13,cursor:"pointer"}}>保存</button>
-              </div>
-            </div>
-          )}
         </div>
       )}
 
@@ -1028,8 +1003,8 @@ export default function App() {
 
       {loading && <div style={{textAlign:"center",padding:"2rem",color:"#888"}}>読み込み中...</div>}
 
-      {!loading && tab === "feed"     && <FeedTab     posts={normalPosts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} directPost={directPost} onDirectPostClear={() => setDirectPost(null)} />}
-      {!loading && tab === "machines" && <MachineListTab posts={normalPosts} onGoToFeed={name => { setFeedFilter("all"); setTab("feed"); }} />}
+      {!loading && tab === "feed"     && <FeedTab     posts={normalPosts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} directPost={directPost} onDirectPostClear={() => setDirectPost(null)} favMachines={favMachines} toggleFavMachine={toggleFavMachine} />}
+      {!loading && tab === "machines" && <MachineListTab posts={normalPosts} onGoToFeed={name => { setFeedFilter("all"); setTab("feed"); }} favMachines={favMachines} toggleFavMachine={toggleFavMachine} />}
       {!loading && tab === "collect"  && <CollectTab  posts={normalPosts} addPost={addPost} showToast={showToast} aiEnabled={aiEnabled} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
       {!loading && tab === "overview" && <OverviewTab posts={normalPosts} updatePost={updatePost} />}
       {!loading && tab === "research" && <ResearchTab posts={normalPosts} aiEnabled={aiEnabled} updatePost={updatePost} />}
@@ -1126,7 +1101,7 @@ export default function App() {
   );
 }
 
-function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFilter = "all", onFilterChange, directPost, onDirectPostClear }) {
+function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFilter = "all", onFilterChange, directPost, onDirectPostClear, favMachines, toggleFavMachine }) {
   const [filter, setFilter] = useState(initialFilter);
   const CAT_KEYS = ["new","info","jissen","hall","episode"];
   const [showCats, setShowCats] = useState(() => CAT_KEYS.includes(initialFilter));
@@ -1164,7 +1139,6 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   React.useEffect(() => { imgModalScrollRef.current?.scrollTo(0, 0); }, [imgSelectedPost?.id]);
   const [replyTo, setReplyTo] = useState(null); // {postId, idx}
   const [replyText, setReplyText] = useState("");
-  const [favMachines, setFavMachines] = useState(() => JSON.parse(localStorage.getItem("slotkey_favs") || "[]"));
   const [fullscreenImg, setFullscreenImg] = useState(null);
   const [shareOpen, setShareOpen] = useState(null);
   const [editOpen, setEditOpen] = useState(null);
@@ -1194,13 +1168,6 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
     return () => document.removeEventListener("click", close);
   }, [editOpen]);
 
-  function toggleFavMachine(machine) {
-    setFavMachines(prev => {
-      const next = prev.includes(machine) ? prev.filter(m => m !== machine) : [...prev, machine];
-      localStorage.setItem("slotkey_favs", JSON.stringify(next));
-      return next;
-    });
-  }
   const [machineSuggestion, setMachineSuggestion] = useState(null);
 
   const machineNames = useMemo(() => [...new Set(posts.map(p => p.machine).filter(Boolean))], [posts]);
@@ -1405,7 +1372,6 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
 
   const filtered = posts.filter(p => {
     if (filter === "saved") return (p.internal?.bookmarks||[]).indexOf(MY_UID) >= 0;
-    if (filter === "fav") return favMachines.includes(p.machine);
     if (filter === "img") return !!(p.internal?.imageUrl || p.internal?.ogImageUrl);
     if (filter !== "all" && p.cat !== filter) return false;
     if (query.trim() && !(p.machine+p.title+p.body).toLowerCase().includes(query.toLowerCase())) return false;
@@ -1560,7 +1526,6 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
           {[
             ["all","すべて","#D85A30"],
             ["saved","🔖 保存済み","#185FA5"],
-            ["fav",`★ 注目台${favMachines.length>0?" ("+favMachines.length+")":""}`, "#E8B000"],
             ["img","🖼 画像","#6B3FA0"],
           ].map(([k,label,activeColor]) => {
             const on = filter === k;
@@ -2041,46 +2006,6 @@ async function autoCollect() {
           <button onClick={collect} disabled={!aiEnabled||loading} title={!aiEnabled?"APIキーが未設定です":""} style={{padding:"7px 18px",background:(!aiEnabled||loading)?"#ccc":"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:15,fontWeight:500,cursor:(!aiEnabled||loading)?"not-allowed":"pointer"}}>{loading?"解析中...":"編集部AIで収集 ↗"}</button>
         </div>
       </div>
-      <div style={{display:"flex",gap:6,justifyContent:"flex-end"}}>
-        <input ref={csvRef} type="file" accept=".csv" style={{display:"none"}} onChange={onCsvFile}/>
-        <button onClick={() => csvRef.current?.click()} style={{fontSize:14,padding:"5px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#185FA5",cursor:"pointer",fontWeight:500}}>CSVインポート</button>
-        <button onClick={exportCSV} style={{fontSize:14,padding:"5px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666",cursor:"pointer"}}>CSV出力</button>
-        <button onClick={exportJSON} style={{fontSize:14,padding:"5px 12px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666",cursor:"pointer"}}>JSON出力</button>
-      </div>
-
-      {csvPreview && (
-        <div onClick={() => setCsvPreview(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center"}}>
-          <div onClick={e => e.stopPropagation()} style={{background:"#E8ECF0",borderRadius:"16px 16px 0 0",padding:16,width:"100%",maxWidth:740,maxHeight:"80vh",overflowY:"auto",boxSizing:"border-box"}}>
-            <div style={{fontSize:15,fontWeight:600,marginBottom:10,color:"#333"}}>CSVインポート確認</div>
-            {(() => {
-              const newRows = csvPreview.filter(r => !r._dup);
-              const dupRows = csvPreview.filter(r => r._dup);
-              return <>
-                <div style={{fontSize:13,color:"#888",marginBottom:10}}>
-                  <span style={{color:"#3B6D11",fontWeight:500}}>新規 {newRows.length}件</span>
-                  {dupRows.length > 0 && <span style={{color:"#aaa",marginLeft:8}}>重複スキップ {dupRows.length}件</span>}
-                </div>
-                <div style={{background:"#fff",borderRadius:10,overflow:"hidden",marginBottom:12}}>
-                  {csvPreview.map((r, i) => (
-                    <div key={i} style={{padding:"8px 12px",borderBottom:"0.5px solid #f0f0f0",opacity:r._dup?0.4:1,display:"flex",gap:8,alignItems:"center"}}>
-                      {r._dup && <span style={{fontSize:11,color:"#aaa",flexShrink:0}}>重複</span>}
-                      <CatBadge cat={r.cat}/>
-                      <span style={{fontSize:13,color:"#555",flexShrink:0}}>{r.machine}</span>
-                      <span style={{fontSize:13,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.title}</span>
-                    </div>
-                  ))}
-                </div>
-                <div style={{display:"flex",gap:8}}>
-                  <button onClick={() => setCsvPreview(null)} style={{flex:1,padding:"10px 0",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:15,color:"#888",cursor:"pointer"}}>キャンセル</button>
-                  <button onClick={importCsv} disabled={csvImporting||newRows.length===0} style={{flex:2,padding:"10px 0",border:"none",borderRadius:10,background:newRows.length===0?"#ccc":"#185FA5",color:"#fff",fontSize:15,fontWeight:600,cursor:newRows.length===0?"not-allowed":"pointer"}}>
-                    {csvImporting ? "インポート中..." : `${newRows.length}件をインポート`}
-                  </button>
-                </div>
-              </>;
-            })()}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -2182,15 +2107,6 @@ function OverviewTab({ posts, updatePost }) {
                   <span style={{fontSize:14,color:"#888",flexShrink:0}}>🔗</span>
                   <span style={{fontSize:14,color:"#185FA5",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0}}>{selectedPost.url}</span>
                 </a>
-              )}
-              {AUTO_AUTHORS.includes(selectedPost.internal?.author||selectedPost.author) && (
-                <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10}}>
-                  <span style={{fontSize:13,color:"#aaa"}}>情報LV:</span>
-                  {[[3,"Lv.1"],[4,"Lv.2"],[5,"Lv.3"]].map(([q,l]) => {
-                    const on = (selectedPost.quality||3) === q;
-                    return <button key={q} onClick={() => { updatePost(selectedPost.id, { quality: q }); setSelectedPost(p => ({...p, quality: q})); }} style={{padding:"3px 10px",border:"none",borderRadius:8,fontSize:13,fontWeight:on?600:400,background:on?"#D85A30":"#f0f0f0",color:on?"#fff":"#aaa",cursor:"pointer"}}>{l}</button>;
-                  })}
-                </div>
               )}
               {(() => {
                 const related = posts.filter(p => p.id !== selectedPost.id && p.machine === selectedPost.machine && p.machine !== "全般").sort((a,b) => (b.internal?.likes?.length||0)-(a.internal?.likes?.length||0)).slice(0,3);
