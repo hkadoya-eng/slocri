@@ -379,6 +379,24 @@ function SisTab() {
     });
   }, [authed]);
 
+  // Hooks must be called before any early returns
+  const weeks = useMemo(() => {
+    const wkMap = {};
+    rows.forEach(r => {
+      const dt = new Date(r.date + "T00:00:00");
+      const mon = new Date(dt); mon.setDate(dt.getDate() - ((dt.getDay() + 6) % 7));
+      const key = mon.toISOString().slice(0,10);
+      if (!wkMap[key]) wkMap[key] = { key, machines: {} };
+      const m = wkMap[key].machines;
+      if (!m[r.machine]) m[r.machine] = { out: 0, profit: 0, rates: [], cnt: 0 };
+      m[r.machine].out += r.out_coins || 0;
+      m[r.machine].profit += r.gross_profit || 0;
+      if (r.payout_rate != null) m[r.machine].rates.push(r.payout_rate);
+      m[r.machine].cnt += 1;
+    });
+    return Object.values(wkMap).sort((a,b) => b.key.localeCompare(a.key));
+  }, [rows]);
+
   function handleLogin(e) {
     e.preventDefault();
     if (pw === CORRECT) {
@@ -471,24 +489,6 @@ function SisTab() {
     if (sortKey === k) setSortAsc(a => !a);
     else { setSortKey(k); setSortAsc(false); }
   }
-
-  // ウィークリー集計
-  const weeks = useMemo(() => {
-    const wkMap = {};
-    rows.forEach(r => {
-      const dt = new Date(r.date + "T00:00:00");
-      const mon = new Date(dt); mon.setDate(dt.getDate() - ((dt.getDay() + 6) % 7));
-      const key = mon.toISOString().slice(0,10);
-      if (!wkMap[key]) wkMap[key] = { key, machines: {} };
-      const m = wkMap[key].machines;
-      if (!m[r.machine]) m[r.machine] = { out: 0, profit: 0, rates: [], cnt: 0 };
-      m[r.machine].out += r.out_coins || 0;
-      m[r.machine].profit += r.gross_profit || 0;
-      if (r.payout_rate != null) m[r.machine].rates.push(r.payout_rate);
-      m[r.machine].cnt += 1;
-    });
-    return Object.values(wkMap).sort((a,b) => b.key.localeCompare(a.key));
-  }, [rows]);
 
   const selWeek = weeks[weekIdx] || null;
   const weekRows = selWeek ? Object.entries(selWeek.machines).map(([machine, v]) => ({
