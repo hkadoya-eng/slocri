@@ -530,25 +530,26 @@ function SisTab() {
 
       {sisView === "daily" && <>
         {/* 日付ナビ */}
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,background:"#fff",borderRadius:12,padding:"10px 14px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8,background:"#fff",borderRadius:10,padding:"6px 10px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
           <button onClick={() => setDateIdx(i => Math.min(i+1, dates.length-1))} disabled={dateIdx >= dates.length-1}
-            style={{border:"none",background:"none",fontSize:22,cursor:"pointer",color:dateIdx>=dates.length-1?"#ccc":"#555",padding:"0 8px"}}>‹</button>
-          <div style={{textAlign:"center"}}>
-            <div style={{fontSize:17,fontWeight:700,color:"#333"}}>{fmtDateLabel(selDate)}</div>
-            <div style={{fontSize:11,color:"#aaa"}}>{dayRows.length}機種</div>
+            style={{border:"none",background:"none",fontSize:20,cursor:"pointer",color:dateIdx>=dates.length-1?"#ccc":"#555",padding:"0 6px"}}>‹</button>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <span style={{fontSize:15,fontWeight:700,color:"#333"}}>{fmtDateLabel(selDate)}</span>
+            <span style={{fontSize:11,color:"#aaa"}}>{dayRows.length}機種</span>
           </div>
           <button onClick={() => setDateIdx(i => Math.max(i-1, 0))} disabled={dateIdx <= 0}
-            style={{border:"none",background:"none",fontSize:22,cursor:"pointer",color:dateIdx<=0?"#ccc":"#555",padding:"0 8px"}}>›</button>
+            style={{border:"none",background:"none",fontSize:20,cursor:"pointer",color:dateIdx<=0?"#ccc":"#555",padding:"0 6px"}}>›</button>
         </div>
         {dayRows.length > 0 && (
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:10}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:8}}>
             {[
+              {label:"平均IN",   val: dayRows.length ? Math.round(totalOut/dayRows.length).toLocaleString() : "—", color:"#444"},
               {label:"平均出玉率", val: avgRate != null ? avgRate.toFixed(1)+"%" : "—", color: avgRate != null ? rateColor(avgRate) : "#888"},
-              {label:"平均粗利",   val: dayRows.length ? "¥"+Math.round(totalProfit/dayRows.length).toLocaleString() : "—", color: totalProfit/dayRows.length < 0 ? "#2a9d3f" : "#E53935"},
+              {label:"平均粗利",   val: dayRows.length ? (totalProfit/dayRows.length<0?"▲":"▼")+" ¥"+Math.abs(Math.round(totalProfit/dayRows.length)).toLocaleString() : "—", color: totalProfit/dayRows.length < 0 ? "#2a9d3f" : "#E53935"},
             ].map(s => (
-              <div key={s.label} style={{background:"#fff",borderRadius:10,padding:"8px 6px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
-                <div style={{fontSize:10,color:"#aaa",marginBottom:2}}>{s.label}</div>
-                <div style={{fontSize:13,fontWeight:700,color:s.color}}>{s.val}</div>
+              <div key={s.label} style={{background:"#fff",borderRadius:8,padding:"5px 4px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
+                <div style={{fontSize:9,color:"#aaa",marginBottom:1}}>{s.label}</div>
+                <div style={{fontSize:12,fontWeight:700,color:s.color}}>{s.val}</div>
               </div>
             ))}
           </div>
@@ -592,25 +593,26 @@ function SisTab() {
 
       {sisView === "weekly" && <>
         {/* 週ナビ */}
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,background:"#fff",borderRadius:12,padding:"10px 14px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8,background:"#fff",borderRadius:10,padding:"6px 10px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
           <button onClick={() => setWeekIdx(i => Math.min(i+1, weeks.length-1))} disabled={weekIdx >= weeks.length-1}
-            style={{border:"none",background:"none",fontSize:22,cursor:"pointer",color:weekIdx>=weeks.length-1?"#ccc":"#555",padding:"0 8px"}}>‹</button>
-          <div style={{textAlign:"center"}}>
-            <div style={{fontSize:16,fontWeight:700,color:"#333"}}>{fmtWeekLabel(selWeek?.key)}</div>
-            <div style={{fontSize:11,color:"#aaa"}}>{weekRows.length}機種</div>
+            style={{border:"none",background:"none",fontSize:20,cursor:"pointer",color:weekIdx>=weeks.length-1?"#ccc":"#555",padding:"0 6px"}}>‹</button>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <span style={{fontSize:14,fontWeight:700,color:"#333"}}>{fmtWeekLabel(selWeek?.key)}</span>
+            <span style={{fontSize:11,color:"#aaa"}}>{weekRows.length}機種</span>
           </div>
           <button onClick={() => setWeekIdx(i => Math.max(i-1, 0))} disabled={weekIdx <= 0}
-            style={{border:"none",background:"none",fontSize:22,cursor:"pointer",color:weekIdx<=0?"#ccc":"#555",padding:"0 8px"}}>›</button>
+            style={{border:"none",background:"none",fontSize:20,cursor:"pointer",color:weekIdx<=0?"#ccc":"#555",padding:"0 6px"}}>›</button>
         </div>
         {weekRows.length > 0 && (
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:10}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:8}}>
             {[
+              {label:"平均IN",    val: weekRows.length ? Math.round(weekRows.reduce((s,r)=>s+(r.out_coins||0),0)/weekRows.length).toLocaleString() : "—", color:"#444"},
               {label:"平均出玉率", val: wkAvgRate != null ? wkAvgRate.toFixed(1)+"%" : "—", color: wkAvgRate != null ? rateColor(wkAvgRate) : "#888"},
               {label:"平均粗利",   val: wkAvgProfit != null ? (wkAvgProfit < 0 ? "▲" : "▼")+" ¥"+Math.abs(Math.round(wkAvgProfit)).toLocaleString() : "—", color: wkAvgProfit != null ? (wkAvgProfit < 0 ? "#2a9d3f" : "#E53935") : "#888"},
             ].map(s => (
-              <div key={s.label} style={{background:"#fff",borderRadius:10,padding:"8px 6px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
-                <div style={{fontSize:10,color:"#aaa",marginBottom:2}}>{s.label}</div>
-                <div style={{fontSize:13,fontWeight:700,color:s.color}}>{s.val}</div>
+              <div key={s.label} style={{background:"#fff",borderRadius:8,padding:"5px 4px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
+                <div style={{fontSize:9,color:"#aaa",marginBottom:1}}>{s.label}</div>
+                <div style={{fontSize:12,fontWeight:700,color:s.color}}>{s.val}</div>
               </div>
             ))}
           </div>
