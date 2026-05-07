@@ -449,10 +449,9 @@ function SisTab() {
   }
 
   const SORT_OPTS = [
-    {k:"out_coins",   label:"アウト"},
+    {k:"out_coins",   label:"IN枚数"},
     {k:"payout_rate", label:"出玉率"},
     {k:"gross_profit",label:"粗利"},
-    {k:"operation_ratio", label:"稼働"},
   ];
 
   function handleSort(k) {
@@ -476,12 +475,10 @@ function SisTab() {
 
       {/* 当日サマリ */}
       {dayRows.length > 0 && (
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:6,marginBottom:10}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:10}}>
           {[
             {label:"平均出玉率", val: avgRate != null ? avgRate.toFixed(1)+"%" : "—", color: avgRate != null ? rateColor(avgRate) : "#888"},
-            {label:"平均アウト", val: dayRows.length ? Math.round(totalOut / dayRows.length).toLocaleString() : "—", color:"#555"},
-            {label:"粗利合計",   val: "¥"+(totalProfit/10000).toFixed(0)+"万",       color: totalProfit < 0 ? "#2a9d3f" : "#E53935"},
-            {label:"アウト合計", val: (totalOut/10000).toFixed(0)+"万",              color:"#555"},
+            {label:"平均粗利",   val: dayRows.length ? "¥"+Math.round(totalProfit/dayRows.length).toLocaleString() : "—", color: totalProfit/dayRows.length < 0 ? "#2a9d3f" : "#E53935"},
           ].map(s => (
             <div key={s.label} style={{background:"#fff",borderRadius:10,padding:"8px 6px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
               <div style={{fontSize:10,color:"#aaa",marginBottom:2}}>{s.label}</div>
@@ -519,24 +516,17 @@ function SisTab() {
               <div style={{minWidth:28,fontWeight:700,fontSize:15,color:idx<3?"#D85A30":"#bbb",paddingTop:1}}>{idx+1}</div>
               {/* 内容 */}
               <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:13,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:6,display:"flex",alignItems:"center"}}>
+                <div style={{fontSize:13,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:6}}>
                   <span style={{overflow:"hidden",textOverflow:"ellipsis"}}>{r.machine}</span>
-                  {opBadge(r.operation_ratio)}
                 </div>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:"4px 2px",fontSize:11}}>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"4px 2px",fontSize:11}}>
                   <div>
-                    <div style={{color:"#bbb",marginBottom:1}}>アウト</div>
+                    <div style={{color:"#bbb",marginBottom:1}}>IN枚数</div>
                     <div style={{fontWeight:600,color:"#444"}}>{fmtNum(r.out_coins)}</div>
                   </div>
                   <div>
                     <div style={{color:"#bbb",marginBottom:1}}>出玉率</div>
                     <div style={{fontWeight:700,color:rateColor(r.payout_rate)}}>{fmtRate(r.payout_rate)}</div>
-                  </div>
-                  <div>
-                    <div style={{color:"#bbb",marginBottom:1}}>稼働</div>
-                    <div style={{fontWeight:600,color:"#444",display:"flex",alignItems:"center",gap:2}}>
-                      {r.operation_ratio != null ? r.operation_ratio.toFixed(1)+"%" : "—"}
-                    </div>
                   </div>
                   <div>
                     <div style={{color:"#bbb",marginBottom:1}}>粗利</div>
