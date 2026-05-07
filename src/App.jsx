@@ -405,6 +405,39 @@ function SisTab() {
   const selDate = dates[dateIdx] || null;
   const dayRows = rows.filter(r => r.date === selDate);
 
+  // 機種ごとの稼働貢献週数（平均operation_ratioを超えた週の累積数）
+  const contribWeeks = useMemo(() => {
+    // 日付→ISO週キー
+    function isoWeek(d) {
+      const dt = new Date(d + "T00:00:00");
+      const thu = new Date(dt); thu.setDate(dt.getDate() - ((dt.getDay() + 6) % 7) + 3);
+      const jan4 = new Date(thu.getFullYear(), 0, 4);
+      return `${thu.getFullYear()}-W${String(Math.round((thu - jan4) / 604800000) + 1).padStart(2,"0")}`;
+    }
+    // 週×機種ごとにoperation_ratioを集計
+    const byWeekMachine = {};
+    rows.forEach(r => {
+      if (r.operation_ratio == null) return;
+      const wk = isoWeek(r.date);
+      if (!byWeekMachine[wk]) byWeekMachine[wk] = {};
+      if (!byWeekMachine[wk][r.machine]) byWeekMachine[wk][r.machine] = { sum: 0, cnt: 0 };
+      byWeekMachine[wk][r.machine].sum += r.operation_ratio;
+      byWeekMachine[wk][r.machine].cnt += 1;
+    });
+    // 各週の全機種平均を算出して、機種ごとに平均超え週数をカウント
+    const count = {};
+    Object.entries(byWeekMachine).forEach(([wk, machines]) => {
+      const vals = Object.values(machines).map(v => v.sum / v.cnt);
+      const wkAvg = vals.reduce((s, v) => s + v, 0) / vals.length;
+      Object.entries(machines).forEach(([machine, v]) => {
+        if (v.sum / v.cnt > wkAvg) {
+          count[machine] = (count[machine] || 0) + 1;
+        }
+      });
+    });
+    return count;
+  }, [rows]);
+
   function avg(arr, key) {
     const valid = arr.filter(r => r[key] != null);
     if (!valid.length) return null;
@@ -519,7 +552,7 @@ function SisTab() {
                 <div style={{fontSize:13,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:6}}>
                   <span style={{overflow:"hidden",textOverflow:"ellipsis"}}>{r.machine}</span>
                 </div>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"4px 2px",fontSize:11}}>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:"4px 2px",fontSize:11}}>
                   <div>
                     <div style={{color:"#bbb",marginBottom:1}}>IN枚数</div>
                     <div style={{fontWeight:600,color:"#444"}}>{fmtNum(r.out_coins)}</div>
@@ -531,6 +564,12 @@ function SisTab() {
                   <div>
                     <div style={{color:"#bbb",marginBottom:1}}>粗利</div>
                     <div style={{fontWeight:600,color:profitColor,fontSize:10}}>{profitLabel}</div>
+                  </div>
+                  <div>
+                    <div style={{color:"#bbb",marginBottom:1}}>貢献週</div>
+                    <div style={{fontWeight:700,color:(contribWeeks[r.machine]||0)>0?"#2a7ae8":"#ccc"}}>
+                      {contribWeeks[r.machine] || 0}週
+                    </div>
                   </div>
                 </div>
               </div>
