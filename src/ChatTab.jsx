@@ -27,11 +27,6 @@ function bubble(isUser) {
 }
 
 const COLLAPSE_THRESHOLD = 200;
-const QUESTION_PREFIX = "🔍 深掘り質問：";
-
-function isQuestioningMsg(content) {
-  return content.startsWith(QUESTION_PREFIX);
-}
 
 function CollapsibleContent({ content }) {
   const [expanded, setExpanded] = useState(false);
@@ -123,7 +118,8 @@ export default function ChatTab() {
   }
 
   const lastIsUser = messages.length > 0 && messages[messages.length - 1].role === "user";
-  const lastIsQuestioning = messages.length > 0 && messages[messages.length - 1].role === "assistant" && isQuestioningMsg(messages[messages.length - 1].content);
+  const threadPost = messages.find(m => m.role === "user");
+  const isThreadPost = (msg) => msg.id === threadPost?.id;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 120px)", maxWidth: 640, margin: "0 auto", position: "relative" }}>
@@ -146,28 +142,27 @@ export default function ChatTab() {
         {messages.length === 0 && (
           <div style={{ textAlign: "center", color: "#bbb", padding: "60px 0 20px", fontSize: 14 }}>
             <div style={{ fontSize: 36, marginBottom: 12 }}>💬</div>
-            パチスロについて何でも聞いてください<br />
+            気になる台・話題を投稿してスレッドを始めよう<br />
             <span style={{ fontSize: 12 }}>1〜2分で返答します</span>
           </div>
         )}
 
-        {messages.map(msg => {
-          const questioning = msg.role === "assistant" && isQuestioningMsg(msg.content);
-          const qBubble = questioning ? {
-            ...bubble(false),
-            background: "#EBF5FB",
-            boxShadow: "3px 3px 6px #C5D8E4, -2px -2px 4px #FFFFFF",
-            borderLeft: "3px solid #5BA3C9",
-          } : bubble(msg.role === "user");
+        {messages.map((msg, idx) => {
+          const isThread = isThreadPost(msg);
+          if (isThread) {
+            return (
+              <div key={msg.id} style={{ background: "#FFF8F5", border: "1px solid #F5C4AD", borderRadius: 12, padding: "12px 14px", marginBottom: 4 }}>
+                <div style={{ fontSize: 11, color: "#D85A30", fontWeight: 700, marginBottom: 6, letterSpacing: 0.5 }}>📌 スレッド</div>
+                <div style={{ fontSize: 14, color: "#333", lineHeight: 1.7, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{msg.content}</div>
+              </div>
+            );
+          }
           return (
             <div key={msg.id} style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start" }}>
-              {questioning && (
-                <div style={{ fontSize: 11, color: "#5BA3C9", fontWeight: 600, marginBottom: 4, marginLeft: 2 }}>ステップ1 / 深掘り中</div>
-              )}
-              <div style={qBubble}>
+              <div style={bubble(msg.role === "user")}>
                 {msg.role === "assistant" ? <CollapsibleContent content={msg.content} /> : msg.content}
               </div>
-              {msg.role === "assistant" && !questioning && (
+              {msg.role === "assistant" && (
                 <div style={{ display: "flex", gap: 6, marginTop: 4, marginLeft: 4 }}>
                   <button
                     onClick={() => rate(msg.id, 1)}
@@ -204,7 +199,7 @@ export default function ChatTab() {
             disabled={sending}
             rows={2}
             style={{ flex: 1, padding: "10px 12px", borderRadius: 12, border: "none", background: "#E8ECF0", boxShadow: "inset 3px 3px 6px #C5C9D4, inset -2px -2px 5px #FFFFFF", fontSize: 14, outline: "none", resize: "none", fontFamily: "inherit", color: "#333" }}
-            placeholder={lastIsQuestioning ? "上の質問に答えてください（Enterで送信）" : "メッセージを入力（Shift+Enterで改行、Enterで送信）"}
+            placeholder={messages.length === 0 ? "気になる台や話題を入力してスレッドを始める…" : "返信を入力（Shift+Enterで改行、Enterで送信）"}
           />
           <button
             type="submit"
