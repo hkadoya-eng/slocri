@@ -361,6 +361,24 @@ function SisTab() {
   const [machineStats, setMachineStats] = useState({});
   const [sisView, setSisView] = useState("daily");
   const [weekIdx, setWeekIdx] = useState(0);
+  const swipeTouchX = useRef(null);
+
+  function handleSwipeStart(e) {
+    swipeTouchX.current = e.touches[0].clientX;
+  }
+  function handleSwipeEnd(e) {
+    if (swipeTouchX.current == null) return;
+    const dx = e.changedTouches[0].clientX - swipeTouchX.current;
+    swipeTouchX.current = null;
+    if (Math.abs(dx) < 50) return;
+    if (sisView === "daily") {
+      if (dx < 0) setDateIdx(i => Math.max(i - 1, 0));
+      else setDateIdx(i => Math.min(i + 1, dates.length - 1));
+    } else {
+      if (dx < 0) setWeekIdx(i => Math.max(i - 1, 0));
+      else setWeekIdx(i => Math.min(i + 1, weeks.length - 1));
+    }
+  }
 
   useEffect(() => {
     if (!authed) return;
@@ -536,7 +554,7 @@ function SisTab() {
   const wkAvgRate = weekRows.length ? weekRows.filter(r=>r.payout_rate!=null).reduce((s,r)=>s+r.payout_rate,0) / weekRows.filter(r=>r.payout_rate!=null).length : null;
 
   return (
-    <div>
+    <div onTouchStart={handleSwipeStart} onTouchEnd={handleSwipeEnd}>
       {/* デイリー/ウィークリー サブタブ */}
       <div style={{display:"flex",gap:6,marginBottom:10}}>
         {[{k:"daily",l:"デイリー"},{k:"weekly",l:"ウィークリー"}].map(({k,l}) => {
