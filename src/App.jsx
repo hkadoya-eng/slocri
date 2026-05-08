@@ -931,8 +931,8 @@ export default function App() {
     setTimeout(() => setToast(""), 2500);
   }
 
-  const TABS = ["feed","collect","overview","research","sis","gamedesign"];
-  const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"分析", sis:"稼働", gamedesign:"型別" };
+  const TABS = ["feed","collect","overview","research","sis"];
+  const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"分析", sis:"稼働" };
   const normalPosts = posts.filter(p => p.cat !== "feedback");
   const feedbackPosts = posts.filter(p => p.cat === "feedback");
 
@@ -1111,7 +1111,6 @@ export default function App() {
         </div>
       ))}
       {tab === "sis"        && <SisTab />}
-      {tab === "gamedesign" && <GameDesignTab />}
 
       {/* フローティングフィードバックボタン（投稿タブのみ表示） */}
       {tab === "feed" && <div style={{position:"fixed",bottom:80,right:16,zIndex:200}}>
@@ -2604,7 +2603,7 @@ ${policyText}
   return (
     <div style={{minWidth:0}}>
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"wrap"}}>
-        {[["column","コラム"],["machine_review","機種評価"],["analyze","機種分析"],["ai_chat","チャット"],["ai_propose","企画"]].map(([k,l]) => {
+        {[["column","コラム"],["machine_review","機種評価"],["analyze","機種分析"],["gamedesign","型別"],["ai_chat","チャット"],["ai_propose","企画"]].map(([k,l]) => {
           const on = mode===k;
           return <button key={k} onClick={() => setMode(k)} style={{padding:"5px 12px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0,minWidth:56,textAlign:"center"}}>{l}</button>;
         })}
@@ -2889,6 +2888,7 @@ ${policyText}
 
       {mode==="ai_chat" && <ChatTab />}
       {mode==="ai_propose" && <ProposeTab />}
+      {mode==="gamedesign" && <GameDesignTab />}
     </div>
   );
 }
