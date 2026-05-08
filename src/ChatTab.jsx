@@ -26,6 +26,26 @@ function bubble(isUser) {
   };
 }
 
+const COLLAPSE_THRESHOLD = 200;
+
+function CollapsibleContent({ content }) {
+  const [expanded, setExpanded] = useState(false);
+  const long = content.length > COLLAPSE_THRESHOLD;
+  return (
+    <span>
+      {long && !expanded ? content.slice(0, COLLAPSE_THRESHOLD) + "…" : content}
+      {long && (
+        <button
+          onClick={() => setExpanded(v => !v)}
+          style={{ display: "block", marginTop: 6, fontSize: 12, color: "#D85A30", background: "none", border: "none", cursor: "pointer", padding: 0, fontWeight: 600 }}
+        >
+          {expanded ? "折りたたむ ▲" : "続きを読む ▼"}
+        </button>
+      )}
+    </span>
+  );
+}
+
 export default function ChatTab() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -127,7 +147,9 @@ export default function ChatTab() {
 
         {messages.map(msg => (
           <div key={msg.id} style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start" }}>
-            <div style={bubble(msg.role === "user")}>{msg.content}</div>
+            <div style={bubble(msg.role === "user")}>
+              {msg.role === "assistant" ? <CollapsibleContent content={msg.content} /> : msg.content}
+            </div>
             {msg.role === "assistant" && (
               <div style={{ display: "flex", gap: 6, marginTop: 4, marginLeft: 4 }}>
                 <button
