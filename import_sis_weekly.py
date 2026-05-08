@@ -15,7 +15,7 @@ import requests
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
-WEEKLY_PATH = "G:/.shortcut-targets-by-id/1XiODVubSggyoAvxUirBiKOGUUUZkYosa/302_協力会社様_sisデータ/週毎SISデータ一覧_2026.xlsm"
+WEEKLY_PATH = "Z:/01_SISデータ/PS/週毎SISデータ一覧_2026.xlsm"
 SUPABASE_URL = "https://vpzbtuucopucablwyqeq.supabase.co"
 
 

@@ -6,8 +6,8 @@ SISデータ（稼働まとめ.xlsm）を Supabase の sis_data テーブルに�
 
   --force: 既存レコードも上書きupsert（デフォルトはonConflict=ignoreで新規のみ追加）
 
-必要な環境変数（.env.local に追記）:
-  SUPABASE_SERVICE_KEY=eyJ...  （Supabase > Settings > API > service_role key）
+必要な環境変数（.env.local）:
+  VITE_SUPABASE_ANON_KEY=eyJ...  （通常の anon キー。SERVICE_KEY 不要）
 """
 
 import sys
@@ -20,7 +20,7 @@ from datetime import datetime, date
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
-SIS_PATH = "G:/.shortcut-targets-by-id/1XiODVubSggyoAvxUirBiKOGUUUZkYosa/302_協力会社様_sisデータ/PS日毎稼働まとめ_2026.xlsm"
+SIS_PATH = "Z:/01_SISデータ/PS/PS日毎稼働まとめ_2026.xlsm"
 SUPABASE_URL = "https://vpzbtuucopucablwyqeq.supabase.co"
 
 FORCE = "--force" in sys.argv
@@ -125,11 +125,9 @@ def upsert_records(records, service_key):
 def run():
     load_env_local()
 
-    service_key = os.environ.get("SUPABASE_SERVICE_KEY")
+    service_key = os.environ.get("SUPABASE_SERVICE_KEY") or os.environ.get("VITE_SUPABASE_ANON_KEY")
     if not service_key:
-        print("エラー: SUPABASE_SERVICE_KEY が未設定です")
-        print("  Supabase > Settings > API > service_role key を .env.local に追記してください")
-        print("  例: SUPABASE_SERVICE_KEY=eyJ...")
+        print("エラー: VITE_SUPABASE_ANON_KEY が未設定です")
         sys.exit(1)
 
     if not os.path.exists(SIS_PATH.replace("/", "\\")):
