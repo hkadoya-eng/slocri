@@ -103,6 +103,7 @@ export default function ChatTab() {
       role: "user",
       content,
     });
+    await load();
     setSending(false);
   }
 
