@@ -7,6 +7,7 @@ import GAME_LIBRARY from "./gameDesignLibrary.json";
 import MACHINE_LIBRARY from "./machineLibrary.json";
 import ProposeTab from "./ProposeTab";
 import ChatTab from "./ChatTab";
+import ColumnFeedback from "./ColumnFeedback";
 
 const CATS = {
   new:     { label:"新台",     bg:"#FFF3E0", color:"#BF360C", border:"#FF8A65" },
@@ -2564,6 +2565,7 @@ ${policyText}
               <div style={{padding:"14px 14px"}}>
                 <div style={{fontSize:14,color:"#444",lineHeight:1.85,overflowWrap:"anywhere",whiteSpace:"pre-wrap"}}>{col.body}</div>
               </div>
+              <ColumnFeedback columnId={col.id} columnTitle={col.title} />
             </div>
           ))}
         </div>
