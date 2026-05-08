@@ -200,7 +200,7 @@ export default function ChatTab() {
             onKeyDown={handleKeyDown}
             disabled={sending}
             rows={2}
-            style={{ flex: 1, padding: "10px 12px", borderRadius: 12, border: "none", background: "#E8ECF0", boxShadow: "inset 3px 3px 6px #C5C9D4, inset -2px -2px 5px #FFFFFF", fontSize: 14, outline: "none", resize: "none", fontFamily: "inherit", color: "#333" }}
+            style={{ flex: 1, padding: "10px 12px", borderRadius: 12, border: "none", background: "#E8ECF0", boxShadow: "inset 3px 3px 6px #C5C9D4, inset -2px -2px 5px #FFFFFF", fontSize: 16, outline: "none", resize: "none", fontFamily: "inherit", color: "#333" }}
             placeholder={messages.length === 0 ? "気になる台や話題を入力してスレッドを始める…" : "返信を入力（Shift+Enterで改行、Enterで送信）"}
           />
           <button
