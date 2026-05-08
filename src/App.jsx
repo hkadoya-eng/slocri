@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import { supabase } from "./supabase";
 import MACHINE_ANALYSIS from "./machineAnalysis.json";
 import COLUMN_DATA from "./columnData.json";
+import EDITORIAL_DATA from "./editorialColumns.json";
 import GAME_LIBRARY from "./gameDesignLibrary.json";
 import MACHINE_LIBRARY from "./machineLibrary.json";
 import ProposeTab from "./ProposeTab";
@@ -2507,7 +2508,7 @@ ${policyText}
   return (
     <div style={{minWidth:0}}>
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"wrap"}}>
-        {[["column","コラム"],["analyze","機種分析"],["ai_chat","チャット"],["ai_propose","企画"]].map(([k,l]) => {
+        {[["column","コラム"],["machine_review","機種評価"],["analyze","機種分析"],["ai_chat","チャット"],["ai_propose","企画"]].map(([k,l]) => {
           const on = mode===k;
           return <button key={k} onClick={() => setMode(k)} style={{padding:"5px 12px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0,minWidth:56,textAlign:"center"}}>{l}</button>;
         })}
@@ -2548,7 +2549,30 @@ ${policyText}
       {mode==="column" && (
         <div>
           <div style={{fontSize:13,color:"#888",marginBottom:14,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <span>スロキー編集部の機種分析コラム</span>
+            <span>スロキー編集部コラム</span>
+            <span style={{fontSize:12,color:"#bbb"}}>更新: {EDITORIAL_DATA.updatedAt}</span>
+          </div>
+          {EDITORIAL_DATA.columns.map(col => (
+            <div key={col.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:14,marginBottom:16,overflow:"hidden"}}>
+              <div style={{padding:"12px 14px",borderBottom:"0.5px solid #f0f0f0"}}>
+                <div style={{fontSize:15,fontWeight:700,color:"#333",marginBottom:6,lineHeight:1.4}}>{col.title}</div>
+                <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+                  <span style={{fontSize:12,fontWeight:600,color:col.tagColor,background:col.tagBg,borderRadius:6,padding:"2px 8px",whiteSpace:"nowrap"}}>{col.tag}</span>
+                  <span style={{fontSize:12,color:"#bbb"}}>{col.author} · {col.date}</span>
+                </div>
+              </div>
+              <div style={{padding:"14px 14px"}}>
+                <div style={{fontSize:14,color:"#444",lineHeight:1.85,overflowWrap:"anywhere",whiteSpace:"pre-wrap"}}>{col.body}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {mode==="machine_review" && (
+        <div>
+          <div style={{fontSize:13,color:"#888",marginBottom:14,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <span>スロキー編集部の機種評価</span>
             <span style={{fontSize:12,color:"#bbb"}}>更新: {COLUMN_DATA.updatedAt}</span>
           </div>
           {COLUMN_DATA.columns.map(col => (
