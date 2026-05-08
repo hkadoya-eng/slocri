@@ -37,6 +37,17 @@
   }
 }
 
+@keyframes sis-slide-left {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes sis-slide-right {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.sis-slide-left  { animation: sis-slide-left  0.2s ease-out both; }
+.sis-slide-right { animation: sis-slide-right 0.2s ease-out both; }
+
 html {
   overflow-x: hidden;
   max-width: 100vw;

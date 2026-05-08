@@ -362,6 +362,8 @@ function SisTab() {
   const [sisView, setSisView] = useState("daily");
   const [weekIdx, setWeekIdx] = useState(0);
   const swipeTouchX = useRef(null);
+  const [animKey, setAnimKey] = useState(0);
+  const [animClass, setAnimClass] = useState("");
 
   function handleSwipeStart(e) {
     swipeTouchX.current = e.touches[0].clientX;
@@ -371,6 +373,9 @@ function SisTab() {
     const dx = e.changedTouches[0].clientX - swipeTouchX.current;
     swipeTouchX.current = null;
     if (Math.abs(dx) < 50) return;
+    const dir = dx < 0 ? "left" : "right";
+    setAnimClass(`sis-slide-${dir}`);
+    setAnimKey(k => k + 1);
     if (sisView === "daily") {
       if (dx < 0) setDateIdx(i => Math.max(i - 1, 0));
       else setDateIdx(i => Math.min(i + 1, dates.length - 1));
@@ -563,7 +568,7 @@ function SisTab() {
         })}
       </div>
 
-      {sisView === "daily" && <>
+      {sisView === "daily" && <div key={animKey} className={animClass}>
         {/* 日付ナビ */}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8,background:"#fff",borderRadius:10,padding:"6px 10px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
           <button onClick={() => setDateIdx(i => Math.min(i+1, dates.length-1))} disabled={dateIdx >= dates.length-1}
@@ -622,9 +627,9 @@ function SisTab() {
             );
           })}
         </div>
-      </>}
+      </div>}
 
-      {sisView === "weekly" && <>
+      {sisView === "weekly" && <div key={`w${animKey}`} className={animClass}>
         {/* 週ナビ */}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8,background:"#fff",borderRadius:10,padding:"6px 10px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
           <button onClick={() => setWeekIdx(i => Math.min(i+1, weeks.length-1))} disabled={weekIdx >= weeks.length-1}
@@ -680,7 +685,7 @@ function SisTab() {
             );
           })}
         </div>
-      </>}
+      </div>}
 
       <div style={{textAlign:"right",marginTop:16}}>
         <button onClick={() => { localStorage.removeItem(PASS_KEY); setAuthed(false); setPw(""); }}
