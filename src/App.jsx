@@ -364,14 +364,21 @@ function SisTab() {
   const swipeTouchX = useRef(null);
   const [animKey, setAnimKey] = useState(0);
   const [animClass, setAnimClass] = useState("");
+  const [swipeDx, setSwipeDx] = useState(0);
 
   function handleSwipeStart(e) {
     swipeTouchX.current = e.touches[0].clientX;
+    setSwipeDx(0);
+  }
+  function handleSwipeMove(e) {
+    if (swipeTouchX.current == null) return;
+    setSwipeDx(e.touches[0].clientX - swipeTouchX.current);
   }
   function handleSwipeEnd(e) {
     if (swipeTouchX.current == null) return;
     const dx = e.changedTouches[0].clientX - swipeTouchX.current;
     swipeTouchX.current = null;
+    setSwipeDx(0);
     if (Math.abs(dx) < 50) return;
     const dir = dx < 0 ? "left" : "right";
     setAnimClass(`sis-slide-${dir}`);
@@ -559,7 +566,48 @@ function SisTab() {
   const wkAvgRate = weekRows.length ? weekRows.filter(r=>r.payout_rate!=null).reduce((s,r)=>s+r.payout_rate,0) / weekRows.filter(r=>r.payout_rate!=null).length : null;
 
   return (
-    <div onTouchStart={handleSwipeStart} onTouchEnd={handleSwipeEnd}>
+    <div onTouchStart={handleSwipeStart} onTouchMove={handleSwipeMove} onTouchEnd={handleSwipeEnd} style={{position:"relative",overflow:"hidden"}}>
+      {/* スワイプ中ピークラベル */}
+      {swipeDx !== 0 && sisView === "daily" && (() => {
+        const peekOpacity = Math.min(1, Math.abs(swipeDx) / 80);
+        const prevDate = dates[dateIdx + 1];
+        const nextDate = dates[dateIdx - 1];
+        return <>
+          {swipeDx > 20 && prevDate && (
+            <div style={{position:"absolute",left:8,top:"50%",transform:`translateY(-50%) translateX(${Math.min(0, swipeDx - 80)}px)`,opacity:peekOpacity,zIndex:10,background:"#fff",borderRadius:10,padding:"6px 10px",boxShadow:"2px 2px 8px rgba(0,0,0,0.15)",pointerEvents:"none",textAlign:"center"}}>
+              <div style={{fontSize:12,color:"#aaa"}}>前の日</div>
+              <div style={{fontSize:13,fontWeight:700,color:"#333"}}>{fmtDateLabel(prevDate)}</div>
+              <div style={{fontSize:11,color:"#888"}}>{rows.filter(r=>r.date===prevDate).length}機種</div>
+            </div>
+          )}
+          {swipeDx < -20 && nextDate && (
+            <div style={{position:"absolute",right:8,top:"50%",transform:`translateY(-50%) translateX(${Math.max(0, swipeDx + 80)}px)`,opacity:peekOpacity,zIndex:10,background:"#fff",borderRadius:10,padding:"6px 10px",boxShadow:"2px 2px 8px rgba(0,0,0,0.15)",pointerEvents:"none",textAlign:"center"}}>
+              <div style={{fontSize:12,color:"#aaa"}}>次の日</div>
+              <div style={{fontSize:13,fontWeight:700,color:"#333"}}>{fmtDateLabel(nextDate)}</div>
+              <div style={{fontSize:11,color:"#888"}}>{rows.filter(r=>r.date===nextDate).length}機種</div>
+            </div>
+          )}
+        </>;
+      })()}
+      {swipeDx !== 0 && sisView === "weekly" && (() => {
+        const peekOpacity = Math.min(1, Math.abs(swipeDx) / 80);
+        const prevWeek = weeks[weekIdx + 1];
+        const nextWeek = weeks[weekIdx - 1];
+        return <>
+          {swipeDx > 20 && prevWeek && (
+            <div style={{position:"absolute",left:8,top:"50%",transform:`translateY(-50%) translateX(${Math.min(0, swipeDx - 80)}px)`,opacity:peekOpacity,zIndex:10,background:"#fff",borderRadius:10,padding:"6px 10px",boxShadow:"2px 2px 8px rgba(0,0,0,0.15)",pointerEvents:"none",textAlign:"center"}}>
+              <div style={{fontSize:12,color:"#aaa"}}>前の週</div>
+              <div style={{fontSize:12,fontWeight:700,color:"#333"}}>{fmtWeekLabel(prevWeek.key)}</div>
+            </div>
+          )}
+          {swipeDx < -20 && nextWeek && (
+            <div style={{position:"absolute",right:8,top:"50%",transform:`translateY(-50%) translateX(${Math.max(0, swipeDx + 80)}px)`,opacity:peekOpacity,zIndex:10,background:"#fff",borderRadius:10,padding:"6px 10px",boxShadow:"2px 2px 8px rgba(0,0,0,0.15)",pointerEvents:"none",textAlign:"center"}}>
+              <div style={{fontSize:12,color:"#aaa"}}>次の週</div>
+              <div style={{fontSize:12,fontWeight:700,color:"#333"}}>{fmtWeekLabel(nextWeek.key)}</div>
+            </div>
+          )}
+        </>;
+      })()}
       {/* デイリー/ウィークリー サブタブ */}
       <div style={{display:"flex",gap:6,marginBottom:10}}>
         {[{k:"daily",l:"デイリー"},{k:"weekly",l:"ウィークリー"}].map(({k,l}) => {
@@ -568,7 +616,7 @@ function SisTab() {
         })}
       </div>
 
-      {sisView === "daily" && <div key={animKey} className={animClass}>
+      {sisView === "daily" && <div key={animKey} className={animClass} style={{transform:`translateX(${swipeDx * 0.25}px)`,transition:swipeDx===0?"transform 0.2s ease-out":"none"}}>
         {/* 日付ナビ */}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8,background:"#fff",borderRadius:10,padding:"6px 10px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
           <button onClick={() => setDateIdx(i => Math.min(i+1, dates.length-1))} disabled={dateIdx >= dates.length-1}
@@ -629,7 +677,7 @@ function SisTab() {
         </div>
       </div>}
 
-      {sisView === "weekly" && <div key={`w${animKey}`} className={animClass}>
+      {sisView === "weekly" && <div key={`w${animKey}`} className={animClass} style={{transform:`translateX(${swipeDx * 0.25}px)`,transition:swipeDx===0?"transform 0.2s ease-out":"none"}}>
         {/* 週ナビ */}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8,background:"#fff",borderRadius:10,padding:"6px 10px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
           <button onClick={() => setWeekIdx(i => Math.min(i+1, weeks.length-1))} disabled={weekIdx >= weeks.length-1}
