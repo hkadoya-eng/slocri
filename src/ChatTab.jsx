@@ -111,6 +111,7 @@ export default function ChatTab() {
   }
 
   async function newSession() {
+    if (messages.length > 0 && !window.confirm("現在の会話を終了して新しいスレッドを始めますか？\n（過去の会話は履歴から確認できます）")) return;
     localStorage.removeItem(SESSION_KEY);
     sessionId.current = getOrCreateSession();
     setMessages([]);
