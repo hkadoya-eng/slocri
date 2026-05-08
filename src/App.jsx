@@ -9,6 +9,7 @@ import ProposeTab from "./ProposeTab";
 import ChatTab from "./ChatTab";
 import GameDesignTab from "./GameDesignTab";
 import ColumnFeedback from "./ColumnFeedback";
+import AdminChat from "./AdminChat";
 
 const CATS = {
   new:     { label:"新台",     bg:"#FFF3E0", color:"#BF360C", border:"#FF8A65" },
@@ -772,6 +773,7 @@ export default function App() {
   const [analysisUnlocked, setAnalysisUnlocked] = useState(() => sessionStorage.getItem("analysis_unlocked") === "1");
   const [analysisPinInput, setAnalysisPinInput] = useState("");
   const [showFbInbox, setShowFbInbox] = useState(false);
+  const [adminInboxTab, setAdminInboxTab] = useState("feedback");
   const [favMachines, setFavMachines] = useState(() => JSON.parse(localStorage.getItem("slotkey_favs") || "[]"));
   function toggleFavMachine(machine) {
     setFavMachines(prev => {
@@ -1169,32 +1171,52 @@ export default function App() {
         </div>
       )}
 
-      {/* 管理者フィードバックインボックス（ロゴ5回タップで表示） */}
+      {/* 管理者パネル（ロゴ5回タップで表示） */}
       {showFbInbox && (
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:500,display:"flex",alignItems:"flex-end"}} onClick={e => { if(e.target===e.currentTarget) setShowFbInbox(false); }}>
-          <div style={{background:"#E8ECF0",borderRadius:"16px 16px 0 0",padding:"20px 20px 32px",width:"100%",maxWidth:740,margin:"0 auto",boxSizing:"border-box",maxHeight:"80vh",display:"flex",flexDirection:"column"}}>
+          <div style={{background:"#E8ECF0",borderRadius:"16px 16px 0 0",padding:"20px 20px 32px",width:"100%",maxWidth:740,margin:"0 auto",boxSizing:"border-box",maxHeight:"88vh",display:"flex",flexDirection:"column"}}>
             <div style={{width:40,height:4,background:"#C5C9D4",borderRadius:2,margin:"0 auto 14px"}}/>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
-              <div style={{fontSize:16,fontWeight:600}}>📬 フィードバック一覧</div>
-              <div style={{display:"flex",alignItems:"center",gap:8}}>
-                <span style={{fontSize:13,color:"#aaa"}}>{feedbackPosts.length}件</span>
-                <button onClick={() => setShowFbInbox(false)} style={{background:"none",border:"none",fontSize:20,color:"#aaa",cursor:"pointer",padding:"0 4px"}}>✕</button>
-              </div>
+
+            {/* タブ切り替え */}
+            <div style={{display:"flex",gap:6,marginBottom:14}}>
+              {[["feedback","📬 フィードバック"],["claude","🤖 Claudeと話す"]].map(([key,label]) => {
+                const on = adminInboxTab === key;
+                return (
+                  <button key={key} onClick={() => setAdminInboxTab(key)}
+                    style={{flex:1,padding:"8px",border:"none",borderRadius:10,fontSize:13,
+                      fontWeight:on?700:500,
+                      background:on?"#1A56B0":"#D8DCE4",
+                      color:on?"#fff":"#666",cursor:"pointer",
+                      boxShadow:on?"inset 2px 2px 5px rgba(0,0,0,0.2)":"2px 2px 5px #C5C9D4,-2px -2px 5px #FFFFFF",
+                      transition:"all 0.15s"}}>
+                    {label}
+                  </button>
+                );
+              })}
+              <button onClick={() => setShowFbInbox(false)} style={{background:"none",border:"none",fontSize:20,color:"#aaa",cursor:"pointer",padding:"0 6px"}}>✕</button>
             </div>
-            <div style={{overflowY:"auto",flex:1}}>
-              {feedbackPosts.length === 0 ? (
-                <div style={{textAlign:"center",color:"#aaa",padding:"32px 0",fontSize:14}}>まだフィードバックはありません</div>
-              ) : feedbackPosts.map(p => (
-                <div key={p.id} style={{background:"#fff",borderRadius:12,padding:"12px 14px",marginBottom:8}}>
-                  <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
-                    <span style={{fontSize:12,padding:"2px 8px",borderRadius:6,background:p.title==="バグ報告"?"#FCEBEB":p.title==="機能要望"?"#E6F1FB":"#F3EFF9",color:p.title==="バグ報告"?"#A32D2D":p.title==="機能要望"?"#185FA5":"#6B3FA0",fontWeight:600}}>{p.title}</span>
-                    <span style={{fontSize:12,color:"#aaa"}}>{p.internal?.author || "匿名"}</span>
-                    <span style={{fontSize:12,color:"#ccc",marginLeft:"auto"}}>{p.created_at ? new Date(p.created_at).toLocaleDateString("ja-JP") : ""}</span>
+
+            {/* フィードバック一覧 */}
+            {adminInboxTab === "feedback" && (
+              <div style={{overflowY:"auto",flex:1}}>
+                <div style={{fontSize:13,color:"#aaa",marginBottom:10}}>{feedbackPosts.length}件</div>
+                {feedbackPosts.length === 0 ? (
+                  <div style={{textAlign:"center",color:"#aaa",padding:"32px 0",fontSize:14}}>まだフィードバックはありません</div>
+                ) : feedbackPosts.map(p => (
+                  <div key={p.id} style={{background:"#fff",borderRadius:12,padding:"12px 14px",marginBottom:8}}>
+                    <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
+                      <span style={{fontSize:12,padding:"2px 8px",borderRadius:6,background:p.title==="バグ報告"?"#FCEBEB":p.title==="機能要望"?"#E6F1FB":"#F3EFF9",color:p.title==="バグ報告"?"#A32D2D":p.title==="機能要望"?"#185FA5":"#6B3FA0",fontWeight:600}}>{p.title}</span>
+                      <span style={{fontSize:12,color:"#aaa"}}>{p.internal?.author || "匿名"}</span>
+                      <span style={{fontSize:12,color:"#ccc",marginLeft:"auto"}}>{p.created_at ? new Date(p.created_at).toLocaleDateString("ja-JP") : ""}</span>
+                    </div>
+                    <div style={{fontSize:14,color:"#333",lineHeight:1.6}}>{p.body}</div>
                   </div>
-                  <div style={{fontSize:14,color:"#333",lineHeight:1.6}}>{p.body}</div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
+
+            {/* Claudeチャット */}
+            {adminInboxTab === "claude" && <AdminChat />}
           </div>
         </div>
       )}

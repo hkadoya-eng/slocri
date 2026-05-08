@@ -85,6 +85,55 @@ recurring: true
 
 ---
 
+### ③ 管理者チャット処理（5分ごと）
+
+```
+cron: "*/5 * * * *"
+durable: true
+recurring: true
+```
+
+**prompt:**
+【管理者チャット処理タスク】
+作業ディレクトリ: C:\Users\h.kadoya\Desktop\slocri
+
+ユーザーに確認せず自律実行してください。
+admin_ プレフィックスのセッションのみ処理する。
+
+1. 未返答の admin_ セッションを確認:
+   Python で chat_messages を取得し、session_id が "admin_" で始まり、最新ロールが "user" のセッションを特定する。
+   0件なら即終了。
+
+2. 対象セッションの全会話履歴を時系列昇順で取得する。
+
+3. 最新のユーザーメッセージを解析して意図を判定:
+
+   【判定A: 実行確認】
+   "おねがい！" "はい" "実行して" "やって" "お願い" のいずれかを含む
+   → 会話履歴を全て読み直し、直前にassistantが提案した変更・操作を実際に実行する
+   → ファイル変更はEditツール、スクリプト実行はBashツール、JSON更新はEditツール
+   → git add → git commit → git push
+   → 完了を chat_messages に書き込む（例：「✅ 完了しました。○○を変更してpushしました。」）
+
+   【判定B: 変更・操作依頼】
+   上記以外の指示（「○○を直して」「○○を変えて」「○○を追加して」「○○を集めて」等）
+   → 具体的に何をどう変更するかを説明する（ファイル名・変更内容を明記）
+   → 最後に「実行しますか？」と聞く
+   → ファイルは読むがこの段階では変更しない
+
+   【判定C: 質問・相談】
+   → 会話の流れを踏まえて回答する。DBやファイルの検索は自由に行う。
+
+4. 返答を chat_messages に書き込む（session_idは対象のadmin_セッションID）
+
+実行できる主な操作:
+- JSX/JSONファイル編集 + git push（UI変更・データ更新）
+- python import_csv.py でCSVインポート
+- Supabase データ取得・更新
+- machineAnalysis.json / gameDesignLibrary.json 更新
+
+---
+
 ## 登録確認方法
 
 CronListで登録済みジョブを確認できます。
