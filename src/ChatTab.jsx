@@ -27,6 +27,11 @@ function bubble(isUser) {
 }
 
 const COLLAPSE_THRESHOLD = 200;
+const QUESTION_PREFIX = "🔍 深掘り質問：";
+
+function isQuestioningMsg(content) {
+  return content.startsWith(QUESTION_PREFIX);
+}
 
 function CollapsibleContent({ content }) {
   const [expanded, setExpanded] = useState(false);
@@ -118,6 +123,7 @@ export default function ChatTab() {
   }
 
   const lastIsUser = messages.length > 0 && messages[messages.length - 1].role === "user";
+  const lastIsQuestioning = messages.length > 0 && messages[messages.length - 1].role === "assistant" && isQuestioningMsg(messages[messages.length - 1].content);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 120px)", maxWidth: 640, margin: "0 auto", position: "relative" }}>
@@ -145,27 +151,39 @@ export default function ChatTab() {
           </div>
         )}
 
-        {messages.map(msg => (
-          <div key={msg.id} style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start" }}>
-            <div style={bubble(msg.role === "user")}>
-              {msg.role === "assistant" ? <CollapsibleContent content={msg.content} /> : msg.content}
-            </div>
-            {msg.role === "assistant" && (
-              <div style={{ display: "flex", gap: 6, marginTop: 4, marginLeft: 4 }}>
-                <button
-                  onClick={() => rate(msg.id, 1)}
-                  title="良い回答"
-                  style={{ padding: "3px 10px", borderRadius: 20, border: "none", fontSize: 13, cursor: "pointer", background: ratings[msg.id] === 1 ? "#D1FAE5" : "#E8ECF0", color: ratings[msg.id] === 1 ? "#16A34A" : "#aaa", boxShadow: ratings[msg.id] === 1 ? "inset 2px 2px 4px #A7F3D0" : "2px 2px 4px #C5C9D4, -1px -1px 3px #FFFFFF", transition: "all 0.15s", fontWeight: ratings[msg.id] === 1 ? 700 : 400 }}
-                >👍</button>
-                <button
-                  onClick={() => rate(msg.id, -1)}
-                  title="改善が必要"
-                  style={{ padding: "3px 10px", borderRadius: 20, border: "none", fontSize: 13, cursor: "pointer", background: ratings[msg.id] === -1 ? "#FEE2E2" : "#E8ECF0", color: ratings[msg.id] === -1 ? "#DC2626" : "#aaa", boxShadow: ratings[msg.id] === -1 ? "inset 2px 2px 4px #FECACA" : "2px 2px 4px #C5C9D4, -1px -1px 3px #FFFFFF", transition: "all 0.15s", fontWeight: ratings[msg.id] === -1 ? 700 : 400 }}
-                >👎</button>
+        {messages.map(msg => {
+          const questioning = msg.role === "assistant" && isQuestioningMsg(msg.content);
+          const qBubble = questioning ? {
+            ...bubble(false),
+            background: "#EBF5FB",
+            boxShadow: "3px 3px 6px #C5D8E4, -2px -2px 4px #FFFFFF",
+            borderLeft: "3px solid #5BA3C9",
+          } : bubble(msg.role === "user");
+          return (
+            <div key={msg.id} style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start" }}>
+              {questioning && (
+                <div style={{ fontSize: 11, color: "#5BA3C9", fontWeight: 600, marginBottom: 4, marginLeft: 2 }}>ステップ1 / 深掘り中</div>
+              )}
+              <div style={qBubble}>
+                {msg.role === "assistant" ? <CollapsibleContent content={msg.content} /> : msg.content}
               </div>
-            )}
-          </div>
-        ))}
+              {msg.role === "assistant" && !questioning && (
+                <div style={{ display: "flex", gap: 6, marginTop: 4, marginLeft: 4 }}>
+                  <button
+                    onClick={() => rate(msg.id, 1)}
+                    title="良い回答"
+                    style={{ padding: "3px 10px", borderRadius: 20, border: "none", fontSize: 13, cursor: "pointer", background: ratings[msg.id] === 1 ? "#D1FAE5" : "#E8ECF0", color: ratings[msg.id] === 1 ? "#16A34A" : "#aaa", boxShadow: ratings[msg.id] === 1 ? "inset 2px 2px 4px #A7F3D0" : "2px 2px 4px #C5C9D4, -1px -1px 3px #FFFFFF", transition: "all 0.15s", fontWeight: ratings[msg.id] === 1 ? 700 : 400 }}
+                  >👍</button>
+                  <button
+                    onClick={() => rate(msg.id, -1)}
+                    title="改善が必要"
+                    style={{ padding: "3px 10px", borderRadius: 20, border: "none", fontSize: 13, cursor: "pointer", background: ratings[msg.id] === -1 ? "#FEE2E2" : "#E8ECF0", color: ratings[msg.id] === -1 ? "#DC2626" : "#aaa", boxShadow: ratings[msg.id] === -1 ? "inset 2px 2px 4px #FECACA" : "2px 2px 4px #C5C9D4, -1px -1px 3px #FFFFFF", transition: "all 0.15s", fontWeight: ratings[msg.id] === -1 ? 700 : 400 }}
+                  >👎</button>
+                </div>
+              )}
+            </div>
+          );
+        })}
 
         {lastIsUser && (
           <div style={{ display: "flex", justifyContent: "flex-start" }}>
@@ -186,7 +204,7 @@ export default function ChatTab() {
             disabled={sending}
             rows={2}
             style={{ flex: 1, padding: "10px 12px", borderRadius: 12, border: "none", background: "#E8ECF0", boxShadow: "inset 3px 3px 6px #C5C9D4, inset -2px -2px 5px #FFFFFF", fontSize: 14, outline: "none", resize: "none", fontFamily: "inherit", color: "#333" }}
-            placeholder="メッセージを入力（Shift+Enterで改行、Enterで送信）"
+            placeholder={lastIsQuestioning ? "上の質問に答えてください（Enterで送信）" : "メッセージを入力（Shift+Enterで改行、Enterで送信）"}
           />
           <button
             type="submit"
