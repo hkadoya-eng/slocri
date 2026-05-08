@@ -7,6 +7,7 @@ import GAME_LIBRARY from "./gameDesignLibrary.json";
 import MACHINE_LIBRARY from "./machineLibrary.json";
 import ProposeTab from "./ProposeTab";
 import ChatTab from "./ChatTab";
+import GameDesignTab from "./GameDesignTab";
 import ColumnFeedback from "./ColumnFeedback";
 
 const CATS = {
@@ -928,8 +929,8 @@ export default function App() {
     setTimeout(() => setToast(""), 2500);
   }
 
-  const TABS = ["feed","collect","overview","research","sis"];
-  const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"分析", sis:"稼働" };
+  const TABS = ["feed","collect","overview","research","sis","gamedesign"];
+  const LABELS = { feed:"投稿", collect:"追加", overview:"まとめ", research:"分析", sis:"稼働", gamedesign:"型別" };
   const normalPosts = posts.filter(p => p.cat !== "feedback");
   const feedbackPosts = posts.filter(p => p.cat === "feedback");
 
@@ -1107,7 +1108,8 @@ export default function App() {
           </div>
         </div>
       ))}
-      {tab === "sis"      && <SisTab />}
+      {tab === "sis"        && <SisTab />}
+      {tab === "gamedesign" && <GameDesignTab />}
 
       {/* フローティングフィードバックボタン（投稿タブのみ表示） */}
       {tab === "feed" && <div style={{position:"fixed",bottom:80,right:16,zIndex:200}}>
