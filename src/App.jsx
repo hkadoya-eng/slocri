@@ -2003,10 +2003,10 @@ function OverviewTab({ posts, updatePost }) {
           </div>
         </div>
       )}
-      <div className="scroll-x" style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"nowrap"}}>
+      <div className="scroll-x" style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"nowrap",overflowX:"auto",WebkitOverflowScrolling:"touch",paddingBottom:4}}>
         {[["rank","ランキング"],["machine","機種別"],["cat","カテゴリ分布"],["author","投稿者"],["browse","絞り込み"],["gap","ギャップ表"]].map(([k,l]) => {
           const on = view===k;
-          return <button key={k} onClick={() => { setView(k); setSelM(null); }} style={{padding:"5px 14px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:14,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{l}</button>;
+          return <button key={k} onClick={() => { setView(k); setSelM(null); }} style={{padding:"5px 10px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{l}</button>;
         })}
       </div>
 
