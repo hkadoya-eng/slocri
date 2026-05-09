@@ -594,7 +594,7 @@ function SisTab() {
   const wkAvgRate = weekRows.length ? weekRows.filter(r=>r.payout_rate!=null).reduce((s,r)=>s+r.payout_rate,0) / weekRows.filter(r=>r.payout_rate!=null).length : null;
 
   return (
-    <div onTouchStart={handleSwipeStart} onTouchMove={handleSwipeMove} onTouchEnd={handleSwipeEnd} style={{position:"relative",overflow:"hidden",touchAction:"pan-y"}}>
+    <div onTouchStart={handleSwipeStart} onTouchMove={handleSwipeMove} onTouchEnd={handleSwipeEnd} style={{position:"relative",touchAction:"pan-y"}}>
       {/* スワイプ中ピークラベル */}
       {swipeDx !== 0 && sisView === "daily" && (() => {
         const peekOpacity = Math.min(1, Math.abs(swipeDx) / 80);
@@ -637,15 +637,18 @@ function SisTab() {
         </>;
       })()}
       {/* デイリー/ウィークリー サブタブ */}
-      <div style={{display:"flex",gap:6,marginBottom:10}}>
-        {[{k:"daily",l:"デイリー"},{k:"weekly",l:"ウィークリー"}].map(({k,l}) => {
-          const on = sisView === k;
-          return <button key={k} onClick={() => setSisView(k)} style={{flex:1,padding:"8px 0",border:"none",borderRadius:10,fontSize:14,fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 5px rgba(0,0,0,0.2)":"2px 2px 5px #C5C9D4,-2px -2px 5px #fff"}}>{l}</button>;
-        })}
+      <div style={{position:"sticky",top:52,zIndex:15,background:"#E8ECF0",paddingBottom:6}}>
+        <div style={{display:"flex",gap:6}}>
+          {[{k:"daily",l:"デイリー"},{k:"weekly",l:"ウィークリー"}].map(({k,l}) => {
+            const on = sisView === k;
+            return <button key={k} onClick={() => setSisView(k)} style={{flex:1,padding:"8px 0",border:"none",borderRadius:10,fontSize:14,fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 5px rgba(0,0,0,0.2)":"2px 2px 5px #C5C9D4,-2px -2px 5px #fff"}}>{l}</button>;
+          })}
+        </div>
       </div>
 
-      {sisView === "daily" && <div key={animKey} className={animClass} style={{transform:`translateX(${swipeDx * 0.5}px)`,transition:swipeDx===0?"transform 0.2s ease-out":"none"}}>
-        {/* 日付ナビ */}
+      {sisView === "daily" && <>
+        <div style={{position:"sticky",top:96,zIndex:14,background:"#E8ECF0",paddingBottom:6}}>
+          {/* 日付ナビ */}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8,background:"#fff",borderRadius:10,padding:"6px 10px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
           <button onClick={() => setDateIdx(i => Math.min(i+1, dates.length-1))} disabled={dateIdx >= dates.length-1}
             style={{border:"none",background:"none",fontSize:20,cursor:"pointer",color:dateIdx>=dates.length-1?"#ccc":"#555",padding:"0 6px"}}>‹</button>
@@ -670,15 +673,18 @@ function SisTab() {
             ))}
           </div>
         )}
-        <div style={{display:"flex",gap:6,marginBottom:10}}>
+        <div style={{display:"flex",gap:6}}>
           {SORT_OPTS.map(o => { const on = sortKey === o.k; return (
             <button key={o.k} onClick={() => handleSort(o.k)} style={{flex:1,padding:"6px 0",border:"none",borderRadius:8,fontSize:12,fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 4px rgba(0,0,0,0.2)":"2px 2px 4px #C5C9D4,-2px -2px 4px #fff"}}>
               {o.label}{on ? (sortAsc ? " ↑" : " ↓") : ""}
             </button>
           );})}
         </div>
-        {ranked.length === 0 && <div style={{textAlign:"center",color:"#aaa",padding:"2rem"}}>データなし</div>}
-        <div style={{display:"flex",flexDirection:"column",gap:6}}>
+      </div>
+      <div style={{overflow:"hidden"}}>
+        <div key={animKey} className={animClass} style={{transform:`translateX(${swipeDx * 0.5}px)`,transition:swipeDx===0?"transform 0.2s ease-out":"none",marginTop:8}}>
+          {ranked.length === 0 && <div style={{textAlign:"center",color:"#aaa",padding:"2rem"}}>データなし</div>}
+          <div style={{display:"flex",flexDirection:"column",gap:6}}>
           {ranked.map((r, idx) => {
             const profit = r.gross_profit;
             const profitColor = profit == null ? "#888" : profit < 0 ? "#2a9d3f" : "#E53935";
@@ -702,66 +708,74 @@ function SisTab() {
               </div>
             );
           })}
+          </div>
         </div>
-      </div>}
+      </div>
+      </>}
 
-      {sisView === "weekly" && <div key={`w${animKey}`} className={animClass} style={{transform:`translateX(${swipeDx * 0.5}px)`,transition:swipeDx===0?"transform 0.2s ease-out":"none"}}>
-        {/* 週ナビ */}
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8,background:"#fff",borderRadius:10,padding:"6px 10px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
-          <button onClick={() => setWeekIdx(i => Math.min(i+1, weeks.length-1))} disabled={weekIdx >= weeks.length-1}
-            style={{border:"none",background:"none",fontSize:20,cursor:"pointer",color:weekIdx>=weeks.length-1?"#ccc":"#555",padding:"0 6px"}}>‹</button>
-          <div style={{display:"flex",alignItems:"center",gap:8}}>
-            <span style={{fontSize:14,fontWeight:700,color:"#333"}}>{fmtWeekLabel(selWeek?.key)}</span>
-            <span style={{fontSize:11,color:"#aaa"}}>{weekRows.length}機種</span>
+      {sisView === "weekly" && <>
+        <div style={{position:"sticky",top:96,zIndex:14,background:"#E8ECF0",paddingBottom:6}}>
+          {/* 週ナビ */}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8,background:"#fff",borderRadius:10,padding:"6px 10px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
+            <button onClick={() => setWeekIdx(i => Math.min(i+1, weeks.length-1))} disabled={weekIdx >= weeks.length-1}
+              style={{border:"none",background:"none",fontSize:20,cursor:"pointer",color:weekIdx>=weeks.length-1?"#ccc":"#555",padding:"0 6px"}}>‹</button>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <span style={{fontSize:14,fontWeight:700,color:"#333"}}>{fmtWeekLabel(selWeek?.key)}</span>
+              <span style={{fontSize:11,color:"#aaa"}}>{weekRows.length}機種</span>
+            </div>
+            <button onClick={() => setWeekIdx(i => Math.max(i-1, 0))} disabled={weekIdx <= 0}
+              style={{border:"none",background:"none",fontSize:20,cursor:"pointer",color:weekIdx<=0?"#ccc":"#555",padding:"0 6px"}}>›</button>
           </div>
-          <button onClick={() => setWeekIdx(i => Math.max(i-1, 0))} disabled={weekIdx <= 0}
-            style={{border:"none",background:"none",fontSize:20,cursor:"pointer",color:weekIdx<=0?"#ccc":"#555",padding:"0 6px"}}>›</button>
-        </div>
-        {weekRows.length > 0 && (
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:8}}>
-            {[
-              {label:"平均IN",    val: weekRows.length ? Math.round(weekRows.reduce((s,r)=>s+(r.out_coins||0),0)/weekRows.length).toLocaleString() : "—", color:"#444"},
-              {label:"平均出玉率", val: wkAvgRate != null ? wkAvgRate.toFixed(1)+"%" : "—", color: wkAvgRate != null ? rateColor(wkAvgRate) : "#888"},
-              {label:"平均粗利",   val: wkAvgProfit != null ? (wkAvgProfit < 0 ? "▲" : "▼")+" ¥"+Math.abs(Math.round(wkAvgProfit)).toLocaleString() : "—", color: wkAvgProfit != null ? (wkAvgProfit < 0 ? "#2a9d3f" : "#E53935") : "#888"},
-            ].map(s => (
-              <div key={s.label} style={{background:"#fff",borderRadius:8,padding:"5px 4px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
-                <div style={{fontSize:9,color:"#aaa",marginBottom:1}}>{s.label}</div>
-                <div style={{fontSize:12,fontWeight:700,color:s.color}}>{s.val}</div>
-              </div>
-            ))}
-          </div>
-        )}
-        <div style={{display:"flex",gap:6,marginBottom:10}}>
-          {SORT_OPTS.map(o => { const on = sortKey === o.k; return (
-            <button key={o.k} onClick={() => handleSort(o.k)} style={{flex:1,padding:"6px 0",border:"none",borderRadius:8,fontSize:12,fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 4px rgba(0,0,0,0.2)":"2px 2px 4px #C5C9D4,-2px -2px 4px #fff"}}>
-              {o.label}{on ? (sortAsc ? " ↑" : " ↓") : ""}
-            </button>
-          );})}
-        </div>
-        {wkSortedRows.length === 0 && <div style={{textAlign:"center",color:"#aaa",padding:"2rem"}}>データなし</div>}
-        <div style={{display:"flex",flexDirection:"column",gap:6}}>
-          {wkSortedRows.map((r, idx) => {
-            const profit = r.gross_profit;
-            const profitColor = profit == null ? "#888" : profit < 0 ? "#2a9d3f" : "#E53935";
-            const profitLabel = profit == null ? "—" : (profit < 0 ? "▲" : "▼") + " ¥" + Math.abs(profit).toLocaleString();
-            return (
-              <div key={r.machine} style={{background:"#fff",borderRadius:12,padding:"10px 12px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff",display:"flex",alignItems:"flex-start",gap:10}}>
-                <div style={{minWidth:24,fontWeight:700,fontSize:14,color:idx<3?"#D85A30":"#bbb",paddingTop:2}}>{idx+1}</div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:13,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:6}}>{r.machine}</div>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:"2px 8px"}}>
-                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>平均IN</div><div style={{fontWeight:600,color:"#444",fontSize:11}}>{fmtNum(r.out_coins)}</div></div>
-                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>出玉率</div><div style={{fontWeight:700,color:rateColor(r.payout_rate),fontSize:11}}>{fmtRate(r.payout_rate)}</div></div>
-                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>平均粗利</div><div style={{fontWeight:600,color:profitColor,fontSize:11}}>{fmtProfitShort(r.gross_profit)}</div></div>
-                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>単価</div><div style={{fontWeight:600,color:"#555",fontSize:11}}>{r.coin_price != null ? r.coin_price.toFixed(2)+"円" : "—"}</div></div>
-                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>貢献週</div><div style={{fontWeight:700,color:(machineStats[r.machine.replace(/\s/g,"")]||0)>0?"#2a7ae8":"#ccc",fontSize:11}}>{machineStats[r.machine.replace(/\s/g,"")] != null ? machineStats[r.machine.replace(/\s/g,"")]+"週" : "—"}</div></div>
-                  </div>
+          {weekRows.length > 0 && (
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:8}}>
+              {[
+                {label:"平均IN",    val: weekRows.length ? Math.round(weekRows.reduce((s,r)=>s+(r.out_coins||0),0)/weekRows.length).toLocaleString() : "—", color:"#444"},
+                {label:"平均出玉率", val: wkAvgRate != null ? wkAvgRate.toFixed(1)+"%" : "—", color: wkAvgRate != null ? rateColor(wkAvgRate) : "#888"},
+                {label:"平均粗利",   val: wkAvgProfit != null ? (wkAvgProfit < 0 ? "▲" : "▼")+" ¥"+Math.abs(Math.round(wkAvgProfit)).toLocaleString() : "—", color: wkAvgProfit != null ? (wkAvgProfit < 0 ? "#2a9d3f" : "#E53935") : "#888"},
+              ].map(s => (
+                <div key={s.label} style={{background:"#fff",borderRadius:8,padding:"5px 4px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
+                  <div style={{fontSize:9,color:"#aaa",marginBottom:1}}>{s.label}</div>
+                  <div style={{fontSize:12,fontWeight:700,color:s.color}}>{s.val}</div>
                 </div>
-              </div>
-            );
-          })}
+              ))}
+            </div>
+          )}
+          <div style={{display:"flex",gap:6}}>
+            {SORT_OPTS.map(o => { const on = sortKey === o.k; return (
+              <button key={o.k} onClick={() => handleSort(o.k)} style={{flex:1,padding:"6px 0",border:"none",borderRadius:8,fontSize:12,fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 4px rgba(0,0,0,0.2)":"2px 2px 4px #C5C9D4,-2px -2px 4px #fff"}}>
+                {o.label}{on ? (sortAsc ? " ↑" : " ↓") : ""}
+              </button>
+            );})}
+          </div>
         </div>
-      </div>}
+        <div style={{overflow:"hidden"}}>
+          <div key={`w${animKey}`} className={animClass} style={{transform:`translateX(${swipeDx * 0.5}px)`,transition:swipeDx===0?"transform 0.2s ease-out":"none",marginTop:8}}>
+            {wkSortedRows.length === 0 && <div style={{textAlign:"center",color:"#aaa",padding:"2rem"}}>データなし</div>}
+            <div style={{display:"flex",flexDirection:"column",gap:6}}>
+              {wkSortedRows.map((r, idx) => {
+                const profit = r.gross_profit;
+                const profitColor = profit == null ? "#888" : profit < 0 ? "#2a9d3f" : "#E53935";
+                const profitLabel = profit == null ? "—" : (profit < 0 ? "▲" : "▼") + " ¥" + Math.abs(profit).toLocaleString();
+                return (
+                  <div key={r.machine} style={{background:"#fff",borderRadius:12,padding:"10px 12px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff",display:"flex",alignItems:"flex-start",gap:10}}>
+                    <div style={{minWidth:24,fontWeight:700,fontSize:14,color:idx<3?"#D85A30":"#bbb",paddingTop:2}}>{idx+1}</div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:13,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:6}}>{r.machine}</div>
+                      <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:"2px 8px"}}>
+                        <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>平均IN</div><div style={{fontWeight:600,color:"#444",fontSize:11}}>{fmtNum(r.out_coins)}</div></div>
+                        <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>出玉率</div><div style={{fontWeight:700,color:rateColor(r.payout_rate),fontSize:11}}>{fmtRate(r.payout_rate)}</div></div>
+                        <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>平均粗利</div><div style={{fontWeight:600,color:profitColor,fontSize:11}}>{fmtProfitShort(r.gross_profit)}</div></div>
+                        <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>単価</div><div style={{fontWeight:600,color:"#555",fontSize:11}}>{r.coin_price != null ? r.coin_price.toFixed(2)+"円" : "—"}</div></div>
+                        <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>貢献週</div><div style={{fontWeight:700,color:(machineStats[r.machine.replace(/\s/g,"")]||0)>0?"#2a7ae8":"#ccc",fontSize:11}}>{machineStats[r.machine.replace(/\s/g,"")] != null ? machineStats[r.machine.replace(/\s/g,"")]+"週" : "—"}</div></div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </>}
 
       <div style={{textAlign:"right",marginTop:16}}>
         <button onClick={() => { localStorage.removeItem(PASS_KEY); setAuthed(false); setPw(""); }}
