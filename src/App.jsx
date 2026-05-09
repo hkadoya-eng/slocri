@@ -2100,7 +2100,7 @@ function OverviewTab({ posts, updatePost }) {
         </div>
       )}
       <div className="scroll-x" style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"nowrap",overflowX:"auto",WebkitOverflowScrolling:"touch",paddingBottom:4}}>
-        {[["rank","ランキング"],["machine","機種別"],["cat","カテゴリ分布"],["author","投稿者"],["browse","絞り込み"],["gap","ギャップ表"]].map(([k,l]) => {
+        {[["rank","ランキング"],["machine","機種別"],["cat","カテゴリ分布"],["author","投稿者"],["browse","絞り込み"],["gap","ギャップ表"],["calendar","新台カレンダー"]].map(([k,l]) => {
           const on = view===k;
           return <button key={k} onClick={() => { setView(k); setSelM(null); }} style={{padding:"5px 10px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{l}</button>;
         })}
@@ -2398,6 +2398,65 @@ function OverviewTab({ posts, updatePost }) {
                 </tbody>
               </table>
             </div>
+          </div>
+        );
+      })()}
+
+      {view==="calendar" && (() => {
+        const today = new Date();
+        const threeMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 3, today.getDate());
+        const calMachines = Object.entries(MACHINE_ANALYSIS)
+          .filter(([,v]) => v.releaseDate)
+          .map(([name, v]) => {
+            const rd = new Date(v.releaseDate);
+            const isPast = rd < today;
+            const relatedPosts = posts.filter(p => p.machine === name && p.cat === "new");
+            const specSnippet = v.spec
+              ? v.spec.split(' / ').filter(s => s.includes('純増') || s.includes('コイン単価')).map(s => s.slice(0,22)).join(' / ')
+              : '';
+            return { name, releaseDate: v.releaseDate, rd, isPast, relatedPosts, specSnippet };
+          })
+          .filter(m => m.rd >= threeMonthsAgo)
+          .sort((a,b) => a.rd - b.rd);
+        const byMonth = {};
+        calMachines.forEach(m => {
+          const key = m.releaseDate.slice(0, 7);
+          if (!byMonth[key]) byMonth[key] = [];
+          byMonth[key].push(m);
+        });
+        if (calMachines.length === 0) return <div style={{color:"#aaa",fontSize:14,textAlign:"center",paddingTop:40}}>カレンダーデータなし</div>;
+        return (
+          <div>
+            <div style={{fontSize:13,color:"#aaa",marginBottom:12}}>直近3ヶ月 ／ {calMachines.length}台</div>
+            {Object.entries(byMonth).map(([ym, machines]) => {
+              const [y, mo] = ym.split('-');
+              return (
+                <div key={ym} style={{marginBottom:20}}>
+                  <div style={{fontSize:13,fontWeight:600,color:"#555",marginBottom:8,padding:"4px 8px",background:"#E8ECF0",borderRadius:6}}>📅 {y}年{parseInt(mo)}月</div>
+                  <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                    {machines.map(m => (
+                      <div key={m.name} style={{
+                        background: m.isPast ? "#f9f9f9" : "#FFFDE7",
+                        border: `0.5px solid ${m.isPast ? "#eee" : "#F9A825"}`,
+                        borderRadius:10, padding:"10px 14px",
+                        opacity: m.isPast ? 0.75 : 1,
+                      }}>
+                        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4,flexWrap:"wrap"}}>
+                          <span style={{fontSize:11,color:m.isPast?"#aaa":"#E65100",fontWeight:600,background:m.isPast?"#eee":"#FFF3E0",padding:"2px 6px",borderRadius:4,flexShrink:0}}>
+                            {m.releaseDate.slice(5).replace('-','/')} {m.isPast?"導入済":"予定"}
+                          </span>
+                          <span style={{fontSize:14,fontWeight:600,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{m.name}</span>
+                        </div>
+                        {m.specSnippet && <div style={{fontSize:12,color:"#777",marginBottom:m.relatedPosts.length?4:0}}>{m.specSnippet}</div>}
+                        {m.relatedPosts.slice(0,2).map((p,i) => (
+                          <div key={i} style={{fontSize:12,color:"#185FA5",marginTop:2}}>・{p.title}</div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         );
       })()}
