@@ -660,15 +660,15 @@ function SisTab() {
             style={{border:"none",background:"none",fontSize:20,cursor:"pointer",color:dateIdx<=0?"#ccc":"#555",padding:"0 6px"}}>›</button>
         </div>
         {dayRows.length > 0 && (
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:8,maxWidth:280}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:6}}>
             {[
               {label:"平均IN",   val: dayRows.length ? Math.round(totalOut/dayRows.length).toLocaleString() : "—", color:"#444"},
               {label:"平均出玉率", val: avgRate != null ? avgRate.toFixed(1)+"%" : "—", color: avgRate != null ? rateColor(avgRate) : "#888"},
               {label:"平均粗利",   val: dayRows.length ? (totalProfit/dayRows.length<0?"▲":"▼")+" ¥"+Math.abs(Math.round(totalProfit/dayRows.length)).toLocaleString() : "—", color: totalProfit/dayRows.length < 0 ? "#2a9d3f" : "#E53935"},
             ].map(s => (
-              <div key={s.label} style={{background:"#fff",borderRadius:8,padding:"5px 4px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
-                <div style={{fontSize:9,color:"#aaa",marginBottom:1}}>{s.label}</div>
-                <div style={{fontSize:12,fontWeight:700,color:s.color}}>{s.val}</div>
+              <div key={s.label} style={{background:"#fff",borderRadius:8,padding:"3px 4px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
+                <div style={{fontSize:8,color:"#aaa",marginBottom:0}}>{s.label}</div>
+                <div style={{fontSize:11,fontWeight:700,color:s.color}}>{s.val}</div>
               </div>
             ))}
           </div>
@@ -727,15 +727,15 @@ function SisTab() {
               style={{border:"none",background:"none",fontSize:20,cursor:"pointer",color:weekIdx<=0?"#ccc":"#555",padding:"0 6px"}}>›</button>
           </div>
           {weekRows.length > 0 && (
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:8,maxWidth:280}}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:6}}>
               {[
                 {label:"平均IN",    val: weekRows.length ? Math.round(weekRows.reduce((s,r)=>s+(r.out_coins||0),0)/weekRows.length).toLocaleString() : "—", color:"#444"},
                 {label:"平均出玉率", val: wkAvgRate != null ? wkAvgRate.toFixed(1)+"%" : "—", color: wkAvgRate != null ? rateColor(wkAvgRate) : "#888"},
                 {label:"平均粗利",   val: wkAvgProfit != null ? (wkAvgProfit < 0 ? "▲" : "▼")+" ¥"+Math.abs(Math.round(wkAvgProfit)).toLocaleString() : "—", color: wkAvgProfit != null ? (wkAvgProfit < 0 ? "#2a9d3f" : "#E53935") : "#888"},
               ].map(s => (
-                <div key={s.label} style={{background:"#fff",borderRadius:8,padding:"5px 4px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
-                  <div style={{fontSize:9,color:"#aaa",marginBottom:1}}>{s.label}</div>
-                  <div style={{fontSize:12,fontWeight:700,color:s.color}}>{s.val}</div>
+                <div key={s.label} style={{background:"#fff",borderRadius:8,padding:"3px 4px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
+                  <div style={{fontSize:8,color:"#aaa",marginBottom:0}}>{s.label}</div>
+                  <div style={{fontSize:11,fontWeight:700,color:s.color}}>{s.val}</div>
                 </div>
               ))}
             </div>
