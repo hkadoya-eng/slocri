@@ -1099,7 +1099,7 @@ export default function App() {
 
       {toast && <div style={{background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",borderRadius:12,padding:"10px 16px",fontSize:15,color:"#3B6D11",fontWeight:500,marginBottom:10,textAlign:"center"}}>{toast}</div>}
 
-      <div style={{display:"flex",gap:4,marginBottom:"0.8rem",background:"#E8ECF0",boxShadow:"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF",borderRadius:14,padding:5}}>
+      <div style={{display:"flex",gap:4,marginBottom:"0.8rem",background:"#E8ECF0",boxShadow:"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF",borderRadius:14,padding:5,position:"sticky",top:0,zIndex:20}}>
         {TABS.map(k => {
           const on = tab === k;
           return <button key={k} onClick={() => setTab(k)} style={{flex:1,padding:"9px 0",border:"none",borderRadius:10,fontSize:15,background:on?"#E0E4E8":"#E8ECF0",color:on?"#D85A30":"#888",cursor:"pointer",fontWeight:on?700:500,textAlign:"center",boxShadow:on?"inset 4px 4px 8px #B8BCC8, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",transition:"all 0.18s"}}>{LABELS[k]}</button>;
@@ -2125,7 +2125,7 @@ function OverviewTab({ posts, updatePost }) {
           </div>
         </div>
       )}
-      <div style={{marginBottom:"1.25rem"}}>
+      <div style={{position:"sticky",top:52,zIndex:10,background:"#E8ECF0",paddingBottom:8,marginBottom:"1.25rem"}}>
         <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
           {[["rank","ランキング"],["machine","機種別"],["cat","カテゴリ分布"],["author","投稿者"],["browse","絞り込み"],["gap","ギャップ表"],["calendar","新台カレンダー"]].map(([k,l]) => {
             const on = view===k;
