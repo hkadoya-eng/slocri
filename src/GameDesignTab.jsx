@@ -29,6 +29,8 @@ const DATA = {
       "軽量CZ型": {
         description: GAME_LIBRARY.czDesignPatterns["軽量CZ型"].description,
         note: GAME_LIBRARY.czDesignPatterns["軽量CZ型"].designNote,
+        rules: GAME_LIBRARY.czDesignPatterns["軽量CZ型"].rules,
+        presentation: GAME_LIBRARY.czDesignPatterns["軽量CZ型"].presentation,
         machines: [
           { name: "L虚構推理",         detail: "CZ確率1/124.5（設定不問）。攻略勢に大好評で稼働首位の主因。" },
           { name: "異世界かるてっとBT", detail: "CZ確率1/124.5（設定不問）。CZは軽いがBTに繋がらないフラストレーションが問題で評価1.8/5。" },
@@ -37,6 +39,8 @@ const DATA = {
       "重量CZ型": {
         description: GAME_LIBRARY.czDesignPatterns["重量CZ型"].description,
         note: GAME_LIBRARY.czDesignPatterns["重量CZ型"].risk,
+        rules: GAME_LIBRARY.czDesignPatterns["重量CZ型"].rules,
+        presentation: GAME_LIBRARY.czDesignPatterns["重量CZ型"].presentation,
         machines: [
           { name: "スマスロ ヨルムンガンド",           detail: "通常時1500G回してCZ0回の報告が続出。導入2日目に通路化確定するホールが出た。" },
           { name: "スマスロ甲鉄城のカバネリ 海門決戦", detail: "低設定は構造的にCZが来ない設計。設定狙い専用機になってしまっている。" },
@@ -45,6 +49,8 @@ const DATA = {
       "段階CZ型": {
         description: GAME_LIBRARY.czDesignPatterns["段階CZ型"].description,
         note: GAME_LIBRARY.czDesignPatterns["段階CZ型"].designNote,
+        rules: GAME_LIBRARY.czDesignPatterns["段階CZ型"].rules,
+        presentation: GAME_LIBRARY.czDesignPatterns["段階CZ型"].presentation,
         machines: [
           { name: "スマスロ ヨルムンガンド", detail: "前半10G+後半3Gの2部構成ストーリーCZ。3回成功でPC突入という段階設計。失敗時の絶望も大きい。" },
         ],
@@ -52,6 +58,8 @@ const DATA = {
       "周期CZ型": {
         description: GAME_LIBRARY.czDesignPatterns["周期CZ型"].description,
         note: null,
+        rules: GAME_LIBRARY.czDesignPatterns["周期CZ型"].rules,
+        presentation: GAME_LIBRARY.czDesignPatterns["周期CZ型"].presentation,
         machines: [
           { name: "L真打吉宗", detail: "6周期でCZ確定（最大1000G）。周期天井が明確で立ち回りの指針が立てやすい。設定1でも97.8%を実現。" },
         ],
@@ -66,6 +74,8 @@ const DATA = {
           description: data.description,
           emotion: data.playerEmotion || null,
           note: null,
+          rules: data.rules || null,
+          presentation: data.presentation || null,
           machines: (data.examples || []).map(e => ({ name: e.machine, detail: e.detail || null })),
         },
       ])
@@ -237,6 +247,18 @@ export default function GameDesignTab() {
                 {typeData.note && (
                   <div style={{ padding: "6px 14px 0", fontSize: 12, color: "#888" }}>
                     設計メモ: {typeData.note}
+                  </div>
+                )}
+                {typeData.rules && (
+                  <div style={{ padding: "8px 14px 4px" }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: catCfg.accent, marginBottom: 3 }}>⚙️ 仕組み・ルール</div>
+                    <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>{typeData.rules}</div>
+                  </div>
+                )}
+                {typeData.presentation && (
+                  <div style={{ padding: "4px 14px 8px" }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: catCfg.accent, marginBottom: 3 }}>🎬 演出・表現方法</div>
+                    <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>{typeData.presentation}</div>
                   </div>
                 )}
 
