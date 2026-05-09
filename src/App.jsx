@@ -660,7 +660,7 @@ function SisTab() {
             style={{border:"none",background:"none",fontSize:20,cursor:"pointer",color:dateIdx<=0?"#ccc":"#555",padding:"0 6px"}}>›</button>
         </div>
         {dayRows.length > 0 && (
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:8}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:8,maxWidth:280}}>
             {[
               {label:"平均IN",   val: dayRows.length ? Math.round(totalOut/dayRows.length).toLocaleString() : "—", color:"#444"},
               {label:"平均出玉率", val: avgRate != null ? avgRate.toFixed(1)+"%" : "—", color: avgRate != null ? rateColor(avgRate) : "#888"},
@@ -727,7 +727,7 @@ function SisTab() {
               style={{border:"none",background:"none",fontSize:20,cursor:"pointer",color:weekIdx<=0?"#ccc":"#555",padding:"0 6px"}}>›</button>
           </div>
           {weekRows.length > 0 && (
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:8}}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:8,maxWidth:280}}>
               {[
                 {label:"平均IN",    val: weekRows.length ? Math.round(weekRows.reduce((s,r)=>s+(r.out_coins||0),0)/weekRows.length).toLocaleString() : "—", color:"#444"},
                 {label:"平均出玉率", val: wkAvgRate != null ? wkAvgRate.toFixed(1)+"%" : "—", color: wkAvgRate != null ? rateColor(wkAvgRate) : "#888"},
