@@ -2609,7 +2609,10 @@ ${GAME_LIBRARY.playerPsychology.ライトユーザーが嫌うこと.join(" / ")
 ${GAME_LIBRARY.playerPsychology["20代が反応する要素"].join(" / ")}
 
 【やめられない設計の原理】
-${GAME_LIBRARY.playerPsychology.やめられない設計の原理.map(p=>`・${p.type}: ${p.description} (例: ${p.example})`).join("\n")}`;
+${GAME_LIBRARY.playerPsychology.やめられない設計の原理.map(p=>`・${p.type}: ${p.description} (例: ${p.example})`).join("\n")}
+
+【機種別ゲーム性データ】
+${Object.entries(GAME_LIBRARY.machines).map(([name, m]) => `▶${name}: ${m.description} | 単価:${m.coinUnit} 純増:${m.atPureIncrease} 天井:${m.ceiling} | 強み:${m.keyStrengths.join("・")} | 市場:${m.marketResult}`).join("\n\n")}`;
 
       const machineLibContext = MACHINE_LIBRARY.machines.slice(0, 200).map(m =>
         `${m.name}（${m.maker}/${m.year}/${m.era}）[${m.type}] spec:${m.spec} pattern:${m.designPattern} 教訓:${m.lesson} 感情:${m.playerEmotion} tags:${m.tags.join(",")}`
