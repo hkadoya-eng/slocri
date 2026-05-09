@@ -168,7 +168,7 @@ export default function AdminChat() {
             flex: 1, fontSize: 13, padding: "8px 10px", borderRadius: 10,
             border: "none", background: "#E8ECF0",
             boxShadow: "inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF",
-            resize: "none", outline: "none",
+            resize: "none", outline: "none", height: "52px", maxHeight: "52px",
           }}
         />
         <button
