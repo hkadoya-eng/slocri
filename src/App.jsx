@@ -197,8 +197,18 @@ function MachineListTab({ posts, onGoToFeed, favMachines = [], toggleFavMachine 
   const [sortBy, setSortBy] = useState("posts");
   const [showFavOnly, setShowFavOnly] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [sisStats, setSisStats] = useState({});
   const sheetRef = React.useRef(null);
   React.useEffect(() => { sheetRef.current?.scrollTo(0,0); }, [selected]);
+  React.useEffect(() => {
+    supabase.from("sis_machine_stats").select("machine,contrib_weeks").then(({ data }) => {
+      if (!data) return;
+      const m = {};
+      data.forEach(s => { m[s.machine.replace(/\s/g, "")] = s.contrib_weeks; });
+      setSisStats(m);
+    });
+  }, []);
+  function getSisWeeks(name) { return sisStats[name.replace(/\s/g, "")] ?? null; }
 
   const machines = useMemo(() => {
     const m = {};
@@ -235,9 +245,12 @@ function MachineListTab({ posts, onGoToFeed, favMachines = [], toggleFavMachine 
               <div style={{display:"flex",alignItems:"flex-start",gap:8,marginBottom:10}}>
                 <div style={{flex:1}}>
                   <div style={{fontSize:18,fontWeight:700,color:"#333"}}>{selected}</div>
-                  {selAnalysis?.releaseDate && (
-                    <div style={{fontSize:12,color:"#888",marginTop:2}}>導入日: {selAnalysis.releaseDate}</div>
-                  )}
+                  <div style={{display:"flex",gap:10,marginTop:2,flexWrap:"wrap"}}>
+                    {selAnalysis?.releaseDate && (
+                      <div style={{fontSize:12,color:"#888"}}>導入日: {selAnalysis.releaseDate}</div>
+                    )}
+                    {(() => { const w = getSisWeeks(selected); return w != null ? <div style={{fontSize:12,color:"#1A56B0",fontWeight:600}}>稼働 {w}週</div> : null; })()}
+                  </div>
                   <div style={{fontSize:13,color:"#aaa",marginTop:1}}>{selPosts.length}件の投稿</div>
                 </div>
                 <button onClick={() => { onGoToFeed(selected); setSelected(null); }} style={{padding:"6px 14px",background:"#D85A30",color:"#fff",border:"none",borderRadius:20,fontSize:13,cursor:"pointer",fontWeight:600,flexShrink:0}}>フィードで見る</button>
@@ -324,10 +337,12 @@ function MachineListTab({ posts, onGoToFeed, favMachines = [], toggleFavMachine 
 
       {filtered.map(m => {
         const isFav = favMachines.includes(m.name);
+        const sisW = getSisWeeks(m.name);
         return (
         <div key={m.name} style={{background:"#E8ECF0",boxShadow:"5px 5px 10px #C5C9D4, -5px -5px 10px #FFFFFF",borderRadius:14,padding:"12px 14px",marginBottom:10,cursor:"pointer",transition:"box-shadow 0.15s"}} onClick={() => setSelected(m.name)}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
             <div style={{flex:1,fontWeight:600,fontSize:15,color:"#333",overflowWrap:"anywhere"}}>{m.name}</div>
+            {sisW != null && <span style={{fontSize:11,color:"#1A56B0",fontWeight:600,flexShrink:0,background:"rgba(26,86,176,0.08)",padding:"2px 7px",borderRadius:6}}>{sisW}週</span>}
             <button onClick={e => { e.stopPropagation(); toggleFavMachine(m.name); }} style={{background:"none",border:"none",fontSize:18,cursor:"pointer",color:isFav?"#E8B000":"#ccc",padding:"0 2px",lineHeight:1,flexShrink:0}}>{isFav?"★":"☆"}</button>
             <div style={{fontSize:13,color:"#888",flexShrink:0,textAlign:"right"}}>
               <span>{m.count}件</span>
