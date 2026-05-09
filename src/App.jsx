@@ -464,7 +464,12 @@ function SisTab() {
       if (r.coin_price != null) m[r.machine].prices.push(r.coin_price);
       m[r.machine].cnt += 1;
     });
-    return Object.values(wkMap).sort((a,b) => b.key.localeCompare(a.key));
+    const today = new Date(); today.setHours(0,0,0,0);
+    return Object.values(wkMap).filter(w => {
+      const mon = new Date(w.key + "T00:00:00");
+      const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+      return sun < today;
+    }).sort((a,b) => b.key.localeCompare(a.key));
   }, [rows]);
 
   function handleLogin(e) {
