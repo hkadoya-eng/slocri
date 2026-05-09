@@ -163,12 +163,12 @@ export default function AdminChat() {
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); } }}
           placeholder="指示・質問を入力（Enterで送信 / Shift+Enterで改行）"
-          rows={2}
           style={{
-            flex: 1, fontSize: 13, padding: "8px 10px", borderRadius: 10,
+            flex: 1, fontSize: 16, padding: "8px 10px", borderRadius: 10,
             border: "none", background: "#E8ECF0",
             boxShadow: "inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF",
             resize: "none", outline: "none", height: "52px", maxHeight: "52px",
+            overflowY: "hidden", lineHeight: 1.4,
           }}
         />
         <button

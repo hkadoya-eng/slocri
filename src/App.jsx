@@ -364,22 +364,33 @@ function SisTab() {
   const [sisView, setSisView] = useState("daily");
   const [weekIdx, setWeekIdx] = useState(0);
   const swipeTouchX = useRef(null);
+  const swipeTouchY = useRef(null);
+  const swipeDir = useRef(null);
   const [animKey, setAnimKey] = useState(0);
   const [animClass, setAnimClass] = useState("");
   const [swipeDx, setSwipeDx] = useState(0);
 
   function handleSwipeStart(e) {
     swipeTouchX.current = e.touches[0].clientX;
+    swipeTouchY.current = e.touches[0].clientY;
+    swipeDir.current = null;
     setSwipeDx(0);
   }
   function handleSwipeMove(e) {
     if (swipeTouchX.current == null) return;
-    setSwipeDx(e.touches[0].clientX - swipeTouchX.current);
+    const dx = e.touches[0].clientX - swipeTouchX.current;
+    const dy = e.touches[0].clientY - swipeTouchY.current;
+    if (!swipeDir.current && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+      swipeDir.current = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
+    }
+    if (swipeDir.current === "x") setSwipeDx(dx);
   }
   function handleSwipeEnd(e) {
     if (swipeTouchX.current == null) return;
     const dx = e.changedTouches[0].clientX - swipeTouchX.current;
     swipeTouchX.current = null;
+    swipeTouchY.current = null;
+    swipeDir.current = null;
     setSwipeDx(0);
     if (Math.abs(dx) < 50) return;
     const dir = dx < 0 ? "left" : "right";
@@ -568,7 +579,7 @@ function SisTab() {
   const wkAvgRate = weekRows.length ? weekRows.filter(r=>r.payout_rate!=null).reduce((s,r)=>s+r.payout_rate,0) / weekRows.filter(r=>r.payout_rate!=null).length : null;
 
   return (
-    <div onTouchStart={handleSwipeStart} onTouchMove={handleSwipeMove} onTouchEnd={handleSwipeEnd} style={{position:"relative",overflow:"hidden"}}>
+    <div onTouchStart={handleSwipeStart} onTouchMove={handleSwipeMove} onTouchEnd={handleSwipeEnd} style={{position:"relative",overflow:"hidden",touchAction:"pan-y"}}>
       {/* スワイプ中ピークラベル */}
       {swipeDx !== 0 && sisView === "daily" && (() => {
         const peekOpacity = Math.min(1, Math.abs(swipeDx) / 80);
@@ -618,7 +629,7 @@ function SisTab() {
         })}
       </div>
 
-      {sisView === "daily" && <div key={animKey} className={animClass} style={{transform:`translateX(${swipeDx * 0.25}px)`,transition:swipeDx===0?"transform 0.2s ease-out":"none"}}>
+      {sisView === "daily" && <div key={animKey} className={animClass} style={{transform:`translateX(${swipeDx * 0.5}px)`,transition:swipeDx===0?"transform 0.2s ease-out":"none"}}>
         {/* 日付ナビ */}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8,background:"#fff",borderRadius:10,padding:"6px 10px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
           <button onClick={() => setDateIdx(i => Math.min(i+1, dates.length-1))} disabled={dateIdx >= dates.length-1}
@@ -679,7 +690,7 @@ function SisTab() {
         </div>
       </div>}
 
-      {sisView === "weekly" && <div key={`w${animKey}`} className={animClass} style={{transform:`translateX(${swipeDx * 0.25}px)`,transition:swipeDx===0?"transform 0.2s ease-out":"none"}}>
+      {sisView === "weekly" && <div key={`w${animKey}`} className={animClass} style={{transform:`translateX(${swipeDx * 0.5}px)`,transition:swipeDx===0?"transform 0.2s ease-out":"none"}}>
         {/* 週ナビ */}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8,background:"#fff",borderRadius:10,padding:"6px 10px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
           <button onClick={() => setWeekIdx(i => Math.min(i+1, weeks.length-1))} disabled={weekIdx >= weeks.length-1}
@@ -937,7 +948,7 @@ export default function App() {
   const feedbackPosts = posts.filter(p => p.cat === "feedback");
 
   return (
-    <div style={{padding:"16px",maxWidth:740,width:"100%",boxSizing:"border-box",margin:"0 auto",fontFamily:"sans-serif",textAlign:"left",overflowX:"hidden",background:"#E8ECF0",minHeight:"100svh"}}>
+    <div style={{padding:"16px",maxWidth:740,width:"100%",boxSizing:"border-box",margin:"0 auto",fontFamily:"sans-serif",textAlign:"left",background:"#E8ECF0",minHeight:"100svh"}}>
       {pullIndicator > 0 && (
         <div style={{position:"fixed",top:0,left:0,right:0,zIndex:300,display:"flex",justifyContent:"center",alignItems:"center",gap:6,padding:"10px 0",background:"#E8ECF0",boxShadow:"0 2px 8px rgba(0,0,0,0.08)",fontSize:13,color:pullIndicator>=55?"#2a9d3f":"#aaa",transition:"color 0.15s"}}>
           <span style={{display:"inline-block",transform:`rotate(${pullIndicator>=55?180:0}deg)`,transition:"transform 0.2s"}}>↓</span>
@@ -2099,11 +2110,14 @@ function OverviewTab({ posts, updatePost }) {
           </div>
         </div>
       )}
-      <div className="scroll-x" style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"nowrap",overflowX:"auto",WebkitOverflowScrolling:"touch",paddingBottom:4}}>
-        {[["rank","ランキング"],["machine","機種別"],["cat","カテゴリ分布"],["author","投稿者"],["browse","絞り込み"],["gap","ギャップ表"],["calendar","新台カレンダー"]].map(([k,l]) => {
-          const on = view===k;
-          return <button key={k} onClick={() => { setView(k); setSelM(null); }} style={{padding:"5px 10px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{l}</button>;
-        })}
+      <div style={{position:"relative",marginBottom:"1.25rem"}}>
+        <div className="scroll-x" style={{display:"flex",gap:6,flexWrap:"nowrap",overflowX:"auto",WebkitOverflowScrolling:"touch",paddingBottom:4,paddingRight:24}}>
+          {[["rank","ランキング"],["machine","機種別"],["cat","カテゴリ分布"],["author","投稿者"],["browse","絞り込み"],["gap","ギャップ表"],["calendar","新台カレンダー"]].map(([k,l]) => {
+            const on = view===k;
+            return <button key={k} onClick={() => { setView(k); setSelM(null); }} style={{padding:"5px 10px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0}}>{l}</button>;
+          })}
+        </div>
+        <div style={{position:"absolute",right:0,top:0,bottom:4,width:32,background:"linear-gradient(to right, transparent, #E8ECF0)",pointerEvents:"none"}}/>
       </div>
 
       {view==="rank" && (() => {
