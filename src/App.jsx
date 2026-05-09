@@ -472,6 +472,19 @@ function SisTab() {
     }).sort((a,b) => b.key.localeCompare(a.key));
   }, [rows]);
 
+  const machineWeeks = useMemo(() => {
+    const map = {};
+    rows.forEach(r => {
+      const dt = new Date(r.date + "T00:00:00");
+      const mon = new Date(dt); mon.setDate(dt.getDate() - ((dt.getDay() + 6) % 7));
+      const key = `${mon.getFullYear()}-${String(mon.getMonth()+1).padStart(2,"0")}-${String(mon.getDate()).padStart(2,"0")}`;
+      const mk = r.machine.replace(/\s/g, "");
+      if (!map[mk]) map[mk] = new Set();
+      map[mk].add(key);
+    });
+    return map;
+  }, [rows]);
+
   function handleLogin(e) {
     e.preventDefault();
     if (pw === CORRECT) {
@@ -771,7 +784,7 @@ function SisTab() {
                         <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>出玉率</div><div style={{fontWeight:700,color:rateColor(r.payout_rate),fontSize:11}}>{fmtRate(r.payout_rate)}</div></div>
                         <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>平均粗利</div><div style={{fontWeight:600,color:profitColor,fontSize:11}}>{fmtProfitShort(r.gross_profit)}</div></div>
                         <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>単価</div><div style={{fontWeight:600,color:"#555",fontSize:11}}>{r.coin_price != null ? r.coin_price.toFixed(2)+"円" : "—"}</div></div>
-                        <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>貢献週</div><div style={{fontWeight:700,color:(machineStats[r.machine.replace(/\s/g,"")]||0)>0?"#2a7ae8":"#ccc",fontSize:11}}>{machineStats[r.machine.replace(/\s/g,"")] != null ? machineStats[r.machine.replace(/\s/g,"")]+"週" : "—"}</div></div>
+                        <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>貢献週</div><div style={{fontWeight:700,color:(()=>{ const wks=machineWeeks[r.machine.replace(/\s/g,"")]; return wks && [...wks].filter(k=>k<=selWeek.key).length>0?"#2a7ae8":"#ccc"; })(),fontSize:11}}>{(()=>{ const wks=machineWeeks[r.machine.replace(/\s/g,"")]; if(!wks) return "—"; const cnt=[...wks].filter(k=>k<=selWeek.key).length; return cnt>0?cnt+"週":"—"; })()}</div></div>
                       </div>
                     </div>
                   </div>
