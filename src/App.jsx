@@ -533,7 +533,7 @@ function SisTab() {
     if (n == null) return "—";
     const s = n < 0 ? "▲" : "▼";
     const a = Math.abs(n);
-    return a >= 10000 ? s + Math.round(a/10000) + "万" : s + a.toLocaleString();
+    return s + Math.round(a);
   }
   function rateColor(n) {
     if (n == null) return "#888";
