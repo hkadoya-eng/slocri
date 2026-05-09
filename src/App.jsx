@@ -454,7 +454,7 @@ function SisTab() {
     rows.forEach(r => {
       const dt = new Date(r.date + "T00:00:00");
       const mon = new Date(dt); mon.setDate(dt.getDate() - ((dt.getDay() + 6) % 7));
-      const key = mon.toISOString().slice(0,10);
+      const key = `${mon.getFullYear()}-${String(mon.getMonth()+1).padStart(2,"0")}-${String(mon.getDate()).padStart(2,"0")}`;
       if (!wkMap[key]) wkMap[key] = { key, machines: {} };
       const m = wkMap[key].machines;
       if (!m[r.machine]) m[r.machine] = { out: 0, profit: 0, rates: [], prices: [], cnt: 0 };
