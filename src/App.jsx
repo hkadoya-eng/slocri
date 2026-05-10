@@ -426,15 +426,18 @@ function SisTab() {
     if (!authed) return;
     setLoading(true);
     const cutoff = new Date();
-    cutoff.setMonth(cutoff.getMonth() - (dateRange === "3m" ? 3 : 1));
-    const cutoffStr = cutoff.toISOString().slice(0, 10);
+    if (dateRange === "3m") cutoff.setMonth(cutoff.getMonth() - 3);
+    else if (dateRange === "6m") cutoff.setMonth(cutoff.getMonth() - 6);
+    else if (dateRange === "1m") cutoff.setMonth(cutoff.getMonth() - 1);
+    const cutoffStr = dateRange === "all" ? null : cutoff.toISOString().slice(0, 10);
+    let sisQuery = supabase
+      .from("sis_data")
+      .select("machine,date,out_coins,coin_price,payout_rate,gross_profit,operation_ratio,machine_count")
+      .order("date", { ascending: false })
+      .limit(dateRange === "all" ? 20000 : 5000);
+    if (cutoffStr) sisQuery = sisQuery.gte("date", cutoffStr);
     Promise.all([
-      supabase
-        .from("sis_data")
-        .select("machine,date,out_coins,coin_price,payout_rate,gross_profit,operation_ratio,machine_count")
-        .gte("date", cutoffStr)
-        .order("date", { ascending: false })
-        .limit(5000),
+      sisQuery,
       supabase
         .from("sis_machine_stats")
         .select("machine,contrib_weeks"),
@@ -669,7 +672,7 @@ function SisTab() {
             return <button key={k} onClick={() => setSisView(k)} style={{flex:1,padding:"8px 0",border:"none",borderRadius:10,fontSize:14,fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 5px rgba(0,0,0,0.2)":"2px 2px 5px #C5C9D4,-2px -2px 5px #fff"}}>{l}</button>;
           })}
           <div style={{display:"flex",gap:3,background:"#E8ECF0",borderRadius:10,padding:3,boxShadow:"inset 2px 2px 4px #C5C9D4,inset -2px -2px 4px #fff",flexShrink:0}}>
-            {[{k:"1m",l:"1ヶ月"},{k:"3m",l:"3ヶ月"}].map(({k,l}) => {
+            {[{k:"1m",l:"1ヶ月"},{k:"3m",l:"3ヶ月"},{k:"6m",l:"6ヶ月"},{k:"all",l:"全期間"}].map(({k,l}) => {
               const on = dateRange === k;
               return <button key={k} onClick={() => setDateRange(k)} style={{padding:"5px 10px",border:"none",borderRadius:8,fontSize:12,fontWeight:on?700:400,background:on?"#fff":"transparent",color:on?"#D85A30":"#aaa",cursor:"pointer",boxShadow:on?"1px 1px 3px #C5C9D4":"none",transition:"all 0.15s"}}>{l}</button>;
             })}
