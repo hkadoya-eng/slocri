@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "./supabase";
+import GAME_LIBRARY from "./gameDesignLibrary.json";
+import MACHINE_ANALYSIS from "./machineAnalysis.json";
+import MACHINE_LIBRARY from "./machineLibrary.json";
 
 const STATUS = {
   pending:      { label: "⏳ 待機中",   color: "#888",    bg: "#F3F4F6" },
@@ -21,6 +24,7 @@ const S = {
 };
 
 export default function ProposeTab() {
+  const [proposeMode, setProposeMode] = useState("full");
   const [requests, setRequests] = useState([]);
   const [ipName, setIpName] = useState("");
   const [target, setTarget] = useState("");
@@ -33,6 +37,9 @@ export default function ProposeTab() {
   const [proposalRatings, setProposalRatings] = useState({});
   const [revisionInputs, setRevisionInputs] = useState({});
   const [revisionSubmitting, setRevisionSubmitting] = useState({});
+  const [featureText, setFeatureText] = useState("");
+  const [featureResult, setFeatureResult] = useState(null);
+  const [featureLoading, setFeatureLoading] = useState(false);
 
   useEffect(() => {
     load();
@@ -130,6 +137,96 @@ export default function ProposeTab() {
     load();
   }
 
+  async function generateFeatureProposal() {
+    if (!featureText.trim()) return;
+    setFeatureLoading(true);
+    setFeatureResult(null);
+    try {
+      const analysisContext = Object.entries(MACHINE_ANALYSIS).slice(0, 20).map(([name, data]) => {
+        const lines = [`【${name}】`];
+        if (data.spec) lines.push(`  スペック: ${data.spec}`);
+        if (data.highlight) lines.push(`  ゲーム性: ${data.highlight}`);
+        if (data.pros?.length) lines.push(`  良い点: ${data.pros.slice(0, 2).join(" / ")}`);
+        if (data.cons?.length) lines.push(`  悪い点: ${data.cons.slice(0, 2).join(" / ")}`);
+        return lines.join("\n");
+      }).join("\n\n");
+
+      const libContext = [
+        "【ゲームフロー設計パターン】",
+        ...Object.entries(GAME_LIBRARY.gameFlowPatterns || {}).map(([k, v]) =>
+          `▶${k}: ${v.description} / 成功例: ${(v.examples || []).slice(0, 2).map(e => e.machine).join("・")}`
+        ),
+        "",
+        "【CZ設計パターン】",
+        ...Object.entries(GAME_LIBRARY.czDesignPatterns || {}).map(([k, v]) =>
+          `▶${k}: ${v.description} / 例: ${(v.examples || []).slice(0, 2).map(e => e.machine).join("・")}`
+        ),
+        "",
+        "【プレイヤー心理】",
+        `ライトユーザーが嫌うこと: ${(GAME_LIBRARY.playerPsychology?.ライトユーザーが嫌うこと || []).join(" / ")}`,
+        `やめられない設計: ${(GAME_LIBRARY.playerPsychology?.やめられない設計の原理 || []).slice(0, 3).map(p => p.type + ": " + p.description).join(" / ")}`,
+      ].join("\n");
+
+      const machineRef = (MACHINE_LIBRARY.machines || []).slice(0, 100).map(m =>
+        `${m.name}（${m.maker}/${m.year}）[${m.type}] pattern:${m.designPattern} 教訓:${m.lesson}`
+      ).join("\n");
+
+      const prompt = `あなたはパチスロ・パチンコ機種の企画開発コンサルタントです。以下の情報源をもとに、指定された「機能・ゲーム性」についての設計提案を作成してください。
+
+---
+【既存機種 分析データ】
+${analysisContext}
+
+---
+【設計パターン・プレイヤー心理ライブラリ】
+${libContext}
+
+---
+【100機種データベース（参考）】
+${machineRef}
+
+---
+【提案リクエスト】
+${featureText.trim()}
+
+---
+以下の構成でマークダウン形式の提案書を作成してください。既存機種の具体例を引用しながら根拠を示してください。
+
+# 機能設計提案書
+
+## 1. 設計コンセプト
+（リクエストの核心を一言で＋150文字程度の説明）
+
+## 2. 設計仕様（案）
+（数値・確率・フロー概要を箇条書きで。「目安」として明示する）
+
+## 3. 参考機種との比較
+（最も近い既存機種を2〜3つ挙げ、本提案との違いを示す）
+
+## 4. プレイヤー体験
+（実際に打った時の感情の流れを200文字程度で）
+
+## 5. リスクと対策
+（想定されるデメリット・失敗パターンと対策を2点で）
+
+ルール：数値は「目安」と明示。既存機種名を根拠として引用する。`;
+
+      const res = await fetch("/api/claude", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 3000, messages: [{ role: "user", content: prompt }] }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || JSON.stringify(data.error)));
+      const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("") || "生成に失敗しました。";
+      setFeatureResult(text);
+    } catch (e) {
+      setFeatureResult("エラーが発生しました: " + (e.message || "不明"));
+    }
+    setFeatureLoading(false);
+  }
+
   function copyResult(text) {
     navigator.clipboard.writeText(text);
     showToast("コピーしました");
@@ -144,7 +241,63 @@ export default function ProposeTab() {
         </div>
       )}
 
-      {/* 入力フォーム */}
+      {/* モード切替 */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+        {[["full", "🎮 全体企画"], ["feature", "⚡ 機能単体"]].map(([k, l]) => (
+          <button key={k} onClick={() => { setProposeMode(k); setFeatureResult(null); }}
+            style={{ flex: 1, padding: "9px 0", borderRadius: 10, border: "none", fontWeight: 600, fontSize: 14, cursor: "pointer", transition: "all 0.15s",
+              background: proposeMode === k ? "#D85A30" : "#E8ECF0",
+              color: proposeMode === k ? "#fff" : "#888",
+              boxShadow: proposeMode === k ? "inset 2px 2px 5px rgba(0,0,0,0.15)" : "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF",
+            }}>{l}</button>
+        ))}
+      </div>
+
+      {/* 機能単体フォーム */}
+      {proposeMode === "feature" && (
+        <div style={S.card}>
+          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 10, color: "#444" }}>⚡ 機能・ゲーム性を1つ指定して提案</div>
+          <textarea
+            style={{ ...S.input, resize: "vertical", minHeight: 90, lineHeight: 1.6, marginBottom: 12 }}
+            value={featureText}
+            onChange={e => setFeatureText(e.target.value)}
+            placeholder={"例：高純増AT機のCZ設計を提案して\n例：やめ時がない継続ループのボーナス設計\n例：天井300Gのライトスペック向けゲームフロー"}
+          />
+          <button onClick={generateFeatureProposal} disabled={featureLoading || !featureText.trim()}
+            style={{ width: "100%", padding: "13px 0", borderRadius: 12, border: "none",
+              background: (featureLoading || !featureText.trim()) ? "#C5C9D4" : "#D85A30",
+              color: "#fff", fontSize: 15, fontWeight: 700,
+              cursor: (featureLoading || !featureText.trim()) ? "not-allowed" : "pointer",
+              boxShadow: (featureLoading || !featureText.trim()) ? "none" : "3px 3px 8px #C5C9D4, -1px -1px 4px #FFFFFF",
+              transition: "all 0.15s", marginBottom: 8,
+            }}>
+            {featureLoading ? "生成中...（20秒ほど）" : "提案を生成する ✨"}
+          </button>
+          {featureResult && (
+            <div style={{ marginTop: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#555" }}>生成された提案</div>
+                <button onClick={() => copyResult(featureResult)}
+                  style={{ padding: "4px 12px", borderRadius: 8, border: "none", background: "#E8ECF0", color: "#555", fontSize: 13, cursor: "pointer", boxShadow: "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF" }}>
+                  📋 コピー
+                </button>
+              </div>
+              <div style={{ background: "#F8F9FA", borderRadius: 10, padding: 14, fontSize: 13, color: "#333", lineHeight: 1.8, whiteSpace: "pre-wrap", maxHeight: 600, overflowY: "auto", border: "1px solid #E0E4E8" }}>
+                {featureResult.split("\n").map((line, i) => {
+                  if (line.startsWith("# ")) return <div key={i} style={{ fontSize: 17, fontWeight: 700, color: "#333", marginTop: 8, marginBottom: 6 }}>{line.slice(2)}</div>;
+                  if (line.startsWith("## ")) return <div key={i} style={{ fontSize: 14, fontWeight: 700, color: "#D85A30", marginTop: 14, marginBottom: 4 }}>{line.slice(3)}</div>;
+                  if (line.startsWith("- ") || line.startsWith("* ")) return <div key={i} style={{ paddingLeft: 12, marginBottom: 2 }}>• {line.slice(2)}</div>;
+                  if (line.trim() === "---") return <hr key={i} style={{ border: "none", borderTop: "0.5px solid #eee", margin: "8px 0" }} />;
+                  return <div key={i} style={{ marginBottom: line === "" ? 6 : 0 }}>{line}</div>;
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 入力フォーム（全体企画） */}
+      {proposeMode === "full" && (
       <div style={S.card}>
         <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 14, color: "#444", display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ fontSize: 20 }}>🎮</span> ゲーム性企画を依頼する
@@ -170,7 +323,9 @@ export default function ProposeTab() {
           </p>
         </form>
       </div>
+      )}
 
+      {proposeMode === "full" && (<>
       <div style={{ fontWeight: 600, fontSize: 13, color: "#888", marginBottom: 10, paddingLeft: 4 }}>
         依頼履歴（最新30件）
       </div>
@@ -363,6 +518,7 @@ export default function ProposeTab() {
           </div>
         );
       })}
+      </>)}
     </div>
   );
 }
