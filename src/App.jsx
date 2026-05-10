@@ -378,6 +378,7 @@ function SisTab() {
   const [machineStats, setMachineStats] = useState({});
   const [sisView, _setSisView] = useState(() => sessionStorage.getItem("slokey_sisView") || "daily");
   const setSisView = (v) => { sessionStorage.setItem("slokey_sisView", v); _setSisView(v); };
+  const [dateRange, setDateRange] = useState("1m");
   const [weekIdx, setWeekIdx] = useState(0);
   const swipeTouchX = useRef(null);
   const swipeTouchY = useRef(null);
@@ -424,12 +425,16 @@ function SisTab() {
   useEffect(() => {
     if (!authed) return;
     setLoading(true);
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - (dateRange === "3m" ? 3 : 1));
+    const cutoffStr = cutoff.toISOString().slice(0, 10);
     Promise.all([
       supabase
         .from("sis_data")
         .select("machine,date,out_coins,coin_price,payout_rate,gross_profit,operation_ratio,machine_count")
+        .gte("date", cutoffStr)
         .order("date", { ascending: false })
-        .limit(10000),
+        .limit(5000),
       supabase
         .from("sis_machine_stats")
         .select("machine,contrib_weeks"),
@@ -439,6 +444,7 @@ function SisTab() {
         const ds = [...new Set(data.map(r => r.date))].sort().reverse();
         setDates(ds);
         setDateIdx(0);
+        setWeekIdx(0);
       }
       if (stats) {
         const m = {};
@@ -447,7 +453,7 @@ function SisTab() {
       }
       setLoading(false);
     });
-  }, [authed]);
+  }, [authed, dateRange]);
 
   // Hooks must be called before any early returns
   const weeks = useMemo(() => {
@@ -655,13 +661,19 @@ function SisTab() {
           )}
         </>;
       })()}
-      {/* デイリー/ウィークリー サブタブ */}
+      {/* デイリー/ウィークリー サブタブ + 期間フィルター */}
       <div style={{position:"sticky",top:52,zIndex:15,background:"#E8ECF0",paddingBottom:6}}>
-        <div style={{display:"flex",gap:6}}>
+        <div style={{display:"flex",gap:6,alignItems:"center"}}>
           {[{k:"daily",l:"デイリー"},{k:"weekly",l:"ウィークリー"}].map(({k,l}) => {
             const on = sisView === k;
             return <button key={k} onClick={() => setSisView(k)} style={{flex:1,padding:"8px 0",border:"none",borderRadius:10,fontSize:14,fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 5px rgba(0,0,0,0.2)":"2px 2px 5px #C5C9D4,-2px -2px 5px #fff"}}>{l}</button>;
           })}
+          <div style={{display:"flex",gap:3,background:"#E8ECF0",borderRadius:10,padding:3,boxShadow:"inset 2px 2px 4px #C5C9D4,inset -2px -2px 4px #fff",flexShrink:0}}>
+            {[{k:"1m",l:"1ヶ月"},{k:"3m",l:"3ヶ月"}].map(({k,l}) => {
+              const on = dateRange === k;
+              return <button key={k} onClick={() => setDateRange(k)} style={{padding:"5px 10px",border:"none",borderRadius:8,fontSize:12,fontWeight:on?700:400,background:on?"#fff":"transparent",color:on?"#D85A30":"#aaa",cursor:"pointer",boxShadow:on?"1px 1px 3px #C5C9D4":"none",transition:"all 0.15s"}}>{l}</button>;
+            })}
+          </div>
         </div>
       </div>
 
