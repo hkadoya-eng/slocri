@@ -257,9 +257,12 @@ export default function GameDesignTab() {
                 )}
 
                 {(typeData.machines || []).map((m, i) => {
-                  const featureName  = FEATURE_NAMES[m.name]?.[activeCat] ?? null;
-                  const mKey         = `${activeCat}__${typeName}__${i}`;
-                  const isCorrecting = corrKey === mKey;
+                  const featureName    = FEATURE_NAMES[m.name]?.[activeCat] ?? null;
+                  const mKey           = `${activeCat}__${typeName}__${i}`;
+                  const isCorrecting   = corrKey === mKey;
+                  const machineLib     = GAME_LIBRARY.machines?.[m.name];
+                  const machineRules   = machineLib?.description || typeData.rules;
+                  const machinePresent = machineLib?.presentationNote || typeData.presentation;
 
                   return (
                     <div key={i} style={{
@@ -290,19 +293,19 @@ export default function GameDesignTab() {
                         </div>
                       )}
 
-                      {/* 仕組み・ルール */}
-                      {typeData.rules && (
+                      {/* 仕組み・ルール（機種固有） */}
+                      {machineRules && (
                         <div style={{ marginBottom: 6 }}>
                           <div style={{ fontSize: 11, fontWeight: 700, color: catCfg.accent, marginBottom: 3 }}>⚙️ 仕組み・ルール</div>
-                          <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>{typeData.rules}</div>
+                          <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>{machineRules}</div>
                         </div>
                       )}
 
-                      {/* 演出・表現方法 */}
-                      {typeData.presentation && (
+                      {/* 演出・表現方法（機種固有） */}
+                      {machinePresent && (
                         <div style={{ marginBottom: 8 }}>
                           <div style={{ fontSize: 11, fontWeight: 700, color: catCfg.accent, marginBottom: 3 }}>🎬 演出・表現方法</div>
-                          <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>{typeData.presentation}</div>
+                          <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>{machinePresent}</div>
                         </div>
                       )}
 
