@@ -109,7 +109,7 @@ def upsert_records(records, service_key):
     for i in range(0, total, BATCH):
         batch = records[i:i + BATCH]
         res = requests.post(
-            f"{SUPABASE_URL}/rest/v1/sis_data",
+            f"{SUPABASE_URL}/rest/v1/sis_data?on_conflict=machine,date",
             headers=headers,
             data=json.dumps(batch),
         )
