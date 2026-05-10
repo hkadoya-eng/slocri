@@ -2042,6 +2042,12 @@ function CollectTab({ posts, showToast, onCatClick, loadPosts }) {
 function OverviewTab({ posts, updatePost }) {
   const [view, _setView] = useState(() => sessionStorage.getItem("slokey_overviewView") || "rank");
   const setView = (v) => { sessionStorage.setItem("slokey_overviewView", v); _setView(v); };
+  const nextCalendarRef = useRef(null);
+  useEffect(() => {
+    if (view === "calendar") {
+      setTimeout(() => nextCalendarRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
+    }
+  }, [view]);
   const [selM, setSelM] = useState(null);
   const [filter, setFilter] = useState({ machine:"", cat:"" });
   const [rankSort, setRankSort] = useState("posts");
@@ -2481,6 +2487,7 @@ function OverviewTab({ posts, updatePost }) {
           })
           .filter(m => m.rd >= threeMonthsAgo)
           .sort((a,b) => a.rd - b.rd);
+        const firstUpcoming = calMachines.find(m => !m.isPast);
         const byMonth = {};
         calMachines.forEach(m => {
           const key = m.releaseDate.slice(0, 7);
@@ -2498,7 +2505,7 @@ function OverviewTab({ posts, updatePost }) {
                   <div style={{fontSize:13,fontWeight:600,color:"#555",marginBottom:8,padding:"4px 8px",background:"#E8ECF0",borderRadius:6}}>📅 {y}年{parseInt(mo)}月</div>
                   <div style={{display:"flex",flexDirection:"column",gap:6}}>
                     {machines.map(m => (
-                      <div key={m.name} style={{
+                      <div key={m.name} ref={m === firstUpcoming ? nextCalendarRef : null} style={{
                         background: m.isPast ? "#f9f9f9" : "#FFFDE7",
                         border: `0.5px solid ${m.isPast ? "#eee" : "#F9A825"}`,
                         borderRadius:10, padding:"10px 14px",
