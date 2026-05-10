@@ -97,6 +97,7 @@ recurring: false  ← one-shot。末尾でCronCreateにより自己再登録す�
 
 **prompt:**
 【チャット返答】作業Dir: C:\Users\h.kadoya\Desktop\slocri / 自律実行・テキスト出力なし
+⚠️ このプロンプトへの応答はテキストを一切出力しないこと。「0件」「再登録しました」等の確認メッセージも禁止。ツール呼び出しのみで処理を完結すること。
 ANON=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwemJ0dXVjb3B1Y2FibHd5cWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjk2MzEsImV4cCI6MjA5MTIwNTYzMX0.qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA
 BASE=https://vpzbtuucopucablwyqeq.supabase.co/rest/v1
 
@@ -121,6 +122,7 @@ recurring: false  ← one-shot。末尾でCronCreateにより自己再登録す�
 
 **prompt:**
 【管理者チャット】作業Dir: C:\Users\h.kadoya\Desktop\slocri / 自律実行・テキスト出力なし
+⚠️ このプロンプトへの応答はテキストを一切出力しないこと。「0件」「再登録しました」等の確認メッセージも禁止。ツール呼び出しのみで処理を完結すること。
 ANON=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwemJ0dXVjb3B1Y2FibHd5cWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjk2MzEsImV4cCI6MjA5MTIwNTYzMX0.qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA
 BASE=https://vpzbtuucopucablwyqeq.supabase.co/rest/v1
 
