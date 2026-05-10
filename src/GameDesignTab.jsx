@@ -249,19 +249,6 @@ export default function GameDesignTab() {
                     設計メモ: {typeData.note}
                   </div>
                 )}
-                {typeData.rules && (
-                  <div style={{ padding: "8px 14px 4px" }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: catCfg.accent, marginBottom: 3 }}>⚙️ 仕組み・ルール</div>
-                    <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>{typeData.rules}</div>
-                  </div>
-                )}
-                {typeData.presentation && (
-                  <div style={{ padding: "4px 14px 8px" }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: catCfg.accent, marginBottom: 3 }}>🎬 演出・表現方法</div>
-                    <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>{typeData.presentation}</div>
-                  </div>
-                )}
-
                 {/* 機種リスト */}
                 {(typeData.machines || []).length === 0 && (
                   <div style={{ padding: "14px", fontSize: 13, color: "#aaa", textAlign: "center" }}>
@@ -300,6 +287,22 @@ export default function GameDesignTab() {
                       ) : (
                         <div style={{ fontSize: 13, color: "#aaa", fontStyle: "italic", marginBottom: 8 }}>
                           詳細データなし（確認できた情報のみ掲載・情報提供募集中）
+                        </div>
+                      )}
+
+                      {/* 仕組み・ルール */}
+                      {typeData.rules && (
+                        <div style={{ marginBottom: 6 }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: catCfg.accent, marginBottom: 3 }}>⚙️ 仕組み・ルール</div>
+                          <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>{typeData.rules}</div>
+                        </div>
+                      )}
+
+                      {/* 演出・表現方法 */}
+                      {typeData.presentation && (
+                        <div style={{ marginBottom: 8 }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: catCfg.accent, marginBottom: 3 }}>🎬 演出・表現方法</div>
+                          <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>{typeData.presentation}</div>
                         </div>
                       )}
 
