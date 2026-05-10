@@ -85,52 +85,52 @@ recurring: true
 
 ---
 
-### ③ 管理者チャット処理（5分ごと）
+### ③ チャット返答（適応型・one-shot）
+
+**頻度**: 平常10分 → 作業発生時2分 → 空振りで10分に自動復帰
 
 ```
-cron: "*/5 * * * *"
+cron: "*/10 * * * *"
 durable: true
-recurring: true
+recurring: false  ← one-shot。末尾でCronCreateにより自己再登録する
 ```
 
 **prompt:**
-【管理者チャット処理タスク】
-作業ディレクトリ: C:\Users\h.kadoya\Desktop\slocri
+【チャット返答】作業Dir: C:\Users\h.kadoya\Desktop\slocri / 自律実行・テキスト出力なし
+ANON=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwemJ0dXVjb3B1Y2FibHd5cWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjk2MzEsImV4cCI6MjA5MTIwNTYzMX0.qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA
+BASE=https://vpzbtuucopucablwyqeq.supabase.co/rest/v1
 
-ユーザーに確認せず自律実行してください。
-admin_ プレフィックスのセッションのみ処理する。
+①chat_messages(admin_以外)で最新role=userのsessionを抽出
+②0件→CronCreate(durable:true,recurring:false,cron:"*/10 * * * *")で同プロンプトを再登録して終了
+③件数あり→全履歴取得→各session処理:
+ ・assistant0件: 機種/トピックに触れた挨拶(2〜3文)をPOST
+ ・assistant1件以上: machine名でDB検索(ilike)→2件以上ならDB根拠で300〜500字回答→1件以下ならWebSearch2〜3クエリ→回答をchat_messagesにPOST
+④処理後→CronCreate(durable:true,recurring:false,cron:"*/2 * * * *")で同プロンプトを再登録
 
-1. 未返答の admin_ セッションを確認:
-   Python で chat_messages を取得し、session_id が "admin_" で始まり、最新ロールが "user" のセッションを特定する。
-   0件なら即終了。
+---
 
-2. 対象セッションの全会話履歴を時系列昇順で取得する。
+### ④ 管理者チャット処理（適応型・one-shot）
 
-3. 最新のユーザーメッセージを解析して意図を判定:
+**頻度**: 平常10分 → 作業発生時2分 → 空振りで10分に自動復帰
 
-   【判定A: 実行確認】
-   "おねがい！" "はい" "実行して" "やって" "お願い" のいずれかを含む
-   → 会話履歴を全て読み直し、直前にassistantが提案した変更・操作を実際に実行する
-   → ファイル変更はEditツール、スクリプト実行はBashツール、JSON更新はEditツール
-   → git add → git commit → git push
-   → 完了を chat_messages に書き込む（例：「✅ 完了しました。○○を変更してpushしました。」）
+```
+cron: "*/10 * * * *"
+durable: true
+recurring: false  ← one-shot。末尾でCronCreateにより自己再登録する
+```
 
-   【判定B: 変更・操作依頼】
-   上記以外の指示（「○○を直して」「○○を変えて」「○○を追加して」「○○を集めて」等）
-   → 具体的に何をどう変更するかを説明する（ファイル名・変更内容を明記）
-   → 最後に「実行しますか？」と聞く
-   → ファイルは読むがこの段階では変更しない
+**prompt:**
+【管理者チャット】作業Dir: C:\Users\h.kadoya\Desktop\slocri / 自律実行・テキスト出力なし
+ANON=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwemJ0dXVjb3B1Y2FibHd5cWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjk2MzEsImV4cCI6MjA5MTIwNTYzMX0.qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA
+BASE=https://vpzbtuucopucablwyqeq.supabase.co/rest/v1
 
-   【判定C: 質問・相談】
-   → 会話の流れを踏まえて回答する。DBやファイルの検索は自由に行う。
-
-4. 返答を chat_messages に書き込む（session_idは対象のadmin_セッションID）
-
-実行できる主な操作:
-- JSX/JSONファイル編集 + git push（UI変更・データ更新）
-- python import_csv.py でCSVインポート
-- Supabase データ取得・更新
-- machineAnalysis.json / gameDesignLibrary.json 更新
+①admin_プレフィックスの未返答sessionを確認
+②0件→CronCreate(durable:true,recurring:false,cron:"*/10 * * * *")で同プロンプトを再登録して終了
+③あれば全履歴取得→最新userメッセを判定:
+ ・「おねがい」「はい」「実行して」「やって」「お願い」含む→前のassistant提案を実際に実行→git push→完了をPOST
+ ・変更依頼(「直して」「変えて」「追加して」等)→変更計画をPOSTして「実行しますか？」
+ ・質問→会話コンテキストで回答をPOST
+④処理後→CronCreate(durable:true,recurring:false,cron:"*/2 * * * *")で同プロンプトを再登録
 
 ---
 
@@ -138,3 +138,11 @@ admin_ プレフィックスのセッションのみ処理する。
 
 CronListで登録済みジョブを確認できます。
 セッション開始時に登録済みであれば再登録不要です。
+
+## 適応型Cronの動作ルール
+
+チャット返答・管理者チャットは one-shot + 自己再登録方式：
+- 平常時: 10分ポーリング
+- 作業発生: 処理後2分ポーリングに切り替え
+- 空振り時: 自動で10分に戻る
+- **セッション再起動後は消えるため手動で再登録が必要**
