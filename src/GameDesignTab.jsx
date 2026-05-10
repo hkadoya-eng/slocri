@@ -12,7 +12,7 @@ const CAT_CONFIG = {
 };
 
 const FEATURE_NAMES = {
-  "L虚構推理":                          { CZ: "虚構連モード突入抽選",    AT: "虚構連モード（強制突入）" },
+  "L虚構推理":                          { CZ: "鋼人七瀬攻略会議",        AT: "虚構連モード（強制突入）" },
   "異世界かるてっとBT":                 { CZ: "チャレンジゾーン",        AT: "BT（ボーナスタイム）" },
   "スマスロ ヨルムンガンド":             { CZ: "ストーリーCZ（前半10G+後半3G）" },
   "スマスロ甲鉄城のカバネリ 海門決戦":   { CZ: "カバネリアタック" },
@@ -261,8 +261,16 @@ export default function GameDesignTab() {
                   const mKey           = `${activeCat}__${typeName}__${i}`;
                   const isCorrecting   = corrKey === mKey;
                   const machineLib     = GAME_LIBRARY.machines?.[m.name];
-                  const machineRules   = machineLib?.description || typeData.rules;
-                  const machinePresent = machineLib?.presentationNote || typeData.presentation;
+                  const machineRules   = (activeCat === "CZ" && machineLib?.czRules)
+                    ? machineLib.czRules
+                    : (activeCat === "AT" && machineLib?.atRules)
+                    ? machineLib.atRules
+                    : machineLib?.description || typeData.rules;
+                  const machinePresent = (activeCat === "CZ" && machineLib?.czPresentation)
+                    ? machineLib.czPresentation
+                    : (activeCat === "AT" && machineLib?.atPresentation)
+                    ? machineLib.atPresentation
+                    : machineLib?.presentationNote || typeData.presentation;
 
                   return (
                     <div key={i} style={{
@@ -297,7 +305,11 @@ export default function GameDesignTab() {
                       {machineRules && (
                         <div style={{ marginBottom: 6 }}>
                           <div style={{ fontSize: 11, fontWeight: 700, color: catCfg.accent, marginBottom: 3 }}>⚙️ 仕組み・ルール</div>
-                          <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>{machineRules}</div>
+                          <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>
+                            {machineRules.split("\n").map((line, idx) => (
+                              <span key={idx}>{line}{idx < machineRules.split("\n").length - 1 && <br />}</span>
+                            ))}
+                          </div>
                         </div>
                       )}
 
@@ -305,7 +317,11 @@ export default function GameDesignTab() {
                       {machinePresent && (
                         <div style={{ marginBottom: 8 }}>
                           <div style={{ fontSize: 11, fontWeight: 700, color: catCfg.accent, marginBottom: 3 }}>🎬 演出・表現方法</div>
-                          <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>{machinePresent}</div>
+                          <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>
+                            {machinePresent.split("\n").map((line, idx) => (
+                              <span key={idx}>{line}{idx < machinePresent.split("\n").length - 1 && <br />}</span>
+                            ))}
+                          </div>
                         </div>
                       )}
 
