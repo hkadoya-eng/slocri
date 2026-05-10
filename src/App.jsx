@@ -430,18 +430,30 @@ function SisTab() {
     else if (dateRange === "6m") cutoff.setMonth(cutoff.getMonth() - 6);
     else if (dateRange === "1m") cutoff.setMonth(cutoff.getMonth() - 1);
     const cutoffStr = dateRange === "all" ? null : cutoff.toISOString().slice(0, 10);
-    let sisQuery = supabase
-      .from("sis_data")
-      .select("machine,date,out_coins,coin_price,payout_rate,gross_profit,operation_ratio,machine_count")
-      .order("date", { ascending: false })
-      .limit(dateRange === "all" ? 20000 : 5000);
-    if (cutoffStr) sisQuery = sisQuery.gte("date", cutoffStr);
+    const PAGE = 1000;
+    async function fetchSisData() {
+      let allRows = [];
+      let page = 0;
+      while (true) {
+        let q = supabase
+          .from("sis_data")
+          .select("machine,date,out_coins,coin_price,payout_rate,gross_profit,operation_ratio,machine_count")
+          .order("date", { ascending: false })
+          .range(page * PAGE, (page + 1) * PAGE - 1);
+        if (cutoffStr) q = q.gte("date", cutoffStr);
+        const { data } = await q;
+        if (!data || data.length === 0) break;
+        allRows = allRows.concat(data);
+        if (data.length < PAGE) break;
+        page++;
+        if (allRows.length >= 30000) break;
+      }
+      return allRows;
+    }
     Promise.all([
-      sisQuery,
-      supabase
-        .from("sis_machine_stats")
-        .select("machine,contrib_weeks"),
-    ]).then(([{ data }, { data: stats }]) => {
+      fetchSisData(),
+      supabase.from("sis_machine_stats").select("machine,contrib_weeks"),
+    ]).then(([data, { data: stats }]) => {
       if (data) {
         setRows(data);
         const ds = [...new Set(data.map(r => r.date))].sort().reverse();
