@@ -2725,9 +2725,14 @@ ${policyText}
   return (
     <div style={{minWidth:0}}>
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"wrap"}}>
-        {[["column","コラム"],["machine_review","機種評価"],["analyze","機種分析"],["gamedesign","ゲーム性分析"],["ai_chat","チャット"],["ai_propose","企画提案"]].map(([k,l]) => {
+        {[["column","コラム"],["machine_review","機種評価"],["analyze","機種分析"],["gamedesign","ゲーム性分析"],["ai_chat","💬 チャット"],["ai_propose","✏️ 企画提案"]].map(([k,l]) => {
           const on = mode===k;
-          return <button key={k} onClick={() => setMode(k)} style={{padding:"5px 12px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0,minWidth:56,textAlign:"center"}}>{l}</button>;
+          const isInteractive = k==="ai_chat" || k==="ai_propose";
+          const sep = isInteractive && k==="ai_chat"
+            ? <span key="sep" style={{display:"inline-block",width:1,height:22,background:"#ddd",margin:"0 2px",alignSelf:"center",flexShrink:0}} />
+            : null;
+          const btn = <button key={k} onClick={() => setMode(k)} style={{padding:"5px 12px",border:`0.5px solid ${on?"#D85A30":isInteractive?"#C5BFF5":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":isInteractive?"#F5F3FF":"#fff",color:on?"#993C1D":isInteractive?"#6C60C0":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0,minWidth:56,textAlign:"center"}}>{l}</button>;
+          return sep ? [sep, btn] : btn;
         })}
       </div>
 
