@@ -376,7 +376,8 @@ function SisTab() {
   const [sortKey, setSortKey] = useState("out_coins");
   const [sortAsc, setSortAsc] = useState(false);
   const [machineStats, setMachineStats] = useState({});
-  const [sisView, setSisView] = useState("daily");
+  const [sisView, _setSisView] = useState(() => sessionStorage.getItem("slokey_sisView") || "daily");
+  const setSisView = (v) => { sessionStorage.setItem("slokey_sisView", v); _setSisView(v); };
   const [weekIdx, setWeekIdx] = useState(0);
   const swipeTouchX = useRef(null);
   const swipeTouchY = useRef(null);
@@ -806,7 +807,8 @@ function SisTab() {
 export default function App() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState("feed");
+  const [tab, _setTab] = useState(() => sessionStorage.getItem("slokey_tab") || "feed");
+  const setTab = (t) => { sessionStorage.setItem("slokey_tab", t); _setTab(t); };
   const [feedFilter, setFeedFilter] = useState("all");
   const [toast, setToast] = useState("");
   const [aiEnabled, setAiEnabled] = useState(true);
@@ -2038,7 +2040,8 @@ function CollectTab({ posts, showToast, onCatClick, loadPosts }) {
 }
 
 function OverviewTab({ posts, updatePost }) {
-  const [view, setView] = useState("rank");
+  const [view, _setView] = useState(() => sessionStorage.getItem("slokey_overviewView") || "rank");
+  const setView = (v) => { sessionStorage.setItem("slokey_overviewView", v); _setView(v); };
   const [selM, setSelM] = useState(null);
   const [filter, setFilter] = useState({ machine:"", cat:"" });
   const [rankSort, setRankSort] = useState("posts");
@@ -2525,7 +2528,8 @@ function OverviewTab({ posts, updatePost }) {
 }
 
 function ResearchTab({ posts, aiEnabled, updatePost }) {
-  const [mode, setMode] = useState("column");
+  const [mode, _setMode] = useState(() => sessionStorage.getItem("slokey_researchMode") || "column");
+  const setMode = (m) => { sessionStorage.setItem("slokey_researchMode", m); _setMode(m); };
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
