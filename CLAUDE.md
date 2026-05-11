@@ -136,6 +136,21 @@ BASE=https://vpzbtuucopucablwyqeq.supabase.co/rest/v1
 
 ---
 
+## ゲーム性分析追加リクエストの処理ルール
+
+収集・企画統合処理タスク（パートA）で `theme` が「【ゲーム性分析追加リクエスト】」で始まるリクエストを検出した場合、以下の手順で処理する：
+
+1. themeから機種名またはゲームタイプを抽出
+2. WebSearchで2〜3クエリ調査（ゲームフロー・仕組み・代表機種など）
+3. `src/gameDesignLibrary.json` を読んで更新:
+   - 機種追加の場合: `machines[機種名]` に description/highlight/czRules/atRules を追加し、該当 `gameFlowPatterns` の examples にも追加
+   - 新タイプ追加の場合: `gameFlowPatterns` に新エントリを追加（description/rules/presentation/examples）
+4. 調査できない・情報が不十分な場合: status=done, result_count=0 で完了（追加不要）
+5. 更新した場合: `git add src/gameDesignLibrary.json → commit → push`
+6. status を done に更新
+
+---
+
 ## 登録確認方法
 
 CronListで登録済みジョブを確認できます。

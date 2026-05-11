@@ -68,17 +68,19 @@ const DATA = {
   },
   AT: {
     types: Object.fromEntries(
-      Object.entries(GAME_LIBRARY.gameFlowPatterns).map(([typeName, data]) => [
-        typeName,
-        {
-          description: data.description,
-          emotion: data.playerEmotion || null,
-          note: null,
-          rules: data.rules || null,
-          presentation: data.presentation || null,
-          machines: (data.examples || []).map(e => ({ name: e.machine, detail: e.detail || null })),
-        },
-      ])
+      Object.entries(GAME_LIBRARY.gameFlowPatterns)
+        .filter(([typeName]) => typeName !== "周期保証型" && typeName !== "強制ループ型")
+        .map(([typeName, data]) => [
+          typeName,
+          {
+            description: data.description,
+            emotion: data.playerEmotion || null,
+            note: null,
+            rules: data.rules || null,
+            presentation: data.presentation || null,
+            machines: (data.examples || []).map(e => ({ name: e.machine, detail: e.detail || null })),
+          },
+        ])
     ),
   },
   ボーナス: {
@@ -110,8 +112,24 @@ const DATA = {
     },
   },
   通常: {
-    _note: "通常時フロー（周期・ゾーン・天井設計）のデータは準備中です。情報提供をお待ちしています。",
-    types: {},
+    types: {
+      "周期保証型": {
+        description: GAME_LIBRARY.gameFlowPatterns["周期保証型"].description,
+        emotion: GAME_LIBRARY.gameFlowPatterns["周期保証型"].playerEmotion || null,
+        note: null,
+        rules: GAME_LIBRARY.gameFlowPatterns["周期保証型"].rules || null,
+        presentation: GAME_LIBRARY.gameFlowPatterns["周期保証型"].presentation || null,
+        machines: (GAME_LIBRARY.gameFlowPatterns["周期保証型"].examples || []).map(e => ({ name: e.machine, detail: e.detail || null })),
+      },
+      "強制ループ型": {
+        description: GAME_LIBRARY.gameFlowPatterns["強制ループ型"].description,
+        emotion: GAME_LIBRARY.gameFlowPatterns["強制ループ型"].playerEmotion || null,
+        note: null,
+        rules: GAME_LIBRARY.gameFlowPatterns["強制ループ型"].rules || null,
+        presentation: GAME_LIBRARY.gameFlowPatterns["強制ループ型"].presentation || null,
+        machines: (GAME_LIBRARY.gameFlowPatterns["強制ループ型"].examples || []).map(e => ({ name: e.machine, detail: e.detail || null })),
+      },
+    },
   },
   その他: {
     _note: "設定差設計・スペック設計・演出設計などのデータは準備中です。",
@@ -126,6 +144,9 @@ export default function GameDesignTab() {
   const [corrText, setCorrText]       = useState("");
   const [corrSent, setCorrSent]       = useState(false);
   const [corrLoading, setCorrLoading] = useState(false);
+  const [reqText, setReqText]         = useState("");
+  const [reqSent, setReqSent]         = useState(false);
+  const [reqLoading, setReqLoading]   = useState(false);
 
   const catCfg  = CAT_CONFIG[activeCat] || {};
   const catData = DATA[activeCat] || {};
@@ -140,6 +161,27 @@ export default function GameDesignTab() {
     setOpenTypes(prev => ({ ...prev, [t]: !prev[t] }));
     setCorrKey(null);
     setCorrSent(false);
+  }
+
+  async function submitRequest() {
+    if (!reqText.trim()) return;
+    setReqLoading(true);
+    try {
+      await fetch("https://vpzbtuucopucablwyqeq.supabase.co/rest/v1/collection_requests", {
+        method: "POST",
+        headers: {
+          apikey: ANON,
+          Authorization: `Bearer ${ANON}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify({ theme: `【ゲーム性分析追加リクエスト】${reqText.trim()}`, status: "pending" }),
+      });
+      setReqSent(true);
+      setReqText("");
+      setTimeout(() => setReqSent(false), 4000);
+    } catch { /* silent */ }
+    setReqLoading(false);
   }
 
   async function submitCorrection(machine, typeName) {
@@ -387,6 +429,31 @@ export default function GameDesignTab() {
           </div>
         );
       })}
+
+      {/* 追加リクエストフォーム */}
+      <div style={{ marginTop: 20, background: "#E8ECF0", borderRadius: 12, boxShadow: "inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF", padding: "14px" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#444", marginBottom: 6 }}>🔍 分析・機種の追加リクエスト</div>
+        <div style={{ fontSize: 12, color: "#888", marginBottom: 10, lineHeight: 1.5 }}>
+          「スマスロ〇〇のゲーム性を追加して」「周期保証型に〇〇を追加して」など自由に入力してください。調査できたものを30分以内に追加します。
+        </div>
+        {reqSent ? (
+          <div style={{ fontSize: 13, color: "#16A34A", textAlign: "center", padding: "8px 0", fontWeight: 600 }}>✅ リクエストを受け付けました！</div>
+        ) : (
+          <>
+            <input
+              value={reqText}
+              onChange={e => setReqText(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && submitRequest()}
+              placeholder="例: スマスロバイオRE:3のゲーム性を追加して"
+              style={{ width: "100%", padding: "9px 12px", borderRadius: 10, border: "none", background: "#E8ECF0", boxShadow: "inset 3px 3px 6px #C5C9D4, inset -2px -2px 5px #FFFFFF", fontSize: 14, outline: "none", boxSizing: "border-box", color: "#333", fontFamily: "inherit", marginBottom: 8 }}
+            />
+            <button onClick={submitRequest} disabled={reqLoading || !reqText.trim()}
+              style={{ width: "100%", padding: "10px 0", borderRadius: 10, border: "none", background: reqLoading || !reqText.trim() ? "#C5C9D4" : "#4A7C3F", color: "#fff", fontSize: 14, fontWeight: 700, cursor: reqLoading || !reqText.trim() ? "not-allowed" : "pointer", boxShadow: reqLoading || !reqText.trim() ? "none" : "2px 2px 6px #C5C9D4", transition: "all 0.15s" }}>
+              {reqLoading ? "送信中…" : "リクエストを送る"}
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 }
