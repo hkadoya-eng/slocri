@@ -293,37 +293,33 @@ export default function GameDesignTab() {
                 boxShadow: "inset 2px 2px 6px #C5C9D4, inset -2px -2px 6px #FFFFFF",
                 borderRadius: "0 0 12px 12px", overflow: "hidden",
               }}>
-                {(typeData.probability || typeData.reward) && (
+                {(typeData.probability || typeData.reward || typeData.emotion || typeData.note) && (
                   <div style={{
                     margin: "10px 14px 0",
                     padding: "8px 12px",
                     background: catCfg.bg,
                     borderLeft: `3px solid ${catCfg.accent}`,
                     borderRadius: 6,
-                    display: "flex", flexDirection: "column", gap: 4,
+                    display: "flex", flexDirection: "column", gap: 5,
                   }}>
                     {typeData.probability && (
-                      <div style={{ fontSize: 12, color: "#444" }}>
-                        <span style={{ fontWeight: 700, color: catCfg.accent }}>発生確率: </span>
-                        {typeData.probability}
+                      <div style={{ fontSize: 12, color: "#444", display: "flex", gap: 6, alignItems: "flex-start" }}>
+                        <span style={{ fontWeight: 700, color: catCfg.accent, flexShrink: 0 }}>【初当たり確率】</span>
+                        <span>{typeData.probability}</span>
                       </div>
                     )}
                     {typeData.reward && (
-                      <div style={{ fontSize: 12, color: "#444" }}>
-                        <span style={{ fontWeight: 700, color: catCfg.accent }}>対価: </span>
-                        {typeData.reward}
+                      <div style={{ fontSize: 12, color: "#444", display: "flex", gap: 6, alignItems: "flex-start" }}>
+                        <span style={{ fontWeight: 700, color: catCfg.accent, flexShrink: 0 }}>【対価】</span>
+                        <span>{typeData.reward}</span>
                       </div>
                     )}
-                  </div>
-                )}
-                {typeData.emotion && (
-                  <div style={{ padding: "8px 14px 0", fontSize: 12, color: catCfg.accent, fontStyle: "italic" }}>
-                    💭 {typeData.emotion}
-                  </div>
-                )}
-                {typeData.note && (
-                  <div style={{ padding: "6px 14px 0", fontSize: 12, color: "#888" }}>
-                    設計メモ: {typeData.note}
+                    {typeData.emotion && (
+                      <div style={{ fontSize: 12, color: "#555" }}>・{typeData.emotion}</div>
+                    )}
+                    {typeData.note && (
+                      <div style={{ fontSize: 12, color: "#555" }}>・{typeData.note}</div>
+                    )}
                   </div>
                 )}
                 {/* 機種リスト */}
