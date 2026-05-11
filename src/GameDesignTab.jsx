@@ -16,59 +16,56 @@ const FEATURE_NAMES = {
   "異世界かるてっとBT":                 { CZ: "チャレンジゾーン",        AT: "BT（ボーナスタイム）" },
   "スマスロ ヨルムンガンド":             { CZ: "ストーリーCZ（前半10G+後半3G）" },
   "スマスロ甲鉄城のカバネリ 海門決戦":   { CZ: "カバネリアタック" },
-  "L真打吉宗":                          { CZ: "周期CZ（6周期確定）",     AT: "真BB / 1G連ループ" },
+  "L真打吉宗":                          { AT: "真BB / 1G連ループ", 通常: "周期保証型（6周期確定）" },
   "Lガンダムユニコーン覚醒DRIVE":        { AT: "覚醒DRIVE（3段階強化）" },
-  "L戦国乙女5":                         { AT: "3段階AT（純増UP型）" },
+  "L戦国乙女5":                         { AT: "3段階AT（純増UP型）", 通常: "周期保証型（6サイクル天井）" },
   "スマスロ ミリオンゴッド-神々の軌跡-": { AT: "SGG（スーパーゴッドゲーム）" },
   "パチスロ 沖ドキ！":                  { ボーナス: "ドキドキモード / 超ドキドキモード" },
-  "スマスロ モンキーターンV":            { CZ: "超抜チャレンジ（周期CZ）", AT: "SG RUSH / 青島SG" },
-  "押忍！番長4":                        { CZ: "特訓→対決（段階CZ）",       AT: "頂RISE + 漢気ダブルアクセル" },
-  "スマスロ マギアレコード 魔法少女まどか☆マギカ外伝": { CZ: "マギアチャレンジ / 黒江チャレンジ", AT: "マギアラッシュ" },
-  "スマスロ Re:ゼロから始める異世界生活 season2": { AT: "殲滅RUSH / 超強欲RUSH" },
+  "スマスロ モンキーターンV":            { CZ: "超抜チャレンジ", AT: "SG RUSH / 青島SG", 通常: "周期保証型（最大6周期・795G）" },
+  "押忍！番長4":                        { CZ: "特訓→対決（段階クリア型）", AT: "頂RISE + 漢気ダブルアクセル" },
+  "スマスロ マギアレコード 魔法少女まどか☆マギカ外伝": { CZ: "マギアチャレンジ / 黒江チャレンジ", AT: "マギアラッシュ", 通常: "周期保証型" },
+  "スマスロ Re:ゼロから始める異世界生活 season2": { AT: "殲滅RUSH / 超強欲RUSH", 通常: "直AT型" },
+  "スマスロ ビッグドリーム THE GOLDEN PUSHER": { AT: "GOLDEN BONUS（差枚管理）" },
+  "Lタクトオーパス デスティニー":         { AT: "コンダクターAT（差枚管理+ゲーム数上乗せ）" },
 };
 
 const DATA = {
   CZ: {
     types: {
-      "軽量CZ型": {
-        description: GAME_LIBRARY.czDesignPatterns["軽量CZ型"].description,
-        note: GAME_LIBRARY.czDesignPatterns["軽量CZ型"].designNote,
-        rules: GAME_LIBRARY.czDesignPatterns["軽量CZ型"].rules,
-        presentation: GAME_LIBRARY.czDesignPatterns["軽量CZ型"].presentation,
-        machines: [
-          { name: "L虚構推理",         detail: "CZ確率1/124.5（設定不問）。攻略勢に大好評で稼働首位の主因。" },
-          { name: "異世界かるてっとBT", detail: "CZ確率1/124.5（設定不問）。CZは軽いがBTに繋がらないフラストレーションが問題で評価1.8/5。" },
-        ],
-      },
-      "重量CZ型": {
-        description: GAME_LIBRARY.czDesignPatterns["重量CZ型"].description,
-        note: GAME_LIBRARY.czDesignPatterns["重量CZ型"].risk,
-        rules: GAME_LIBRARY.czDesignPatterns["重量CZ型"].rules,
-        presentation: GAME_LIBRARY.czDesignPatterns["重量CZ型"].presentation,
-        machines: [
-          { name: "スマスロ ヨルムンガンド",           detail: "通常時1500G回してCZ0回の報告が続出。導入2日目に通路化確定するホールが出た。" },
-          { name: "スマスロ甲鉄城のカバネリ 海門決戦", detail: "低設定は構造的にCZが来ない設計。設定狙い専用機になってしまっている。" },
-        ],
-      },
-      "段階CZ型": {
-        description: GAME_LIBRARY.czDesignPatterns["段階CZ型"].description,
-        note: GAME_LIBRARY.czDesignPatterns["段階CZ型"].designNote,
-        rules: GAME_LIBRARY.czDesignPatterns["段階CZ型"].rules,
-        presentation: GAME_LIBRARY.czDesignPatterns["段階CZ型"].presentation,
+      "段階クリア型": {
+        description: GAME_LIBRARY.czDesignPatterns["段階クリア型"].description,
+        probability: GAME_LIBRARY.czDesignPatterns["段階クリア型"].probability,
+        reward: GAME_LIBRARY.czDesignPatterns["段階クリア型"].reward,
+        note: GAME_LIBRARY.czDesignPatterns["段階クリア型"].designNote,
+        rules: GAME_LIBRARY.czDesignPatterns["段階クリア型"].rules,
+        presentation: GAME_LIBRARY.czDesignPatterns["段階クリア型"].presentation,
         machines: [
           { name: "スマスロ ヨルムンガンド", detail: "前半10G+後半3Gの2部構成ストーリーCZ。3回成功でPC突入という段階設計。失敗時の絶望も大きい。" },
           { name: "押忍！番長4", detail: "シリーズ伝統の「特訓→対決」2段階フロー。天井699G+αで確定。青7ボーナス選択割合に6倍の設定差。2024年販売台数1位。" },
           { name: "スマスロ マギアレコード 魔法少女まどか☆マギカ外伝", detail: "マギアチャレンジ（通常CZ）と黒江チャレンジ（設定4以上濃厚）の2種。エピソード振り分けに設定差。P-WORLDアワード2025受賞。" },
         ],
       },
-      "周期CZ型": {
-        description: GAME_LIBRARY.czDesignPatterns["周期CZ型"].description,
+      "自力演出型": {
+        description: GAME_LIBRARY.czDesignPatterns["自力演出型"].description,
+        probability: GAME_LIBRARY.czDesignPatterns["自力演出型"].probability,
+        reward: GAME_LIBRARY.czDesignPatterns["自力演出型"].reward,
         note: null,
-        rules: GAME_LIBRARY.czDesignPatterns["周期CZ型"].rules,
-        presentation: GAME_LIBRARY.czDesignPatterns["周期CZ型"].presentation,
+        rules: GAME_LIBRARY.czDesignPatterns["自力演出型"].rules,
+        presentation: GAME_LIBRARY.czDesignPatterns["自力演出型"].presentation,
         machines: [
-          { name: "L真打吉宗", detail: "6周期でCZ確定（最大1000G）。周期天井が明確で立ち回りの指針が立てやすい。設定1でも97.8%を実現。" },
-          { name: "スマスロ モンキーターンV", detail: "最大6周期・795GでCZ確定。コイン単価3.1円の荒くない設計でP-WORLDアワード2024受賞。青島SG継続率83%の安定上位AT。" },
+          { name: "スマスロ甲鉄城のカバネリ 海門決戦", detail: "カバネリアタック中はベル・弱チェ・強チェ・特殊役でAT移行率が変動。役の強さで手応えが変わる設計。" },
+          { name: "スマスロ モンキーターンV", detail: "超抜チャレンジはベル当選でのAT移行抽選が主軸。役を引いて自分でATを勝ち取る感覚。P-WORLDアワード2024受賞。" },
+        ],
+      },
+      "カウントアップ型": {
+        description: GAME_LIBRARY.czDesignPatterns["カウントアップ型"].description,
+        probability: GAME_LIBRARY.czDesignPatterns["カウントアップ型"].probability,
+        reward: GAME_LIBRARY.czDesignPatterns["カウントアップ型"].reward,
+        note: null,
+        rules: GAME_LIBRARY.czDesignPatterns["カウントアップ型"].rules,
+        presentation: GAME_LIBRARY.czDesignPatterns["カウントアップ型"].presentation,
+        machines: [
+          { name: "スマスロ モンキーターンV", detail: "超抜チャレンジの天井保証として機能。一定カウント到達でAT確定し、自力解除を逃しても必ず結果が出る安心設計。" },
         ],
       },
     },
@@ -76,7 +73,7 @@ const DATA = {
   AT: {
     types: Object.fromEntries(
       Object.entries(GAME_LIBRARY.gameFlowPatterns)
-        .filter(([typeName]) => typeName !== "周期保証型" && typeName !== "強制ループ型")
+        .filter(([typeName]) => typeName !== "周期保証型" && typeName !== "強制ループ型" && typeName !== "直AT型")
         .map(([typeName, data]) => [
           typeName,
           {
@@ -135,6 +132,14 @@ const DATA = {
         rules: GAME_LIBRARY.gameFlowPatterns["強制ループ型"].rules || null,
         presentation: GAME_LIBRARY.gameFlowPatterns["強制ループ型"].presentation || null,
         machines: (GAME_LIBRARY.gameFlowPatterns["強制ループ型"].examples || []).map(e => ({ name: e.machine, detail: e.detail || null })),
+      },
+      "直AT型": {
+        description: GAME_LIBRARY.gameFlowPatterns["直AT型"].description,
+        emotion: GAME_LIBRARY.gameFlowPatterns["直AT型"].playerEmotion || null,
+        note: null,
+        rules: GAME_LIBRARY.gameFlowPatterns["直AT型"].rules || null,
+        presentation: GAME_LIBRARY.gameFlowPatterns["直AT型"].presentation || null,
+        machines: (GAME_LIBRARY.gameFlowPatterns["直AT型"].examples || []).map(e => ({ name: e.machine, detail: e.detail || null })),
       },
     },
   },
@@ -288,6 +293,29 @@ export default function GameDesignTab() {
                 boxShadow: "inset 2px 2px 6px #C5C9D4, inset -2px -2px 6px #FFFFFF",
                 borderRadius: "0 0 12px 12px", overflow: "hidden",
               }}>
+                {(typeData.probability || typeData.reward) && (
+                  <div style={{
+                    margin: "10px 14px 0",
+                    padding: "8px 12px",
+                    background: catCfg.bg,
+                    borderLeft: `3px solid ${catCfg.accent}`,
+                    borderRadius: 6,
+                    display: "flex", flexDirection: "column", gap: 4,
+                  }}>
+                    {typeData.probability && (
+                      <div style={{ fontSize: 12, color: "#444" }}>
+                        <span style={{ fontWeight: 700, color: catCfg.accent }}>発生確率: </span>
+                        {typeData.probability}
+                      </div>
+                    )}
+                    {typeData.reward && (
+                      <div style={{ fontSize: 12, color: "#444" }}>
+                        <span style={{ fontWeight: 700, color: catCfg.accent }}>対価: </span>
+                        {typeData.reward}
+                      </div>
+                    )}
+                  </div>
+                )}
                 {typeData.emotion && (
                   <div style={{ padding: "8px 14px 0", fontSize: 12, color: catCfg.accent, fontStyle: "italic" }}>
                     💭 {typeData.emotion}
