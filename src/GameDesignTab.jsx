@@ -369,6 +369,7 @@ export default function GameDesignTab() {
                           <div style={{ fontSize: 11, fontWeight: 700, color: catCfg.accent, marginBottom: 4 }}>⚙️ 仕組み・ルール</div>
                           <div style={{ fontSize: 12, color: "#555", lineHeight: 1.85 }}>
                             {machineRules.split("\n").map((line, idx) => {
+                              if (line === "") return <div key={idx} style={{ height: "0.6em" }} />;
                               if (line.startsWith("・")) return <div key={idx}>{line}</div>;
                               const sep = line.indexOf("：");
                               if (sep > 0 && sep <= 10) {
