@@ -136,6 +136,24 @@ BASE=https://vpzbtuucopucablwyqeq.supabase.co/rest/v1
 
 ---
 
+## 企画提案処理ルール（パートB）
+
+proposal_requestsの処理分岐：
+
+- **target === "機能単体"** かつ result が空 → ヒアリングなしで直接生成
+  - concept_memo の内容を機能リクエストとして解釈
+  - src/gameDesignLibrary.json・src/machineAnalysis.json を読んで根拠を付けながら設計提案書を生成
+  - result にマークダウン形式で保存、status を done に更新
+  - 修正依頼（revision_request あり）の場合も同様に再生成
+
+- **target !== "機能単体"** かつ questions が空 → ヒアリング質問生成（5問程度）→ questions フィールドに保存、status は pending のまま
+
+- **target !== "機能単体"** かつ questionsあり・answersあり・revision_request が空 → 初回提案書を生成 → result に保存、status を done に更新
+
+- **revision_request あり** → 修正版を生成 → result を上書き、status を done に更新
+
+---
+
 ## ゲーム性分析追加リクエストの処理ルール
 
 収集・企画統合処理タスク（パートA）で `theme` が「【ゲーム性分析追加リクエスト】」で始まるリクエストを検出した場合、以下の手順で処理する：
