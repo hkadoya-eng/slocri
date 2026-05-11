@@ -28,6 +28,15 @@ function bubble(isUser) {
 
 const COLLAPSE_THRESHOLD = 200;
 
+const QUICK_QUESTIONS = [
+  "今週の新台おすすめは？",
+  "天井狙いにいい台を教えて",
+  "荒くない安定して出る台は？",
+  "設定6が入りやすい機種は？",
+  "最近稼働が伸びてる台は？",
+  "初心者に向いてる台は？",
+];
+
 function CollapsibleContent({ content }) {
   const [expanded, setExpanded] = useState(false);
   const long = content.length > COLLAPSE_THRESHOLD;
@@ -120,8 +129,6 @@ export default function ChatTab() {
   }
 
   const lastIsUser = messages.length > 0 && messages[messages.length - 1].role === "user";
-  const threadPost = messages.find(m => m.role === "user");
-  const isThreadPost = (msg) => msg.id === threadPost?.id;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 120px)", maxWidth: 640, margin: "0 auto", position: "relative" }}>
@@ -142,23 +149,24 @@ export default function ChatTab() {
       {/* メッセージ一覧 */}
       <div style={{ flex: 1, overflowY: "auto", padding: "16px 12px", display: "flex", flexDirection: "column", gap: 12 }}>
         {messages.length === 0 && (
-          <div style={{ textAlign: "center", color: "#bbb", padding: "60px 0 20px", fontSize: 14 }}>
-            <div style={{ fontSize: 36, marginBottom: 12 }}>💬</div>
-            気になる台・話題を投稿してスレッドを始めよう<br />
-            <span style={{ fontSize: 12 }}>1〜2分で返答します</span>
+          <div style={{ padding: "32px 4px 8px" }}>
+            <div style={{ textAlign: "center", color: "#bbb", marginBottom: 20, fontSize: 14 }}>
+              <div style={{ fontSize: 34, marginBottom: 10 }}>💬</div>
+              気になる台や話題をなんでも聞いてみよう<br />
+              <span style={{ fontSize: 12 }}>1〜2分で返答します</span>
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
+              {QUICK_QUESTIONS.map(q => (
+                <button key={q} onClick={() => setInput(q)}
+                  style={{ padding: "8px 14px", borderRadius: 20, border: "none", background: "#E8ECF0", color: "#555", fontSize: 13, cursor: "pointer", boxShadow: "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF", transition: "all 0.15s", lineHeight: 1.4 }}>
+                  {q}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
         {messages.map((msg, idx) => {
-          const isThread = isThreadPost(msg);
-          if (isThread) {
-            return (
-              <div key={msg.id} style={{ background: "#FFF8F5", border: "1px solid #F5C4AD", borderRadius: 12, padding: "12px 14px", marginBottom: 4 }}>
-                <div style={{ fontSize: 11, color: "#D85A30", fontWeight: 700, marginBottom: 6, letterSpacing: 0.5 }}>📌 スレッド</div>
-                <div style={{ fontSize: 14, color: "#333", lineHeight: 1.7, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{msg.content}</div>
-              </div>
-            );
-          }
           return (
             <div key={msg.id} style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start" }}>
               <div style={bubble(msg.role === "user")}>
@@ -201,7 +209,7 @@ export default function ChatTab() {
             disabled={sending}
             rows={2}
             style={{ flex: 1, padding: "10px 12px", borderRadius: 12, border: "none", background: "#E8ECF0", boxShadow: "inset 3px 3px 6px #C5C9D4, inset -2px -2px 5px #FFFFFF", fontSize: 16, outline: "none", resize: "none", fontFamily: "inherit", color: "#333" }}
-            placeholder={messages.length === 0 ? "気になる台や話題を入力してスレッドを始める…" : "返信を入力（Shift+Enterで改行、Enterで送信）"}
+            placeholder="気になる台や話題をなんでも…（Enterで送信）"
           />
           <button
             type="submit"
