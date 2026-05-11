@@ -363,39 +363,24 @@ export default function GameDesignTab() {
                         )}
                       </div>
 
-                      {/* 内容 */}
-                      {m.detail ? (
-                        <div style={{ fontSize: 13, color: "#555", lineHeight: 1.8, marginBottom: 8 }}>
-                          {m.detail.split("\n").map((line, idx) => {
-                            if (line.startsWith("・")) {
-                              return <div key={idx}>{line}</div>;
-                            }
-                            const sep = line.indexOf("：");
-                            if (sep > 0 && sep <= 6) {
-                              return (
-                                <div key={idx} style={{ marginBottom: 2 }}>
-                                  <span style={{ fontWeight: 700, color: catCfg.accent }}>{line.slice(0, sep + 1)}</span>
-                                  {line.slice(sep + 1)}
-                                </div>
-                              );
-                            }
-                            return <div key={idx}>{line}</div>;
-                          })}
-                        </div>
-                      ) : (
-                        <div style={{ fontSize: 13, color: "#aaa", fontStyle: "italic", marginBottom: 8 }}>
-                          詳細データなし（確認できた情報のみ掲載・情報提供募集中）
-                        </div>
-                      )}
-
                       {/* 仕組み・ルール（機種固有） */}
                       {machineRules && (
                         <div style={{ marginBottom: 6 }}>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: catCfg.accent, marginBottom: 3 }}>⚙️ 仕組み・ルール</div>
-                          <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>
-                            {machineRules.split("\n").map((line, idx) => (
-                              <span key={idx}>{line}{idx < machineRules.split("\n").length - 1 && <br />}</span>
-                            ))}
+                          <div style={{ fontSize: 11, fontWeight: 700, color: catCfg.accent, marginBottom: 4 }}>⚙️ 仕組み・ルール</div>
+                          <div style={{ fontSize: 12, color: "#555", lineHeight: 1.85 }}>
+                            {machineRules.split("\n").map((line, idx) => {
+                              if (line.startsWith("・")) return <div key={idx}>{line}</div>;
+                              const sep = line.indexOf("：");
+                              if (sep > 0 && sep <= 10) {
+                                return (
+                                  <div key={idx}>
+                                    <span style={{ fontWeight: 700, color: catCfg.accent }}>{line.slice(0, sep + 1)}</span>
+                                    {line.slice(sep + 1)}
+                                  </div>
+                                );
+                              }
+                              return <div key={idx}>{line}</div>;
+                            })}
                           </div>
                         </div>
                       )}
