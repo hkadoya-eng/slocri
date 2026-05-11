@@ -42,7 +42,7 @@ const DATA = {
         machines: [
           { name: "スマスロ ヨルムンガンド", detail: "前半10G+後半3Gの2部構成ストーリーCZ。3回成功でPC突入という段階設計。失敗時の絶望も大きい。" },
           { name: "押忍！番長4", detail: "シリーズ伝統の「特訓→対決」2段階フロー。天井699G+αで確定。青7ボーナス選択割合に6倍の設定差。2024年販売台数1位。" },
-          { name: "スマスロ マギアレコード 魔法少女まどか☆マギカ外伝", detail: "マギアチャレンジ（通常CZ）と黒江チャレンジ（設定4以上濃厚）の2種。エピソード振り分けに設定差。P-WORLDアワード2025受賞。" },
+          { name: "スマスロ マギアレコード 魔法少女まどか☆マギカ外伝", detail: "CZ名：マギアチャレンジ / 黒江チャレンジ（レアCZ）\n・ボーナス初当たり確率：1/240.6（設定1）〜1/184.3（設定6）\n・マギアチャレンジ：通常CZ、成功でマギアラッシュ突入\n・黒江チャレンジ：レアCZ、当選確率は高設定で2倍（設定4以上濃厚の判別手段）\n・エピソード振り分けに設定差（黒江エピソード発生で設定5以上期待大）\n・「みたまボーナス」最終ジャッジのウワサ発展AT当選率に大きな設定差" },
         ],
       },
       "自力演出型": {
@@ -365,8 +365,22 @@ export default function GameDesignTab() {
 
                       {/* 内容 */}
                       {m.detail ? (
-                        <div style={{ fontSize: 13, color: "#555", lineHeight: 1.7, marginBottom: 8 }}>
-                          {m.detail}
+                        <div style={{ fontSize: 13, color: "#555", lineHeight: 1.8, marginBottom: 8 }}>
+                          {m.detail.split("\n").map((line, idx) => {
+                            if (line.startsWith("・")) {
+                              return <div key={idx}>{line}</div>;
+                            }
+                            const sep = line.indexOf("：");
+                            if (sep > 0 && sep <= 6) {
+                              return (
+                                <div key={idx} style={{ marginBottom: 2 }}>
+                                  <span style={{ fontWeight: 700, color: catCfg.accent }}>{line.slice(0, sep + 1)}</span>
+                                  {line.slice(sep + 1)}
+                                </div>
+                              );
+                            }
+                            return <div key={idx}>{line}</div>;
+                          })}
                         </div>
                       ) : (
                         <div style={{ fontSize: 13, color: "#aaa", fontStyle: "italic", marginBottom: 8 }}>
