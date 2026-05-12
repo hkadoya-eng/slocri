@@ -466,7 +466,7 @@ function SisTab() {
           const latestDt = new Date(latestDate + "T00:00:00");
           const today = new Date(); today.setHours(0,0,0,0);
           const monday = new Date(today); monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-          if (latestDt < monday) {
+          if (latestDt >= monday) {
             setProvMachines(new Set(data.filter(r => r.date === latestDate).map(r => r.machine.replace(/\s/g,""))));
           } else {
             setProvMachines(new Set());
