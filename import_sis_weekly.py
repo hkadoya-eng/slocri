@@ -44,6 +44,20 @@ def extract_records(path):
     ws = wb["機種一覧表"]
     rows = list(ws.iter_rows(values_only=True))
 
+    # ヘッダー行1のcol3が最新確定週（例: "4.27~5.3"）
+    last_week_start = None
+    header = rows[1]
+    week_str = header[3] if len(header) > 3 else None
+    if week_str and isinstance(week_str, str) and "~" in week_str:
+        start = week_str.split("~")[0].strip()
+        parts = start.split(".")
+        if len(parts) == 2:
+            try:
+                month, day = int(parts[0]), int(parts[1])
+                last_week_start = f"2026-{month:02d}-{day:02d}"
+            except ValueError:
+                pass
+
     records = []
     for row in rows[2:]:  # row 0〜1はヘッダー
         machine = row[1]
@@ -65,7 +79,7 @@ def extract_records(path):
         })
 
     wb.close()
-    return records
+    return records, last_week_start
 
 
 def upsert_records(records, api_key):
@@ -88,6 +102,27 @@ def upsert_records(records, api_key):
         print(f"  エラー ({res.status_code}): {res.text[:200]}")
 
 
+def upsert_config(last_week_start, api_key):
+    if not last_week_start:
+        return
+    headers = {
+        "apikey": api_key,
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "Prefer": "resolution=merge-duplicates",
+    }
+    config = [{"machine": "__config__", "contrib_weeks": 0, "last_week_start": last_week_start}]
+    res = requests.post(
+        f"{SUPABASE_URL}/rest/v1/sis_machine_stats",
+        headers=headers,
+        data=json.dumps(config),
+    )
+    if res.status_code in (200, 201):
+        print(f"  最終確定週を保存: {last_week_start}")
+    else:
+        print(f"  configエラー ({res.status_code}): {res.text[:200]}")
+
+
 def run():
     load_env_local()
 
@@ -101,8 +136,8 @@ def run():
         print(f"エラー: ファイルが見つかりません: {WEEKLY_PATH}")
         sys.exit(1)
 
-    records = extract_records(WEEKLY_PATH)
-    print(f"\n抽出: {len(records)} 機種\n")
+    records, last_week_start = extract_records(WEEKLY_PATH)
+    print(f"\n抽出: {len(records)} 機種　最終確定週: {last_week_start}\n")
 
     if not records:
         print("レコードなし。終了します。")
@@ -110,6 +145,7 @@ def run():
 
     print("Supabase にアップロード中...")
     upsert_records(records, api_key)
+    upsert_config(last_week_start, api_key)
     print("\n完了。")
 
     print("稼働貢献週 上位10機種:")

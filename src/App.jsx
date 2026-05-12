@@ -415,6 +415,7 @@ function SisTab({ adminUser }) {
   const [sortAsc, setSortAsc] = useState(false);
   const [machineStats, setMachineStats] = useState({});
   const [provMachines, setProvMachines] = useState(new Set());
+  const [lastWeekStart, setLastWeekStart] = useState(null);
   const [sisView, _setSisView] = useState(() => sessionStorage.getItem("slokey_sisView") || "daily");
   const setSisView = (v) => { sessionStorage.setItem("slokey_sisView", v); _setSisView(v); };
   const [dateRange, setDateRange] = useState("1m");
@@ -491,7 +492,7 @@ function SisTab({ adminUser }) {
     }
     Promise.all([
       fetchSisData(),
-      supabase.from("sis_machine_stats").select("machine,contrib_weeks"),
+      supabase.from("sis_machine_stats").select("machine,contrib_weeks,last_week_start"),
     ]).then(([data, { data: stats }]) => {
       if (data) {
         setRows(data);
@@ -513,7 +514,13 @@ function SisTab({ adminUser }) {
       }
       if (stats) {
         const m = {};
-        stats.forEach(s => { m[s.machine.replace(/\s/g, "")] = s.contrib_weeks; });
+        stats.forEach(s => {
+          if (s.machine === "__config__") {
+            if (s.last_week_start) setLastWeekStart(s.last_week_start);
+          } else {
+            m[s.machine.replace(/\s/g, "")] = s.contrib_weeks;
+          }
+        });
         setMachineStats(m);
       }
       setLoading(false);
@@ -540,9 +547,11 @@ function SisTab({ adminUser }) {
     return Object.values(wkMap).filter(w => {
       const mon = new Date(w.key + "T00:00:00");
       const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
-      return sun < today;
+      if (sun >= today) return false;
+      if (lastWeekStart && w.key > lastWeekStart) return false;
+      return true;
     }).sort((a,b) => b.key.localeCompare(a.key));
-  }, [rows]);
+  }, [rows, lastWeekStart]);
 
   const machineWeeks = useMemo(() => {
     const map = {};
