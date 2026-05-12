@@ -363,12 +363,50 @@ function MachineListTab({ posts, onGoToFeed, favMachines = [], toggleFavMachine 
   );
 }
 
-function SisTab() {
-  const PASS_KEY = "sis_auth_v1";
-  const CORRECT = import.meta.env.VITE_SIS_PASSWORD || atob("c2xva2V5MjAyNg==");
-  const [authed, setAuthed] = useState(() => !!CORRECT && localStorage.getItem(PASS_KEY) === CORRECT);
-  const [pw, setPw] = useState("");
-  const [pwErr, setPwErr] = useState(false);
+function AdminLoginForm({ title = "管理者ログイン", desc = "社内専用エリアです" }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setBusy(true);
+    setErr("");
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) setErr("メールアドレスまたはパスワードが違います");
+    setBusy(false);
+  }
+  return (
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"48px 24px"}}>
+      <div style={{fontSize:32,marginBottom:12}}>🔒</div>
+      <div style={{fontSize:18,fontWeight:700,marginBottom:6,color:"#333"}}>{title}</div>
+      <div style={{fontSize:13,color:"#888",marginBottom:24,textAlign:"center"}}>{desc}</div>
+      <form onSubmit={handleSubmit} style={{width:"100%",maxWidth:300}}>
+        <input
+          type="email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          placeholder="メールアドレス"
+          autoFocus
+          style={{width:"100%",padding:"11px 14px",border:"1.5px solid #ddd",borderRadius:10,fontSize:16,boxSizing:"border-box",marginBottom:8,outline:"none"}}
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          placeholder="パスワード"
+          style={{width:"100%",padding:"11px 14px",border:`1.5px solid ${err?"#E53935":"#ddd"}`,borderRadius:10,fontSize:16,boxSizing:"border-box",marginBottom:8,outline:"none"}}
+        />
+        {err && <div style={{color:"#E53935",fontSize:13,marginBottom:8}}>{err}</div>}
+        <button type="submit" disabled={busy} style={{width:"100%",padding:"11px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:10,fontSize:16,fontWeight:700,cursor:"pointer",opacity:busy?0.7:1}}>
+          {busy ? "..." : "ログイン"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+function SisTab({ adminUser }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [dates, setDates] = useState([]);
@@ -424,7 +462,7 @@ function SisTab() {
   }
 
   useEffect(() => {
-    if (!authed) return;
+    if (!adminUser) return;
     setLoading(true);
     const cutoff = new Date();
     if (dateRange === "3m") cutoff.setMonth(cutoff.getMonth() - 3);
@@ -480,7 +518,7 @@ function SisTab() {
       }
       setLoading(false);
     });
-  }, [authed, dateRange]);
+  }, [adminUser, dateRange]);
 
   // Hooks must be called before any early returns
   const weeks = useMemo(() => {
@@ -519,37 +557,8 @@ function SisTab() {
     return map;
   }, [rows]);
 
-  function handleLogin(e) {
-    e.preventDefault();
-    if (pw === CORRECT) {
-      localStorage.setItem(PASS_KEY, pw);
-      setAuthed(true);
-      setPwErr(false);
-    } else {
-      setPwErr(true);
-    }
-  }
-
-  if (!authed) {
-    return (
-      <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"48px 24px"}}>
-        <div style={{fontSize:32,marginBottom:12}}>🔒</div>
-        <div style={{fontSize:18,fontWeight:700,marginBottom:6,color:"#333"}}>稼働データ</div>
-        <div style={{fontSize:13,color:"#888",marginBottom:24,textAlign:"center"}}>社内専用。パスワードを入力してください。</div>
-        <form onSubmit={handleLogin} style={{width:"100%",maxWidth:300}}>
-          <input
-            type="password"
-            value={pw}
-            onChange={e => setPw(e.target.value)}
-            placeholder="パスワード"
-            autoFocus
-            style={{width:"100%",padding:"11px 14px",border:`1.5px solid ${pwErr?"#E53935":"#ddd"}`,borderRadius:10,fontSize:16,boxSizing:"border-box",marginBottom:8,outline:"none"}}
-          />
-          {pwErr && <div style={{color:"#E53935",fontSize:13,marginBottom:8}}>パスワードが違います</div>}
-          <button type="submit" style={{width:"100%",padding:"11px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:10,fontSize:16,fontWeight:700,cursor:"pointer"}}>ログイン</button>
-        </form>
-      </div>
-    );
+  if (!adminUser) {
+    return <AdminLoginForm title="稼働データ" desc="社内専用。管理者ログインが必要です。" />;
   }
 
   if (loading) return <div style={{textAlign:"center",padding:"2rem",color:"#888"}}>読み込み中...</div>;
@@ -838,7 +847,7 @@ function SisTab() {
       </>}
 
       <div style={{textAlign:"right",marginTop:16}}>
-        <button onClick={() => { localStorage.removeItem(PASS_KEY); setAuthed(false); setPw(""); }}
+        <button onClick={() => supabase.auth.signOut()}
           style={{fontSize:12,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:"4px 0"}}>ログアウト</button>
       </div>
     </div>
@@ -871,8 +880,7 @@ export default function App() {
   const [fbBody, setFbBody] = useState("");
   const [fbSending, setFbSending] = useState(false);
   const [fbDone, setFbDone] = useState(false);
-  const [analysisUnlocked, setAnalysisUnlocked] = useState(() => sessionStorage.getItem("analysis_unlocked") === "1");
-  const [analysisPinInput, setAnalysisPinInput] = useState("");
+  const [adminUser, setAdminUser] = useState(null);
   const [showFbInbox, setShowFbInbox] = useState(false);
   const [adminInboxTab, setAdminInboxTab] = useState("feedback");
   const [favMachines, setFavMachines] = useState(() => JSON.parse(localStorage.getItem("slotkey_favs") || "[]"));
@@ -942,6 +950,12 @@ export default function App() {
     const handler = e => { e.preventDefault(); setInstallPrompt(e); };
     window.addEventListener("beforeinstallprompt", handler);
     return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setAdminUser(session?.user ?? null));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_evt, session) => setAdminUser(session?.user ?? null));
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -1186,32 +1200,12 @@ export default function App() {
       {!loading && tab === "feed"     && <FeedTab     posts={normalPosts} updatePost={updatePost} deletePost={deletePost} addPost={addPost} showToast={showToast} initialFilter={feedFilter} onFilterChange={setFeedFilter} directPost={directPost} onDirectPostClear={() => setDirectPost(null)} favMachines={favMachines} toggleFavMachine={toggleFavMachine} />}
       {!loading && tab === "collect"  && <CollectTab  posts={normalPosts} showToast={showToast} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
       {!loading && tab === "overview" && <OverviewTab posts={normalPosts} updatePost={updatePost} />}
-      {!loading && tab === "research" && (analysisUnlocked ? (
+      {!loading && tab === "research" && (adminUser ? (
         <ResearchTab posts={normalPosts} aiEnabled={aiEnabled} updatePost={updatePost} />
       ) : (
-        <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:320,gap:20}}>
-          <div style={{fontSize:32}}>🔒</div>
-          <div style={{fontSize:17,fontWeight:600,color:"#333"}}>分析タブ</div>
-          <div style={{fontSize:14,color:"#aaa",textAlign:"center"}}>このタブはパスワードで保護されています</div>
-          <div style={{display:"flex",gap:8}}>
-            <input
-              type="password"
-              value={analysisPinInput}
-              onChange={e => setAnalysisPinInput(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter") { if (analysisPinInput === "slokey") { sessionStorage.setItem("analysis_unlocked","1"); setAnalysisUnlocked(true); setAnalysisPinInput(""); } else { setAnalysisPinInput(""); } } }}
-              placeholder="パスワード"
-              style={{fontSize:16,padding:"10px 14px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",width:160}}
-              autoFocus
-            />
-            <button
-              onClick={() => { if (analysisPinInput === "slokey") { sessionStorage.setItem("analysis_unlocked","1"); setAnalysisUnlocked(true); setAnalysisPinInput(""); } else { setAnalysisPinInput(""); } }}
-              style={{padding:"10px 18px",border:"none",borderRadius:10,background:"#D85A30",color:"#fff",fontSize:15,fontWeight:500,cursor:"pointer"}}>
-              入る
-            </button>
-          </div>
-        </div>
+        <AdminLoginForm title="分析タブ" desc="管理者ログインが必要です" />
       ))}
-      {tab === "sis"        && <SisTab />}
+      {tab === "sis"        && <SisTab adminUser={adminUser} />}
 
       {/* フローティングフィードバックボタン（投稿タブのみ表示） */}
       {tab === "feed" && <div style={{position:"fixed",bottom:80,right:16,zIndex:200}}>
