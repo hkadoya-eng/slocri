@@ -790,12 +790,11 @@ function SisTab({ adminUser }) {
                     <span style={{fontSize:13,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0}}>{r.machine}</span>
                     {r.machine_count != null && <span style={{fontSize:10,color:"#aaa",whiteSpace:"nowrap",flexShrink:0}}>{r.machine_count}台</span>}
                   </div>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:"2px 8px"}}>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"2px 8px"}}>
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>IN枚数</div><div style={{fontWeight:600,color:"#444",fontSize:11}}>{fmtNum(r.out_coins)}</div></div>
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>出玉率</div><div style={{fontWeight:700,color:rateColor(r.payout_rate),fontSize:11}}>{fmtRate(r.payout_rate)}</div></div>
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>粗利</div><div style={{fontWeight:600,color:profitColor,fontSize:11}}>{fmtProfitShort(r.gross_profit)}</div></div>
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>単価</div><div style={{fontWeight:600,color:"#555",fontSize:11}}>{r.coin_price != null ? r.coin_price.toFixed(2)+"円" : "—"}</div></div>
-                    <div style={{whiteSpace:"nowrap"}}><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>貢献週</div><div style={{fontWeight:700,color:((machineStats[r.machine.replace(/\s/g,"")]||0)+(provMachines.has(r.machine.replace(/\s/g,""))?1:0))>0?"#2a7ae8":"#ccc",fontSize:11}}>{(()=>{ const mk=r.machine.replace(/\s/g,""); const base=machineStats[mk]; const prov=provMachines.has(mk); if(base==null&&!prov) return "—"; const cnt=(base||0)+(prov?1:0); return cnt+"週"+(prov?"（暫定）":""); })()}</div></div>
                   </div>
                 </div>
               </div>
