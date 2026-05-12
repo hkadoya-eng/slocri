@@ -67,7 +67,6 @@ export default function ProposeTab() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!ipName.trim()) return;
     setSubmitting(true);
     const { error } = await supabase.from("proposal_requests").insert({
       ip_name: ipName.trim(),
@@ -223,8 +222,8 @@ export default function ProposeTab() {
           </div>
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: 12 }}>
-              <label style={{ fontSize: 13, color: "#666", display: "block", marginBottom: 5 }}>IP名 / 台名 <span style={{ color: "#D85A30" }}>*</span></label>
-              <input style={S.input} value={ipName} onChange={e => setIpName(e.target.value)} placeholder="例：北斗の拳、バイオハザード、エヴァンゲリオン…" required />
+              <label style={{ fontSize: 13, color: "#666", display: "block", marginBottom: 5 }}>IP名 / 台名 <span style={{ color: "#aaa", fontSize: 11 }}>(任意)</span></label>
+              <input style={S.input} value={ipName} onChange={e => setIpName(e.target.value)} placeholder="例：北斗の拳、バイオハザード、エヴァンゲリオン…（空欄でオリジナルIPとして提案）" />
             </div>
             <div style={{ marginBottom: 12 }}>
               <label style={{ fontSize: 13, color: "#666", display: "block", marginBottom: 5 }}>ターゲット層（任意）</label>
@@ -234,12 +233,12 @@ export default function ProposeTab() {
               <label style={{ fontSize: 13, color: "#666", display: "block", marginBottom: 5 }}>コンセプトメモ（任意）</label>
               <textarea style={{ ...S.input, resize: "vertical", minHeight: 80, lineHeight: 1.6 }} value={memo} onChange={e => setMemo(e.target.value)} placeholder="こんなゲーム性にしたい、このシーンを使いたい、感情の起伏のイメージ…" />
             </div>
-            <button type="submit" disabled={submitting || !ipName.trim()}
+            <button type="submit" disabled={submitting}
               style={{ width: "100%", padding: "13px 0", borderRadius: 12, border: "none",
-                background: (submitting || !ipName.trim()) ? "#C5C9D4" : "#D85A30",
+                background: submitting ? "#C5C9D4" : "#D85A30",
                 color: "#fff", fontSize: 15, fontWeight: 700,
-                cursor: (submitting || !ipName.trim()) ? "not-allowed" : "pointer",
-                boxShadow: (submitting || !ipName.trim()) ? "none" : "3px 3px 8px #C5C9D4, -1px -1px 4px #FFFFFF",
+                cursor: submitting ? "not-allowed" : "pointer",
+                boxShadow: submitting ? "none" : "3px 3px 8px #C5C9D4, -1px -1px 4px #FFFFFF",
                 transition: "all 0.15s",
               }}>
               {submitting ? "送信中…" : "企画書を依頼する ✉"}

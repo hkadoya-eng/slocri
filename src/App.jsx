@@ -376,6 +376,7 @@ function SisTab() {
   const [sortKey, setSortKey] = useState("out_coins");
   const [sortAsc, setSortAsc] = useState(false);
   const [machineStats, setMachineStats] = useState({});
+  const [provMachines, setProvMachines] = useState(new Set());
   const [sisView, _setSisView] = useState(() => sessionStorage.getItem("slokey_sisView") || "daily");
   const setSisView = (v) => { sessionStorage.setItem("slokey_sisView", v); _setSisView(v); };
   const [dateRange, setDateRange] = useState("1m");
@@ -460,6 +461,17 @@ function SisTab() {
         setDates(ds);
         setDateIdx(0);
         setWeekIdx(0);
+        if (data.length > 0) {
+          const latestDate = data.reduce((a, b) => a.date > b.date ? a : b).date;
+          const latestDt = new Date(latestDate + "T00:00:00");
+          const today = new Date(); today.setHours(0,0,0,0);
+          const monday = new Date(today); monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+          if (latestDt < monday) {
+            setProvMachines(new Set(data.filter(r => r.date === latestDate).map(r => r.machine.replace(/\s/g,""))));
+          } else {
+            setProvMachines(new Set());
+          }
+        }
       }
       if (stats) {
         const m = {};
@@ -748,7 +760,7 @@ function SisTab() {
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>出玉率</div><div style={{fontWeight:700,color:rateColor(r.payout_rate),fontSize:11}}>{fmtRate(r.payout_rate)}</div></div>
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>粗利</div><div style={{fontWeight:600,color:profitColor,fontSize:11}}>{fmtProfitShort(r.gross_profit)}</div></div>
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>単価</div><div style={{fontWeight:600,color:"#555",fontSize:11}}>{r.coin_price != null ? r.coin_price.toFixed(2)+"円" : "—"}</div></div>
-                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>貢献週</div><div style={{fontWeight:700,color:(machineStats[r.machine.replace(/\s/g,"")]||0)>0?"#2a7ae8":"#ccc",fontSize:11}}>{machineStats[r.machine.replace(/\s/g,"")] != null ? machineStats[r.machine.replace(/\s/g,"")]+"週" : "—"}</div></div>
+                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>貢献週</div><div style={{fontWeight:700,color:((machineStats[r.machine.replace(/\s/g,"")]||0)+(provMachines.has(r.machine.replace(/\s/g,""))?1:0))>0?"#2a7ae8":"#ccc",fontSize:11}}>{(()=>{ const mk=r.machine.replace(/\s/g,""); const base=machineStats[mk]; const prov=provMachines.has(mk); if(base==null&&!prov) return "—"; const cnt=(base||0)+(prov?1:0); return cnt+"週"+(prov?"（暫定）":""); })()}</div></div>
                   </div>
                 </div>
               </div>
