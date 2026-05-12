@@ -416,6 +416,7 @@ function SisTab({ adminUser }) {
   const [machineStats, setMachineStats] = useState({});
   const [provMachines, setProvMachines] = useState(new Set());
   const [lastWeekStart, setLastWeekStart] = useState(null);
+  const [weeklyData, setWeeklyData] = useState([]);
   const [sisView, _setSisView] = useState(() => sessionStorage.getItem("slokey_sisView") || "daily");
   const setSisView = (v) => { sessionStorage.setItem("slokey_sisView", v); _setSisView(v); };
   const [dateRange, setDateRange] = useState("1m");
@@ -527,21 +528,39 @@ function SisTab({ adminUser }) {
     });
   }, [adminUser, dateRange]);
 
+  useEffect(() => {
+    if (!adminUser) return;
+    async function fetchWeeklyData() {
+      let all = [], page = 0;
+      const PAGE = 1000;
+      while (true) {
+        const { data } = await supabase
+          .from("sis_weekly_data")
+          .select("machine,week_start,out_coins,gross_profit,payout_rate,coin_price,avg_machine_count")
+          .order("week_start", { ascending: false })
+          .range(page * PAGE, (page + 1) * PAGE - 1);
+        if (!data || data.length === 0) break;
+        all = all.concat(data);
+        if (data.length < PAGE) break;
+        page++;
+      }
+      setWeeklyData(all);
+    }
+    fetchWeeklyData();
+  }, [adminUser]);
+
   // Hooks must be called before any early returns
   const weeks = useMemo(() => {
     const wkMap = {};
-    rows.forEach(r => {
-      const dt = new Date(r.date + "T00:00:00");
-      const mon = new Date(dt); mon.setDate(dt.getDate() - ((dt.getDay() + 6) % 7));
-      const key = `${mon.getFullYear()}-${String(mon.getMonth()+1).padStart(2,"0")}-${String(mon.getDate()).padStart(2,"0")}`;
+    weeklyData.forEach(r => {
+      const key = r.week_start;
       if (!wkMap[key]) wkMap[key] = { key, machines: {} };
-      const m = wkMap[key].machines;
-      if (!m[r.machine]) m[r.machine] = { out: 0, profit: 0, rates: [], prices: [], cnt: 0 };
-      m[r.machine].out += r.out_coins || 0;
-      m[r.machine].profit += r.gross_profit || 0;
-      if (r.payout_rate != null) m[r.machine].rates.push(r.payout_rate);
-      if (r.coin_price != null) m[r.machine].prices.push(r.coin_price);
-      m[r.machine].cnt += 1;
+      wkMap[key].machines[r.machine] = {
+        out: r.out_coins,
+        profit: r.gross_profit,
+        payout_rate: r.payout_rate,
+        coin_price: r.coin_price,
+      };
     });
     const today = new Date(); today.setHours(0,0,0,0);
     return Object.values(wkMap).filter(w => {
@@ -551,20 +570,17 @@ function SisTab({ adminUser }) {
       if (lastWeekStart && w.key > lastWeekStart) return false;
       return true;
     }).sort((a,b) => b.key.localeCompare(a.key));
-  }, [rows, lastWeekStart]);
+  }, [weeklyData, lastWeekStart]);
 
   const machineWeeks = useMemo(() => {
     const map = {};
-    rows.forEach(r => {
-      const dt = new Date(r.date + "T00:00:00");
-      const mon = new Date(dt); mon.setDate(dt.getDate() - ((dt.getDay() + 6) % 7));
-      const key = `${mon.getFullYear()}-${String(mon.getMonth()+1).padStart(2,"0")}-${String(mon.getDate()).padStart(2,"0")}`;
+    weeklyData.forEach(r => {
       const mk = r.machine.replace(/\s/g, "");
       if (!map[mk]) map[mk] = new Set();
-      map[mk].add(key);
+      map[mk].add(r.week_start);
     });
     return map;
-  }, [rows]);
+  }, [weeklyData]);
 
   if (!adminUser) {
     return <AdminLoginForm title="稼働データ" desc="社内専用。管理者ログインが必要です。" />;
@@ -641,11 +657,10 @@ function SisTab({ adminUser }) {
   const selWeek = weeks[weekIdx] || null;
   const weekRows = selWeek ? Object.entries(selWeek.machines).map(([machine, v]) => ({
     machine,
-    out_coins: v.cnt ? Math.round(v.out / v.cnt) : null,
-    gross_profit: v.cnt ? Math.round(v.profit / v.cnt) : null,
-    payout_rate: v.rates.length ? v.rates.reduce((s,x)=>s+x,0)/v.rates.length : null,
-    coin_price: v.prices.length ? v.prices.reduce((s,x)=>s+x,0)/v.prices.length : null,
-    days: v.cnt,
+    out_coins: v.out != null ? Math.round(v.out) : null,
+    gross_profit: v.profit != null ? Math.round(v.profit) : null,
+    payout_rate: v.payout_rate,
+    coin_price: v.coin_price,
   })) : [];
 
   function fmtWeekLabel(key) {

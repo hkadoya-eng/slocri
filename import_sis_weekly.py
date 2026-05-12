@@ -102,6 +102,89 @@ def upsert_records(records, api_key):
         print(f"  エラー ({res.status_code}): {res.text[:200]}")
 
 
+def parse_week_start(sheet_name):
+    """シート名から週開始日(月曜)を返す。例: '4.27~5.3' → '2026-04-27'"""
+    if "~" not in sheet_name:
+        return None
+    start = sheet_name.split("~")[0].strip().lstrip(".")
+    parts = start.split(".")
+    if len(parts) != 2:
+        return None
+    try:
+        month, day = int(parts[0]), int(parts[1])
+        if not (1 <= month <= 12 and 1 <= day <= 31):
+            return None
+        return f"2026-{month:02d}-{day:02d}"
+    except ValueError:
+        return None
+
+
+def extract_weekly_records(path):
+    try:
+        import openpyxl
+    except ImportError:
+        print("openpyxl が未インストールです")
+        sys.exit(1)
+
+    wb = openpyxl.load_workbook(path, read_only=True, data_only=True, keep_vba=True)
+    all_records = []
+    for sheet_name in wb.sheetnames:
+        week_start = parse_week_start(sheet_name)
+        if not week_start:
+            continue
+        ws = wb[sheet_name]
+        rows = list(ws.iter_rows(values_only=True))
+        if len(rows) < 2:
+            continue
+        for row in rows[1:]:
+            machine = row[1]
+            if not machine or not isinstance(machine, str) or not machine.startswith("L"):
+                continue
+            out = row[6]
+            if not isinstance(out, (int, float)):
+                continue
+            profit = row[8]
+            payout = row[11]
+            coin_price = row[9]
+            avg_count = row[5]
+            all_records.append({
+                "machine": machine.strip(),
+                "week_start": week_start,
+                "out_coins": float(out),
+                "gross_profit": float(profit) if isinstance(profit, (int, float)) else None,
+                "payout_rate": float(payout) if isinstance(payout, (int, float)) else None,
+                "coin_price": float(coin_price) if isinstance(coin_price, (int, float)) else None,
+                "avg_machine_count": float(avg_count) if isinstance(avg_count, (int, float)) else None,
+            })
+    wb.close()
+    return all_records
+
+
+def upsert_weekly_records(records, api_key):
+    if not records:
+        return
+    headers = {
+        "apikey": api_key,
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "Prefer": "resolution=merge-duplicates",
+    }
+    chunk_size = 500
+    total = 0
+    for i in range(0, len(records), chunk_size):
+        chunk = records[i:i + chunk_size]
+        res = requests.post(
+            f"{SUPABASE_URL}/rest/v1/sis_weekly_data",
+            headers=headers,
+            data=json.dumps(chunk),
+        )
+        if res.status_code in (200, 201):
+            total += len(chunk)
+        else:
+            print(f"  エラー ({res.status_code}): {res.text[:200]}")
+    print(f"  週次データアップロード完了: {total} 件")
+
+
 def upsert_config(last_week_start, api_key):
     if not last_week_start:
         return
@@ -146,6 +229,11 @@ def run():
     print("Supabase にアップロード中...")
     upsert_records(records, api_key)
     upsert_config(last_week_start, api_key)
+
+    print("\n週次データを抽出中...")
+    weekly_records = extract_weekly_records(WEEKLY_PATH)
+    print(f"  {len(weekly_records)} 件")
+    upsert_weekly_records(weekly_records, api_key)
     print("\n完了。")
 
     print("稼働貢献週 上位10機種:")
