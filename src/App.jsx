@@ -407,6 +407,7 @@ function SisTab({ adminUser }) {
   const setSisView = (v) => { sessionStorage.setItem("slokey_sisView", v); _setSisView(v); };
   const [dateRange, setDateRange] = useState("1m");
   const [weekIdx, setWeekIdx] = useState(0);
+  const [nationalDaily, setNationalDaily] = useState({});
   const swipeTouchX = useRef(null);
   const swipeTouchY = useRef(null);
   const swipeDir = useRef(null);
@@ -480,7 +481,13 @@ function SisTab({ adminUser }) {
     Promise.all([
       fetchSisData(),
       supabase.from("sis_machine_stats").select("machine,contrib_weeks,last_week_start"),
-    ]).then(([data, { data: stats }]) => {
+      supabase.from("sis_national_daily").select("date,avg_in"),
+    ]).then(([data, { data: stats }, { data: natData }]) => {
+      if (natData) {
+        const nd = {};
+        natData.forEach(r => { nd[r.date] = r.avg_in; });
+        setNationalDaily(nd);
+      }
       if (data) {
         setRows(data);
         const ds = [...new Set(data.map(r => r.date))].sort().reverse();
@@ -741,7 +748,7 @@ function SisTab({ adminUser }) {
         {dayRows.length > 0 && (
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:6}}>
             {[
-              {label:"平均IN",   val: dayRows.length ? Math.round(totalOut/dayRows.length).toLocaleString() : "—", color:"#444"},
+              {label:"全国平均IN", val: nationalDaily[selDate] != null ? Math.round(nationalDaily[selDate]).toLocaleString() : "—", color:"#444"},
               {label:"平均出玉率", val: avgRate != null ? avgRate.toFixed(1)+"%" : "—", color: avgRate != null ? rateColor(avgRate) : "#888"},
               {label:"平均粗利",   val: dayRows.length ? (totalProfit/dayRows.length<0?"▲":"▼")+" ¥"+Math.abs(Math.round(totalProfit/dayRows.length)) : "—", color: totalProfit/dayRows.length < 0 ? "#2a9d3f" : "#E53935"},
             ].map(s => (
