@@ -162,7 +162,7 @@ def s_title(prs):
     tb(s, Inches(0.22), Inches(2.62), Inches(5.0), Emu(280000),
        "Lパチスロ（スマスロ）── 十字目変換×ストック型ST×高純増5.8枚の設計", 9, color=C_CREAM, font=FONT_H)
 
-    # スペック表（実測値）
+    # スペック表（実測値） ※行間縮小・開始Y上げで画面下に収める
     specs = [
         ("メーカー",        "SANKYO　2026年2月2日導入"),
         ("設定",           "1〜6段階"),
@@ -176,11 +176,11 @@ def s_title(prs):
         ("天井③",         "伝導者の罠5スルーでSPエピ確定"),
     ]
     for i, (k, v) in enumerate(specs):
-        ry = Inches(3.05) + i * Emu(225000)
-        tb(s, Inches(0.22), ry, Inches(1.7), Emu(210000),
-           k, 7.5, color=C_GRAY)
-        tb(s, Inches(1.92), ry, Inches(3.3), Emu(210000),
-           v, 7.5, bold=True, color=C_WHITE)
+        ry = Inches(2.85) + i * Emu(195000)
+        tb(s, Inches(0.22), ry, Inches(1.7), Emu(185000),
+           k, 7.0, color=C_GRAY)
+        tb(s, Inches(1.92), ry, Inches(3.3), Emu(185000),
+           v, 7.0, bold=True, color=C_WHITE)
 
     # 右パネル：この台の3ポイント
     kws = [
@@ -191,8 +191,9 @@ def s_title(prs):
         (C_CYAN,  "③ 3段階天井＋伝導者の罠スルー",
          "850G天井・2,000G天井・5スルー\n天井の多層セーフティで\n投資計画が立てやすい安心設計。"),
     ]
+    # 右パネル3ボックス: y0=0.55+i*1.6, 高さ1.3 → 下端MAX=0.55+2×1.6+1.3=5.05 OK
     for i, (ac, kw, desc) in enumerate(kws):
-        y0 = Inches(0.55) + i * Emu(1540000)
+        y0 = Inches(0.55) + i * Emu(1461600)  # 1.6 inch = 1461600 EMU
         rect_b(s, Inches(5.65), y0, Inches(4.1), Inches(1.3), C_CARD, ac, 2.0)
         rect(s, Inches(5.65), y0, Emu(60000), Inches(1.3), ac)
         tb(s, Inches(5.85), y0 + Emu(65000), Inches(3.8), Emu(310000),
@@ -223,9 +224,10 @@ def s_flow(prs):
         (C_CARD,  C_FIRE,  "SPエピソード\nBONUS(~200枚)", "直接\n炎炎激闘へ"),
         (C_CARD,  C_FLAME, "炎炎激闘\n(メインST)",  "1セット15G+α\nストック型"),
     ]
-    bw1 = Inches(1.6)
+    # 5ボックス: margin=0.3, bw=1.65, gap=0.17 → 合計=0.3+5×1.65+4×0.17=9.23inch OK
+    bw1 = Inches(1.65)
     gap1 = Inches(0.17)
-    sx1 = Inches(0.28)
+    sx1 = Inches(0.30)
     cy1 = top_y + top_h // 2
 
     for i, (fill, ac, lbl, sub) in enumerate(flow1):
@@ -248,7 +250,8 @@ def s_flow(prs):
     # 中段区切り線
     rect(s, 0, Inches(2.1), SLIDE_W, Emu(5000), RGBColor(0x44, 0x18, 0x08))
 
-    # 下段：炎炎激闘内→上位AT昇格ルート
+    # 下段：炎炎激闘内→上位AT昇格ルート（5ボックス）
+    # margin=0.3, bw=1.65, gap=0.17 → 合計=0.3+5×1.65+4×0.17=9.23 OK
     bot_y = Inches(2.18)
     bot_h = Emu(1080000)
 
@@ -258,30 +261,22 @@ def s_flow(prs):
         (C_CARD,  C_PINK,  "紅J大戦\n（特殊上位）",    "紅丸+J参戦\n期待約2,050枚"),
         (RGBColor(0x18,0x08,0x02), C_GOLD,
          "アドラバースト\n(穢レ無キ炎)",  "期待約2,760枚\n森羅万象経由"),
+        (C_CARD,  C_CYAN,  "アドラリンク\nCZ(3G)",     "成功率約50%\n上乗せ契機"),
     ]
-    bw2 = Inches(1.95)
-    gap2 = Inches(0.22)
-    sx2 = Inches(0.28)
+    bw2 = Inches(1.65)
+    gap2 = Inches(0.17)
+    sx2 = Inches(0.30)
     cy2 = bot_y + bot_h // 2
 
     for i, (fill, ac, lbl, sub) in enumerate(flow2):
         bx = sx2 + i * (bw2 + gap2)
         rect_b(s, bx, bot_y, bw2, bot_h, fill, ac, 1.8)
-        tb(s, bx + Emu(40000), bot_y + Emu(70000), bw2 - Emu(70000), Emu(370000),
-           lbl, 10, bold=True, color=ac, align=PP_ALIGN.CENTER, font=FONT_H)
-        tb(s, bx + Emu(30000), bot_y + Emu(490000), bw2 - Emu(55000), Emu(470000),
-           sub, 8, color=C_GRAY, align=PP_ALIGN.CENTER)
-        if i < 3:
-            arrow_r(s, bx + bw2 + Emu(12000), cy2)
-
-    # 右端：アドラリンク説明
-    rx_al = sx2 + 4 * (bw2 + gap2)
-    rect_b(s, rx_al, bot_y, Inches(1.55), bot_h, C_CARD, C_CYAN, 1.5)
-    rect(s, rx_al, bot_y, Emu(30000), bot_h, C_CYAN)
-    tb(s, rx_al + Emu(50000), bot_y + Emu(70000), Inches(1.3), Emu(310000),
-       "アドラ\nリンク\nCZ(3G)", 9, bold=True, color=C_CYAN, font=FONT_H, align=PP_ALIGN.CENTER)
-    tb(s, rx_al + Emu(50000), bot_y + Emu(490000), Inches(1.3), Emu(460000),
-       "成功率\n約50%\n上乗せ契機", 7.5, color=C_WHITE, align=PP_ALIGN.CENTER)
+        tb(s, bx + Emu(35000), bot_y + Emu(70000), bw2 - Emu(60000), Emu(370000),
+           lbl, 9.5, bold=True, color=ac, align=PP_ALIGN.CENTER, font=FONT_H)
+        tb(s, bx + Emu(25000), bot_y + Emu(490000), bw2 - Emu(45000), Emu(470000),
+           sub, 7.5, color=C_GRAY, align=PP_ALIGN.CENTER)
+        if i < 4:
+            arrow_r(s, bx + bw2 + Emu(10000), cy2)
 
     # 天井②アノテーション
     tb(s, sx2, bot_y + Emu(1100000), Inches(4.0), Emu(260000),

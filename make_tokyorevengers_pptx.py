@@ -173,19 +173,19 @@ def s_title(prs):
         ("設定",            "1〜6段階"),
         ("AT純増（通常）",   "約3.2枚/G（東卍RUSH）"),
         ("AT純増（上位）",   "約8.0枚/G（東卍RUSH BURST）"),
-        ("設定1機械割",      "97〜98%前後（投資200Gで105%超）"),
+        ("設定1機械割",      "97〜98%前後"),
         ("設定6機械割",      "110%前後"),
-        ("天井①",          "周期6周期目（最大約500pt×6=3000pt相当）"),
+        ("天井①",          "周期6周期目でAT確定"),
         ("天井②",          "AT間ゲーム数天井（AT当選確定）"),
-        ("初当り時AT期待度", "約60%（東卍チャンス経由含む）"),
-        ("CZ種類",          "ミッドナイトモード（成功約50%）稀咲陰謀（成功約75%）"),
+        ("AT初当り期待度",   "約60%（東卍チャンス経由含む）"),
+        ("CZ種類",          "ミッドナイトモード(約50%) / 稀咲陰謀(約75%)"),
     ]
     for i, (k, v) in enumerate(specs):
-        ry = Inches(3.0) + i * Emu(220000)
-        tb(s, Inches(0.22), ry, Inches(1.75), Emu(205000),
-           k, 7.5, color=C_GRAY)
-        tb(s, Inches(1.97), ry, Inches(3.25), Emu(205000),
-           v, 7.5, bold=True, color=C_WHITE)
+        ry = Inches(3.0) + i * Emu(175000)
+        tb(s, Inches(0.22), ry, Inches(1.75), Emu(165000),
+           k, 7, color=C_GRAY)
+        tb(s, Inches(1.97), ry, Inches(3.25), Emu(165000),
+           v, 7, bold=True, color=C_WHITE)
 
     # 右パネル：この台の3ポイント
     kws = [
@@ -267,30 +267,22 @@ def s_flow(prs):
         (C_CARD,   C_BLUE,   "黒い衝動\n（特化5G+α）",  "100枚以上\nの上乗せ保証\nSTリセット"),
         (RGBColor(0x16,0x0C,0x02), C_GOLD2,
          "東卍RUSH\nBURST\n（上位AT）",  "純増8.0枚/G\n継続率約80%\n上乗せ50枚以上"),
+        (C_CARD,   C_PINK,   "リベンジ\nチャンス\n(CZ)", "BURST突入\n期待度\n高い"),
     ]
-    bw2 = Inches(1.98)
-    gap2 = Inches(0.22)
-    sx2 = Inches(0.28)
+    bw2 = Inches(1.65)
+    gap2 = Inches(0.17)
+    sx2 = Inches(0.3)
     cy2 = bot_y + bot_h // 2
 
     for i, (fill, ac, lbl, sub) in enumerate(flow2):
         bx = sx2 + i * (bw2 + gap2)
         rect_b(s, bx, bot_y, bw2, bot_h, fill, ac, 1.8 if i == 3 else 1.5)
-        tb(s, bx + Emu(35000), bot_y + Emu(65000), bw2 - Emu(60000), Emu(380000),
-           lbl, 10, bold=True, color=ac, align=PP_ALIGN.CENTER, font=FONT_H)
-        tb(s, bx + Emu(25000), bot_y + Emu(490000), bw2 - Emu(45000), Emu(480000),
-           sub, 8, color=C_GRAY, align=PP_ALIGN.CENTER)
-        if i < 3:
-            arrow_r(s, bx + bw2 + Emu(12000), cy2)
-
-    # 右端：リベンジチャンス説明
-    rx_rc = sx2 + 4 * (bw2 + gap2)
-    rect_b(s, rx_rc, bot_y, Inches(1.45), bot_h, C_CARD, C_PINK, 1.5)
-    rect(s, rx_rc, bot_y, Emu(28000), bot_h, C_PINK)
-    tb(s, rx_rc + Emu(48000), bot_y + Emu(70000), Inches(1.2), Emu(310000),
-       "リベンジ\nチャンス\n(CZ)", 9, bold=True, color=C_PINK, font=FONT_H, align=PP_ALIGN.CENTER)
-    tb(s, rx_rc + Emu(48000), bot_y + Emu(490000), Inches(1.2), Emu(460000),
-       "BURST突入\n期待度\n高い", 7.5, color=C_WHITE, align=PP_ALIGN.CENTER)
+        tb(s, bx + Emu(30000), bot_y + Emu(65000), bw2 - Emu(55000), Emu(380000),
+           lbl, 9.5, bold=True, color=ac, align=PP_ALIGN.CENTER, font=FONT_H)
+        tb(s, bx + Emu(20000), bot_y + Emu(490000), bw2 - Emu(38000), Emu(480000),
+           sub, 7.5, color=C_GRAY, align=PP_ALIGN.CENTER)
+        if i < 4:
+            arrow_r(s, bx + bw2 + Emu(8000), cy2)
 
     net_note(s)
     footer(s, "上段=通常〜東卍RUSH突入ルート（周期+2段CZ+天井）、下段=AT内上乗せ→上位BURST昇格ルート",

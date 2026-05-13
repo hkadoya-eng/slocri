@@ -1,0 +1,34 @@
+[
+  {
+    "id": "9d6598e8-5fe6-4be8-966f-af3864ea67c0",
+    "ip_name": "告白が成功するとボーナスになるCZを考えて欲しい。",
+    "target": "機能単体",
+    "concept_memo": "告白が成功するとボーナスになるCZを考えて欲しい。",
+    "status": "pending",
+    "result": "",
+    "requester_name": "",
+    "created_at": "2026-05-12T00:43:43.352575+00:00",
+    "updated_at": "2026-05-12T00:43:43.352575+00:00",
+    "questions": "",
+    "answers": "",
+    "rating": null,
+    "revision_request": "",
+    "revision_history": []
+  },
+  {
+    "id": "ca83fd51-57ee-43e1-8392-79b07a0c318e",
+    "ip_name": "攻殻機動隊みたいな通常時のシステムを応用して新しいシステムを検討して欲しい",
+    "target": "機能単体",
+    "concept_memo": "攻殻機動隊みたいな通常時のシステムを応用して新しいシステムを検討して欲しい",
+    "status": "pending",
+    "result": "",
+    "requester_name": "",
+    "created_at": "2026-05-12T00:44:57.703577+00:00",
+    "updated_at": "2026-05-12T00:44:57.703577+00:00",
+    "questions": "",
+    "answers": "",
+    "rating": null,
+    "revision_request": "",
+    "revision_history": []
+  }
+]

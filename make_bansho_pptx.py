@@ -174,15 +174,15 @@ def s_title(prs):
         ("設定1機械割",     "約97%"),
         ("設定6機械割",     "約111%"),
         ("天井",           "モード別規定G数（モード管理型）"),
-        ("AT初当り引き戻し", "AT終了後に引き戻し状態あり（前兆確認要）"),
-        ("特徴",           "絶頂輪廻ループ・刺客ゾーン(CZ)・番長ボーナス"),
+        ("引き戻し状態",    "AT終了後あり（前兆確認後ヤメ）"),
+        ("特徴",           "絶頂輪廻ループ・刺客ゾーン(CZ)・番長BB"),
     ]
     for i, (k, v) in enumerate(specs):
-        ry = Inches(3.0) + i * Emu(240000)
-        tb(s, Inches(0.22), ry, Inches(1.85), Emu(220000),
-           k, 7.5, color=C_GRAY)
-        tb(s, Inches(2.1), ry, Inches(3.1), Emu(220000),
-           v, 7.5, bold=True, color=C_WHITE)
+        ry = Inches(3.0) + i * Emu(200000)
+        tb(s, Inches(0.22), ry, Inches(1.85), Emu(185000),
+           k, 7, color=C_GRAY)
+        tb(s, Inches(2.1), ry, Inches(3.1), Emu(185000),
+           v, 7, bold=True, color=C_WHITE)
 
     # 右パネル：この台の3ポイント
     kws = [
@@ -258,30 +258,22 @@ def s_flow(prs):
         (C_CARD,  C_LBLUE, "青頂ZBASH\n（上位AT）",    "純増5.0枚/G\n上乗せ強化\n3桁上乗せ濃厚"),
         (RGBColor(0x08,0x10,0x28), C_GOLD2,
          "絶頂輪廻ループ",  "巌流島終了後\n→青頂ZBASH\n繰り返しループ"),
+        (C_CARD,  C_CYAN,  "引き戻し\n状態(AT後)",    "前兆なし\n確認後\nヤメ推奨"),
     ]
-    bw2 = Inches(1.95)
-    gap2 = Inches(0.22)
-    sx2 = Inches(0.28)
+    bw2 = Inches(1.65)
+    gap2 = Inches(0.17)
+    sx2 = Inches(0.3)
     cy2 = bot_y + bot_h // 2
 
     for i, (fill, ac, lbl, sub) in enumerate(flow2):
         bx = sx2 + i * (bw2 + gap2)
         rect_b(s, bx, bot_y, bw2, bot_h, fill, ac, 1.8)
-        tb(s, bx + Emu(40000), bot_y + Emu(70000), bw2 - Emu(70000), Emu(370000),
-           lbl, 10, bold=True, color=ac, align=PP_ALIGN.CENTER, font=FONT_H)
-        tb(s, bx + Emu(30000), bot_y + Emu(490000), bw2 - Emu(55000), Emu(470000),
-           sub, 8, color=C_GRAY, align=PP_ALIGN.CENTER)
-        if i < 3:
-            arrow_r(s, bx + bw2 + Emu(12000), cy2, C_GOLD)
-
-    # 右端：引き戻し状態説明
-    rx_al = sx2 + 4 * (bw2 + gap2)
-    rect_b(s, rx_al, bot_y, Inches(1.55), bot_h, C_CARD, C_CYAN, 1.5)
-    rect(s, rx_al, bot_y, Emu(30000), bot_h, C_CYAN)
-    tb(s, rx_al + Emu(50000), bot_y + Emu(70000), Inches(1.3), Emu(310000),
-       "引き戻し\n状態\n(AT後)", 9, bold=True, color=C_CYAN, font=FONT_H, align=PP_ALIGN.CENTER)
-    tb(s, rx_al + Emu(50000), bot_y + Emu(490000), Inches(1.3), Emu(460000),
-       "前兆なし\n確認後\nヤメ推奨", 7.5, color=C_WHITE, align=PP_ALIGN.CENTER)
+        tb(s, bx + Emu(35000), bot_y + Emu(70000), bw2 - Emu(60000), Emu(370000),
+           lbl, 9.5, bold=True, color=ac, align=PP_ALIGN.CENTER, font=FONT_H)
+        tb(s, bx + Emu(25000), bot_y + Emu(490000), bw2 - Emu(45000), Emu(470000),
+           sub, 7.5, color=C_GRAY, align=PP_ALIGN.CENTER)
+        if i < 4:
+            arrow_r(s, bx + bw2 + Emu(8000), cy2, C_GOLD)
 
     # 巌流島→ループアノテーション
     tb(s, sx2, bot_y + Emu(1100000), Inches(5.5), Emu(260000),

@@ -186,7 +186,7 @@ def s_title(prs):
     tb(s, Inches(0.22), Inches(3.93), Inches(4.9), Emu(200000),
        "機械割：設定1→97.8%　設定6→110.0%", 8.5, color=C_GRAY)
 
-    # 右：この台の3ポイント
+    # 右：この台の3ポイント（ボックス間隔を縮めて下端はみ出し防止）
     kws = [
         (C_RED,   "① 業界初「貫通型AT」",
          "ボーナス種類によってATの性能が変化する新設計\nAT中にボーナスを引くほど純増・上乗せが強化される"),
@@ -195,13 +195,16 @@ def s_title(prs):
         (C_PINK,  "③ 2種の上位AT・高ループ設計",
          "レヴューデュエット（上乗せ特化）\n星罪のレヴュー（継続率約90%・高ループ型）"),
     ]
+    # ボックス高さ1.35inch × 3 + 隙間0.07inch × 2 = 4.19inch → 0.28 + 4.19 = 4.47inch ≤ 4.9 OK
+    bx_h = Emu(1234000)   # ボックス高さ約1.35inch
+    bx_gap = Emu(1298000)  # 間隔（高さ+隙間0.07inch）
     for i, (ac, kw, desc) in enumerate(kws):
-        y0 = Inches(0.28) + i * Emu(1530000)
-        rect_b(s, Inches(5.65), y0, Inches(4.1), Emu(1430000), C_CARD, ac, 2.0)
-        rect(s, Inches(5.65), y0, Emu(60000), Emu(1430000), ac)
-        tb(s, Inches(5.85), y0 + Emu(60000), Inches(3.8), Emu(300000),
+        y0 = Inches(0.28) + i * bx_gap
+        rect_b(s, Inches(5.65), y0, Inches(4.1), bx_h, C_CARD, ac, 2.0)
+        rect(s, Inches(5.65), y0, Emu(60000), bx_h, ac)
+        tb(s, Inches(5.85), y0 + Emu(50000), Inches(3.8), Emu(270000),
            kw, 11, bold=True, color=ac, font=FONT_H)
-        tb(s, Inches(5.85), y0 + Emu(360000), Inches(3.8), Emu(900000),
+        tb(s, Inches(5.85), y0 + Emu(320000), Inches(3.8), Emu(850000),
            desc, 8.5, color=C_WHITE)
 
     footer(s,

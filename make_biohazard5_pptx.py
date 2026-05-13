@@ -194,13 +194,14 @@ def s_title(prs):
         (C_CYAN,  "③ ホラー×サバイバル世界観の継承",
          "5号機バイオ5の完全再現ゲーム性。\nパニックゾーン・ウェスカーゾーンの\nCZ演出で原作ホラー感を忠実に再現。"),
     ]
+    bx_h = Inches(1.25)   # ボックス高さ（1.3→1.25に縮小して下端はみ出し防止）
     for i, (ac, kw, desc) in enumerate(kws):
-        y0 = Inches(0.55) + i * Emu(1540000)
-        rect_b(s, Inches(5.65), y0, Inches(4.1), Inches(1.3), C_CARD, ac, 2.0)
-        rect(s, Inches(5.65), y0, Emu(60000), Inches(1.3), ac)
-        tb(s, Inches(5.85), y0 + Emu(65000), Inches(3.8), Emu(310000),
+        y0 = Inches(0.40) + i * Emu(1490000)
+        rect_b(s, Inches(5.65), y0, Inches(4.1), bx_h, C_CARD, ac, 2.0)
+        rect(s, Inches(5.65), y0, Emu(60000), bx_h, ac)
+        tb(s, Inches(5.85), y0 + Emu(55000), Inches(3.8), Emu(290000),
            kw, 11.5, bold=True, color=ac, font=FONT_H)
-        tb(s, Inches(5.85), y0 + Emu(380000), Inches(3.8), Emu(450000),
+        tb(s, Inches(5.85), y0 + Emu(350000), Inches(3.8), Emu(430000),
            desc, 8.5, color=C_WHITE)
 
     net_note(s)
@@ -277,13 +278,14 @@ def s_flow(prs):
         if i < 3:
             arrow_r(s, bx + bw2 + Emu(12000), cy2)
 
-    # 右端：CWZへの道
+    # 右端：CWZへの道（右端はみ出し対策: 幅を残り幅に合わせる）
     rx_al = sx2 + 4 * (bw2 + gap2)
-    rect_b(s, rx_al, bot_y, Inches(1.55), bot_h, C_CARD, C_CYAN, 1.5)
+    rw_al = SLIDE_W - rx_al - Emu(90000)   # 右端9.9inchに収まるよう計算
+    rect_b(s, rx_al, bot_y, rw_al, bot_h, C_CARD, C_CYAN, 1.5)
     rect(s, rx_al, bot_y, Emu(30000), bot_h, C_CYAN)
-    tb(s, rx_al + Emu(50000), bot_y + Emu(70000), Inches(1.3), Emu(310000),
+    tb(s, rx_al + Emu(50000), bot_y + Emu(70000), rw_al - Emu(60000), Emu(310000),
        "クライマックス\nウェスカーZ\n(CZ)", 8, bold=True, color=C_CYAN, font=FONT_H, align=PP_ALIGN.CENTER)
-    tb(s, rx_al + Emu(50000), bot_y + Emu(490000), Inches(1.3), Emu(460000),
+    tb(s, rx_al + Emu(50000), bot_y + Emu(490000), rw_al - Emu(60000), Emu(460000),
        "AT終了後\n一部突入\nPHR確定", 7.5, color=C_WHITE, align=PP_ALIGN.CENTER)
 
     # 下部アノテーション
@@ -321,13 +323,16 @@ def s_normal(prs):
         (C_CYAN,  "ルート④  天井（通常時999G）",
          "通常時999GでAT確定の天井。\n設定変更後は天井リセットの可能性あり。\n深いゲーム数での立ち回りに有効。"),
     ]
+    # 4ボックスを4.9inch以内に収める: 利用可能高さ = 4.9 - 1.037 = 3.863inch
+    # 各ボックス高さ880000EMU(0.962inch)、間隔 = 880000EMU → 合計 = 4 * 880000 = 3520000EMU(3.847inch) OK
+    rte_h = Emu(880000)
     for i, (ac, t, b) in enumerate(routes):
-        iy = ly + Emu(290000) + i * Emu(1125000)
-        rect_b(s, lx, iy, lw, Emu(1060000), C_CARD, ac, 1.5)
-        rect(s, lx, iy, Emu(45000), Emu(1060000), ac)
-        tb(s, lx + Emu(75000), iy + Emu(50000), lw - Emu(100000), Emu(270000),
-           t, 9, bold=True, color=ac)
-        tb(s, lx + Emu(75000), iy + Emu(320000), lw - Emu(100000), Emu(670000),
+        iy = ly + Emu(290000) + i * rte_h
+        rect_b(s, lx, iy, lw, rte_h - Emu(15000), C_CARD, ac, 1.5)
+        rect(s, lx, iy, Emu(45000), rte_h - Emu(15000), ac)
+        tb(s, lx + Emu(75000), iy + Emu(40000), lw - Emu(100000), Emu(240000),
+           t, 8.5, bold=True, color=ac)
+        tb(s, lx + Emu(75000), iy + Emu(290000), lw - Emu(100000), Emu(540000),
            b, 7.5, color=C_WHITE)
 
     # 右：モードと内部状態
@@ -357,19 +362,17 @@ def s_normal(prs):
         tb(s, rx + Emu(55000), cy + Emu(310000), rw - Emu(70000), Emu(320000),
            desc, 7.5, color=C_WHITE)
 
-    # 状態遷移メモ
-    rect_b(s, rx, ry + Emu(3060000), rw, Emu(750000), C_CARD2, C_RED, 1.5)
-    tb(s, rx + Emu(60000), ry + Emu(3110000), rw - Emu(80000), Emu(230000),
+    # 状態遷移メモ＋チャンス役確率（1ボックスに統合して下端はみ出し防止）
+    # mode_y_end = ry + Emu(290000) + 4 * Emu(690000) = ry + Emu(3050000)
+    memo_y = ry + Emu(3060000)
+    memo_h = Inches(4.88) - memo_y   # 4.88inchまで = フッター直前
+    rect_b(s, rx, memo_y, rw, memo_h, C_CARD2, C_RED, 1.5)
+    tb(s, rx + Emu(60000), memo_y + Emu(50000), rw - Emu(80000), Emu(200000),
        "モード管理ルール", 8.5, bold=True, color=C_RED)
-    tb(s, rx + Emu(60000), ry + Emu(3340000), rw - Emu(80000), Emu(400000),
-       "設定変更時・CZorAT終了時にモード再抽選。\n通常時のレア役でモード昇格を抽選（CZ/AT非当選時のみ）。\n状態はCZかAT当選まで転落なし。", 7.5, color=C_GRAY)
-
-    # チャンス役確率
-    rect_b(s, rx, ry + Emu(3830000), rw, Emu(590000), C_CARD2, C_ORG, 1.2)
-    tb(s, rx + Emu(60000), ry + Emu(3880000), rw - Emu(80000), Emu(220000),
-       "チャンス役：ベル3連・スイカ・チェリー・チャンス目がCZ抽選対象", 8, bold=True, color=C_ORG)
-    tb(s, rx + Emu(60000), ry + Emu(4110000), rw - Emu(80000), Emu(280000),
-       "ベル・リプレイ3連以上はモードに応じてCZ抽選。レア役はより高確率でCZ/AT直撃を抽選。", 7.5, color=C_GRAY)
+    tb(s, rx + Emu(60000), memo_y + Emu(260000), rw - Emu(80000), Emu(320000),
+       "設定変更時・AT終了時にモード再抽選。レア役でモード昇格抽選。", 7.5, color=C_GRAY)
+    tb(s, rx + Emu(60000), memo_y + Emu(590000), rw - Emu(80000), Emu(200000),
+       "CZ抽選対象役：ベル3連・スイカ・チェリー・チャンス目", 7.5, bold=True, color=C_ORG)
 
     net_note(s)
     footer(s, "通常時の戦略：モード（LOW/MID/HI/SP）を意識しCZ当選を見極め、天井999Gを基準に立ち回る",

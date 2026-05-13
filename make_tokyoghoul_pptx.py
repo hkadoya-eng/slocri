@@ -578,13 +578,6 @@ def s_upper_at(prs):
         if i < 2:
             arrow_r(s, sx2 + sw + Emu(50000), sy + sh // 2, col=bc)
 
-    # 右端: 裏AT中の喰種対決強化
-    rx = Inches(9.05)
-    rect_b(s, rx, sy, Inches(0.8), sh, C_CARD2, C_PUR, 1.0)
-    tb(s, rx + Emu(20000), sy + Emu(100000), Inches(0.65), sh - Emu(200000),
-       "裏AT\n中の\n喰種\n対決\n\n有馬\n乱入\n大幅\nUP\n\n約\n3430\n枚\n確定", 7,
-       bold=True, color=C_PUR2, align=PP_ALIGN.CENTER)
-
     # 下部: 裏AT突入の設定差
     fy2 = Inches(4.6)
     rect_b(s, Inches(0.3), fy2, Inches(9.4), Emu(380000), C_CARD2, C_GOLD, 1.0)

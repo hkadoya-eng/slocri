@@ -166,11 +166,11 @@ def s_title(prs):
     ]
     sy = Inches(3.20)
     for k, v in specs:
-        tb(s, Inches(0.22), sy, Inches(1.55), Emu(230000),
-           k, 8, bold=True, color=C_GRAY, wrap=False)
-        tb(s, Inches(1.82), sy, Inches(3.35), Emu(230000),
-           v, 8, color=C_CREAM, wrap=False)
-        sy += Emu(235000)
+        tb(s, Inches(0.22), sy, Inches(1.55), Emu(215000),
+           k, 7.5, bold=True, color=C_GRAY, wrap=False)
+        tb(s, Inches(1.82), sy, Inches(3.35), Emu(215000),
+           v, 7.5, color=C_CREAM, wrap=False)
+        sy += Emu(218000)
 
     # 右：3つの分析ポイント
     kws = [
@@ -181,8 +181,9 @@ def s_title(prs):
         (C_TEAL,  "IP×世代回帰",
                   "30〜40代休眠層がスマスロで\n帰ってきた希有な事例"),
     ]
+    # 右3ボックス: y0=0.3+i*1.5, 高さ1.28 → 下端MAX=0.3+2×1.5+1.28=4.58inch OK
     for i, (ac, kw, desc) in enumerate(kws):
-        y0 = Inches(0.7 + i * 1.55)
+        y0 = Inches(0.3 + i * 1.5)
         rect_b(s, Inches(5.65), y0, Inches(4.1), Inches(1.28), C_CARD, ac, 2.0)
         rect(s, Inches(5.65), y0, Emu(55000), Inches(1.28), ac)
         tb(s, Inches(5.85), y0 + Emu(55000), Inches(3.8), Emu(310000),
@@ -203,8 +204,9 @@ def s_flow(prs):
     hdr(s, "ゲームフロー全体図  ──  通常時 → AT → 上位ATへの全ルート", "2/9")
 
     # ── Row1（左→右）: 通常時 → 宿命バトル → BB → Vストック ─────────
-    BW  = Inches(2.2)
-    GAP = Inches(0.22)
+    # 4ボックス: margin=0.18, bw=2.05, gap=0.20 → 合計=0.18+3×2.25+2.05=9.11 OK
+    BW  = Inches(2.05)
+    GAP = Inches(0.20)
     R1Y = Inches(0.70)
     BH1 = Inches(1.68)
 
@@ -240,6 +242,7 @@ def s_flow(prs):
        7, color=C_GOLD)
 
     # ⊓ コネクター（Row1右端→Row2右端）
+    # Vストック右端 = 0.18 + 3*(2.05+0.20) + 2.05 = 0.18 + 6.75 + 2.05 = 9.0 inch
     CON_X = Inches(0.18) + 4*(BW+GAP) - GAP + Emu(20000)
     CON_R = CON_X + Emu(650000)
     LW    = Emu(50000)
@@ -552,24 +555,29 @@ def s_jura(prs):
     tb(s, Inches(0.35), Inches(0.76), Inches(9.0), Emu(270000),
        "無想転生バトルへの3つの突入ルート  ──  どのルートが来ても頂点体験へ", 10, bold=True, color=C_PUR, font=FONT_H)
 
+    # 4ボックス均等配置: margin=0.22, bw=2.15, gap=0.22 → 末端=0.22+3*2.37+2.15=9.48 OK
+    _rb_margin = Inches(0.22)
+    _rb_bw = Inches(2.15)
+    _rb_gap = Inches(0.22)
     route_boxes = [
-        (Inches(0.22), C_GOLD, "無想転生チャンス",
+        (C_GOLD, "無想転生チャンス",
          "BB消化後に約33%で突入\n15G消化で成功率≈33%\nベル・レア役・白BAR揃いで突破抽選"),
-        (Inches(2.62), C_CRIM, "レイ・トキ昇天",
+        (C_CRIM, "レイ・トキ昇天",
          "宿命バトル勝利後に発生\nレイ/トキが共闘→昇天で\n無想転生バトルへ直行"),
-        (Inches(5.02), C_GOLD2, "ロングフリーズ",
+        (C_GOLD2, "ロングフリーズ",
          "通常時のリプレイ成立一部で\nロングフリーズ発生→白BAR揃い\n無想転生バトル直行（プレミア）"),
-        (Inches(7.42), C_PUR,  "無想転生バトル",
+        (C_PUR,  "無想転生バトル",
          "継続率94%\n期待獲得2500枚以上\n「修羅の国」が隣に待つ頂点"),
     ]
-    for bx, ac, title, desc in route_boxes:
-        rect_b(s, bx, Inches(1.15), Inches(2.2), Inches(1.20), C_CARD, ac, 1.5)
-        tb(s, bx + Emu(60000), Inches(1.21), Inches(2.0), Emu(270000),
+    for i, (ac, title, desc) in enumerate(route_boxes):
+        bx = _rb_margin + i * (_rb_bw + _rb_gap)
+        rect_b(s, bx, Inches(1.15), _rb_bw, Inches(1.20), C_CARD, ac, 1.5)
+        tb(s, bx + Emu(60000), Inches(1.21), _rb_bw - Emu(80000), Emu(270000),
            title, 9.5, bold=True, color=ac, font=FONT_H)
-        tb(s, bx + Emu(55000), Inches(1.55), Inches(2.05), Emu(720000),
+        tb(s, bx + Emu(55000), Inches(1.55), _rb_bw - Emu(70000), Emu(720000),
            desc, 7.5, color=C_CREAM)
-        if bx != Inches(7.42):
-            arrow_r(s, bx + Inches(2.2) + Emu(30000), Inches(1.15) + Inches(1.20)//2, ac)
+        if i < 3:
+            arrow_r(s, bx + _rb_bw + Emu(30000), Inches(1.15) + Inches(1.20)//2, ac)
 
     # ── 左：無想転生バトル詳細 ───────────────────────────────
     rect_b(s, Inches(0.2), Inches(2.5), Inches(4.55), Inches(1.8),

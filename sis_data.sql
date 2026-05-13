@@ -21,9 +21,9 @@ ALTER TABLE sis_data ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "sis_select" ON sis_data
   FOR SELECT TO anon USING (true);
 
--- 書き込み: service_role のみ（import_sis.py 専用）
+-- 書き込み: anon から INSERT/UPDATE 許可（社内ツール用）
 CREATE POLICY "sis_insert" ON sis_data
-  FOR INSERT TO service_role WITH CHECK (true);
+  FOR INSERT TO anon WITH CHECK (true);
 
 CREATE POLICY "sis_update" ON sis_data
-  FOR UPDATE TO service_role USING (true);
+  FOR UPDATE TO anon USING (true);

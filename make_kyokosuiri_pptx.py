@@ -179,13 +179,14 @@ def s_title(prs):
         (C_GREEN, "③ 虚構連モード",
          "Short(56%) / Middle(81%) / Long(95%) 3種\n六花ステージ=Long到達で9400枚超の爆発力"),
     ]
+    # 右3ボックス: y0=0.28+i*1.5, 高さ1.38 → 下端MAX=0.28+2×1.5+1.38=4.66inch OK
     for i, (ac, kw, desc) in enumerate(kws):
-        y0 = Inches(0.28) + i * Emu(1530000)
-        rect_b(s, Inches(5.65), y0, Inches(4.1), Emu(1430000), C_CARD, ac, 2.0)
-        rect(s, Inches(5.65), y0, Emu(60000), Emu(1430000), ac)
-        tb(s, Inches(5.85), y0 + Emu(60000), Inches(3.8), Emu(300000),
+        y0 = Inches(0.28) + i * Emu(1371600)  # 1.5 inch = 1371600 EMU
+        rect_b(s, Inches(5.65), y0, Inches(4.1), Emu(1280000), C_CARD, ac, 2.0)
+        rect(s, Inches(5.65), y0, Emu(60000), Emu(1280000), ac)
+        tb(s, Inches(5.85), y0 + Emu(60000), Inches(3.8), Emu(280000),
            kw, 11, bold=True, color=ac, font=FONT_H)
-        tb(s, Inches(5.85), y0 + Emu(360000), Inches(3.8), Emu(900000),
+        tb(s, Inches(5.85), y0 + Emu(340000), Inches(3.8), Emu(800000),
            desc, 8.5, color=C_WHITE)
 
     footer(s,

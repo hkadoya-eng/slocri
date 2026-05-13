@@ -202,13 +202,15 @@ def s_title(prs):
         (C_RED,    "ポイント③\n不評の実態（客観的に）",
          "通常時の体感の渋さと\n有利区間上限が不満として噴出した機種"),
     ]
+    # 右3ボックス: y0=0.42+i*1.55, 高さ1.38 → 末端=0.42+2×1.55+1.38=4.9 OK
     for i, (ac, kw, desc) in enumerate(kws):
-        y0 = Inches(0.42 + i * 1.65)
-        rect_b(s, Inches(5.56), y0, Inches(4.2), Inches(1.45), C_CARD, ac, 2.0)
-        rect(s, Inches(5.56), y0, Emu(55000), Inches(1.45), ac)
-        tb(s, Inches(5.76), y0 + Emu(70000), Inches(3.8), Emu(380000),
+        y0 = Inches(0.42) + i * Emu(1417200)  # 1.55 inch = 1417200 EMU
+        bh_kw = Inches(1.38)
+        rect_b(s, Inches(5.56), y0, Inches(4.2), bh_kw, C_CARD, ac, 2.0)
+        rect(s, Inches(5.56), y0, Emu(55000), bh_kw, ac)
+        tb(s, Inches(5.76), y0 + Emu(65000), Inches(3.8), Emu(340000),
            kw, 11, bold=True, color=ac, font=FONT_H)
-        tb(s, Inches(5.76), y0 + Emu(450000), Inches(3.8), Emu(500000),
+        tb(s, Inches(5.76), y0 + Emu(415000), Inches(3.8), Emu(470000),
            desc, 8.5, color=C_WHITE)
 
     footer(s, "設計コメント：高性能POを持ちながら「届かない台」として評価が割れた機種。",
@@ -602,12 +604,13 @@ def s_po(prs):
         ("ボーナス",    "PO中は全てBB以上に当選"),
         ("ループ",      "恥の世紀（期待度約50%）でPOループ"),
     ]
+    # 5カラム均等: step=1.88 → i=4: bx=0.3+7.52=7.82, 幅1.8 → 末端=9.62 OK
     for i, (k, v) in enumerate(po_kv):
-        bx0 = Inches(0.3) + i * Inches(1.93)
+        bx0 = Inches(0.3) + i * Inches(1.88)
         col = C_YEL if "恥" in k else C_CYAN
-        tb(s, bx0, Inches(0.65), Inches(1.8), Emu(200000),
+        tb(s, bx0, Inches(0.65), Inches(1.75), Emu(200000),
            k, 7.5, bold=True, color=C_GRAY)
-        tb(s, bx0, Inches(0.86), Inches(1.85), Emu(230000),
+        tb(s, bx0, Inches(0.86), Inches(1.80), Emu(230000),
            v, 9, bold=True, color=col, font=FONT_H)
 
     # 左：PO中の遊び方フロー
