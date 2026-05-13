@@ -596,6 +596,12 @@ function SisTab({ adminUser }) {
   const avgRate = avg(dayRows, "payout_rate");
   const totalProfit = dayRows.reduce((s, r) => s + (r.gross_profit || 0), 0);
   const totalOut = dayRows.reduce((s, r) => s + (r.out_coins || 0), 0);
+  const nationalAvgIn = (() => {
+    if (!selDate) return null;
+    if (nationalDaily[selDate] != null) return nationalDaily[selDate];
+    const dates = Object.keys(nationalDaily).filter(d => d <= selDate).sort();
+    return dates.length ? nationalDaily[dates[dates.length - 1]] : null;
+  })();
 
   function sortVal(r) {
     if (sortKey === "gross_profit") return r.gross_profit == null ? Infinity : r.gross_profit;
@@ -748,7 +754,7 @@ function SisTab({ adminUser }) {
         {dayRows.length > 0 && (
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:6}}>
             {[
-              {label:"全国平均IN", val: nationalDaily[selDate] != null ? Math.round(nationalDaily[selDate]).toLocaleString() : "—", color:"#444"},
+              {label:"全国平均IN", val: nationalAvgIn != null ? Math.round(nationalAvgIn).toLocaleString() : "—", color:"#444"},
               {label:"平均出玉率", val: avgRate != null ? avgRate.toFixed(1)+"%" : "—", color: avgRate != null ? rateColor(avgRate) : "#888"},
               {label:"平均粗利",   val: dayRows.length ? (totalProfit/dayRows.length<0?"▲":"▼")+" ¥"+Math.abs(Math.round(totalProfit/dayRows.length)) : "—", color: totalProfit/dayRows.length < 0 ? "#2a9d3f" : "#E53935"},
             ].map(s => (
