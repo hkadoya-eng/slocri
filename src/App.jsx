@@ -481,11 +481,11 @@ function SisTab({ adminUser }) {
     Promise.all([
       fetchSisData(),
       supabase.from("sis_machine_stats").select("machine,contrib_weeks,last_week_start"),
-      supabase.from("sis_national_daily").select("date,avg_in"),
+      supabase.from("sis_national_daily").select("date,avg_in,payout_rate,gross_profit"),
     ]).then(([data, { data: stats }, { data: natData }]) => {
       if (natData) {
         const nd = {};
-        natData.forEach(r => { nd[r.date] = r.avg_in; });
+        natData.forEach(r => { nd[r.date] = { avg_in: r.avg_in, payout_rate: r.payout_rate, gross_profit: r.gross_profit }; });
         setNationalDaily(nd);
       }
       if (data) {
@@ -596,12 +596,15 @@ function SisTab({ adminUser }) {
   const avgRate = avg(dayRows, "payout_rate");
   const totalProfit = dayRows.reduce((s, r) => s + (r.gross_profit || 0), 0);
   const totalOut = dayRows.reduce((s, r) => s + (r.out_coins || 0), 0);
-  const nationalAvgIn = (() => {
+  const nationalForDate = (() => {
     if (!selDate) return null;
     if (nationalDaily[selDate] != null) return nationalDaily[selDate];
     const dates = Object.keys(nationalDaily).filter(d => d <= selDate).sort();
     return dates.length ? nationalDaily[dates[dates.length - 1]] : null;
   })();
+  const nationalAvgIn = nationalForDate?.avg_in ?? null;
+  const nationalPayoutRate = nationalForDate?.payout_rate ?? null;
+  const nationalGrossProfit = nationalForDate?.gross_profit ?? null;
 
   function sortVal(r) {
     if (sortKey === "gross_profit") return r.gross_profit == null ? Infinity : r.gross_profit;
@@ -754,9 +757,9 @@ function SisTab({ adminUser }) {
         {dayRows.length > 0 && (
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:6}}>
             {[
-              {label:"全国平均IN", val: nationalAvgIn != null ? Math.round(nationalAvgIn).toLocaleString() : "—", color:"#444"},
-              {label:"平均出玉率", val: avgRate != null ? avgRate.toFixed(1)+"%" : "—", color: avgRate != null ? rateColor(avgRate) : "#888"},
-              {label:"平均粗利",   val: dayRows.length ? (totalProfit/dayRows.length<0?"▲":"▼")+" ¥"+Math.abs(Math.round(totalProfit/dayRows.length)) : "—", color: totalProfit/dayRows.length < 0 ? "#2a9d3f" : "#E53935"},
+              {label:"全国平均IN",  val: nationalAvgIn != null ? Math.round(nationalAvgIn).toLocaleString() : "—", color:"#444"},
+              {label:"全国出玉率",  val: nationalPayoutRate != null ? nationalPayoutRate.toFixed(1)+"%" : "—", color: nationalPayoutRate != null ? rateColor(nationalPayoutRate) : "#888"},
+              {label:"全国平均粗利", val: nationalGrossProfit != null ? (nationalGrossProfit<0?"▲":"▼")+" ¥"+Math.abs(Math.round(nationalGrossProfit)).toLocaleString() : "—", color: nationalGrossProfit != null ? (nationalGrossProfit<0?"#2a9d3f":"#E53935") : "#888"},
             ].map(s => (
               <div key={s.label} style={{background:"#fff",borderRadius:8,padding:"3px 4px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
                 <div style={{fontSize:8,color:"#aaa",marginBottom:0}}>{s.label}</div>
