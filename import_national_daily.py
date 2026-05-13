@@ -16,6 +16,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 EXCEL_PATH = "Z:/01_SISデータ/PS/日毎稼働全体.xlsx"
+WEEKLY_PATH = "Z:/01_SISデータ/PS/PS日毎稼働まとめ_2026.xlsm"
 SUPABASE_URL = "https://vpzbtuucopucablwyqeq.supabase.co"
 SHEET_NAME = "他機種含む"
 
@@ -111,6 +112,35 @@ def upsert_records(records, api_key):
     print(f"完了: {total} 件")
 
 
+def extract_records_from_weekly(path):
+    try:
+        import openpyxl
+    except ImportError:
+        print("openpyxl が未インストールです: pip install openpyxl")
+        sys.exit(1)
+
+    if not os.path.exists(path.replace("/", "\\")):
+        print(f"スキップ: {path} が見つかりません")
+        return []
+
+    print(f"週次ファイルから全国アウトを読み込み中: {path}")
+    wb = openpyxl.load_workbook(path, read_only=True, data_only=True, keep_vba=True)
+    sheets = [s for s in wb.sheetnames if s[:2].isdigit()]
+    records = []
+    for sheet_name in sheets:
+        ws = wb[sheet_name]
+        rows = list(ws.iter_rows(values_only=True))
+        if len(rows) < 4:
+            continue
+        dates = rows[2][6:13]
+        nat_out = rows[3][6:13]
+        for d, v in zip(dates, nat_out):
+            if d and isinstance(v, (int, float)):
+                records.append({"date": d.strftime("%Y-%m-%d") if hasattr(d, "strftime") else str(d)[:10], "avg_in": float(v)})
+    wb.close()
+    return records
+
+
 def run():
     load_env_local()
 
@@ -125,7 +155,16 @@ def run():
         sys.exit(1)
 
     records = extract_records(EXCEL_PATH)
-    print(f"\n抽出: {len(records)} 件")
+    weekly_records = extract_records_from_weekly(WEEKLY_PATH)
+
+    # 週次ファイルのデータで上書きマージ（日付をキーに）
+    merged = {r["date"]: r for r in records}
+    for r in weekly_records:
+        merged[r["date"]] = {**merged.get(r["date"], {}), **r}
+    all_keys = {"date", "avg_in", "national_sales", "gross_profit", "coin_price", "coin_profit", "payout_rate"}
+    records = sorted([{k: v.get(k) for k in all_keys} for v in merged.values()], key=lambda r: r["date"])
+
+    print(f"\n抽出合計: {len(records)} 件")
     if records:
         print(f"期間: {records[0]['date']} 〜 {records[-1]['date']}")
         print(f"サンプル: {records[-1]}")
