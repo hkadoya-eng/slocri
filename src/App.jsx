@@ -364,44 +364,30 @@ function MachineListTab({ posts, onGoToFeed, favMachines = [], toggleFavMachine 
 }
 
 function AdminLoginForm({ title = "管理者ログイン", desc = "社内専用エリアです" }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
-  async function handleSubmit(e) {
-    e.preventDefault();
+  async function handleGoogleLogin() {
     setBusy(true);
     setErr("");
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) setErr("メールアドレスまたはパスワードが違います");
-    setBusy(false);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin },
+    });
+    if (error) {
+      setErr("Googleログインに失敗しました");
+      setBusy(false);
+    }
   }
   return (
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"48px 24px"}}>
       <div style={{fontSize:32,marginBottom:12}}>🔒</div>
       <div style={{fontSize:18,fontWeight:700,marginBottom:6,color:"#333"}}>{title}</div>
-      <div style={{fontSize:13,color:"#888",marginBottom:24,textAlign:"center"}}>{desc}</div>
-      <form onSubmit={handleSubmit} style={{width:"100%",maxWidth:300}}>
-        <input
-          type="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          placeholder="メールアドレス"
-          autoFocus
-          style={{width:"100%",padding:"11px 14px",border:"1.5px solid #ddd",borderRadius:10,fontSize:16,boxSizing:"border-box",marginBottom:8,outline:"none"}}
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          placeholder="パスワード"
-          style={{width:"100%",padding:"11px 14px",border:`1.5px solid ${err?"#E53935":"#ddd"}`,borderRadius:10,fontSize:16,boxSizing:"border-box",marginBottom:8,outline:"none"}}
-        />
-        {err && <div style={{color:"#E53935",fontSize:13,marginBottom:8}}>{err}</div>}
-        <button type="submit" disabled={busy} style={{width:"100%",padding:"11px 0",background:"#D85A30",color:"#fff",border:"none",borderRadius:10,fontSize:16,fontWeight:700,cursor:"pointer",opacity:busy?0.7:1}}>
-          {busy ? "..." : "ログイン"}
-        </button>
-      </form>
+      <div style={{fontSize:13,color:"#888",marginBottom:24,textAlign:"center"}}>{desc}<br/>@key-cre.co.jp アカウントでログインしてください</div>
+      {err && <div style={{color:"#E53935",fontSize:13,marginBottom:12}}>{err}</div>}
+      <button onClick={handleGoogleLogin} disabled={busy} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 24px",background:"#fff",color:"#333",border:"1.5px solid #ddd",borderRadius:10,fontSize:16,fontWeight:600,cursor:busy?"not-allowed":"pointer",boxShadow:"0 1px 4px rgba(0,0,0,0.1)",opacity:busy?0.7:1}}>
+        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+        {busy ? "..." : "Googleでログイン"}
+      </button>
     </div>
   );
 }
@@ -976,8 +962,16 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setAdminUser(session?.user ?? null));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_evt, session) => setAdminUser(session?.user ?? null));
+    const toAdmin = (session) => {
+      const user = session?.user ?? null;
+      if (user && !user.email?.endsWith("@key-cre.co.jp")) {
+        supabase.auth.signOut();
+        return null;
+      }
+      return user;
+    };
+    supabase.auth.getSession().then(({ data: { session } }) => setAdminUser(toAdmin(session)));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_evt, session) => setAdminUser(toAdmin(session)));
     return () => subscription.unsubscribe();
   }, []);
 
