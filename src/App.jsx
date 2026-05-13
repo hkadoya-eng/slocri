@@ -596,15 +596,18 @@ function SisTab({ adminUser }) {
   const avgRate = avg(dayRows, "payout_rate");
   const totalProfit = dayRows.reduce((s, r) => s + (r.gross_profit || 0), 0);
   const totalOut = dayRows.reduce((s, r) => s + (r.out_coins || 0), 0);
-  const nationalForDate = (() => {
+  const getNationalField = (field) => {
     if (!selDate) return null;
-    if (nationalDaily[selDate] != null) return nationalDaily[selDate];
-    const dates = Object.keys(nationalDaily).filter(d => d <= selDate).sort();
-    return dates.length ? nationalDaily[dates[dates.length - 1]] : null;
-  })();
-  const nationalAvgIn = nationalForDate?.avg_in ?? null;
-  const nationalPayoutRate = nationalForDate?.payout_rate ?? null;
-  const nationalGrossProfit = nationalForDate?.gross_profit ?? null;
+    const sorted = Object.keys(nationalDaily).filter(d => d <= selDate).sort();
+    for (let i = sorted.length - 1; i >= 0; i--) {
+      const v = nationalDaily[sorted[i]]?.[field];
+      if (v != null) return v;
+    }
+    return null;
+  };
+  const nationalAvgIn = getNationalField("avg_in");
+  const nationalPayoutRate = getNationalField("payout_rate");
+  const nationalGrossProfit = getNationalField("gross_profit");
 
   function sortVal(r) {
     if (sortKey === "gross_profit") return r.gross_profit == null ? Infinity : r.gross_profit;
