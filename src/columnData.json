@@ -4,7 +4,9 @@
     {
       "id": "god_kiseki",
       "name": "スマスロ ミリオンゴッド-神々の軌跡-",
-      "aliases": ["Lミリオンゴッド－神々の軌跡－"],
+      "aliases": [
+        "Lミリオンゴッド－神々の軌跡－"
+      ],
       "sisDataMachine": "Lミリオンゴッド－神々の軌跡－",
       "releaseDate": "2026-04-20",
       "tag": "稼働絶好調",
@@ -22,7 +24,9 @@
     {
       "id": "bio_re3",
       "name": "スマスロ バイオハザードRE:3",
-      "aliases": ["スマスロバイオRE3"],
+      "aliases": [
+        "スマスロバイオRE3"
+      ],
       "sisDataMachine": "LバイオハザードRE：3",
       "releaseDate": "2026-05-11",
       "tag": "SIS全国2位(5/12)・設定投入が強い",
@@ -31,16 +35,18 @@
       "sisWeeks": null,
       "sisPrevTitle": null,
       "sisPrevWeeks": null,
-      "longevityMin": 16,
-      "longevityMax": 24,
-      "longevityNote": "5/12 SISデータ：out_coins 20672枚・全国2位（ミリオンゴッド17027枚を超える）。ユーザー評価低迷と裏腹にSIS稼働は超好調。設定投入の強さが稼働を支えており、16〜24週に大幅上方修正。",
+      "longevityMin": 20,
+      "longevityMax": 30,
+      "longevityNote": "2026-05-13 SIS: 19,490枚・全国3位（payout 98.3%・単価3.66円）。デイリーデータから20〜30週に自動更新。",
       "postCount": 33,
       "column": "5月11日初導入。ユーザー評価は辛口でも、5/12（発売翌日）のSIS実稼働データが全国2位・20672枚というまさかの好スタートを記録した。ミリオンゴッドの17027枚（22日目）を超える数字で、ホールの設定投入の強さが数字に直結している。上位AT「HAZARD RUSH INFERNO」純増4.5枚・設定6機械割113.1%の実力が、設定狙い層を強力に引き寄せている形だ。通常時評価への批判はあれど、プロ・天井狙いが初週から集中しており、16〜24週の長期稼働を本命視する。"
     },
     {
       "id": "yormungand",
       "name": "スマスロ ヨルムンガンド",
-      "aliases": ["Lヨルムンガンド"],
+      "aliases": [
+        "Lヨルムンガンド"
+      ],
       "sisDataMachine": "Lヨルムンガンド",
       "releaseDate": "2026-03",
       "tag": "評価二分・設定次第",
@@ -58,7 +64,9 @@
     {
       "id": "yoshimune",
       "name": "L真打吉宗",
-      "aliases": ["真打吉宗"],
+      "aliases": [
+        "真打吉宗"
+      ],
       "sisDataMachine": "L真打吉宗",
       "releaseDate": "2026-04-06",
       "tag": "15〜25週見込み",
@@ -76,7 +84,9 @@
     {
       "id": "kyokomeiri",
       "name": "L虚構推理",
-      "aliases": ["虚構推理"],
+      "aliases": [
+        "虚構推理"
+      ],
       "sisDataMachine": "L虚構推理",
       "releaseDate": "2026-03",
       "tag": "高設定は爆裂・低設定は地獄",
@@ -94,7 +104,9 @@
     {
       "id": "karakuri2",
       "name": "Lからくりサーカス2",
-      "aliases": ["スマスロ からくりサーカス2"],
+      "aliases": [
+        "スマスロ からくりサーカス2"
+      ],
       "releaseDate": "2026-07-06",
       "tag": "ロングラン最有力候補",
       "tagColor": "#004D40",
@@ -111,7 +123,9 @@
     {
       "id": "gundam_unicorn",
       "name": "Lガンダムユニコーン覚醒DRIVE",
-      "aliases": ["ガンダムユニコーン覚醒"],
+      "aliases": [
+        "ガンダムユニコーン覚醒"
+      ],
       "sisDataMachine": "L機動戦士ガンダムユニコーン 覚醒DRIVE",
       "releaseDate": "2026-04-06",
       "tag": "稼働低迷・持ち直しに期待",
@@ -129,7 +143,9 @@
     {
       "id": "lycoris",
       "name": "eリコリス・リコイル",
-      "aliases": ["eリコリコ"],
+      "aliases": [
+        "eリコリコ"
+      ],
       "releaseDate": "2026-05",
       "tag": "パチンコ稼働3冠達成",
       "tagColor": "#880E4F",
@@ -146,7 +162,9 @@
     {
       "id": "isekai_quartet",
       "name": "異世界かるてっと BT",
-      "aliases": ["異世界かるてっとBT"],
+      "aliases": [
+        "異世界かるてっとBT"
+      ],
       "sisDataMachine": "LB異世界かるてっと",
       "releaseDate": "2026-04",
       "tag": "演出◎ 収支は厳しめ",
@@ -164,7 +182,9 @@
     {
       "id": "bigdream_gp",
       "name": "Lビッグドリーム-THE GOLDEN PUSHER-",
-      "aliases": ["スマスロ ビッグドリーム THE GOLDEN PUSHER"],
+      "aliases": [
+        "スマスロ ビッグドリーム THE GOLDEN PUSHER"
+      ],
       "sisDataMachine": "Lビッグドリーム THE GOLDEN PUSHER",
       "releaseDate": "2026-05-11",
       "tag": "SIS全国4位(5/12)・単価5.43円の破壊力",
@@ -173,16 +193,18 @@
       "sisWeeks": null,
       "sisPrevTitle": null,
       "sisPrevWeeks": null,
-      "longevityMin": 12,
-      "longevityMax": 20,
-      "longevityNote": "5/12 SISデータ：out_coins 18849枚・全国4位。coin_price 5.43円×高out_coinsで1台あたり日商10万超。「虚無」評価に反してSIS稼働は堅調。ボラ好きの爆発力需要が支えており12〜20週に上方修正。",
+      "longevityMin": 13,
+      "longevityMax": 22,
+      "longevityNote": "2026-05-13 SIS: 18,219枚・全国4位（payout 96.8%・単価5.46円）。デイリーデータから13〜22週に自動更新。",
       "postCount": 12,
       "column": "5月11日バイオと同日導入。DMMスコア2.30・「通常時虚無」の評価に反し、5/12のSIS実稼働は全国4位・18849枚という予想外の好スタートを見せた。coin_price 5.43円×out_coins 18849枚で1台あたり日商10万円超という数字は、高単価ハイボラ機を求めるコア客層がしっかり動いていることを示している。ゴールデンプッシャーシステムの独自性を理解した層が「これ以外に純増8.2枚の選択肢はない」と集中している形だ。爆発力への根強い需要から12〜20週に上方修正した。"
     },
     {
       "id": "akudama",
       "name": "スマスロ アクダマドライブ",
-      "aliases": ["Lアクダマドライブ"],
+      "aliases": [
+        "Lアクダマドライブ"
+      ],
       "sisDataMachine": "Lアクダマドライブ",
       "releaseDate": "2026-04",
       "tag": "演出高評価・ゲーム性賛否",
@@ -200,7 +222,10 @@
     {
       "id": "kabaneri",
       "name": "スマスロ 甲鉄城のカバネリ 海門決戦",
-      "aliases": ["L甲鉄城のカバネリ海門決戦", "カバネリ海門決戦"],
+      "aliases": [
+        "L甲鉄城のカバネリ海門決戦",
+        "カバネリ海門決戦"
+      ],
       "sisDataMachine": "L甲鉄城のカバネリ海門決戦",
       "releaseDate": "2026-03",
       "tag": "3月販売台数No.1・安定稼働",
