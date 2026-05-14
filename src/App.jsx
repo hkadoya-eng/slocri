@@ -481,7 +481,7 @@ function SisTab({ adminUser }) {
     Promise.all([
       fetchSisData(),
       supabase.from("sis_machine_stats").select("machine,contrib_weeks,last_week_start"),
-      supabase.from("sis_national_daily").select("date,avg_in,payout_rate,gross_profit"),
+      supabase.from("sis_national_daily").select("date,avg_in,payout_rate,gross_profit").gte("date", "2024-01-01").order("date", { ascending: true }),
     ]).then(([data, { data: stats }, { data: natData }]) => {
       if (natData) {
         const nd = {};
