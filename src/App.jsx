@@ -2909,7 +2909,9 @@ ${policyText}
             <span>スロキー編集部の機種評価</span>
             <span style={{fontSize:12,color:"#bbb"}}>更新: {COLUMN_DATA.updatedAt}</span>
           </div>
-          {COLUMN_DATA.columns.map(col => (
+          {COLUMN_DATA.columns.map(col => {
+            const liveWeeks = getContribWeeks(col);
+            return (
             <div key={col.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:14,marginBottom:12,overflow:"hidden"}}>
               <div style={{padding:"10px 14px",borderBottom:"0.5px solid #f0f0f0",display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8}}>
                 <div style={{minWidth:0,flex:1}}>
@@ -2920,22 +2922,30 @@ ${policyText}
                     {col.releaseDate && <span style={{fontSize:12,color:"#aaa"}}>{col.releaseDate.slice(0,7)}導入</span>}
                   </div>
                 </div>
-                {(col.longevityMin || col.sisPrevWeeks) && (
-                  <div style={{flexShrink:0,textAlign:"center",background:"#F1F8E9",borderRadius:10,padding:"6px 10px",minWidth:70}}>
-                    {col.sisPrevWeeks ? (
-                      <>
-                        <div style={{fontSize:10,color:"#558B2F",fontWeight:600,marginBottom:2}}>前作SIS実績</div>
-                        <div style={{fontSize:18,fontWeight:700,color:"#2E7D32",lineHeight:1}}>{col.sisPrevWeeks}<span style={{fontSize:11}}>週</span></div>
-                        <div style={{fontSize:10,color:"#aaa",marginTop:1}}>{col.sisPrevTitle?.replace("Lパチスロ","")?.replace("Lスマスロ","")}</div>
-                      </>
-                    ) : col.longevityMin ? (
-                      <>
-                        <div style={{fontSize:10,color:"#1565C0",fontWeight:600,marginBottom:2}}>稼働予測</div>
-                        <div style={{fontSize:14,fontWeight:700,color:"#1565C0",lineHeight:1}}>{col.longevityMin}〜{col.longevityMax}<span style={{fontSize:10}}>週</span></div>
-                      </>
-                    ) : null}
-                  </div>
-                )}
+                <div style={{flexShrink:0,display:"flex",flexDirection:"column",gap:4,alignItems:"flex-end"}}>
+                  {(col.longevityMin || col.sisPrevWeeks) && (
+                    <div style={{textAlign:"center",background:"#F1F8E9",borderRadius:10,padding:"6px 10px",minWidth:70}}>
+                      {col.sisPrevWeeks ? (
+                        <>
+                          <div style={{fontSize:10,color:"#558B2F",fontWeight:600,marginBottom:2}}>前作SIS実績</div>
+                          <div style={{fontSize:18,fontWeight:700,color:"#2E7D32",lineHeight:1}}>{col.sisPrevWeeks}<span style={{fontSize:11}}>週</span></div>
+                          <div style={{fontSize:10,color:"#aaa",marginTop:1}}>{col.sisPrevTitle?.replace("Lパチスロ","")?.replace("Lスマスロ","")}</div>
+                        </>
+                      ) : col.longevityMin ? (
+                        <>
+                          <div style={{fontSize:10,color:"#1565C0",fontWeight:600,marginBottom:2}}>稼働予測</div>
+                          <div style={{fontSize:14,fontWeight:700,color:"#1565C0",lineHeight:1}}>{col.longevityMin}〜{col.longevityMax}<span style={{fontSize:10}}>週</span></div>
+                        </>
+                      ) : null}
+                    </div>
+                  )}
+                  {liveWeeks != null && (
+                    <div style={{textAlign:"center",background:"#FFF8E1",borderRadius:8,padding:"4px 8px",minWidth:70}}>
+                      <div style={{fontSize:9,color:"#F57F17",fontWeight:600,marginBottom:1}}>現在の貢献週</div>
+                      <div style={{fontSize:14,fontWeight:700,color:"#E65100",lineHeight:1}}>{liveWeeks}<span style={{fontSize:10}}>週</span></div>
+                    </div>
+                  )}
+                </div>
               </div>
               <div style={{padding:"12px 14px"}}>
                 <div style={{fontSize:14,color:"#444",lineHeight:1.75,overflowWrap:"anywhere"}}>{col.column}</div>
@@ -2944,7 +2954,8 @@ ${policyText}
                 )}
               </div>
             </div>
-          ))}
+          );
+          })}
         </div>
       )}
 
