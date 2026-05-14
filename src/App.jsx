@@ -2920,27 +2920,22 @@ ${policyText}
                     <span style={{fontSize:12,fontWeight:600,color:col.tagColor,background:col.tagBg,borderRadius:6,padding:"2px 8px",whiteSpace:"nowrap"}}>{col.tag}</span>
                     <span style={{fontSize:12,color:"#aaa"}}>投稿{col.postCount}件</span>
                     {col.releaseDate && <span style={{fontSize:12,color:"#aaa"}}>{col.releaseDate.slice(0,7)}導入</span>}
+                    {col.sisPrevWeeks && (
+                      <span style={{fontSize:12,color:"#558B2F",fontWeight:600,background:"#F1F8E9",borderRadius:6,padding:"2px 8px",whiteSpace:"nowrap"}}>
+                        前作SIS実績 {col.sisPrevTitle?.replace("Lパチスロ","")?.replace("Lスマスロ","")} {col.sisPrevWeeks}週
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div style={{flexShrink:0,display:"flex",flexDirection:"column",gap:4,alignItems:"flex-end"}}>
-                  {(col.longevityMin || col.sisPrevWeeks) && (
+                  {col.longevityMin && (
                     <div style={{textAlign:"center",background:"#F1F8E9",borderRadius:10,padding:"6px 10px",minWidth:70}}>
-                      {col.sisPrevWeeks ? (
-                        <>
-                          <div style={{fontSize:10,color:"#558B2F",fontWeight:600,marginBottom:2}}>前作SIS実績</div>
-                          <div style={{fontSize:18,fontWeight:700,color:"#2E7D32",lineHeight:1}}>{col.sisPrevWeeks}<span style={{fontSize:11}}>週</span></div>
-                          <div style={{fontSize:10,color:"#aaa",marginTop:1}}>{col.sisPrevTitle?.replace("Lパチスロ","")?.replace("Lスマスロ","")}</div>
-                        </>
-                      ) : col.longevityMin ? (
-                        <>
-                          <div style={{fontSize:10,color:"#1565C0",fontWeight:600,marginBottom:2}}>稼働予測</div>
-                          <div style={{fontSize:14,fontWeight:700,color:"#1565C0",lineHeight:1}}>
-                            {col.longevityMin === col.longevityMax
-                              ? <>{col.longevityMin}<span style={{fontSize:10}}>週</span></>
-                              : <>{col.longevityMin}〜{col.longevityMax}<span style={{fontSize:10}}>週</span></>}
-                          </div>
-                        </>
-                      ) : null}
+                      <div style={{fontSize:10,color:"#1565C0",fontWeight:600,marginBottom:2}}>稼働予測</div>
+                      <div style={{fontSize:14,fontWeight:700,color:"#1565C0",lineHeight:1}}>
+                        {col.longevityMin === col.longevityMax
+                          ? <>{col.longevityMin}<span style={{fontSize:10}}>週</span></>
+                          : <>{col.longevityMin}〜{col.longevityMax}<span style={{fontSize:10}}>週</span></>}
+                      </div>
                     </div>
                   )}
                   {liveWeeks != null && (
