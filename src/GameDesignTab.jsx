@@ -31,44 +31,20 @@ const FEATURE_NAMES = {
 
 const DATA = {
   CZ: {
-    types: {
-      "段階クリア型": {
-        description: GAME_LIBRARY.czDesignPatterns["段階クリア型"].description,
-        probability: GAME_LIBRARY.czDesignPatterns["段階クリア型"].probability,
-        reward: GAME_LIBRARY.czDesignPatterns["段階クリア型"].reward,
-        note: GAME_LIBRARY.czDesignPatterns["段階クリア型"].designNote,
-        rules: GAME_LIBRARY.czDesignPatterns["段階クリア型"].rules,
-        presentation: GAME_LIBRARY.czDesignPatterns["段階クリア型"].presentation,
-        machines: [
-          { name: "スマスロ ヨルムンガンド", detail: "前半10G+後半3Gの2部構成ストーリーCZ。3回成功でPC突入という段階設計。失敗時の絶望も大きい。" },
-          { name: "押忍！番長4", detail: "シリーズ伝統の「特訓→対決」2段階フロー。天井699G+αで確定。青7ボーナス選択割合に6倍の設定差。2024年販売台数1位。" },
-          { name: "スマスロ マギアレコード 魔法少女まどか☆マギカ外伝", detail: "・ボーナス初当たり確率：1/240.6（設定1）〜1/184.3（設定6）\n・マギアチャレンジ：通常CZ、成功でマギアラッシュ突入\n・黒江チャレンジ：レアCZ、当選確率は高設定で2倍（設定4以上濃厚の判別手段）\n・エピソード振り分けに設定差（黒江エピソード発生で設定5以上期待大）\n・「みたまボーナス」最終ジャッジのウワサ発展AT当選率に大きな設定差" },
-        ],
-      },
-      "自力演出型": {
-        description: GAME_LIBRARY.czDesignPatterns["自力演出型"].description,
-        probability: GAME_LIBRARY.czDesignPatterns["自力演出型"].probability,
-        reward: GAME_LIBRARY.czDesignPatterns["自力演出型"].reward,
-        note: null,
-        rules: GAME_LIBRARY.czDesignPatterns["自力演出型"].rules,
-        presentation: GAME_LIBRARY.czDesignPatterns["自力演出型"].presentation,
-        machines: [
-          { name: "スマスロ甲鉄城のカバネリ 海門決戦", detail: "カバネリアタック中はベル・弱チェ・強チェ・特殊役でAT移行率が変動。役の強さで手応えが変わる設計。" },
-          { name: "スマスロ モンキーターンV", detail: "超抜チャレンジはベル当選でのAT移行抽選が主軸。役を引いて自分でATを勝ち取る感覚。P-WORLDアワード2024受賞。" },
-        ],
-      },
-      "カウントアップ型": {
-        description: GAME_LIBRARY.czDesignPatterns["カウントアップ型"].description,
-        probability: GAME_LIBRARY.czDesignPatterns["カウントアップ型"].probability,
-        reward: GAME_LIBRARY.czDesignPatterns["カウントアップ型"].reward,
-        note: null,
-        rules: GAME_LIBRARY.czDesignPatterns["カウントアップ型"].rules,
-        presentation: GAME_LIBRARY.czDesignPatterns["カウントアップ型"].presentation,
-        machines: [
-          { name: "スマスロ モンキーターンV", detail: "超抜チャレンジの天井保証として機能。一定カウント到達でAT確定し、自力解除を逃しても必ず結果が出る安心設計。" },
-        ],
-      },
-    },
+    types: Object.fromEntries(
+      Object.entries(GAME_LIBRARY.czDesignPatterns).map(([typeName, data]) => [
+        typeName,
+        {
+          description: data.description,
+          probability: data.probability,
+          reward: data.reward,
+          note: data.designNote || null,
+          rules: data.rules,
+          presentation: data.presentation,
+          machines: (data.examples || []).map(e => ({ name: e.machine, detail: e.detail || null })),
+        },
+      ])
+    ),
   },
   AT: {
     types: Object.fromEntries(
