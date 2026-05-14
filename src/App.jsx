@@ -2626,6 +2626,18 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
   const [proposePolicy, setProposePolicy] = useState({ targets:[], coinUnit:"standard", patterns:[], avoids:[], reference:"", extra:"" });
   const [proposeResult, setProposeResult] = useState(null);
   const [proposeLoading, setProposeLoading] = useState(false);
+  const [sisStats, setSisStats] = useState({});
+
+  useEffect(() => {
+    supabase.from("sis_machine_stats").select("machine,contrib_weeks")
+      .then(({ data }) => {
+        if (data) {
+          const m = {};
+          data.filter(s => s.machine !== "__config__").forEach(s => { m[s.machine.replace(/\s/g,"")] = s.contrib_weeks; });
+          setSisStats(m);
+        }
+      });
+  }, []);
 
   useEffect(() => { if(bottomRef.current) bottomRef.current.scrollIntoView({behavior:"smooth"}); }, [messages]);
 
@@ -2647,6 +2659,15 @@ function ResearchTab({ posts, aiEnabled, updatePost }) {
   function lookupAnalysis(machineName) {
     if (MACHINE_ANALYSIS[machineName]) return MACHINE_ANALYSIS[machineName];
     return Object.values(MACHINE_ANALYSIS).find(v => (v.aliases||[]).includes(machineName)) || null;
+  }
+
+  function getContribWeeks(col) {
+    const names = [col.name, ...(col.aliases||[])];
+    for (const n of names) {
+      const v = sisStats[n.replace(/\s/g,"")];
+      if (v != null) return v;
+    }
+    return col.sisWeeks;
   }
 
   function analyze() {
@@ -2888,7 +2909,9 @@ ${policyText}
             <span>スロキー編集部の機種評価</span>
             <span style={{fontSize:12,color:"#bbb"}}>更新: {COLUMN_DATA.updatedAt}</span>
           </div>
-          {COLUMN_DATA.columns.map(col => (
+          {COLUMN_DATA.columns.map(col => {
+            const liveWeeks = getContribWeeks(col);
+            return (
             <div key={col.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:14,marginBottom:12,overflow:"hidden"}}>
               <div style={{padding:"10px 14px",borderBottom:"0.5px solid #f0f0f0",display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8}}>
                 <div style={{minWidth:0,flex:1}}>
@@ -2899,18 +2922,18 @@ ${policyText}
                     {col.releaseDate && <span style={{fontSize:12,color:"#aaa"}}>{col.releaseDate.slice(0,7)}導入</span>}
                   </div>
                 </div>
-                {(col.longevityMin || col.sisPrevWeeks) && (
+                {(col.longevityMin || col.sisPrevWeeks || liveWeeks) && (
                   <div style={{flexShrink:0,textAlign:"center",background:"#F1F8E9",borderRadius:10,padding:"6px 10px",minWidth:70}}>
-                    {col.sisPrevWeeks && !col.sisWeeks ? (
+                    {col.sisPrevWeeks && !liveWeeks ? (
                       <>
                         <div style={{fontSize:10,color:"#558B2F",fontWeight:600,marginBottom:2}}>前作SIS実績</div>
                         <div style={{fontSize:18,fontWeight:700,color:"#2E7D32",lineHeight:1}}>{col.sisPrevWeeks}<span style={{fontSize:11}}>週</span></div>
                         <div style={{fontSize:10,color:"#aaa",marginTop:1}}>{col.sisPrevTitle?.replace("Lパチスロ","")?.replace("Lスマスロ","")}</div>
                       </>
-                    ) : col.sisWeeks ? (
+                    ) : liveWeeks ? (
                       <>
-                        <div style={{fontSize:10,color:"#558B2F",fontWeight:600,marginBottom:2}}>SIS稼働</div>
-                        <div style={{fontSize:18,fontWeight:700,color:"#2E7D32",lineHeight:1}}>{col.sisWeeks}<span style={{fontSize:11}}>週</span></div>
+                        <div style={{fontSize:10,color:"#558B2F",fontWeight:600,marginBottom:2}}>稼働貢献週</div>
+                        <div style={{fontSize:18,fontWeight:700,color:"#2E7D32",lineHeight:1}}>{liveWeeks}<span style={{fontSize:11}}>週</span></div>
                       </>
                     ) : col.longevityMin ? (
                       <>
@@ -2928,7 +2951,8 @@ ${policyText}
                 )}
               </div>
             </div>
-          ))}
+          );
+          })}
         </div>
       )}
 
