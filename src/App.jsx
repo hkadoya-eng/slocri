@@ -2934,7 +2934,11 @@ ${policyText}
                       ) : col.longevityMin ? (
                         <>
                           <div style={{fontSize:10,color:"#1565C0",fontWeight:600,marginBottom:2}}>稼働予測</div>
-                          <div style={{fontSize:14,fontWeight:700,color:"#1565C0",lineHeight:1}}>{col.longevityMin}〜{col.longevityMax}<span style={{fontSize:10}}>週</span></div>
+                          <div style={{fontSize:14,fontWeight:700,color:"#1565C0",lineHeight:1}}>
+                            {col.longevityMin === col.longevityMax
+                              ? <>{col.longevityMin}<span style={{fontSize:10}}>週</span></>
+                              : <>{col.longevityMin}〜{col.longevityMax}<span style={{fontSize:10}}>週</span></>}
+                          </div>
                         </>
                       ) : null}
                     </div>

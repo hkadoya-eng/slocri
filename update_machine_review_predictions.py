@@ -62,6 +62,21 @@ def get_multiplier(rank):
             return mult
     return 0.70
 
+def apply_range_rule(target):
+    t = round(target)
+    if t <= 9:
+        return t, t
+    elif t < 15:
+        return t, t + 1
+    elif t < 20:
+        return t, t + 2
+    elif t < 25:
+        return t, t + 3
+    elif t < 30:
+        return t, t + 4
+    else:
+        return t, t + 9
+
 def run():
     load_env()
     key = api_key()
@@ -111,8 +126,8 @@ def run():
             if sis_name in rank_map:
                 rank, row = rank_map[sis_name]
                 mult = get_multiplier(rank)
-                new_min = max(4, round((col.get("longevityMin") or 12) * mult))
-                new_max = max(6, round((col.get("longevityMax") or 20) * mult))
+                base = col.get("longevityMin") or 12
+                new_min, new_max = apply_range_rule(max(4, base * mult))
                 if new_min != col.get("longevityMin") or new_max != col.get("longevityMax"):
                     print(f"  [{col['name']}] {col.get('longevityMin')}〜{col.get('longevityMax')}週"
                           f" → {new_min}〜{new_max}週 (rank {rank}, out_coins {row['out_coins']:,}枚)")
@@ -126,8 +141,8 @@ def run():
                     changed = True
             else:
                 # Top50圏外
-                new_min = max(4, round((col.get("longevityMin") or 12) * 0.65))
-                new_max = max(6, round((col.get("longevityMax") or 20) * 0.65))
+                base = col.get("longevityMin") or 12
+                new_min, new_max = apply_range_rule(max(4, base * 0.65))
                 if new_min != col.get("longevityMin") or new_max != col.get("longevityMax"):
                     print(f"  [{col['name']}] → {new_min}〜{new_max}週 (top50圏外)")
                     col["longevityMin"] = new_min
