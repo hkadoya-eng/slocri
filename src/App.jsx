@@ -2037,7 +2037,7 @@ function CollectTab({ posts, showToast, onCatClick, loadPosts }) {
       {/* Claude収集依頼（サーバー側） */}
       <div style={{background:"#E8ECF0",borderRadius:14,boxShadow:"4px 4px 8px #C5C9D4, -3px -3px 6px #FFFFFF",padding:"14px 14px",marginBottom:"1.25rem"}}>
         <div style={{fontWeight:700,fontSize:15,color:"#444",marginBottom:10,display:"flex",alignItems:"center",gap:6}}>
-          <span style={{fontSize:18}}>🤖</span> Claudeに収集を依頼
+          <span style={{fontSize:18}}>🤖</span> スロキー編集部に収集を依頼
         </div>
         <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:8}}>
           {[["","なんでも"],["new","新台"],["info","機種情報"],["jissen","実戦"],["hall","業界"],["episode","名機"]].map(([val,label]) => {
