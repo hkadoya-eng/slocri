@@ -181,3 +181,18 @@ CronListで登録済みジョブを確認できます。
 - 作業発生: 処理後2分ポーリングに切り替え
 - 空振り時: 自動で10分に戻る
 - **セッション再起動後は消えるため手動で再登録が必要**
+
+---
+
+## ⚠️ 期限付き対応タスク
+
+### Supabase GRANTポリシー変更（期限: 2026-10-30）
+
+**2026-10-30以降、既存テーブルもGRANT必須になる。対応しないとサイト全体が壊れる。**
+
+10月に入ったら以下をSupabase SQL Editorで実行すること：
+```sql
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO anon, authenticated;
+```
+
+セッション開始時に月が10月以降であれば、ユーザーに対応を提案すること。
