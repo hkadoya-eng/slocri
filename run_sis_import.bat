@@ -35,10 +35,14 @@ if "%NEED_PUSH%"=="0" (
     exit /b 0
 )
 
-git diff --quiet src\sisLibrary.json
+:: 機種評価予測を自動更新
+echo [%date% %time%] machine_review prediction update... >> %LOG% 2>&1
+python update_machine_review_predictions.py >> %LOG% 2>&1
+
+git diff --quiet src\sisLibrary.json src\columnData.json
 if errorlevel 1 (
-    echo [%date% %time%] sisLibrary.json updated, pushing... >> %LOG% 2>&1
-    git add src\sisLibrary.json
+    echo [%date% %time%] data updated, pushing... >> %LOG% 2>&1
+    git add src\sisLibrary.json src\columnData.json
     git commit -m "SIS稼働データ更新 %date%"
     git push
     echo [%date% %time%] push done >> %LOG% 2>&1

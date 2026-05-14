@@ -27,3 +27,16 @@ if errorlevel 1 (
 echo [%date% %time%] weekly import start >> logs\sis_import.log 2>&1
 python import_sis_weekly.py >> logs\sis_import.log 2>&1
 echo [%date% %time%] weekly import done >> logs\sis_import.log 2>&1
+
+:: 機種評価予測を更新（貢献週超過チェック含む）
+echo [%date% %time%] machine_review prediction update... >> logs\sis_import.log 2>&1
+python update_machine_review_predictions.py >> logs\sis_import.log 2>&1
+
+git diff --quiet src\columnData.json
+if errorlevel 1 (
+    echo [%date% %time%] columnData.json updated, pushing... >> logs\sis_import.log 2>&1
+    git add src\columnData.json
+    git commit -m "SIS週次データ反映・機種評価予測更新 %date%"
+    git push
+    echo [%date% %time%] push done >> logs\sis_import.log 2>&1
+)
