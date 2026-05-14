@@ -61,9 +61,10 @@ def extract_records(path):
         value = row[2]
         serial = row[3]
 
-        if label == "全国アウト" and isinstance(serial, int):
+        if label == "全国アウト" and (isinstance(serial, int) or hasattr(serial, "strftime")):
+            date_str = serial_to_date(serial) if isinstance(serial, int) else serial.strftime("%Y-%m-%d")
             current = {
-                "date": serial_to_date(serial),
+                "date": date_str,
                 "avg_in": float(value) if isinstance(value, (int, float)) else None,
             }
         elif label == "全国売上" and current:

@@ -481,11 +481,11 @@ function SisTab({ adminUser }) {
     Promise.all([
       fetchSisData(),
       supabase.from("sis_machine_stats").select("machine,contrib_weeks,last_week_start"),
-      supabase.from("sis_national_daily").select("date,avg_in,payout_rate,gross_profit").gte("date", "2024-01-01").order("date", { ascending: true }),
+      supabase.from("sis_national_daily").select("date,avg_in,payout_rate,gross_profit,national_sales,coin_price,coin_profit").gte("date", "2024-01-01").order("date", { ascending: true }),
     ]).then(([data, { data: stats }, { data: natData }]) => {
       if (natData) {
         const nd = {};
-        natData.forEach(r => { nd[r.date] = { avg_in: r.avg_in, payout_rate: r.payout_rate, gross_profit: r.gross_profit }; });
+        natData.forEach(r => { nd[r.date] = { avg_in: r.avg_in, payout_rate: r.payout_rate, gross_profit: r.gross_profit, national_sales: r.national_sales, coin_price: r.coin_price, coin_profit: r.coin_profit }; });
         setNationalDaily(nd);
       }
       if (data) {
@@ -606,8 +606,10 @@ function SisTab({ adminUser }) {
     return null;
   };
   const nationalAvgIn = getNationalField("avg_in");
-  const nationalPayoutRate = getNationalField("payout_rate");
+  const nationalSales = getNationalField("national_sales");
   const nationalGrossProfit = getNationalField("gross_profit");
+  const nationalCoinPrice = getNationalField("coin_price");
+  const nationalCoinProfit = getNationalField("coin_profit");
 
   function sortVal(r) {
     if (sortKey === "gross_profit") return r.gross_profit == null ? Infinity : r.gross_profit;
@@ -758,15 +760,17 @@ function SisTab({ adminUser }) {
             style={{border:"none",background:"none",fontSize:20,cursor:"pointer",color:dateIdx<=0?"#ccc":"#555",padding:"0 6px"}}>›</button>
         </div>
         {dayRows.length > 0 && (
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:6}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:4,marginBottom:6}}>
             {[
-              {label:"全国平均IN",  val: nationalAvgIn != null ? Math.round(nationalAvgIn).toLocaleString() : "—", color:"#444"},
-              {label:"全国出玉率",  val: nationalPayoutRate != null ? nationalPayoutRate.toFixed(1)+"%" : "—", color: nationalPayoutRate != null ? rateColor(nationalPayoutRate) : "#888"},
-              {label:"全国平均粗利", val: nationalGrossProfit != null ? (nationalGrossProfit<0?"▲":"▼")+" ¥"+Math.abs(Math.round(nationalGrossProfit)).toLocaleString() : "—", color: nationalGrossProfit != null ? (nationalGrossProfit<0?"#2a9d3f":"#E53935") : "#888"},
+              {label:"全国アウト",  val: nationalAvgIn != null ? Math.round(nationalAvgIn).toLocaleString() : "—", color:"#444"},
+              {label:"全国売上",    val: nationalSales != null ? (Math.round(nationalSales/1000)/10).toFixed(1)+"万" : "—", color:"#555"},
+              {label:"全国粗利",    val: nationalGrossProfit != null ? (nationalGrossProfit<0?"▲":"▼")+(Math.round(Math.abs(nationalGrossProfit)/100)/10).toFixed(1)+"万" : "—", color: nationalGrossProfit != null ? (nationalGrossProfit<0?"#2a9d3f":"#E53935") : "#888"},
+              {label:"全国単価",    val: nationalCoinPrice != null ? nationalCoinPrice.toFixed(2)+"円" : "—", color:"#555"},
+              {label:"全国玉粗利",  val: nationalCoinProfit != null ? (nationalCoinProfit<0?"▲":"▼")+Math.abs(nationalCoinProfit).toFixed(2) : "—", color: nationalCoinProfit != null ? (nationalCoinProfit<0?"#2a9d3f":"#E53935") : "#888"},
             ].map(s => (
-              <div key={s.label} style={{background:"#fff",borderRadius:8,padding:"3px 4px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
-                <div style={{fontSize:8,color:"#aaa",marginBottom:0}}>{s.label}</div>
-                <div style={{fontSize:11,fontWeight:700,color:s.color,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.val}</div>
+              <div key={s.label} style={{background:"#fff",borderRadius:8,padding:"3px 3px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
+                <div style={{fontSize:7,color:"#aaa",marginBottom:0}}>{s.label}</div>
+                <div style={{fontSize:10,fontWeight:700,color:s.color,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.val}</div>
               </div>
             ))}
           </div>
@@ -786,7 +790,9 @@ function SisTab({ adminUser }) {
           {ranked.map((r, idx) => {
             const profit = r.gross_profit;
             const profitColor = profit == null ? "#888" : profit < 0 ? "#2a9d3f" : "#E53935";
-            const profitLabel = profit == null ? "—" : (profit < 0 ? "▲" : "▼") + " ¥" + Math.abs(profit).toLocaleString();
+            const sales = r.out_coins != null && r.coin_price != null ? r.out_coins * r.coin_price : null;
+            const coinProfit = r.out_coins != null && r.out_coins > 0 && r.gross_profit != null ? r.gross_profit / r.out_coins : null;
+            const coinProfitColor = coinProfit == null ? "#888" : coinProfit < 0 ? "#2a9d3f" : "#E53935";
             return (
               <div key={r.machine} style={{background:"#fff",borderRadius:12,padding:"10px 12px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff",display:"flex",alignItems:"flex-start",gap:10}}>
                 <div style={{minWidth:24,fontWeight:700,fontSize:14,color:idx<3?"#D85A30":"#bbb",paddingTop:2}}>{idx+1}</div>
@@ -795,11 +801,12 @@ function SisTab({ adminUser }) {
                     <span style={{fontSize:13,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0}}>{r.machine}</span>
                     {r.machine_count != null && <span style={{fontSize:10,color:"#aaa",whiteSpace:"nowrap",flexShrink:0}}>{r.machine_count}台</span>}
                   </div>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"2px 8px"}}>
-                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>IN枚数</div><div style={{fontWeight:600,color:"#444",fontSize:11}}>{fmtNum(r.out_coins)}</div></div>
-                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>出玉率</div><div style={{fontWeight:700,color:rateColor(r.payout_rate),fontSize:11}}>{fmtRate(r.payout_rate)}</div></div>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:"2px 4px"}}>
+                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>IN</div><div style={{fontWeight:600,color:"#444",fontSize:11}}>{fmtNum(r.out_coins)}</div></div>
+                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>売上</div><div style={{fontWeight:600,color:"#555",fontSize:11}}>{sales != null ? (Math.round(sales/1000)/10).toFixed(1)+"万" : "—"}</div></div>
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>粗利</div><div style={{fontWeight:600,color:profitColor,fontSize:11}}>{fmtProfitShort(r.gross_profit)}</div></div>
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>単価</div><div style={{fontWeight:600,color:"#555",fontSize:11}}>{r.coin_price != null ? r.coin_price.toFixed(2)+"円" : "—"}</div></div>
+                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>玉粗利</div><div style={{fontWeight:600,color:coinProfitColor,fontSize:11}}>{coinProfit != null ? (coinProfit<0?"▲":"▼")+Math.abs(coinProfit).toFixed(2) : "—"}</div></div>
                   </div>
                 </div>
               </div>
