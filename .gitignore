@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Temp/debug artifacts
+tmp_archive/
+*_tmp.json
+*_tmp.txt
+tmp_*.txt
+tmp_*.json
