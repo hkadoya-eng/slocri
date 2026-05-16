@@ -31,8 +31,8 @@ Cronジョブによる自動タスク（【自動ネタ収集タスク】【自�
    - 保存先: ai収集/slocri_import_[YYYYMMDD_HHMM].csv
    - ヘッダー: cat,source,machine,title,body,url,quality,dup_key,author
    - 数字のカンマ（3,000等）は除去して3000と書く・本文にカンマがある場合はダブルクォートで囲む
-5. python import_csv.py "ai収集/slocri_import_[ファイル名].csv" を実行
-6. python fetch_ogp.py を実行
+5. python scripts/import/import_csv.py "ai収集/slocri_import_[ファイル名].csv" を実行
+6. python scripts/misc/fetch_ogp.py を実行
 7. git add → git commit → git push
 8. memory/dup_keys.md に新しいdup_keyを先頭セクションに追記
 9. CronCreate で次回を再登録（9:00版は cron:"0 9 * * *"、13:30版は cron:"30 13 * * *"、durable:true、recurring:true）

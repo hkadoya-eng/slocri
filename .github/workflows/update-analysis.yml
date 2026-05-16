@@ -24,7 +24,7 @@ jobs:
       - name: 機種分析を更新
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python update_analysis.py
+        run: python scripts/misc/update_analysis.py
 
       - name: 変更があればコミット & プッシュ
         run: |
