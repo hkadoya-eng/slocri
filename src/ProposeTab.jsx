@@ -580,6 +580,12 @@ export default function ProposeTab() {
         依頼履歴（最新30件）
       </div>
 
+      {/* 公開/非公開の説明バナー */}
+      <div style={{ background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 10, padding: "10px 14px", marginBottom: 12, fontSize: 12, lineHeight: 1.7, color: "#1E40AF" }}>
+        💡 <strong>「🆔 マイ提案に登録」</strong>を押すと、その提案の<strong>🌍 公開 ⇔ 🔒 非公開</strong>を切り替えできるようになります。<br />
+        🔒 非公開にすると自分しか見えなくなり、🌍 公開にすると他の人にも表示されます。
+      </div>
+
       {displayedRequests.length === 0 && (
         <div style={{ textAlign: "center", color: "#bbb", padding: "40px 0", fontSize: 14 }}>まだ依頼がありません</div>
       )}
