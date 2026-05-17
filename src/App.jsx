@@ -615,7 +615,9 @@ function SisTab({ adminUser }) {
   const nationalSales = getNationalField("national_sales", 14);
   const nationalGrossProfit = getNationalField("gross_profit", 14);
   const nationalCoinPrice = getNationalField("coin_price", 14);
-  const nationalPayoutRate = getNationalField("payout_rate", 14) ?? avgRate;
+  // sis_national_daily.payout_rateはホール粗利率の逆数（金額ベース）で機械割としては不正確なので、
+  // 常に当日のSIS機種データの平均（medal/medal）を使用する
+  const nationalPayoutRate = avgRate;
 
   function sortVal(r) {
     if (sortKey === "gross_profit") return r.gross_profit == null ? Infinity : r.gross_profit;
