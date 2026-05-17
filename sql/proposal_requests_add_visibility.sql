@@ -10,9 +10,11 @@ ALTER TABLE proposal_requests
   ADD COLUMN IF NOT EXISTS visibility text DEFAULT 'private';
 
 -- 既存データは「全員に見えていた状態」を維持したいので public に揃える
+-- 注意: ADD COLUMN DEFAULT 'private' で全行が既に埋まっているので
+-- visibility IS NULL ではなく owner_id IS NULL を条件にする
 UPDATE proposal_requests
   SET visibility = 'public'
-  WHERE visibility IS NULL;
+  WHERE owner_id IS NULL;
 
 -- 一覧クエリの高速化用 index（任意）
 CREATE INDEX IF NOT EXISTS idx_proposal_requests_visibility ON proposal_requests(visibility);
