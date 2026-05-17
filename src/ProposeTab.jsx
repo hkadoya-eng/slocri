@@ -1,5 +1,47 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { supabase } from "./supabase";
+
+// 投稿者識別: 端末ローカルに発行されるUUIDをlocalStorageで持つ
+function getOrCreateOwnerId() {
+  let id = localStorage.getItem("slocri_owner_id");
+  if (!id) {
+    id = (crypto.randomUUID && crypto.randomUUID()) ||
+      "ow-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+    localStorage.setItem("slocri_owner_id", id);
+  }
+  return id;
+}
+
+// スマホ判定: UA + 画面幅。情報漏洩防止のためダウンロードを無効化する条件
+function detectMobile() {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  const uaMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+  const narrow = typeof window !== "undefined" && window.innerWidth < 768;
+  return uaMobile || narrow;
+}
+
+// 将来: 会社IPチェックなどの追加条件をここに足す
+// 今は「PCならOK」とだけ。
+function canDownload(isMobile) {
+  return !isMobile;
+}
+
+// Markdown風テキストをHTML（印刷ビュー用）に変換
+function resultToPrintHTML(text) {
+  const lines = (text || "").split("\n");
+  return lines.map((line) => {
+    if (line.startsWith("# ")) return `<h1>${escapeHTML(line.slice(2))}</h1>`;
+    if (line.startsWith("## ")) return `<h2>${escapeHTML(line.slice(3))}</h2>`;
+    if (line.startsWith("- ") || line.startsWith("* ")) return `<li>${escapeHTML(line.slice(2))}</li>`;
+    if (line.trim() === "---") return `<hr/>`;
+    if (line.trim() === "") return `<br/>`;
+    return `<p>${escapeHTML(line)}</p>`;
+  }).join("\n");
+}
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+}
 
 const STATUS = {
   pending:      { label: "⏳ 待機中",   color: "#888",    bg: "#F3F4F6" },
@@ -21,6 +63,9 @@ const S = {
 };
 
 export default function ProposeTab() {
+  const ownerId = useMemo(getOrCreateOwnerId, []);
+  const isMobile = useMemo(detectMobile, []);
+
   const [proposeMode, setProposeMode] = useState("full");
   const [requests, setRequests] = useState([]);
   const [ipName, setIpName] = useState("");
@@ -47,9 +92,11 @@ export default function ProposeTab() {
   }, []);
 
   async function load() {
+    // 公開済み or 自分が投稿したもの のみ取得
     const { data } = await supabase
       .from("proposal_requests")
       .select("*")
+      .or(`visibility.eq.public,owner_id.eq.${ownerId}`)
       .order("created_at", { ascending: false })
       .limit(30);
     if (data) {
@@ -73,6 +120,8 @@ export default function ProposeTab() {
       target: target.trim(),
       concept_memo: memo.trim(),
       status: "pending",
+      owner_id: ownerId,
+      visibility: "private",
     });
     if (!error) {
       setIpName(""); setTarget(""); setMemo("");
@@ -91,6 +140,8 @@ export default function ProposeTab() {
       target: "機能単体",
       concept_memo: featureText.trim(),
       status: "pending",
+      owner_id: ownerId,
+      visibility: "private",
     });
     if (!error) {
       setFeatureText("");
@@ -153,6 +204,80 @@ export default function ProposeTab() {
   function copyResult(text) {
     navigator.clipboard.writeText(text);
     showToast("コピーしました");
+  }
+
+  async function toggleVisibility(req) {
+    if (req.owner_id !== ownerId) return;
+    const next = req.visibility === "public" ? "private" : "public";
+    await supabase.from("proposal_requests").update({ visibility: next }).eq("id", req.id);
+    showToast(next === "public" ? "🌍 公開しました" : "🔒 非公開に戻しました");
+    load();
+  }
+
+  function safeFileName(s) {
+    return String(s || "proposal").replace(/[\\/:*?"<>|]/g, "_").slice(0, 60);
+  }
+
+  function downloadMarkdown(req) {
+    if (!canDownload(isMobile)) {
+      showToast("スマホからはダウンロードできません");
+      return;
+    }
+    const out = [];
+    out.push(`# ${req.ip_name || "提案書"}`);
+    if (req.target && req.target !== "機能単体") out.push(`\n> ターゲット: ${req.target}`);
+    if (req.concept_memo) out.push(`\n> コンセプト: ${req.concept_memo}`);
+    out.push("\n---\n");
+    out.push(req.result || "");
+    const blob = new Blob([out.join("\n")], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${safeFileName(req.ip_name)}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast("Markdownを保存しました");
+  }
+
+  function downloadPDF(req) {
+    if (!canDownload(isMobile)) {
+      showToast("スマホからはダウンロードできません");
+      return;
+    }
+    const win = window.open("", "_blank", "width=900,height=720");
+    if (!win) {
+      showToast("ブラウザのポップアップブロックを解除してください");
+      return;
+    }
+    const meta = [];
+    if (req.target && req.target !== "機能単体") meta.push(`<div class="meta"><strong>ターゲット:</strong> ${escapeHTML(req.target)}</div>`);
+    if (req.concept_memo) meta.push(`<div class="meta"><strong>コンセプト:</strong> ${escapeHTML(req.concept_memo)}</div>`);
+    win.document.write(`<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>${escapeHTML(req.ip_name || "提案書")} - 企画提案書</title>
+  <style>
+    body { font-family: 'Hiragino Sans', 'Yu Gothic UI', 'Meiryo', sans-serif; padding: 40px; line-height: 1.8; color: #333; max-width: 900px; margin: 0 auto; }
+    h1 { color: #333; border-bottom: 2px solid #D85A30; padding-bottom: 8px; font-size: 24px; }
+    h2 { color: #D85A30; margin-top: 24px; font-size: 18px; }
+    p { margin: 6px 0; }
+    li { margin-left: 20px; }
+    .meta { color: #555; font-size: 13px; margin-bottom: 8px; padding: 10px 14px; background: #F5F3FF; border-left: 3px solid #7C3AED; border-radius: 4px; }
+    hr { border: none; border-top: 1px solid #E0E4E8; margin: 16px 0; }
+    .footer { margin-top: 40px; padding-top: 12px; border-top: 1px solid #ccc; font-size: 11px; color: #999; text-align: right; }
+    @media print { body { padding: 20px; } .no-print { display: none; } }
+  </style>
+</head>
+<body>
+  <h1>${escapeHTML(req.ip_name || "提案書")}</h1>
+  ${meta.join("\n")}
+  ${resultToPrintHTML(req.result)}
+  <div class="footer">スロクリ ゲーム性提案 — 出力: ${new Date().toLocaleString("ja-JP")}</div>
+  <script>setTimeout(() => window.print(), 400);</script>
+</body>
+</html>`);
+    win.document.close();
   }
 
   const displayedRequests = requests.filter(req =>
@@ -279,6 +404,11 @@ export default function ProposeTab() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
                 <span style={{ fontSize: 12, padding: "4px 10px", borderRadius: 20, background: st.bg, color: st.color, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0 }}>{st.label}</span>
+                {(req.visibility === "public" || req.owner_id === ownerId) && (
+                  <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 12, background: req.visibility === "public" ? "#D1FAE5" : "#FEF3C7", color: req.visibility === "public" ? "#047857" : "#92400E", whiteSpace: "nowrap" }}>
+                    {req.visibility === "public" ? "🌍 公開中" : "🔒 プライベート"}
+                  </span>
+                )}
                 {revisionHistory.length > 0 && (
                   <span style={{ fontSize: 11, color: "#888" }}>第{revisionHistory.length + 1}稿</span>
                 )}
@@ -364,12 +494,47 @@ export default function ProposeTab() {
                     return <div key={i} style={{ marginBottom: line === "" ? 6 : 0 }}>{line}</div>;
                   })}
                 </div>
-                <button
-                  onClick={e => { e.stopPropagation(); copyResult(req.result); }}
-                  style={{ marginTop: 8, padding: "7px 16px", borderRadius: 8, border: "none", background: "#E8ECF0", color: "#555", fontSize: 13, cursor: "pointer", boxShadow: "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF" }}
-                >
-                  📋 コピー
-                </button>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+                  <button
+                    onClick={e => { e.stopPropagation(); copyResult(req.result); }}
+                    style={{ padding: "7px 14px", borderRadius: 8, border: "none", background: "#E8ECF0", color: "#555", fontSize: 13, cursor: "pointer", boxShadow: "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF" }}
+                  >
+                    📋 コピー
+                  </button>
+                  {!isMobile && canDownload(isMobile) && (
+                    <>
+                      <button
+                        onClick={e => { e.stopPropagation(); downloadMarkdown(req); }}
+                        style={{ padding: "7px 14px", borderRadius: 8, border: "none", background: "#E8ECF0", color: "#555", fontSize: 13, cursor: "pointer", boxShadow: "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF" }}
+                      >
+                        📝 Markdown
+                      </button>
+                      <button
+                        onClick={e => { e.stopPropagation(); downloadPDF(req); }}
+                        style={{ padding: "7px 14px", borderRadius: 8, border: "none", background: "#E8ECF0", color: "#555", fontSize: 13, cursor: "pointer", boxShadow: "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF" }}
+                      >
+                        🖨️ PDF
+                      </button>
+                    </>
+                  )}
+                  {req.owner_id === ownerId && (
+                    <button
+                      onClick={e => { e.stopPropagation(); toggleVisibility(req); }}
+                      style={{ padding: "7px 14px", borderRadius: 8, border: "none",
+                        background: req.visibility === "public" ? "#FEF3C7" : "#D1FAE5",
+                        color: req.visibility === "public" ? "#92400E" : "#047857",
+                        fontSize: 13, fontWeight: 600, cursor: "pointer",
+                        boxShadow: "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF" }}
+                    >
+                      {req.visibility === "public" ? "🔒 非公開に戻す" : "🌍 公開する"}
+                    </button>
+                  )}
+                </div>
+                {isMobile && (
+                  <div style={{ fontSize: 11, color: "#aaa", marginTop: 6, paddingLeft: 4 }}>
+                    📵 ダウンロードはPCからご利用ください
+                  </div>
+                )}
 
                 {/* 評価ボタン */}
                 {req.status === "done" && (
