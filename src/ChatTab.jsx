@@ -181,32 +181,56 @@ export default function ChatTab() {
         )}
 
         {messages.map((msg, idx) => {
+          const ts = msg.created_at ? new Date(msg.created_at) : null;
+          const timeStr = ts ? `${ts.getHours().toString().padStart(2,"0")}:${ts.getMinutes().toString().padStart(2,"0")}` : "";
           return (
             <div key={msg.id} style={{ display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start" }}>
               <div style={bubble(msg.role === "user")}>
                 {msg.role === "assistant" ? <CollapsibleContent content={msg.content} /> : msg.content}
               </div>
-              {msg.role === "assistant" && (
-                <div style={{ display: "flex", gap: 6, marginTop: 4, marginLeft: 4 }}>
-                  <button
-                    onClick={() => rate(msg.id, 1)}
-                    title="良い回答"
-                    style={{ padding: "3px 10px", borderRadius: 20, border: "none", fontSize: 13, cursor: "pointer", background: ratings[msg.id] === 1 ? "#D1FAE5" : "#E8ECF0", color: ratings[msg.id] === 1 ? "#16A34A" : "#aaa", boxShadow: ratings[msg.id] === 1 ? "inset 2px 2px 4px #A7F3D0" : "2px 2px 4px #C5C9D4, -1px -1px 3px #FFFFFF", transition: "all 0.15s", fontWeight: ratings[msg.id] === 1 ? 700 : 400 }}
-                  >👍</button>
-                  <button
-                    onClick={() => rate(msg.id, -1)}
-                    title="改善が必要"
-                    style={{ padding: "3px 10px", borderRadius: 20, border: "none", fontSize: 13, cursor: "pointer", background: ratings[msg.id] === -1 ? "#FEE2E2" : "#E8ECF0", color: ratings[msg.id] === -1 ? "#DC2626" : "#aaa", boxShadow: ratings[msg.id] === -1 ? "inset 2px 2px 4px #FECACA" : "2px 2px 4px #C5C9D4, -1px -1px 3px #FFFFFF", transition: "all 0.15s", fontWeight: ratings[msg.id] === -1 ? 700 : 400 }}
-                  >👎</button>
-                </div>
-              )}
+              <div style={{ display: "flex", gap: 6, marginTop: 4, marginLeft: 4, marginRight: 4, alignItems: "center" }}>
+                {msg.role === "assistant" && (
+                  <>
+                    <button
+                      onClick={() => rate(msg.id, 1)}
+                      title="良い回答"
+                      style={{ padding: "3px 10px", borderRadius: 20, border: "none", fontSize: 13, cursor: "pointer", background: ratings[msg.id] === 1 ? "#D1FAE5" : "#E8ECF0", color: ratings[msg.id] === 1 ? "#16A34A" : "#aaa", boxShadow: ratings[msg.id] === 1 ? "inset 2px 2px 4px #A7F3D0" : "2px 2px 4px #C5C9D4, -1px -1px 3px #FFFFFF", transition: "all 0.15s", fontWeight: ratings[msg.id] === 1 ? 700 : 400 }}
+                    >👍</button>
+                    <button
+                      onClick={() => rate(msg.id, -1)}
+                      title="改善が必要"
+                      style={{ padding: "3px 10px", borderRadius: 20, border: "none", fontSize: 13, cursor: "pointer", background: ratings[msg.id] === -1 ? "#FEE2E2" : "#E8ECF0", color: ratings[msg.id] === -1 ? "#DC2626" : "#aaa", boxShadow: ratings[msg.id] === -1 ? "inset 2px 2px 4px #FECACA" : "2px 2px 4px #C5C9D4, -1px -1px 3px #FFFFFF", transition: "all 0.15s", fontWeight: ratings[msg.id] === -1 ? 700 : 400 }}
+                    >👎</button>
+                  </>
+                )}
+                {timeStr && <span style={{ fontSize: 10, color: "#bbb" }}>{timeStr}</span>}
+              </div>
             </div>
           );
         })}
 
         {lastIsUser && (
           <div style={{ display: "flex", justifyContent: "flex-start" }}>
-            <div style={{ ...bubble(false), color: "#aaa", fontSize: 13 }}>⏳ 返答を生成中…（1〜2分）</div>
+            <div style={{ ...bubble(false), color: "#888", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
+              <span>返答を生成中</span>
+              <span style={{ display: "inline-flex", gap: 3 }}>
+                <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#D85A30", animation: "slocriChatPulse 1.2s infinite", animationDelay: "0s" }} />
+                <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#D85A30", animation: "slocriChatPulse 1.2s infinite", animationDelay: "0.2s" }} />
+                <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#D85A30", animation: "slocriChatPulse 1.2s infinite", animationDelay: "0.4s" }} />
+              </span>
+              <style>{`@keyframes slocriChatPulse { 0%, 80%, 100% { opacity: 0.2 } 40% { opacity: 1 } }`}</style>
+            </div>
+          </div>
+        )}
+
+        {messages.length > 0 && !lastIsUser && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8, justifyContent: "center" }}>
+            {QUICK_QUESTIONS.slice(0, 3).map(q => (
+              <button key={q} onClick={() => setInput(q)}
+                style={{ padding: "5px 12px", borderRadius: 14, border: "none", background: "rgba(216,90,48,0.08)", color: "#D85A30", fontSize: 12, cursor: "pointer", lineHeight: 1.4 }}>
+                {q}
+              </button>
+            ))}
           </div>
         )}
 
@@ -218,19 +242,25 @@ export default function ChatTab() {
         <form onSubmit={send} style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
           <textarea
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={e => {
+              setInput(e.target.value);
+              // auto-grow
+              e.target.style.height = "auto";
+              e.target.style.height = Math.min(e.target.scrollHeight, 160) + "px";
+            }}
             onKeyDown={handleKeyDown}
             disabled={sending}
-            rows={2}
-            style={{ flex: 1, padding: "10px 12px", borderRadius: 12, border: "none", background: "#E8ECF0", boxShadow: "inset 3px 3px 6px #C5C9D4, inset -2px -2px 5px #FFFFFF", fontSize: 16, outline: "none", resize: "none", fontFamily: "inherit", color: "#333" }}
+            rows={1}
+            style={{ flex: 1, padding: "12px 14px", borderRadius: 14, border: "none", background: "#E8ECF0", boxShadow: "inset 3px 3px 6px #C5C9D4, inset -2px -2px 5px #FFFFFF", fontSize: 16, outline: "none", resize: "none", fontFamily: "inherit", color: "#333", minHeight: 44, maxHeight: 160, lineHeight: 1.5 }}
             placeholder="気になる台や話題をなんでも…（Enterで送信）"
           />
           <button
             type="submit"
             disabled={!input.trim() || sending}
-            style={{ padding: "10px 16px", borderRadius: 12, border: "none", background: (!input.trim() || sending) ? "#C5C9D4" : "#D85A30", color: "#fff", fontSize: 15, fontWeight: 700, cursor: (!input.trim() || sending) ? "not-allowed" : "pointer", boxShadow: (!input.trim() || sending) ? "none" : "3px 3px 8px #C5C9D4", flexShrink: 0, transition: "all 0.15s" }}
+            aria-label="送信"
+            style={{ width: 56, height: 56, borderRadius: 16, border: "none", background: (!input.trim() || sending) ? "#C5C9D4" : "linear-gradient(135deg, #E86B3F 0%, #D85A30 100%)", color: "#fff", fontSize: 22, fontWeight: 700, cursor: (!input.trim() || sending) ? "not-allowed" : "pointer", boxShadow: (!input.trim() || sending) ? "none" : "0 4px 12px rgba(216,90,48,0.4), inset 0 1px 0 rgba(255,255,255,0.3)", flexShrink: 0, transition: "all 0.15s", display: "flex", alignItems: "center", justifyContent: "center" }}
           >
-            送信
+            {sending ? "…" : "➤"}
           </button>
         </form>
       </div>
