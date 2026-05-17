@@ -27,20 +27,152 @@ function canDownload(isMobile) {
   return !isMobile;
 }
 
-// Markdown風テキストをHTML（印刷ビュー用）に変換
-function resultToPrintHTML(text) {
-  const lines = (text || "").split("\n");
-  return lines.map((line) => {
-    if (line.startsWith("# ")) return `<h1>${escapeHTML(line.slice(2))}</h1>`;
-    if (line.startsWith("## ")) return `<h2>${escapeHTML(line.slice(3))}</h2>`;
-    if (line.startsWith("- ") || line.startsWith("* ")) return `<li>${escapeHTML(line.slice(2))}</li>`;
-    if (line.trim() === "---") return `<hr/>`;
-    if (line.trim() === "") return `<br/>`;
-    return `<p>${escapeHTML(line)}</p>`;
-  }).join("\n");
-}
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+}
+
+// CDN動的ロード(npm依存ゼロ)。同じURLは1度しかfetchしない
+const PDF_LIBS = {
+  jsPDF: "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js",
+  html2canvas: "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js",
+  mermaid: "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js",
+};
+const SCRIPT_CACHE = {};
+function loadScript(src) {
+  if (SCRIPT_CACHE[src]) return SCRIPT_CACHE[src];
+  return (SCRIPT_CACHE[src] = new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = src;
+    s.async = true;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error("script load failed: " + src));
+    document.head.appendChild(s);
+  }));
+}
+let mermaidInited = false;
+async function ensurePdfLibs() {
+  await Promise.all([loadScript(PDF_LIBS.jsPDF), loadScript(PDF_LIBS.html2canvas), loadScript(PDF_LIBS.mermaid)]);
+  if (!mermaidInited && window.mermaid) {
+    window.mermaid.initialize({ startOnLoad: false, theme: "default", securityLevel: "loose" });
+    mermaidInited = true;
+  }
+}
+
+// Markdown表をHTMLテーブルに変換
+function parseMarkdownTable(tableText) {
+  const lines = tableText.trim().split("\n").filter((l) => l.trim());
+  if (lines.length < 1) return "";
+  const cells = (line) => line.split("|").slice(1, -1).map((c) => c.trim());
+  const hasSeparator = lines.length >= 2 && /^[\s|:\-]+$/.test(lines[1]);
+  const headerRows = hasSeparator ? [lines[0]] : [];
+  const bodyRows = hasSeparator ? lines.slice(2) : lines;
+  let html = '<table class="pdf-table">';
+  if (headerRows.length) {
+    html += "<thead><tr>";
+    cells(headerRows[0]).forEach((c) => (html += `<th>${escapeHTML(c)}</th>`));
+    html += "</tr></thead>";
+  }
+  html += "<tbody>";
+  bodyRows.forEach((r) => {
+    html += "<tr>";
+    cells(r).forEach((c) => (html += `<td>${escapeHTML(c)}</td>`));
+    html += "</tr>";
+  });
+  html += "</tbody></table>";
+  return html;
+}
+
+// 提案テキスト全体をリッチHTMLに変換(Mermaid・表・章分け対応)
+function parseResultToDocumentHTML(text) {
+  if (!text) return "";
+  // 1. Mermaidブロック退避
+  const mermaidBlocks = [];
+  let s = text.replace(/```mermaid\n([\s\S]*?)\n```/g, (_, code) => {
+    mermaidBlocks.push(code);
+    return `\n@@MERMAID_${mermaidBlocks.length - 1}@@\n`;
+  });
+  // 2. 表ブロック退避
+  const tableBlocks = [];
+  s = s.replace(/(^|\n)((?:\|[^\n]*\|\n)+)/g, (m, pre, tbl) => {
+    tableBlocks.push(tbl);
+    return `${pre}@@TABLE_${tableBlocks.length - 1}@@\n`;
+  });
+  // 3. 行ごと変換
+  const lines = s.split("\n");
+  const out = [];
+  let inList = false;
+  const closeList = () => { if (inList) { out.push("</ul>"); inList = false; } };
+  for (const line of lines) {
+    const mMermaid = line.match(/^@@MERMAID_(\d+)@@$/);
+    if (mMermaid) {
+      closeList();
+      out.push(`<div class="mermaid-target" data-graph="${escapeHTML(mermaidBlocks[+mMermaid[1]])}"></div>`);
+      continue;
+    }
+    const mTable = line.match(/^@@TABLE_(\d+)@@$/);
+    if (mTable) {
+      closeList();
+      out.push(parseMarkdownTable(tableBlocks[+mTable[1]]));
+      continue;
+    }
+    if (line.startsWith("- ") || line.startsWith("* ")) {
+      if (!inList) { out.push("<ul>"); inList = true; }
+      out.push(`<li>${escapeHTML(line.slice(2))}</li>`);
+      continue;
+    }
+    closeList();
+    if (line.startsWith("# ")) { out.push(`<h1>${escapeHTML(line.slice(2))}</h1>`); continue; }
+    if (line.startsWith("## ")) { out.push(`<h2>${escapeHTML(line.slice(3))}</h2>`); continue; }
+    if (line.startsWith("### ")) { out.push(`<h3>${escapeHTML(line.slice(4))}</h3>`); continue; }
+    if (line.trim() === "---") { out.push("<hr/>"); continue; }
+    if (line.trim() === "") { out.push(""); continue; }
+    out.push(`<p>${escapeHTML(line)}</p>`);
+  }
+  closeList();
+  return out.join("\n");
+}
+
+function buildProposalDocumentHTML(req) {
+  const today = new Date().toLocaleDateString("ja-JP");
+  const ip = escapeHTML(req.ip_name || "提案書");
+  const target = req.target && req.target !== "機能単体" ? escapeHTML(req.target) : "";
+  const concept = req.concept_memo ? escapeHTML(req.concept_memo) : "";
+  const stylesheet = `
+<style>
+  .pdf-doc { background: white; color: #2D2D2D; font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic UI', 'Meiryo', sans-serif; }
+  .pdf-cover { padding: 60px 50px 50px; border-bottom: 4px solid #D85A30; margin-bottom: 0; }
+  .pdf-cover .brand { font-size: 12px; color: #aaa; letter-spacing: 0.18em; margin-bottom: 14px; }
+  .pdf-cover .title { font-size: 36px; font-weight: 800; color: #222; margin: 0 0 18px; line-height: 1.25; }
+  .pdf-cover .meta-row { font-size: 13px; color: #444; margin: 8px 0; padding: 10px 16px; background: #F5F3FF; border-left: 4px solid #7C3AED; border-radius: 4px; }
+  .pdf-cover .date { font-size: 11px; color: #aaa; margin-top: 30px; text-align: right; }
+  .pdf-body { padding: 28px 50px 40px; }
+  .pdf-body h1 { font-size: 22px; font-weight: 700; color: #222; margin: 26px 0 12px; padding: 4px 0 4px 14px; border-left: 5px solid #D85A30; background: linear-gradient(90deg, #FFF5EE 0%, transparent 100%); }
+  .pdf-body h2 { font-size: 16px; font-weight: 700; color: #D85A30; margin: 20px 0 8px; padding-bottom: 4px; border-bottom: 1px dashed #FFCBB0; }
+  .pdf-body h3 { font-size: 13px; font-weight: 700; color: #555; margin: 14px 0 4px; }
+  .pdf-body p { margin: 6px 0; font-size: 13px; line-height: 1.85; }
+  .pdf-body ul { margin: 6px 0 6px 18px; padding: 0; }
+  .pdf-body li { font-size: 13px; line-height: 1.7; margin: 3px 0; }
+  .pdf-body hr { border: none; border-top: 1px dashed #ccc; margin: 18px 0; }
+  .pdf-body .pdf-table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 12px; }
+  .pdf-body .pdf-table th { background: #D85A30; color: white; padding: 8px 10px; text-align: left; font-weight: 600; }
+  .pdf-body .pdf-table td { padding: 8px 10px; border-bottom: 1px solid #E0E4E8; vertical-align: top; }
+  .pdf-body .pdf-table tr:nth-child(even) td { background: #FAFAFA; }
+  .pdf-body .mermaid-target { margin: 14px 0; padding: 14px; background: #F8F9FA; border-radius: 8px; text-align: center; border: 1px solid #E8ECF0; }
+  .pdf-body .mermaid-target svg { max-width: 100%; height: auto; }
+  .pdf-footer { padding: 18px 50px; border-top: 1px solid #ddd; font-size: 10px; color: #999; text-align: right; }
+</style>`;
+  return `${stylesheet}
+<div class="pdf-doc">
+  <div class="pdf-cover">
+    <div class="brand">SLOCRI GAME DESIGN PROPOSAL</div>
+    <div class="title">${ip}</div>
+    ${target ? `<div class="meta-row"><strong>🎯 ターゲット</strong>　${target}</div>` : ""}
+    ${concept ? `<div class="meta-row"><strong>💡 コンセプト</strong>　${concept}</div>` : ""}
+    <div class="date">出力: ${today}</div>
+  </div>
+  <div class="pdf-body">${parseResultToDocumentHTML(req.result)}</div>
+  <div class="pdf-footer">スロクリ ゲーム性提案 — ${ip} — ${today}</div>
+</div>`;
 }
 
 const STATUS = {
@@ -239,45 +371,91 @@ export default function ProposeTab() {
     showToast("Markdownを保存しました");
   }
 
-  function downloadPDF(req) {
+  async function downloadPDF(req) {
     if (!canDownload(isMobile)) {
       showToast("スマホからはダウンロードできません");
       return;
     }
-    const win = window.open("", "_blank", "width=900,height=720");
-    if (!win) {
-      showToast("ブラウザのポップアップブロックを解除してください");
-      return;
+    try {
+      showToast("📄 PDF生成中…(数秒お待ちください)");
+      await ensurePdfLibs();
+
+      const container = document.createElement("div");
+      container.style.cssText = "position:fixed;left:-10000px;top:0;width:794px;background:#fff;";
+      container.innerHTML = buildProposalDocumentHTML(req);
+      document.body.appendChild(container);
+
+      // Mermaidブロック描画
+      const mermaidTargets = container.querySelectorAll(".mermaid-target");
+      for (let i = 0; i < mermaidTargets.length; i++) {
+        const target = mermaidTargets[i];
+        const graph = target.getAttribute("data-graph");
+        try {
+          const id = `mermaid-${Date.now()}-${i}`;
+          const result = await window.mermaid.render(id, graph);
+          target.innerHTML = result.svg || result;
+        } catch (e) {
+          target.innerHTML = `<pre style="background:#FEE;padding:10px;border-radius:4px;color:#900;text-align:left;">${escapeHTML(graph)}</pre>`;
+        }
+      }
+
+      // レイアウト確定待ち
+      await new Promise((r) => setTimeout(r, 250));
+
+      const canvas = await window.html2canvas(container, { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false });
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageW = 210, pageH = 297;
+      const imgW = pageW;
+      const imgH = (canvas.height * imgW) / canvas.width;
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+      let remaining = imgH;
+      let yOffset = 0;
+      pdf.addImage(dataUrl, "JPEG", 0, yOffset, imgW, imgH);
+      remaining -= pageH;
+      while (remaining > 0) {
+        yOffset -= pageH;
+        pdf.addPage();
+        pdf.addImage(dataUrl, "JPEG", 0, yOffset, imgW, imgH);
+        remaining -= pageH;
+      }
+      document.body.removeChild(container);
+
+      const blob = pdf.output("blob");
+      const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+      const fileName = `${safeFileName(req.ip_name)}_${ts}.pdf`;
+
+      // ローカル保存(ブラウザの保存ダイアログ)
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      // Supabase Storage にもアーカイブ
+      const storagePath = `${req.id}/${fileName}`;
+      const { error: upErr } = await supabase.storage.from("proposal_pdfs").upload(storagePath, blob, { contentType: "application/pdf", upsert: true });
+      if (upErr) {
+        console.warn("Storage upload failed", upErr);
+        showToast("⚠️ ローカル保存のみ完了（Storageエラー）");
+      } else {
+        const { data: pub } = supabase.storage.from("proposal_pdfs").getPublicUrl(storagePath);
+        await supabase.from("proposal_requests").update({ pdf_url: pub.publicUrl }).eq("id", req.id);
+        showToast("✅ PDF保存＆アーカイブしました");
+        load();
+      }
+    } catch (e) {
+      console.error("downloadPDF error", e);
+      showToast("PDF生成エラー: " + (e.message || String(e)));
     }
-    const meta = [];
-    if (req.target && req.target !== "機能単体") meta.push(`<div class="meta"><strong>ターゲット:</strong> ${escapeHTML(req.target)}</div>`);
-    if (req.concept_memo) meta.push(`<div class="meta"><strong>コンセプト:</strong> ${escapeHTML(req.concept_memo)}</div>`);
-    win.document.write(`<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8">
-  <title>${escapeHTML(req.ip_name || "提案書")} - 企画提案書</title>
-  <style>
-    body { font-family: 'Hiragino Sans', 'Yu Gothic UI', 'Meiryo', sans-serif; padding: 40px; line-height: 1.8; color: #333; max-width: 900px; margin: 0 auto; }
-    h1 { color: #333; border-bottom: 2px solid #D85A30; padding-bottom: 8px; font-size: 24px; }
-    h2 { color: #D85A30; margin-top: 24px; font-size: 18px; }
-    p { margin: 6px 0; }
-    li { margin-left: 20px; }
-    .meta { color: #555; font-size: 13px; margin-bottom: 8px; padding: 10px 14px; background: #F5F3FF; border-left: 3px solid #7C3AED; border-radius: 4px; }
-    hr { border: none; border-top: 1px solid #E0E4E8; margin: 16px 0; }
-    .footer { margin-top: 40px; padding-top: 12px; border-top: 1px solid #ccc; font-size: 11px; color: #999; text-align: right; }
-    @media print { body { padding: 20px; } .no-print { display: none; } }
-  </style>
-</head>
-<body>
-  <h1>${escapeHTML(req.ip_name || "提案書")}</h1>
-  ${meta.join("\n")}
-  ${resultToPrintHTML(req.result)}
-  <div class="footer">スロクリ ゲーム性提案 — 出力: ${new Date().toLocaleString("ja-JP")}</div>
-  <script>setTimeout(() => window.print(), 400);</script>
-</body>
-</html>`);
-    win.document.close();
+  }
+
+  function openArchive(req) {
+    if (!req.pdf_url) return;
+    window.open(req.pdf_url, "_blank", "noopener,noreferrer");
   }
 
   const displayedRequests = requests.filter(req =>
@@ -513,9 +691,17 @@ export default function ProposeTab() {
                         onClick={e => { e.stopPropagation(); downloadPDF(req); }}
                         style={{ padding: "7px 14px", borderRadius: 8, border: "none", background: "#E8ECF0", color: "#555", fontSize: 13, cursor: "pointer", boxShadow: "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF" }}
                       >
-                        🖨️ PDF
+                        📄 PDF
                       </button>
                     </>
+                  )}
+                  {req.pdf_url && (
+                    <button
+                      onClick={e => { e.stopPropagation(); openArchive(req); }}
+                      style={{ padding: "7px 14px", borderRadius: 8, border: "none", background: "#F0FDF4", color: "#047857", fontSize: 13, cursor: "pointer", boxShadow: "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF" }}
+                    >
+                      📥 アーカイブ
+                    </button>
                   )}
                   {req.owner_id === ownerId && (
                     <button
