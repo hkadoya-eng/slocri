@@ -29,3 +29,6 @@ tmp_archive/
 *_tmp.txt
 tmp_*.txt
 tmp_*.json
+
+# Local SIS data copies (real data is on Z:\01_SISデータ\PS\)
+sisデータ/
