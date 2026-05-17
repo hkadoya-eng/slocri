@@ -596,20 +596,26 @@ function SisTab({ adminUser }) {
   const avgRate = avg(dayRows, "payout_rate");
   const totalProfit = dayRows.reduce((s, r) => s + (r.gross_profit || 0), 0);
   const totalOut = dayRows.reduce((s, r) => s + (r.out_coins || 0), 0);
-  const getNationalField = (field) => {
+  const getNationalField = (field, maxStaleDays = null) => {
     if (!selDate) return null;
     const sorted = Object.keys(nationalDaily).filter(d => d <= selDate).sort();
     for (let i = sorted.length - 1; i >= 0; i--) {
       const v = nationalDaily[sorted[i]]?.[field];
-      if (v != null) return v;
+      if (v != null) {
+        if (maxStaleDays != null) {
+          const daysAgo = (new Date(selDate) - new Date(sorted[i])) / 86400000;
+          if (daysAgo > maxStaleDays) return null;
+        }
+        return v;
+      }
     }
     return null;
   };
   const nationalAvgIn = getNationalField("avg_in");
-  const nationalSales = getNationalField("national_sales");
-  const nationalGrossProfit = getNationalField("gross_profit");
-  const nationalCoinPrice = getNationalField("coin_price");
-  const nationalPayoutRate = getNationalField("payout_rate");
+  const nationalSales = getNationalField("national_sales", 14);
+  const nationalGrossProfit = getNationalField("gross_profit", 14);
+  const nationalCoinPrice = getNationalField("coin_price", 14);
+  const nationalPayoutRate = getNationalField("payout_rate", 14) ?? avgRate;
 
   function sortVal(r) {
     if (sortKey === "gross_profit") return r.gross_profit == null ? Infinity : r.gross_profit;
@@ -660,6 +666,11 @@ function SisTab({ adminUser }) {
     {k:"sales",        label:"売上"},
     {k:"gross_profit", label:"粗利"},
     {k:"coin_price",   label:"コイン単価"},
+  ];
+  const WEEKLY_SORT_OPTS = [
+    {k:"out_coins",   label:"IN枚数"},
+    {k:"payout_rate", label:"出玉率"},
+    {k:"gross_profit",label:"粗利"},
   ];
 
   function handleSort(k) {
@@ -855,10 +866,10 @@ function SisTab({ adminUser }) {
               ))}
             </div>
           )}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:4}}>
-            {SORT_OPTS.map(o => { const on = sortKey === o.k; return (
-              <button key={o.k} onClick={() => handleSort(o.k)} style={{padding:"6px 0",border:"none",borderRadius:8,fontSize:11,fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 4px rgba(0,0,0,0.2)":"2px 2px 4px #C5C9D4,-2px -2px 4px #fff",whiteSpace:"nowrap"}}>
-                {o.label}{on ? (sortAsc ? "↑" : "↓") : ""}
+          <div style={{display:"flex",gap:6}}>
+            {WEEKLY_SORT_OPTS.map(o => { const on = sortKey === o.k; return (
+              <button key={o.k} onClick={() => handleSort(o.k)} style={{flex:1,padding:"6px 0",border:"none",borderRadius:8,fontSize:12,fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 4px rgba(0,0,0,0.2)":"2px 2px 4px #C5C9D4,-2px -2px 4px #fff"}}>
+                {o.label}{on ? (sortAsc ? " ↑" : " ↓") : ""}
               </button>
             );})}
           </div>
