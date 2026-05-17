@@ -346,11 +346,11 @@ export default function ProposeTab() {
     load();
   }
 
-  // owner_id が NULL の(古い)提案を自分のものとして登録する
+  // owner_id が NULL の(古い)提案を自分の管理対象として登録する
   async function claimProposal(req) {
     if (req.owner_id) return;
     await supabase.from("proposal_requests").update({ owner_id: ownerId }).eq("id", req.id);
-    showToast("🆔 自分の提案として登録しました");
+    showToast("🆔 マイ提案に登録しました");
     load();
   }
 
@@ -740,12 +740,13 @@ export default function ProposeTab() {
                   {!req.owner_id && (
                     <button
                       onClick={e => { e.stopPropagation(); claimProposal(req); }}
+                      title="この投稿を自分の端末IDに紐づけて、以降「マイ提案」として管理できるようにします"
                       style={{ padding: "7px 14px", borderRadius: 8, border: "none",
                         background: "#EFF6FF", color: "#2563EB",
                         fontSize: 13, fontWeight: 600, cursor: "pointer",
                         boxShadow: "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF" }}
                     >
-                      🆔 自分のものにする
+                      🆔 マイ提案に登録
                     </button>
                   )}
                 </div>
