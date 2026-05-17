@@ -609,10 +609,14 @@ function SisTab({ adminUser }) {
   const nationalSales = getNationalField("national_sales");
   const nationalGrossProfit = getNationalField("gross_profit");
   const nationalCoinPrice = getNationalField("coin_price");
-  const nationalCoinProfit = getNationalField("coin_profit");
+  const nationalPayoutRate = getNationalField("payout_rate");
 
   function sortVal(r) {
     if (sortKey === "gross_profit") return r.gross_profit == null ? Infinity : r.gross_profit;
+    if (sortKey === "sales") {
+      const s = r.out_coins != null && r.coin_price != null ? r.out_coins * r.coin_price : null;
+      return s == null ? (sortAsc ? Infinity : -Infinity) : s;
+    }
     return r[sortKey] == null ? (sortAsc ? Infinity : -Infinity) : r[sortKey];
   }
   const ranked = [...dayRows].sort((a, b) => sortAsc ? sortVal(a) - sortVal(b) : sortVal(b) - sortVal(a));
@@ -651,9 +655,11 @@ function SisTab({ adminUser }) {
   }
 
   const SORT_OPTS = [
-    {k:"out_coins",   label:"IN枚数"},
-    {k:"payout_rate", label:"出玉率"},
-    {k:"gross_profit",label:"粗利"},
+    {k:"out_coins",    label:"IN枚数"},
+    {k:"payout_rate",  label:"出玉率"},
+    {k:"sales",        label:"売上"},
+    {k:"gross_profit", label:"粗利"},
+    {k:"coin_price",   label:"コイン単価"},
   ];
 
   function handleSort(k) {
@@ -679,6 +685,13 @@ function SisTab({ adminUser }) {
 
   const wkSortedRows = [...weekRows].sort((a,b) => {
     if (sortKey === "gross_profit") return sortAsc ? a.gross_profit - b.gross_profit : b.gross_profit - a.gross_profit;
+    if (sortKey === "sales") {
+      const sa = a.out_coins != null && a.coin_price != null ? a.out_coins * a.coin_price : null;
+      const sb = b.out_coins != null && b.coin_price != null ? b.out_coins * b.coin_price : null;
+      const av = sa ?? (sortAsc ? Infinity : -Infinity);
+      const bv = sb ?? (sortAsc ? Infinity : -Infinity);
+      return sortAsc ? av - bv : bv - av;
+    }
     const av = a[sortKey] ?? (sortAsc ? Infinity : -Infinity);
     const bv = b[sortKey] ?? (sortAsc ? Infinity : -Infinity);
     return sortAsc ? av - bv : bv - av;
@@ -763,10 +776,10 @@ function SisTab({ adminUser }) {
           <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:4,marginBottom:6}}>
             {[
               {label:"全国アウト",  val: nationalAvgIn != null ? Math.round(nationalAvgIn).toLocaleString() : "—", color:"#444"},
+              {label:"全国出玉率",  val: nationalPayoutRate != null ? nationalPayoutRate.toFixed(1)+"%" : "—", color: nationalPayoutRate != null ? rateColor(nationalPayoutRate) : "#888"},
               {label:"全国売上",    val: nationalSales != null ? (Math.round(nationalSales/1000)/10).toFixed(1)+"万" : "—", color:"#555"},
               {label:"全国粗利",    val: nationalGrossProfit != null ? (nationalGrossProfit<0?"▲":"▼")+(Math.round(Math.abs(nationalGrossProfit)/100)/10).toFixed(1)+"万" : "—", color: nationalGrossProfit != null ? (nationalGrossProfit<0?"#2a9d3f":"#E53935") : "#888"},
               {label:"全国単価",    val: nationalCoinPrice != null ? nationalCoinPrice.toFixed(2)+"円" : "—", color:"#555"},
-              {label:"全国玉粗利",  val: nationalCoinProfit != null ? (nationalCoinProfit<0?"▲":"▼")+Math.abs(nationalCoinProfit).toFixed(2) : "—", color: nationalCoinProfit != null ? (nationalCoinProfit<0?"#2a9d3f":"#E53935") : "#888"},
             ].map(s => (
               <div key={s.label} style={{background:"#fff",borderRadius:8,padding:"3px 3px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
                 <div style={{fontSize:7,color:"#aaa",marginBottom:0}}>{s.label}</div>
@@ -775,10 +788,10 @@ function SisTab({ adminUser }) {
             ))}
           </div>
         )}
-        <div style={{display:"flex",gap:6}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:4}}>
           {SORT_OPTS.map(o => { const on = sortKey === o.k; return (
-            <button key={o.k} onClick={() => handleSort(o.k)} style={{flex:1,padding:"6px 0",border:"none",borderRadius:8,fontSize:12,fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 4px rgba(0,0,0,0.2)":"2px 2px 4px #C5C9D4,-2px -2px 4px #fff"}}>
-              {o.label}{on ? (sortAsc ? " ↑" : " ↓") : ""}
+            <button key={o.k} onClick={() => handleSort(o.k)} style={{padding:"6px 0",border:"none",borderRadius:8,fontSize:11,fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 4px rgba(0,0,0,0.2)":"2px 2px 4px #C5C9D4,-2px -2px 4px #fff",whiteSpace:"nowrap"}}>
+              {o.label}{on ? (sortAsc ? "↑" : "↓") : ""}
             </button>
           );})}
         </div>
@@ -791,8 +804,6 @@ function SisTab({ adminUser }) {
             const profit = r.gross_profit;
             const profitColor = profit == null ? "#888" : profit < 0 ? "#2a9d3f" : "#E53935";
             const sales = r.out_coins != null && r.coin_price != null ? r.out_coins * r.coin_price : null;
-            const coinProfit = r.out_coins != null && r.out_coins > 0 && r.gross_profit != null ? r.gross_profit / r.out_coins : null;
-            const coinProfitColor = coinProfit == null ? "#888" : coinProfit < 0 ? "#2a9d3f" : "#E53935";
             return (
               <div key={r.machine} style={{background:"#fff",borderRadius:12,padding:"10px 12px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff",display:"flex",alignItems:"flex-start",gap:10}}>
                 <div style={{minWidth:24,fontWeight:700,fontSize:14,color:idx<3?"#D85A30":"#bbb",paddingTop:2}}>{idx+1}</div>
@@ -803,10 +814,10 @@ function SisTab({ adminUser }) {
                   </div>
                   <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:"2px 4px"}}>
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>IN</div><div style={{fontWeight:600,color:"#444",fontSize:11}}>{fmtNum(r.out_coins)}</div></div>
+                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>出玉率</div><div style={{fontWeight:600,color:r.payout_rate!=null?rateColor(r.payout_rate):"#888",fontSize:11}}>{r.payout_rate != null ? r.payout_rate.toFixed(1)+"%" : "—"}</div></div>
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>売上</div><div style={{fontWeight:600,color:"#555",fontSize:11}}>{sales != null ? (Math.round(sales/1000)/10).toFixed(1)+"万" : "—"}</div></div>
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>粗利</div><div style={{fontWeight:600,color:profitColor,fontSize:11}}>{fmtProfitShort(r.gross_profit)}</div></div>
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>単価</div><div style={{fontWeight:600,color:"#555",fontSize:11}}>{r.coin_price != null ? r.coin_price.toFixed(2)+"円" : "—"}</div></div>
-                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>玉粗利</div><div style={{fontWeight:600,color:coinProfitColor,fontSize:11}}>{coinProfit != null ? (coinProfit<0?"▲":"▼")+Math.abs(coinProfit).toFixed(2) : "—"}</div></div>
                   </div>
                 </div>
               </div>
@@ -844,10 +855,10 @@ function SisTab({ adminUser }) {
               ))}
             </div>
           )}
-          <div style={{display:"flex",gap:6}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:4}}>
             {SORT_OPTS.map(o => { const on = sortKey === o.k; return (
-              <button key={o.k} onClick={() => handleSort(o.k)} style={{flex:1,padding:"6px 0",border:"none",borderRadius:8,fontSize:12,fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 4px rgba(0,0,0,0.2)":"2px 2px 4px #C5C9D4,-2px -2px 4px #fff"}}>
-                {o.label}{on ? (sortAsc ? " ↑" : " ↓") : ""}
+              <button key={o.k} onClick={() => handleSort(o.k)} style={{padding:"6px 0",border:"none",borderRadius:8,fontSize:11,fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 4px rgba(0,0,0,0.2)":"2px 2px 4px #C5C9D4,-2px -2px 4px #fff",whiteSpace:"nowrap"}}>
+                {o.label}{on ? (sortAsc ? "↑" : "↓") : ""}
               </button>
             );})}
           </div>
