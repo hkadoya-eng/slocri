@@ -346,6 +346,28 @@ export default function ProposeTab() {
     load();
   }
 
+  // owner_id が NULL の(古い)提案を自分のものとして登録する
+  async function claimProposal(req) {
+    if (req.owner_id) return;
+    await supabase.from("proposal_requests").update({ owner_id: ownerId }).eq("id", req.id);
+    showToast("🆔 自分の提案として登録しました");
+    load();
+  }
+
+  // ID貼り替え用
+  const [idInput, setIdInput] = useState("");
+  function applyNewOwnerId() {
+    const v = (idInput || "").trim();
+    if (!v) return;
+    if (!confirm(`現在のID(${ownerId.slice(0,8)}...) を\n${v.slice(0,8)}... に切り替えます。\nこの端末は別人として認識されます。よろしいですか？`)) return;
+    localStorage.setItem("slocri_owner_id", v);
+    location.reload();
+  }
+  function copyOwnerId() {
+    navigator.clipboard.writeText(ownerId);
+    showToast("📋 IDをコピーしました");
+  }
+
   function safeFileName(s) {
     return String(s || "proposal").replace(/[\\/:*?"<>|]/g, "_").slice(0, 60);
   }
@@ -715,6 +737,17 @@ export default function ProposeTab() {
                       {req.visibility === "public" ? "🔒 非公開に戻す" : "🌍 公開する"}
                     </button>
                   )}
+                  {!req.owner_id && (
+                    <button
+                      onClick={e => { e.stopPropagation(); claimProposal(req); }}
+                      style={{ padding: "7px 14px", borderRadius: 8, border: "none",
+                        background: "#EFF6FF", color: "#2563EB",
+                        fontSize: 13, fontWeight: 600, cursor: "pointer",
+                        boxShadow: "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF" }}
+                    >
+                      🆔 自分のものにする
+                    </button>
+                  )}
                 </div>
                 {isMobile && (
                   <div style={{ fontSize: 11, color: "#aaa", marginTop: 6, paddingLeft: 4 }}>
@@ -792,6 +825,54 @@ export default function ProposeTab() {
           </div>
         );
       })}
+
+      {/* 端末ID パネル: 端末間でIDを共有して同じ人として扱うため */}
+      <div style={{ ...S.card, marginTop: 24, background: "#F8F9FA", borderRadius: 12 }}>
+        <div style={{ fontWeight: 700, fontSize: 14, color: "#444", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+          🆔 あなたの端末ID
+        </div>
+        <div style={{ fontSize: 11, color: "#888", marginBottom: 10, lineHeight: 1.6 }}>
+          この端末を識別するIDです。PCとスマホで同じIDにすると、両方の端末で「自分の提案」として管理できます。
+        </div>
+        <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+          <input
+            readOnly
+            value={ownerId}
+            style={{ ...S.input, fontSize: 11, fontFamily: "monospace", color: "#666" }}
+          />
+          <button
+            onClick={copyOwnerId}
+            style={{ padding: "0 14px", borderRadius: 10, border: "none", background: "#E8ECF0", color: "#555", fontSize: 12, cursor: "pointer", whiteSpace: "nowrap", boxShadow: "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF" }}
+          >
+            📋
+          </button>
+        </div>
+        <div style={{ fontSize: 11, color: "#888", marginBottom: 6 }}>
+          別端末のIDに切り替える:
+        </div>
+        <div style={{ display: "flex", gap: 6 }}>
+          <input
+            value={idInput}
+            onChange={e => setIdInput(e.target.value)}
+            placeholder="他端末のIDを貼り付け"
+            style={{ ...S.input, fontSize: 11, fontFamily: "monospace" }}
+          />
+          <button
+            onClick={applyNewOwnerId}
+            disabled={!idInput.trim()}
+            style={{ padding: "0 14px", borderRadius: 10, border: "none",
+              background: idInput.trim() ? "#7C3AED" : "#C5C9D4",
+              color: "#fff", fontSize: 12, fontWeight: 600,
+              cursor: idInput.trim() ? "pointer" : "not-allowed", whiteSpace: "nowrap",
+              boxShadow: idInput.trim() ? "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF" : "none" }}
+          >
+            反映
+          </button>
+        </div>
+        <div style={{ fontSize: 10, color: "#aaa", marginTop: 8, lineHeight: 1.5 }}>
+          ※ 反映すると画面が再読み込みされます。今のIDで作った自分の提案は、IDを保存しておかないとアクセスできなくなります。
+        </div>
+      </div>
     </div>
   );
 }
