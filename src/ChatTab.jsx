@@ -63,6 +63,8 @@ export default function ChatTab() {
   const [ratingToast, setRatingToast] = useState("");
   const sessionId = useRef(getOrCreateSession());
   const bottomRef = useRef(null);
+  const scrollRef = useRef(null);
+  const stickToBottomRef = useRef(true);
 
   useEffect(() => {
     load();
@@ -73,9 +75,21 @@ export default function ChatTab() {
     return () => supabase.removeChannel(ch);
   }, []);
 
+  // ユーザーが一番下付近にいる時だけ自動スクロール。上を読んでる時は触らない
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = scrollRef.current;
+    if (!el) return;
+    if (stickToBottomRef.current) {
+      el.scrollTop = el.scrollHeight;
+    }
   }, [messages]);
+
+  function handleScroll() {
+    const el = scrollRef.current;
+    if (!el) return;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    stickToBottomRef.current = nearBottom;
+  }
 
   async function load() {
     const { data } = await supabase
@@ -147,7 +161,7 @@ export default function ChatTab() {
       </div>
 
       {/* メッセージ一覧 */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "16px 12px", display: "flex", flexDirection: "column", gap: 12 }}>
+      <div ref={scrollRef} onScroll={handleScroll} style={{ flex: 1, overflowY: "auto", overscrollBehavior: "contain", WebkitOverflowScrolling: "touch", padding: "16px 12px", display: "flex", flexDirection: "column", gap: 12 }}>
         {messages.length === 0 && (
           <div style={{ padding: "32px 4px 8px" }}>
             <div style={{ textAlign: "center", color: "#bbb", marginBottom: 20, fontSize: 14 }}>
