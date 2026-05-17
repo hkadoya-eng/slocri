@@ -20,6 +20,33 @@ sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="repla
 WEEKLY_PATH = "Z:/01_SISデータ/PS/週毎SISデータ一覧_2026.xlsm"
 SUPABASE_URL = "https://vpzbtuucopucablwyqeq.supabase.co"
 
+# ファイル名末尾から年を抽出 (例: 週毎SISデータ一覧_2026.xlsm → 2026)
+_year_match = re.search(r"_(\d{4})\.xlsm", WEEKLY_PATH)
+FILE_YEAR = int(_year_match.group(1)) if _year_match else 2026
+
+
+def parse_week_range(s):
+    """'4.27~5.3' → '2026-04-27' / '12.26~1.1' → '2025-12-26' (年跨ぎ補正あり)"""
+    if not isinstance(s, str) or "~" not in s:
+        return None
+    start_part, end_part = s.split("~", 1)
+    start_part = start_part.strip().lstrip(".")
+    end_part = end_part.strip().lstrip(".")
+    s_parts = start_part.split(".")
+    e_parts = end_part.split(".")
+    if len(s_parts) != 2 or len(e_parts) != 2:
+        return None
+    try:
+        sm, sd = int(s_parts[0]), int(s_parts[1])
+        em = int(e_parts[0])
+    except ValueError:
+        return None
+    if not (1 <= sm <= 12 and 1 <= sd <= 31 and 1 <= em <= 12):
+        return None
+    # 年跨ぎ判定: 開始月 > 終了月 (例: 12→1) なら開始は前年扱い
+    year = FILE_YEAR - 1 if sm > em else FILE_YEAR
+    return f"{year:04d}-{sm:02d}-{sd:02d}"
+
 
 def load_env_local():
     env_path = os.path.join(ROOT_DIR, ".env.local")
@@ -47,18 +74,9 @@ def extract_records(path):
     rows = list(ws.iter_rows(values_only=True))
 
     # ヘッダー行1のcol3が最新確定週（例: "4.27~5.3"）
-    last_week_start = None
     header = rows[1]
     week_str = header[3] if len(header) > 3 else None
-    if week_str and isinstance(week_str, str) and "~" in week_str:
-        start = week_str.split("~")[0].strip()
-        parts = start.split(".")
-        if len(parts) == 2:
-            try:
-                month, day = int(parts[0]), int(parts[1])
-                last_week_start = f"2026-{month:02d}-{day:02d}"
-            except ValueError:
-                pass
+    last_week_start = parse_week_range(week_str)
 
     records = []
     for row in rows[2:]:  # row 0〜1はヘッダー
@@ -105,20 +123,46 @@ def upsert_records(records, api_key):
 
 
 def parse_week_start(sheet_name):
-    """シート名から週開始日(月曜)を返す。例: '4.27~5.3' → '2026-04-27'"""
-    if "~" not in sheet_name:
-        return None
-    start = sheet_name.split("~")[0].strip().lstrip(".")
-    parts = start.split(".")
-    if len(parts) != 2:
-        return None
-    try:
-        month, day = int(parts[0]), int(parts[1])
-        if not (1 <= month <= 12 and 1 <= day <= 31):
-            return None
-        return f"2026-{month:02d}-{day:02d}"
-    except ValueError:
-        return None
+    """シート名から週開始日(月曜)を返す。年跨ぎは前年扱い。例: '4.27~5.3' → '2026-04-27' / '12.26~1.1' → '2025-12-26'"""
+    return parse_week_range(sheet_name)
+
+
+def build_sheet_year_map(sheet_names):
+    """シート順に年境界(月の減少)を数え、各シート名→正しいyyyy-mm-dd を返す。
+       最後の週シートが FILE_YEAR。"""
+    parsed = []
+    for s in sheet_names:
+        if "~" not in s:
+            continue
+        sp, ep = s.split("~", 1)
+        sp = sp.strip().lstrip(".")
+        ep = ep.strip().lstrip(".")
+        try:
+            sm = int(sp.split(".")[0])
+            sd = int(sp.split(".")[1])
+            em = int(ep.split(".")[0])
+        except (ValueError, IndexError):
+            continue
+        if not (1 <= sm <= 12 and 1 <= sd <= 31 and 1 <= em <= 12):
+            continue
+        parsed.append({"sheet": s, "sm": sm, "sd": sd, "em": em})
+    if not parsed:
+        return {}
+    # Forward sweep: 開始月が前のシートより小さくなったら年が変わった
+    rel = 0
+    prev_sm = parsed[0]["sm"]
+    for p in parsed:
+        if p["sm"] < prev_sm:
+            rel += 1
+        p["rel"] = rel
+        prev_sm = p["sm"]
+    max_rel = max(p["rel"] for p in parsed)
+    base_year = FILE_YEAR - max_rel
+    mapping = {}
+    for p in parsed:
+        year = base_year + p["rel"]
+        mapping[p["sheet"]] = f"{year:04d}-{p['sm']:02d}-{p['sd']:02d}"
+    return mapping
 
 
 def extract_weekly_records(path):
@@ -129,9 +173,10 @@ def extract_weekly_records(path):
         sys.exit(1)
 
     wb = openpyxl.load_workbook(path, read_only=True, data_only=True, keep_vba=True)
+    sheet_year_map = build_sheet_year_map(wb.sheetnames)
     all_records = []
     for sheet_name in wb.sheetnames:
-        week_start = parse_week_start(sheet_name)
+        week_start = sheet_year_map.get(sheet_name)
         if not week_start:
             continue
         ws = wb[sheet_name]
