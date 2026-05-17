@@ -619,32 +619,34 @@ export default function ProposeTab({ user }) {
               </div>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
                 <span style={{ fontSize: 12, padding: "4px 10px", borderRadius: 20, background: st.bg, color: st.color, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0 }}>{st.label}</span>
-                {req.owner_id === ownerId && isLoggedIn && (
-                  <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 12, background: "#DBEAFE", color: "#1E40AF", fontWeight: 600, whiteSpace: "nowrap" }}>
-                    👤 自分の提案
-                  </span>
-                )}
-                {(req.visibility === "public" || req.owner_id === ownerId) && (
-                  req.owner_id === ownerId && isLoggedIn ? (
-                    <button
-                      onClick={e => { e.stopPropagation(); toggleVisibility(req); }}
-                      title={req.visibility === "public" ? "タップで非公開に戻す" : "タップで公開する"}
-                      style={{
-                        fontSize: 11, padding: "3px 10px", borderRadius: 12, border: "none",
-                        background: req.visibility === "public" ? "#D1FAE5" : "#FEF3C7",
-                        color: req.visibility === "public" ? "#047857" : "#92400E",
-                        fontWeight: 600, whiteSpace: "nowrap", cursor: "pointer",
-                        boxShadow: "1px 1px 3px #C5C9D4",
-                      }}
-                    >
-                      {req.visibility === "public" ? "🌍 公開中" : "🔒 プライベート"}
-                    </button>
-                  ) : (
-                    <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 12, background: req.visibility === "public" ? "#D1FAE5" : "#FEF3C7", color: req.visibility === "public" ? "#047857" : "#92400E", whiteSpace: "nowrap" }}>
-                      {req.visibility === "public" ? "🌍 公開中" : "🔒 プライベート"}
+                <div style={{ display: "flex", flexDirection: "row", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                  {req.owner_id === ownerId && isLoggedIn && (
+                    <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 12, background: "#DBEAFE", color: "#1E40AF", fontWeight: 600, whiteSpace: "nowrap" }}>
+                      👤 自分の提案
                     </span>
-                  )
-                )}
+                  )}
+                  {(req.visibility === "public" || req.owner_id === ownerId) && (
+                    req.owner_id === ownerId && isLoggedIn ? (
+                      <button
+                        onClick={e => { e.stopPropagation(); toggleVisibility(req); }}
+                        title={req.visibility === "public" ? "タップで非公開に戻す" : "タップで公開する"}
+                        style={{
+                          fontSize: 11, padding: "3px 10px", borderRadius: 12, border: "none",
+                          background: req.visibility === "public" ? "#D1FAE5" : "#FEF3C7",
+                          color: req.visibility === "public" ? "#047857" : "#92400E",
+                          fontWeight: 600, whiteSpace: "nowrap", cursor: "pointer",
+                          boxShadow: "1px 1px 3px #C5C9D4",
+                        }}
+                      >
+                        {req.visibility === "public" ? "🌍 公開中" : "🔒 プライベート"}
+                      </button>
+                    ) : (
+                      <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 12, background: req.visibility === "public" ? "#D1FAE5" : "#FEF3C7", color: req.visibility === "public" ? "#047857" : "#92400E", whiteSpace: "nowrap" }}>
+                        {req.visibility === "public" ? "🌍 公開中" : "🔒 プライベート"}
+                      </span>
+                    )
+                  )}
+                </div>
                 {revisionHistory.length > 0 && (
                   <span style={{ fontSize: 11, color: "#888" }}>第{revisionHistory.length + 1}稿</span>
                 )}
