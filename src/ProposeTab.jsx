@@ -1,17 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { supabase } from "./supabase";
 
-// 投稿者識別: 端末ローカルに発行されるUUIDをlocalStorageで持つ
-function getOrCreateOwnerId() {
-  let id = localStorage.getItem("slocri_owner_id");
-  if (!id) {
-    id = (crypto.randomUUID && crypto.randomUUID()) ||
-      "ow-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
-    localStorage.setItem("slocri_owner_id", id);
-  }
-  return id;
-}
-
 // スマホ判定: UA + 画面幅。情報漏洩防止のためダウンロードを無効化する条件
 function detectMobile() {
   if (typeof navigator === "undefined") return false;
@@ -194,8 +183,10 @@ const S = {
   input: { width: "100%", padding: "10px 12px", borderRadius: 10, border: "none", background: "#E8ECF0", boxShadow: "inset 3px 3px 6px #C5C9D4, inset -2px -2px 5px #FFFFFF", fontSize: 15, outline: "none", boxSizing: "border-box", color: "#333", fontFamily: "inherit" },
 };
 
-export default function ProposeTab() {
-  const ownerId = useMemo(getOrCreateOwnerId, []);
+export default function ProposeTab({ adminUser }) {
+  // 投稿者識別: Googleログインメールを使う。未ログインは null = 匿名扱い
+  const ownerId = adminUser?.email || null;
+  const isLoggedIn = !!ownerId;
   const isMobile = useMemo(detectMobile, []);
 
   const [proposeMode, setProposeMode] = useState("full");
@@ -224,11 +215,14 @@ export default function ProposeTab() {
   }, []);
 
   async function load() {
-    // 公開済み or 自分が投稿したもの のみ取得
+    // 公開済み or 自分のメール所有のもの のみ取得
+    const filter = isLoggedIn
+      ? `visibility.eq.public,owner_id.eq.${ownerId}`
+      : `visibility.eq.public`;
     const { data } = await supabase
       .from("proposal_requests")
       .select("*")
-      .or(`visibility.eq.public,owner_id.eq.${ownerId}`)
+      .or(filter)
       .order("created_at", { ascending: false })
       .limit(30);
     if (data) {
@@ -252,8 +246,8 @@ export default function ProposeTab() {
       target: target.trim(),
       concept_memo: memo.trim(),
       status: "pending",
-      owner_id: ownerId,
-      visibility: "private",
+      owner_id: ownerId,  // 未ログインなら null（匿名提出）
+      visibility: isLoggedIn ? "private" : "public",
     });
     if (!error) {
       setIpName(""); setTarget(""); setMemo("");
@@ -272,8 +266,8 @@ export default function ProposeTab() {
       target: "機能単体",
       concept_memo: featureText.trim(),
       status: "pending",
-      owner_id: ownerId,
-      visibility: "private",
+      owner_id: ownerId,  // 未ログインなら null（匿名提出）
+      visibility: isLoggedIn ? "private" : "public",
     });
     if (!error) {
       setFeatureText("");
@@ -339,6 +333,10 @@ export default function ProposeTab() {
   }
 
   async function toggleVisibility(req) {
+    if (!isLoggedIn) {
+      showToast("Googleログインが必要です");
+      return;
+    }
     if (req.owner_id !== ownerId) return;
     const next = req.visibility === "public" ? "private" : "public";
     await supabase.from("proposal_requests").update({ visibility: next }).eq("id", req.id);
@@ -346,26 +344,23 @@ export default function ProposeTab() {
     load();
   }
 
-  // owner_id が NULL の(古い)提案を自分の管理対象として登録する
+  // owner_id が NULL の(古い)提案を自分のメールに紐づける
   async function claimProposal(req) {
+    if (!isLoggedIn) {
+      showToast("Googleログインが必要です");
+      return;
+    }
     if (req.owner_id) return;
     await supabase.from("proposal_requests").update({ owner_id: ownerId }).eq("id", req.id);
     showToast("🆔 マイ提案に登録しました");
     load();
   }
 
-  // ID貼り替え用
-  const [idInput, setIdInput] = useState("");
-  function applyNewOwnerId() {
-    const v = (idInput || "").trim();
-    if (!v) return;
-    if (!confirm(`現在のID(${ownerId.slice(0,8)}...) を\n${v.slice(0,8)}... に切り替えます。\nこの端末は別人として認識されます。よろしいですか？`)) return;
-    localStorage.setItem("slocri_owner_id", v);
-    location.reload();
-  }
-  function copyOwnerId() {
-    navigator.clipboard.writeText(ownerId);
-    showToast("📋 IDをコピーしました");
+  async function handleGoogleLogin() {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin },
+    });
   }
 
   function safeFileName(s) {
@@ -581,10 +576,24 @@ export default function ProposeTab() {
       </div>
 
       {/* 公開/非公開の説明バナー */}
-      <div style={{ background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 10, padding: "10px 14px", marginBottom: 12, fontSize: 12, lineHeight: 1.7, color: "#1E40AF" }}>
-        💡 <strong>「🆔 マイ提案に登録」</strong>を押すと、その提案の<strong>🌍 公開 ⇔ 🔒 非公開</strong>を切り替えできるようになります。<br />
-        🔒 非公開にすると自分しか見えなくなり、🌍 公開にすると他の人にも表示されます。
-      </div>
+      {isLoggedIn ? (
+        <div style={{ background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 10, padding: "10px 14px", marginBottom: 12, fontSize: 12, lineHeight: 1.7, color: "#1E40AF" }}>
+          💡 <strong>{adminUser.email}</strong> でログイン中。自分の提案は<strong>🌍 公開 ⇔ 🔒 非公開</strong>を切り替えできます。<br />
+          🔒 非公開にすると自分しか見えなくなり、🌍 公開にすると他の人にも表示されます。
+        </div>
+      ) : (
+        <div style={{ background: "#FEF3C7", border: "1px solid #FCD34D", borderRadius: 10, padding: "12px 14px", marginBottom: 12, fontSize: 12, lineHeight: 1.7, color: "#78350F", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ flex: 1, minWidth: 200 }}>
+            🔒 <strong>Googleログイン</strong>すると、自分の提案を<strong>公開/プライベートで管理</strong>できます。<br />
+            <span style={{ fontSize: 11, color: "#92400E" }}>※ @key-cre.co.jp アカウント限定</span>
+          </div>
+          <button onClick={handleGoogleLogin}
+            style={{ padding: "8px 16px", background: "#fff", color: "#333", border: "1.5px solid #ddd", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
+            <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            ログイン
+          </button>
+        </div>
+      )}
 
       {displayedRequests.length === 0 && (
         <div style={{ textAlign: "center", color: "#bbb", padding: "40px 0", fontSize: 14 }}>まだ依頼がありません</div>
@@ -833,53 +842,6 @@ export default function ProposeTab() {
         );
       })}
 
-      {/* 端末ID パネル: 端末間でIDを共有して同じ人として扱うため */}
-      <div style={{ ...S.card, marginTop: 24, background: "#F8F9FA", borderRadius: 12 }}>
-        <div style={{ fontWeight: 700, fontSize: 14, color: "#444", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
-          🆔 あなたの端末ID
-        </div>
-        <div style={{ fontSize: 11, color: "#888", marginBottom: 10, lineHeight: 1.6 }}>
-          この端末を識別するIDです。PCとスマホで同じIDにすると、両方の端末で「自分の提案」として管理できます。
-        </div>
-        <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
-          <input
-            readOnly
-            value={ownerId}
-            style={{ ...S.input, fontSize: 11, fontFamily: "monospace", color: "#666" }}
-          />
-          <button
-            onClick={copyOwnerId}
-            style={{ padding: "0 14px", borderRadius: 10, border: "none", background: "#E8ECF0", color: "#555", fontSize: 12, cursor: "pointer", whiteSpace: "nowrap", boxShadow: "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF" }}
-          >
-            📋
-          </button>
-        </div>
-        <div style={{ fontSize: 11, color: "#888", marginBottom: 6 }}>
-          別端末のIDに切り替える:
-        </div>
-        <div style={{ display: "flex", gap: 6 }}>
-          <input
-            value={idInput}
-            onChange={e => setIdInput(e.target.value)}
-            placeholder="他端末のIDを貼り付け"
-            style={{ ...S.input, fontSize: 11, fontFamily: "monospace" }}
-          />
-          <button
-            onClick={applyNewOwnerId}
-            disabled={!idInput.trim()}
-            style={{ padding: "0 14px", borderRadius: 10, border: "none",
-              background: idInput.trim() ? "#7C3AED" : "#C5C9D4",
-              color: "#fff", fontSize: 12, fontWeight: 600,
-              cursor: idInput.trim() ? "pointer" : "not-allowed", whiteSpace: "nowrap",
-              boxShadow: idInput.trim() ? "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF" : "none" }}
-          >
-            反映
-          </button>
-        </div>
-        <div style={{ fontSize: 10, color: "#aaa", marginTop: 8, lineHeight: 1.5 }}>
-          ※ 反映すると画面が再読み込みされます。今のIDで作った自分の提案は、IDを保存しておかないとアクセスできなくなります。
-        </div>
-      </div>
     </div>
   );
 }

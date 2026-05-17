@@ -3130,7 +3130,7 @@ ${policyText}
       )}
 
       {mode==="ai_chat" && <ChatTab />}
-      {mode==="ai_propose" && <ProposeTab />}
+      {mode==="ai_propose" && <ProposeTab adminUser={adminUser} />}
       {mode==="gamedesign" && <GameDesignTab />}
     </div>
   );
