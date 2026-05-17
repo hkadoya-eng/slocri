@@ -625,6 +625,19 @@ export default function ProposeTab({ user }) {
                       👤 自分の提案
                     </span>
                   )}
+                  {!req.owner_id && isLoggedIn && (
+                    <button
+                      onClick={e => { e.stopPropagation(); claimProposal(req); }}
+                      title="タップで自分の提案として登録"
+                      style={{
+                        fontSize: 11, padding: "3px 10px", borderRadius: 12, border: "none",
+                        background: "#EFF6FF", color: "#2563EB", fontWeight: 600,
+                        whiteSpace: "nowrap", cursor: "pointer", boxShadow: "1px 1px 3px #C5C9D4",
+                      }}
+                    >
+                      🆔 マイ提案に登録
+                    </button>
+                  )}
                   {(req.visibility === "public" || req.owner_id === ownerId) && (
                     req.owner_id === ownerId && isLoggedIn ? (
                       <button
