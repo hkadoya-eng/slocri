@@ -1245,7 +1245,7 @@ export default function App() {
       {!loading && tab === "collect"  && <CollectTab  posts={normalPosts} showToast={showToast} onCatClick={goToFeedWithFilter} loadPosts={loadPosts} />}
       {!loading && tab === "overview" && <OverviewTab posts={normalPosts} updatePost={updatePost} />}
       {!loading && tab === "research" && (adminUser ? (
-        <ResearchTab posts={normalPosts} aiEnabled={aiEnabled} updatePost={updatePost} />
+        <ResearchTab posts={normalPosts} aiEnabled={aiEnabled} updatePost={updatePost} adminUser={adminUser} />
       ) : (
         <AdminLoginForm title="分析タブ" desc="管理者ログインが必要です" />
       ))}
@@ -2613,7 +2613,7 @@ function OverviewTab({ posts, updatePost }) {
   );
 }
 
-function ResearchTab({ posts, aiEnabled, updatePost }) {
+function ResearchTab({ posts, aiEnabled, updatePost, adminUser }) {
   const [mode, _setMode] = useState(() => sessionStorage.getItem("slokey_researchMode") || "column");
   const setMode = (m) => { sessionStorage.setItem("slokey_researchMode", m); _setMode(m); };
   const [messages, setMessages] = useState([]);
@@ -3130,7 +3130,7 @@ ${policyText}
       )}
 
       {mode==="ai_chat" && <ChatTab />}
-      {mode==="ai_propose" && <ProposeTab adminUser={adminUser} />}
+      {mode==="ai_propose" && <ProposeTab user={adminUser} />}
       {mode==="gamedesign" && <GameDesignTab />}
     </div>
   );

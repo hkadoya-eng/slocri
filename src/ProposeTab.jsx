@@ -183,9 +183,9 @@ const S = {
   input: { width: "100%", padding: "10px 12px", borderRadius: 10, border: "none", background: "#E8ECF0", boxShadow: "inset 3px 3px 6px #C5C9D4, inset -2px -2px 5px #FFFFFF", fontSize: 15, outline: "none", boxSizing: "border-box", color: "#333", fontFamily: "inherit" },
 };
 
-export default function ProposeTab({ adminUser }) {
+export default function ProposeTab({ user }) {
   // 投稿者識別: Googleログインメールを使う。未ログインは null = 匿名扱い
-  const ownerId = adminUser?.email || null;
+  const ownerId = user?.email || null;
   const isLoggedIn = !!ownerId;
   const isMobile = useMemo(detectMobile, []);
 
@@ -578,7 +578,7 @@ export default function ProposeTab({ adminUser }) {
       {/* 公開/非公開の説明バナー */}
       {isLoggedIn ? (
         <div style={{ background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 10, padding: "10px 14px", marginBottom: 12, fontSize: 12, lineHeight: 1.7, color: "#1E40AF" }}>
-          💡 <strong>{adminUser.email}</strong> でログイン中。自分の提案は<strong>🌍 公開 ⇔ 🔒 非公開</strong>を切り替えできます。<br />
+          💡 <strong>{user.email}</strong> でログイン中。自分の提案は<strong>🌍 公開 ⇔ 🔒 非公開</strong>を切り替えできます。<br />
           🔒 非公開にすると自分しか見えなくなり、🌍 公開にすると他の人にも表示されます。
         </div>
       ) : (
