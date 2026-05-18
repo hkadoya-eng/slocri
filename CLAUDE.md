@@ -5,10 +5,9 @@
 このCLAUDE.mdを読み込んだ**最初のユーザーメッセージ受信時**、ユーザーへの応答より先に必ず：
 
 1. `CronList` を実行して現在のcron状態を確認
-2. 以下の8本が登録されていなければ即 `CronCreate` で全部登録（後述の各タスクの仕様通り）
-   - ネタ収集 9:00 (`0 9 * * *`)
+2. 以下の7本が登録されていなければ即 `CronCreate` で全部登録（後述の各タスクの仕様通り）
+   - ネタ収集 9:00 (`0 9 * * *`)・**機種分析更新も連動して走る**(末尾に組み込み済み)
    - ネタ収集 13:30 (`30 13 * * *`)
-   - 機種分析更新 (`0 4 */2 * *`)
    - チャット返答 10分 (`*/10 * * * *` / one-shot自己再登録)
    - 管理者チャット 10分 (`*/10 * * * *` / one-shot自己再登録)
    - 企画・ゲーム性提案処理 10分 (`*/10 * * * *` / one-shot自己再登録)
@@ -65,46 +64,18 @@ author候補: 編集部AI, スロ好き編集マン, スロキー編集部, パ�
 
 ---
 
-### ② 機種分析更新（2日に1回 4:00 UTC）
+### ② 機種分析更新（ネタ収集9:00cron連動・別cron不要）
 
-```
-cron: "0 4 */2 * *"
-durable: true
-recurring: true
-```
+**2026-05-18 変更**: 旧来の独立cron(`0 4 */2 * *` 2日に1回) は揮発リスクが高かったため廃止。代わりに **ネタ収集9:00cronの末尾(手順9)** に組み込み、ネタ収集が走った日は必ず機種分析も走るように連動化した([[memory/feedback_machine_analysis_inline]] 参照)。
 
-**prompt:**
-【自動機種分析更新タスク／2日に1回実行】
-作業ディレクトリ: C:\Users\h.kadoya\Desktop\slocri
+連動化の理由:
+- ネタ収集cronはセッションが立ち上がっていれば毎日9:00に必ず走る
+- 機種分析だけ別cronだと「2日に1回13:00 JST」が PCオフ/VS Codeオフを跨ぐと揮発する事故が頻発(2026-05-13→5/18で5日空き)
+- ネタ収集と連動させればpostsが追加された直後に分析も最新化され、データ一貫性も向上
 
-ユーザーに確認せず全ステップを最後まで自律実行してください。
-外部APIは呼び出さず、クロード自身が分析を生成してください（追加費用ゼロ）。
+ネタ収集9:00cronのプロンプト内、手順9 が機種分析処理に該当(投稿数3件以上かつ未登録or postCount+3以上増加した機種を対象に summary/highlight/pros/cons/postCount/updatedAt を生成→ src/machineAnalysis.json 更新→ git push)。
 
-1. Supabaseから全投稿を取得:
-   curl -s "https://vpzbtuucopucablwyqeq.supabase.co/rest/v1/posts?select=machine,cat,title,body&cat=neq.fun&machine=neq.&limit=2000" -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwemJ0dXVjb3B1Y2FibHd5cWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjk2MzEsImV4cCI6MjA5MTIwNTYzMX0.qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA"
-
-2. src/machineAnalysis.json を読む
-
-3. 投稿を機種ごとにグループ化（「全般」含む機種名は除外）
-
-4. 以下の条件を満たす機種を対象に分析を実施:
-   - 投稿数が3件以上
-   - かつ（machineAnalysis.jsonに未登録 OR 前回postCountから3件以上増加）
-
-5. 対象機種ごとに、投稿内容（title/body）を読んでクロード自身が以下を生成:
-   - summary: 20文字以内の一言まとめ（機種の核心を端的に）
-   - highlight: 100〜200文字。打感・演出・爆発力・天井設計などを打ち手視点で具体的に記述
-   - pros: 良い点を2〜6件（各80〜150文字、具体的数値・演出名・ユーザーの声を含める）
-   - cons: 気になる点を2〜4件（同上）
-   - postCount: 今回の投稿件数
-   - updatedAt: 今日の日付（YYYY-MM-DD形式）
-   ※ releaseDate / spec / scores / scoreReason / aliases は既存値をそのまま保持
-
-6. src/machineAnalysis.json を更新して保存（Edit/Writeツールで直接書き込む）
-
-7. git add src/machineAnalysis.json → git commit → git push
-
-8. CronCreate で次回機種分析を再登録（cron:"0 4 */2 * *"、durable:true、recurring:true）
+外部APIは呼び出さず、クロード自身が分析を生成する(追加費用ゼロ)。
 
 ---
 
