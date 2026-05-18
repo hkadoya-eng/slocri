@@ -639,6 +639,13 @@ function SisTab({ adminUser }) {
     const a = Math.abs(n);
     return s + Math.round(a);
   }
+  // 4桁以下（<10000）は万表記をやめて生の整数（カンマ区切り）で表示
+  function fmtYenSmart(n) {
+    if (n == null) return "—";
+    const a = Math.abs(n);
+    if (a < 10000) return Math.round(a).toLocaleString();
+    return (a / 10000).toFixed(1) + "万";
+  }
   function rateColor(n) {
     if (n == null) return "#888";
     if (n >= 110) return "#2a9d3f";
@@ -797,8 +804,8 @@ function SisTab({ adminUser }) {
             {[
               {label:"全国アウト",  val: nationalAvgIn != null ? Math.round(nationalAvgIn).toLocaleString() : "—", color:"#444"},
               {label:"全国出玉率",  val: nationalPayoutRate != null ? nationalPayoutRate.toFixed(1)+"%" : "—", color: nationalPayoutRate != null ? rateColor(nationalPayoutRate) : "#888"},
-              {label:"全国売上",    val: nationalSales != null ? (Math.round(nationalSales/1000)/10).toFixed(1)+"万" : "—", color:"#555"},
-              {label:"全国粗利",    val: nationalGrossProfit != null ? (nationalGrossProfit<0?"▲":"▼")+(Math.abs(nationalGrossProfit)/10000).toFixed(1)+"万" : "—", color: nationalGrossProfit != null ? (nationalGrossProfit<0?"#2a9d3f":"#E53935") : "#888"},
+              {label:"全国売上",    val: fmtYenSmart(nationalSales), color:"#555"},
+              {label:"全国粗利",    val: nationalGrossProfit != null ? (nationalGrossProfit<0?"▲":"▼")+fmtYenSmart(nationalGrossProfit) : "—", color: nationalGrossProfit != null ? (nationalGrossProfit<0?"#2a9d3f":"#E53935") : "#888"},
               {label:"全国単価",    val: nationalCoinPrice != null ? nationalCoinPrice.toFixed(2)+"円" : "—", color:"#555"},
             ].map(s => (
               <div key={s.label} style={{background:"#fff",borderRadius:8,padding:"3px 3px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
@@ -835,7 +842,7 @@ function SisTab({ adminUser }) {
                   <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:"2px 4px"}}>
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>IN</div><div style={{fontWeight:600,color:"#444",fontSize:11}}>{fmtNum(r.out_coins)}</div></div>
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>出玉率</div><div style={{fontWeight:600,color:r.payout_rate!=null?rateColor(r.payout_rate):"#888",fontSize:11}}>{r.payout_rate != null ? r.payout_rate.toFixed(1)+"%" : "—"}</div></div>
-                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>売上</div><div style={{fontWeight:600,color:"#555",fontSize:11}}>{sales != null ? (Math.round(sales/1000)/10).toFixed(1)+"万" : "—"}</div></div>
+                    <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>売上</div><div style={{fontWeight:600,color:"#555",fontSize:11}}>{fmtYenSmart(sales)}</div></div>
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>粗利</div><div style={{fontWeight:600,color:profitColor,fontSize:11}}>{fmtProfitShort(r.gross_profit)}</div></div>
                     <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>単価</div><div style={{fontWeight:600,color:"#555",fontSize:11}}>{r.coin_price != null ? r.coin_price.toFixed(2)+"円" : "—"}</div></div>
                   </div>
