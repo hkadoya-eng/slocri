@@ -1,4 +1,4 @@
-@echo off
+﻿@echo off
 chcp 65001 >nul
 cd /d C:\Users\h.kadoya\Desktop\slocri
 
@@ -8,7 +8,7 @@ set STAMP=logs\sis_weekly_stamp.txt
 if not exist logs mkdir logs
 
 python scripts\misc\check_mtime.py "%XLS%" "%STAMP%" > logs\sis_weekly_check.txt 2>&1
-findstr "CHANGED" logs\sis_weekly_check.txt > /dev/null
+findstr "CHANGED" logs\sis_weekly_check.txt > nul
 if errorlevel 1 (
     echo [%date% %time%] weekly: no change, skip >> logs\sis_import.log
     exit /b 0
