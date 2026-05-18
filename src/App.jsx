@@ -639,11 +639,11 @@ function SisTab({ adminUser }) {
     const a = Math.abs(n);
     return s + Math.round(a);
   }
-  // 4桁以下（<10000）は万表記をやめて生の整数（カンマ区切り）で表示
+  // 4桁以下（<10000）は万表記をやめて生の整数で表示（カンマなし）
   function fmtYenSmart(n) {
     if (n == null) return "—";
     const a = Math.abs(n);
-    if (a < 10000) return Math.round(a).toLocaleString();
+    if (a < 10000) return String(Math.round(a));
     return (a / 10000).toFixed(1) + "万";
   }
   function rateColor(n) {
