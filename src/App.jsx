@@ -959,7 +959,6 @@ export default function App() {
   const [showNotifDetail, setShowNotifDetail] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [fbCat, setFbCat] = useState("機能要望");
-  const [fbName, setFbName] = useState(() => localStorage.getItem("slotkey_name") || "");
   const [fbBody, setFbBody] = useState("");
   const [fbSending, setFbSending] = useState(false);
   const [fbDone, setFbDone] = useState(false);
@@ -995,8 +994,8 @@ export default function App() {
       title: fbCat,
       body: fbBody.trim(),
       source: "manual",
-      author: fbName.trim() || "匿名",
-      internal: { ...blank(), author: fbName.trim() || "匿名", feedbackCat: fbCat, submitterUid: MY_UID },
+      author: "匿名",
+      internal: { ...blank(), author: "匿名", feedbackCat: fbCat, submitterUid: MY_UID },
     });
     setFbSending(false);
     setFbDone(true);
@@ -1332,11 +1331,6 @@ export default function App() {
                         style={{padding:"6px 14px",border:`0.5px solid ${fbCat===k?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:fbCat===k?"#FAECE7":"#fff",color:fbCat===k?"#993C1D":"#888",cursor:"pointer",fontWeight:fbCat===k?600:400}}>{k}</button>
                     ))}
                   </div>
-                </div>
-                <div style={{marginBottom:10}}>
-                  <div style={{fontSize:13,color:"#888",marginBottom:4}}>名前 <span style={{color:"#bbb",fontSize:12}}>（省略可・匿名になります）</span></div>
-                  <input value={fbName} onChange={e => setFbName(e.target.value)} placeholder="例：田中"
-                    style={{width:"100%",padding:"9px 12px",border:"none",borderRadius:10,background:"#fff",fontSize:16,boxSizing:"border-box"}}/>
                 </div>
                 <div style={{marginBottom:16}}>
                   <div style={{fontSize:13,color:"#888",marginBottom:4}}>内容 <span style={{color:"#e57373"}}>*</span></div>
@@ -1786,7 +1780,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
             <div style={{width:40,height:4,background:"#C5C9D4",borderRadius:2,margin:"0 auto 14px"}}/>
             <div style={{fontSize:15,fontWeight:500,marginBottom:10}}>新規投稿</div>
             {(()=>{const lbl={fontSize:13,color:"#888",whiteSpace:"nowrap",minWidth:52,paddingTop:2};const row={display:"flex",alignItems:"flex-start",gap:8,marginBottom:8};const inp={flex:1,fontSize:16,padding:"9px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",boxSizing:"border-box"};return(<>
-            <div style={row}><span style={lbl}>名前</span><input value={fName} onChange={e=>setFName(e.target.value)} placeholder="例: ゲスト" style={inp}/></div>
+            <div style={row}><span style={lbl}>名前</span><input value={fName} onChange={e=>setFName(e.target.value)} placeholder="（任意）" style={inp}/></div>
             {fCat!=="fun"&&<div style={row}><span style={lbl}>機種名</span><div style={{flex:1,position:"relative"}}>{(()=>{const allM=[...new Set(posts.map(p=>p.machine).filter(Boolean))].sort((a,b)=>{const s=n=>n.replace(/^(Lパチスロ\s*|LB|L\s*|e|スマスロ\s*|すますろ\s*|Sパチスロ\s*|S|Pパチスロ\s*|P)/,"").trim();const r=n=>n.startsWith("L")?0:n.startsWith("スマスロ")||n.startsWith("すますろ")?1:n.startsWith("e")?2:3;const d=s(a).localeCompare(s(b),"ja");return d!==0?d:r(a)-r(b);});const filtered=fMachine.trim()?allM.filter(m=>m.includes(fMachine)):allM;return(<><input value={fMachine} onChange={e=>{setFMachine(e.target.value);setMachineSuggestion(null);setFMachineOpen(true);}} onFocus={()=>setFMachineOpen(true)} onBlur={()=>setTimeout(()=>{setFMachineOpen(false);checkMachineName(fMachine);},150)} placeholder="例: バジリスク絆2（任意）" style={{...inp,width:"100%",marginBottom:machineSuggestion?4:0,boxSizing:"border-box"}}/>{fMachineOpen&&filtered.length>0&&<div style={{position:"absolute",top:"100%",left:0,right:0,background:"#fff",borderRadius:10,boxShadow:"0 4px 20px rgba(0,0,0,0.15)",zIndex:200,maxHeight:220,overflowY:"auto",marginTop:4}}>{filtered.map(name=><div key={name} onMouseDown={()=>{setFMachine(name);setFMachineOpen(false);setMachineSuggestion(null);}} style={{padding:"10px 14px",fontSize:14,color:"#333",borderBottom:"0.5px solid #f0f0f0",cursor:"pointer"}}>{name}</div>)}</div>}{machineSuggestion&&<div style={{fontSize:14,color:"#666",marginTop:4,display:"flex",alignItems:"center",gap:6}}>もしかして:<button onClick={()=>{setFMachine(machineSuggestion);setMachineSuggestion(null);}} style={{fontSize:14,color:"#D85A30",background:"none",border:"none",cursor:"pointer",padding:0,fontWeight:500,textDecoration:"underline"}}>{machineSuggestion}</button><button onClick={()=>setMachineSuggestion(null)} style={{fontSize:13,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:0}}>✕</button></div>}</>);})()}</div></div>}
             <div style={row}><span style={lbl}>カテゴリ</span><select value={fCat} onChange={e=>setFCat(e.target.value)} style={{...inp,color:CATS[fCat]?.color||"#555",fontWeight:700,background:CATS[fCat]?.bg||"#E8ECF0",boxShadow:`inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF, inset 0 0 0 2px ${CATS[fCat]?.border||"#ddd"}`,fontSize:16}}><option value="new">新台</option><option value="info">機種情報</option><option value="jissen">実戦</option><option value="hall">業界</option><option value="episode">名機</option></select></div>
             <div style={row}><span style={lbl}>URL</span><div style={{flex:1,display:"flex",gap:6,alignItems:"center"}}><input value={fUrl} onChange={e=>{setFUrl(e.target.value);if(!e.target.value.trim())setFOgImage("");}} placeholder="引用元URL（任意）" style={{...inp,flex:1,fontSize:16,minWidth:0}}/>{fUrl.trim()&&<button type="button" onClick={fetchBodyFromUrl} disabled={fBodyFetching} style={{padding:"8px 10px",border:"none",borderRadius:10,background:fBodyFetching?"#ddd":"#E8ECF0",boxShadow:fBodyFetching?"none":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF",fontSize:13,color:fBodyFetching?"#aaa":"#555",cursor:fBodyFetching?"default":"pointer",whiteSpace:"nowrap",flexShrink:0}}>{fBodyFetching?"取得中…":"本文取得"}</button>}</div></div>
