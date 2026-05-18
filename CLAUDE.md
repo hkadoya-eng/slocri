@@ -5,7 +5,7 @@
 このCLAUDE.mdを読み込んだ**最初のユーザーメッセージ受信時**、ユーザーへの応答より先に必ず：
 
 1. `CronList` を実行して現在のcron状態を確認
-2. 以下の7本が登録されていなければ即 `CronCreate` で全部登録（後述の各タスクの仕様通り）
+2. 以下の8本が登録されていなければ即 `CronCreate` で全部登録（後述の各タスクの仕様通り）
    - ネタ収集 9:00 (`0 9 * * *`)
    - ネタ収集 13:30 (`30 13 * * *`)
    - 機種分析更新 (`0 4 */2 * *`)
@@ -13,6 +13,7 @@
    - 管理者チャット 10分 (`*/10 * * * *` / one-shot自己再登録)
    - 企画・ゲーム性提案処理 10分 (`*/10 * * * *` / one-shot自己再登録)
    - 収集要望処理 30分 (`17,47 * * * *` / one-shot自己再登録)
+   - コラム自動生成 週1 (`0 5 * * 1` / 毎週月曜 5:00)
 3. **1行で**「✅ cron N本登録済み」と報告してから、ユーザー要件に応える
 
 理由: Claude Code のcronは現状 session-only（`durable:true` が効かない仕様）。VS Code/PC再起動のたびに全消滅するため、毎セッション必ず再登録しないと自動収集・チャット返答が止まる。**ユーザーが「動いてない？」と聞くまで気づかれない事故**を防止する。
@@ -176,6 +177,31 @@ recurring: false  ← one-shot。末尾でCronCreateにより自己再登録す�
 ③git push・curl順次・Invalid API key リトライ・処理後 CronCreate で自己再登録
 
 詳細処理ルールは下記「企画提案処理ルール（パートB）」「ゲーム性分析追加リクエストの処理ルール」を参照。
+
+---
+
+### ⑦ コラム自動生成（週1回 月曜5:00・recurring）
+
+**頻度**: 毎週月曜 5:00 (`0 5 * * 1`)・column_feedback 反映のため週1回が適切
+
+```
+cron: "0 5 * * 1"
+durable: true
+recurring: true
+```
+
+**prompt:**
+【コラム自動生成タスク／毎週月曜 5:00実行】
+
+0. column_feedback 取得（手順0必須）→ GOOD多数のコラムテーマ踏襲・BAD多数は避ける・コメント反映
+1. src/editorialColumns.json で既存把握
+2. 直近1〜2週のposts(cat=jissen/info/hall) + dup_keys.md から話題抽出
+3. WebSearch 2〜3クエリで補強
+4. 新規コラム1本生成(id/title/subtitle/body 600〜1200字/date/tags 3〜5個)
+5. src/editorialColumns.json 先頭に追加 → git push
+6. CronCreate で次回(`0 5 * * 1`)再登録
+
+詳細は [`memory/project_column_feedback_scheme.md`](memory) のスキーム参照。
 
 ---
 
