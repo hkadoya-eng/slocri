@@ -612,19 +612,14 @@ function SisTab({ adminUser }) {
     return null;
   };
   const nationalAvgIn = getNationalField("avg_in");
-  // sis_national_dailyの売上/粗利/単価/出玉率は更新が遅れがちなため14日制限。
-  // 古いor無い場合は当日のSIS機種データから計算した値で補完する。
-  const avgCoinPrice = avg(dayRows, "coin_price");
-  const avgGrossProfit = avg(dayRows, "gross_profit");
-  const avgSalesFromMachines = dayRows.length
-    ? dayRows.reduce((s, r) => s + ((r.out_coins || 0) * (r.coin_price || 0)), 0) / dayRows.length
-    : null;
-  const nationalSales = getNationalField("national_sales", 14) ?? avgSalesFromMachines;
-  const nationalGrossProfit = getNationalField("gross_profit", 14) ?? avgGrossProfit;
-  const nationalCoinPrice = getNationalField("coin_price", 14) ?? avgCoinPrice;
-  // sis_national_daily.payout_rateはホール粗利率の逆数（金額ベース）で機械割としては不正確なので、
-  // 常に当日のSIS機種データの平均（medal/medal）を使用する
-  const nationalPayoutRate = avgRate;
+  // 取得元はsis_national_daily（import_national_daily.pyが日毎稼働全体.xlsxを読み込む）。
+  // 14日以上古い/未取得は「—」表示+⚠バッジで明示する。サイレント補完はしない。
+  const nationalSales = getNationalField("national_sales", 14);
+  const nationalGrossProfit = getNationalField("gross_profit", 14);
+  const nationalCoinPrice = getNationalField("coin_price", 14);
+  const nationalPayoutRate = getNationalField("payout_rate", 14);
+  // 取得失敗を画面に出すフラグ
+  const nationalStale = (nationalSales == null) || (nationalGrossProfit == null) || (nationalCoinPrice == null) || (nationalPayoutRate == null);
 
   function sortVal(r) {
     if (sortKey === "gross_profit") return r.gross_profit == null ? Infinity : r.gross_profit;
@@ -792,13 +787,18 @@ function SisTab({ adminUser }) {
           <button onClick={() => setDateIdx(i => Math.max(i-1, 0))} disabled={dateIdx <= 0}
             style={{border:"none",background:"none",fontSize:20,cursor:"pointer",color:dateIdx<=0?"#ccc":"#555",padding:"0 6px"}}>›</button>
         </div>
+        {dayRows.length > 0 && nationalStale && (
+          <div style={{background:"#FFF4E5",border:"1px solid #F5A623",color:"#9A6710",fontSize:11,padding:"3px 8px",borderRadius:6,marginBottom:4,textAlign:"center"}}>
+            ⚠ 全国データ取得失敗（sis_national_daily に14日内の値なし。import_national_daily.py 要確認）
+          </div>
+        )}
         {dayRows.length > 0 && (
           <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:4,marginBottom:6}}>
             {[
               {label:"全国アウト",  val: nationalAvgIn != null ? Math.round(nationalAvgIn).toLocaleString() : "—", color:"#444"},
               {label:"全国出玉率",  val: nationalPayoutRate != null ? nationalPayoutRate.toFixed(1)+"%" : "—", color: nationalPayoutRate != null ? rateColor(nationalPayoutRate) : "#888"},
               {label:"全国売上",    val: nationalSales != null ? (Math.round(nationalSales/1000)/10).toFixed(1)+"万" : "—", color:"#555"},
-              {label:"全国粗利",    val: nationalGrossProfit != null ? (nationalGrossProfit<0?"▲":"▼")+(Math.round(Math.abs(nationalGrossProfit)/100)/10).toFixed(1)+"万" : "—", color: nationalGrossProfit != null ? (nationalGrossProfit<0?"#2a9d3f":"#E53935") : "#888"},
+              {label:"全国粗利",    val: nationalGrossProfit != null ? (nationalGrossProfit<0?"▲":"▼")+(Math.abs(nationalGrossProfit)/10000).toFixed(1)+"万" : "—", color: nationalGrossProfit != null ? (nationalGrossProfit<0?"#2a9d3f":"#E53935") : "#888"},
               {label:"全国単価",    val: nationalCoinPrice != null ? nationalCoinPrice.toFixed(2)+"円" : "—", color:"#555"},
             ].map(s => (
               <div key={s.label} style={{background:"#fff",borderRadius:8,padding:"3px 3px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>

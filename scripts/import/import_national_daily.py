@@ -81,6 +81,7 @@ def extract_records(path):
     records = []
     current = {}
     prev_date_str = None
+    skipped_count = 0  # 全国アウト行で日付parseに失敗してスキップした件数
 
     for row in rows:
         label = row[1]
@@ -96,6 +97,7 @@ def extract_records(path):
             elif isinstance(serial, str):
                 date_str = parse_str_date(serial, prev_date_str)
             if not date_str:
+                skipped_count += 1
                 current = {}
                 continue
             prev_date_str = date_str
@@ -121,6 +123,25 @@ def extract_records(path):
                 current["payout_rate"] = None
             records.append(current)
             current = {}
+
+    # 健全性チェック: パース失敗・全体件数・最終日付の警告を出す
+    if skipped_count > 0:
+        print(f"⚠️ 日付parseに失敗してスキップした行: {skipped_count} 件（仕様変更の可能性あり）", file=sys.stderr)
+    if not records:
+        print("❌ 抽出件数0件。日毎稼働全体.xlsx のシート構造を確認してください。", file=sys.stderr)
+    else:
+        latest = max(r["date"] for r in records)
+        today = datetime.now().strftime("%Y-%m-%d")
+        days_behind = (datetime.strptime(today, "%Y-%m-%d") - datetime.strptime(latest, "%Y-%m-%d")).days
+        if days_behind > 3:
+            print(f"⚠️ 最新データが {days_behind}日前 ({latest})。Excelの更新を確認してください。", file=sys.stderr)
+        # null率チェック
+        null_sales = sum(1 for r in records if r.get("national_sales") is None)
+        null_rate = sum(1 for r in records if r.get("payout_rate") is None)
+        if null_sales / len(records) > 0.5:
+            print(f"⚠️ national_salesがnullのレコードが {null_sales}/{len(records)} 件。抽出ロジック要確認。", file=sys.stderr)
+        if null_rate / len(records) > 0.5:
+            print(f"⚠️ payout_rateがnullのレコードが {null_rate}/{len(records)} 件。", file=sys.stderr)
 
     return records
 
