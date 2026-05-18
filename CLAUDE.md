@@ -5,12 +5,14 @@
 このCLAUDE.mdを読み込んだ**最初のユーザーメッセージ受信時**、ユーザーへの応答より先に必ず：
 
 1. `CronList` を実行して現在のcron状態を確認
-2. 以下の5本が登録されていなければ即 `CronCreate` で全部登録（後述の各タスクの仕様通り）
+2. 以下の7本が登録されていなければ即 `CronCreate` で全部登録（後述の各タスクの仕様通り）
    - ネタ収集 9:00 (`0 9 * * *`)
    - ネタ収集 13:30 (`30 13 * * *`)
    - 機種分析更新 (`0 4 */2 * *`)
    - チャット返答 10分 (`*/10 * * * *` / one-shot自己再登録)
    - 管理者チャット 10分 (`*/10 * * * *` / one-shot自己再登録)
+   - 企画・ゲーム性提案処理 10分 (`*/10 * * * *` / one-shot自己再登録)
+   - 収集要望処理 30分 (`17,47 * * * *` / one-shot自己再登録)
 3. **1行で**「✅ cron N本登録済み」と報告してから、ユーザー要件に応える
 
 理由: Claude Code のcronは現状 session-only（`durable:true` が効かない仕様）。VS Code/PC再起動のたびに全消滅するため、毎セッション必ず再登録しないと自動収集・チャット返答が止まる。**ユーザーが「動いてない？」と聞くまで気づかれない事故**を防止する。
@@ -153,6 +155,46 @@ BASE=https://vpzbtuucopucablwyqeq.supabase.co/rest/v1
  ・変更依頼(「直して」「変えて」「追加して」等)→変更計画をPOSTして「実行しますか？」
  ・質問→会話コンテキストで回答をPOST
 ④処理後→CronCreate(durable:true,recurring:false,cron:"*/2 * * * *")で同プロンプトを再登録
+
+---
+
+### ⑤ 企画・ゲーム性提案処理（10分・one-shot）
+
+**頻度**: 10分(`*/10 * * * *`)・ユーザーがインタラクティブに送信するため応答性重視
+
+```
+cron: "*/10 * * * *"
+durable: true
+recurring: false  ← one-shot。末尾でCronCreateにより自己再登録する
+```
+
+**prompt:**
+【企画・ゲーム性提案処理】作業Dir: C:\Users\h.kadoya\Desktop\slocri / 自律実行・テキスト出力なし
+
+①proposal_requests pending を target/questions/answers/revision_request の状態分岐で処理→各依頼を更新
+②collection_requests pending のうち theme「【ゲーム性分析追加リクエスト】」「修正提案：」のみ処理→src/gameDesignLibrary.json更新→status=done
+③git push・curl順次・Invalid API key リトライ・処理後 CronCreate で自己再登録
+
+詳細処理ルールは下記「企画提案処理ルール（パートB）」「ゲーム性分析追加リクエストの処理ルール」を参照。
+
+---
+
+### ⑥ 収集要望処理（30分・one-shot）
+
+**頻度**: 毎時 :17 と :47 (`17,47 * * * *`)・ユーザーへの「30分以内に反映」UIトースト約束を守る周期
+
+```
+cron: "17,47 * * * *"
+durable: true
+recurring: false  ← one-shot。末尾でCronCreateにより自己再登録する
+```
+
+**prompt:**
+【収集要望処理】作業Dir: C:\Users\h.kadoya\Desktop\slocri / 自律実行・テキスト出力なし
+
+①collection_requests pending のうち theme が「【ゲーム性分析追加リクエスト】」「修正提案：」**以外**（空・新台情報・名機エピソード・実戦・機種情報・業界ニュース・カテゴリ+自由文 など）を処理対象
+②各依頼ごと: 手順0(posts.internal.bads/likes/comments取得・bad除外・like重視) → WebSearch 2-3クエリ → 該当テーマで未収録ネタ5件選定 → CSV作成 → import_csv.py → fetch_ogp.py → PATCH status=done,result_count=実件数
+③git push・dup_keys.md追記・処理後 CronCreate で自己再登録
 
 ---
 
