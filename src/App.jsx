@@ -3153,7 +3153,10 @@ ${policyText}
         </div>
       )}
 
-      {mode==="ai_chat" && <ChatTab />}
+      {mode==="ai_chat" && (adminUser
+        ? <ChatTab user={adminUser} onClose={() => setMode("column")} />
+        : <AdminLoginForm title="claudeと話す" desc="社内専用。管理者ログインが必要です。" />
+      )}
       {mode==="ai_propose" && <ProposeTab user={adminUser} />}
       {mode==="gamedesign" && <GameDesignTab />}
     </div>

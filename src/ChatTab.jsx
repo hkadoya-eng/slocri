@@ -55,7 +55,7 @@ function CollapsibleContent({ content }) {
   );
 }
 
-export default function ChatTab() {
+export default function ChatTab({ user, onClose }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -145,7 +145,7 @@ export default function ChatTab() {
   const lastIsUser = messages.length > 0 && messages[messages.length - 1].role === "user";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 120px)", maxWidth: 640, margin: "0 auto", position: "relative" }}>
+    <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: "#F4F6F8", zIndex: 100 }}>
       {ratingToast && (
         <div style={{ position: "fixed", bottom: 80, left: "50%", transform: "translateX(-50%)", background: "#333", color: "#fff", padding: "8px 18px", borderRadius: 20, fontSize: 13, zIndex: 999, whiteSpace: "nowrap", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
           {ratingToast}
@@ -153,9 +153,12 @@ export default function ChatTab() {
       )}
 
       {/* ヘッダー */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px 6px", borderBottom: "1px solid #E0E4E8" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px 8px", borderBottom: "1px solid #E0E4E8", background: "#fff", flexShrink: 0 }}>
+        <button onClick={onClose} style={{ fontSize: 13, padding: "6px 12px", borderRadius: 20, border: "none", background: "#E8ECF0", boxShadow: "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF", color: "#555", cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ fontSize: 16 }}>‹</span>戻る
+        </button>
         <span style={{ fontWeight: 700, fontSize: 15, color: "#444" }}>💬 チャット</span>
-        <button onClick={newSession} style={{ fontSize: 12, padding: "4px 12px", borderRadius: 20, border: "none", background: "#E8ECF0", boxShadow: "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF", color: "#888", cursor: "pointer" }}>
+        <button onClick={newSession} style={{ fontSize: 12, padding: "6px 12px", borderRadius: 20, border: "none", background: "#E8ECF0", boxShadow: "2px 2px 5px #C5C9D4, -1px -1px 3px #FFFFFF", color: "#888", cursor: "pointer" }}>
           新しい会話
         </button>
       </div>
