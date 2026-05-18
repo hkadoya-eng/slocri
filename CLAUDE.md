@@ -38,10 +38,15 @@ Cronジョブによる自動タスク（【自動ネタ収集タスク】【自�
 
 ユーザーに確認せず全ステップを最後まで自律実行してください。
 
+0. **ユーザーフィードバック取得（必須・スキップ禁止）**:
+   curl -s "https://vpzbtuucopucablwyqeq.supabase.co/rest/v1/posts?select=machine,cat,title,internal&limit=2000" -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwemJ0dXVjb3B1Y2FibHd5cWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjk2MzEsImV4cCI6MjA5MTIwNTYzMX0.qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA"
+   - bad数1以上 → 機種・カテゴリ・タイトルを【除外パターン】として認識し、類似ネタは選ばない
+   - like数2以上 → 機種・カテゴリ・タイトルを【重視パターン】として認識し、類似・周辺ネタを優先
+   - comment1以上 → ユーザー反応ありの話題として優先候補
 1. memory/dup_keys.md を読んで既存dup_keyを確認
 2. memory/sources_and_rules.md のルール・ソース一覧を読む
-3. WebSearchで最新パチスロ情報を3〜4クエリ検索
-4. 未収録のネタを10件選定してCSVを作成
+3. WebSearchで最新パチスロ情報を3〜4クエリ検索（手順0の重視/除外パターンを意識する）
+4. 未収録のネタを10件選定してCSVを作成（手順0の除外パターンに該当するものは絶対に入れない・重視パターンの周辺ネタを優先）
    - Bashで現在時刻取得: date "+%Y%m%d_%H%M"
    - 保存先: ai収集/slocri_import_[YYYYMMDD_HHMM].csv
    - ヘッダー: cat,source,machine,title,body,url,quality,dup_key,author
@@ -52,7 +57,7 @@ Cronジョブによる自動タスク（【自動ネタ収集タスク】【自�
 8. memory/dup_keys.md に新しいdup_keyを先頭セクションに追記
 9. CronCreate で次回を再登録（9:00版は cron:"0 9 * * *"、13:30版は cron:"30 13 * * *"、durable:true、recurring:true）
 
-収集ルール: 新台優先・パチスロメイン（パチンコは1〜2件まで）・dup_key重複禁止・URL捏造禁止
+収集ルール: 新台優先・パチスロメイン（パチンコは1〜2件まで）・dup_key重複禁止・URL捏造禁止・**フィードバック手順0必須**
 author候補: 編集部AI, スロ好き編集マン, スロキー編集部, パチスロ記者, 編集長補佐, ライター見習い, スロ専門編集, 深夜のスロライター, 編集部のマニア
 
 ---
