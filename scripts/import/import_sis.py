@@ -67,8 +67,8 @@ def extract_records(path):
         while i < len(rows) - 5:
             row = rows[i]
             machine = row[1]
-            # L で始まる機種名（【】を含まないもの）
-            if machine and isinstance(machine, str) and machine.startswith("L") and "【" not in machine:
+            # L/Sで始まる機種名（【】を含まないもの）。S系=5号機(ジャグラー/ハナハナ等)も含める
+            if machine and isinstance(machine, str) and (machine.startswith("L") or machine.startswith("S")) and "【" not in machine:
                 out_vals    = rows[i][6:13]
                 coin_vals   = rows[i + 1][6:13]
                 rate_vals   = rows[i + 2][6:13]
@@ -94,6 +94,51 @@ def extract_records(path):
 
     wb.close()
     return records
+
+
+def aggregate_national_payout_rate(records, service_key):
+    """機種別データから日付ごとの全国出玉率（IN加重平均）を計算してsis_national_dailyに反映する。
+    SISのExcelには全国出玉率の直接欄が無いため、機種別出玉率(枚/枚)をout_coinsで加重平均する。"""
+    by_date = {}
+    for r in records:
+        if r.get("payout_rate") is None or not r.get("out_coins"):
+            continue
+        d = r["date"]
+        by_date.setdefault(d, [0.0, 0.0])
+        by_date[d][0] += r["out_coins"] * r["payout_rate"]
+        by_date[d][1] += r["out_coins"]
+
+    if not by_date:
+        return 0
+
+    payload = []
+    for d, (sumWP, sumW) in by_date.items():
+        if sumW > 0:
+            payload.append({"date": d, "payout_rate": round(sumWP / sumW, 2)})
+
+    if not payload:
+        return 0
+
+    headers = {
+        "apikey": service_key,
+        "Authorization": f"Bearer {service_key}",
+        "Content-Type": "application/json",
+        "Prefer": "resolution=merge-duplicates",
+    }
+    BATCH = 500
+    updated = 0
+    for i in range(0, len(payload), BATCH):
+        batch = payload[i:i + BATCH]
+        res = requests.post(
+            f"{SUPABASE_URL}/rest/v1/sis_national_daily?on_conflict=date",
+            headers=headers,
+            data=json.dumps(batch),
+        )
+        if res.status_code in (200, 201):
+            updated += len(batch)
+        else:
+            print(f"  全国出玉率エラー ({res.status_code}): {res.text[:200]}")
+    return updated
 
 
 def upsert_records(records, service_key):
@@ -149,6 +194,12 @@ def run():
 
     print(f"Supabase にアップロード中... (--force={FORCE})")
     upsert_records(records, service_key)
+
+    # 全国出玉率を機種別データから集計してsis_national_dailyへ
+    print("\n全国出玉率を集計中...")
+    n = aggregate_national_payout_rate(records, service_key)
+    print(f"  {n} 日分の payout_rate を更新")
+
     print(f"\n完了。")
 
     # 日付範囲を表示

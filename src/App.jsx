@@ -617,9 +617,11 @@ function SisTab({ adminUser }) {
   const nationalSales = getNationalField("national_sales", 14);
   const nationalGrossProfit = getNationalField("gross_profit", 14);
   const nationalCoinPrice = getNationalField("coin_price", 14);
-  // 出玉率は枚数ベース（OUT/IN）で算出するのが正。sis_data の機種別 payout_rate を
-  // out_coins（アウト枚数）で加重平均する。
+  // 出玉率: SIS集計値（import_sis.py が機種別データから枚数加重平均してsis_national_dailyへ書き込む）を最優先。
+  // それが無い時のみ当日のdayRowsから加重平均で算出する。
   const nationalPayoutRate = (() => {
+    const fromDb = getNationalField("payout_rate", 14);
+    if (fromDb != null) return fromDb;
     const rows = dayRows.filter(r => r.payout_rate != null && r.out_coins != null && r.out_coins > 0);
     if (!rows.length) return null;
     const sumW = rows.reduce((s, r) => s + r.out_coins, 0);
