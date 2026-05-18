@@ -8,6 +8,7 @@
 import sys
 import io
 import os
+import re
 import json
 import requests
 from datetime import datetime, timedelta
@@ -42,6 +43,28 @@ def load_env_local():
                 os.environ.setdefault(key.strip(), val.strip())
 
 
+def parse_str_date(s, prev_date_str):
+    """文字列形式の '5月17日' / ' 8月19日' を yyyy-mm-dd に変換する。
+    年は直前のレコードの年を初期値として、月が大きく逆行したら+1年。"""
+    if not isinstance(s, str):
+        return None
+    m = re.search(r"(\d{1,2})月\s*(\d{1,2})日", s.strip())
+    if not m:
+        return None
+    mon = int(m.group(1))
+    day = int(m.group(2))
+    if not (1 <= mon <= 12 and 1 <= day <= 31):
+        return None
+    # 年推定: 直前の日付が無ければ2014年（このExcelは2014年から）、あれば直前の年を継承
+    if prev_date_str:
+        prev_year, prev_mon, _ = map(int, prev_date_str.split("-"))
+        # 月が大きく前進したら同年、月が小さくなったら翌年
+        year = prev_year + (1 if mon < prev_mon - 6 else 0)
+    else:
+        year = 2014
+    return f"{year:04d}-{mon:02d}-{day:02d}"
+
+
 def extract_records(path):
     try:
         import openpyxl
@@ -57,14 +80,25 @@ def extract_records(path):
 
     records = []
     current = {}
+    prev_date_str = None
 
     for row in rows:
         label = row[1]
         value = row[2]
         serial = row[3]
 
-        if label == "全国アウト" and (isinstance(serial, int) or hasattr(serial, "strftime")):
-            date_str = serial_to_date(serial) if isinstance(serial, int) else serial.strftime("%Y-%m-%d")
+        if label == "全国アウト":
+            date_str = None
+            if isinstance(serial, int):
+                date_str = serial_to_date(serial)
+            elif hasattr(serial, "strftime"):
+                date_str = serial.strftime("%Y-%m-%d")
+            elif isinstance(serial, str):
+                date_str = parse_str_date(serial, prev_date_str)
+            if not date_str:
+                current = {}
+                continue
+            prev_date_str = date_str
             current = {
                 "date": date_str,
                 "avg_in": float(value) if isinstance(value, (int, float)) else None,
