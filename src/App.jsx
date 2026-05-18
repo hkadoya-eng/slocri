@@ -612,14 +612,22 @@ function SisTab({ adminUser }) {
     return null;
   };
   const nationalAvgIn = getNationalField("avg_in");
-  // 取得元はsis_national_daily（import_national_daily.pyが日毎稼働全体.xlsxを読み込む）。
+  // 売上/粗利/単価はsis_national_dailyから（import_national_daily.pyが日毎稼働全体.xlsxを読み込む）。
   // 14日以上古い/未取得は「—」表示+⚠バッジで明示する。サイレント補完はしない。
   const nationalSales = getNationalField("national_sales", 14);
   const nationalGrossProfit = getNationalField("gross_profit", 14);
   const nationalCoinPrice = getNationalField("coin_price", 14);
-  const nationalPayoutRate = getNationalField("payout_rate", 14);
-  // 取得失敗を画面に出すフラグ
-  const nationalStale = (nationalSales == null) || (nationalGrossProfit == null) || (nationalCoinPrice == null) || (nationalPayoutRate == null);
+  // 出玉率は枚数ベース（OUT/IN）で算出するのが正。sis_data の機種別 payout_rate を
+  // out_coins（アウト枚数）で加重平均する。
+  const nationalPayoutRate = (() => {
+    const rows = dayRows.filter(r => r.payout_rate != null && r.out_coins != null && r.out_coins > 0);
+    if (!rows.length) return null;
+    const sumW = rows.reduce((s, r) => s + r.out_coins, 0);
+    const sumWP = rows.reduce((s, r) => s + r.payout_rate * r.out_coins, 0);
+    return sumW > 0 ? sumWP / sumW : null;
+  })();
+  // 取得失敗を画面に出すフラグ（金額系のみ。出玉率は機種側データから計算するので別管理）
+  const nationalStale = (nationalSales == null) || (nationalGrossProfit == null) || (nationalCoinPrice == null);
 
   function sortVal(r) {
     if (sortKey === "gross_profit") return r.gross_profit == null ? Infinity : r.gross_profit;
