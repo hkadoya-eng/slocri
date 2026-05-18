@@ -612,9 +612,16 @@ function SisTab({ adminUser }) {
     return null;
   };
   const nationalAvgIn = getNationalField("avg_in");
-  const nationalSales = getNationalField("national_sales", 14);
-  const nationalGrossProfit = getNationalField("gross_profit", 14);
-  const nationalCoinPrice = getNationalField("coin_price", 14);
+  // sis_national_dailyの売上/粗利/単価/出玉率は更新が遅れがちなため14日制限。
+  // 古いor無い場合は当日のSIS機種データから計算した値で補完する。
+  const avgCoinPrice = avg(dayRows, "coin_price");
+  const avgGrossProfit = avg(dayRows, "gross_profit");
+  const avgSalesFromMachines = dayRows.length
+    ? dayRows.reduce((s, r) => s + ((r.out_coins || 0) * (r.coin_price || 0)), 0) / dayRows.length
+    : null;
+  const nationalSales = getNationalField("national_sales", 14) ?? avgSalesFromMachines;
+  const nationalGrossProfit = getNationalField("gross_profit", 14) ?? avgGrossProfit;
+  const nationalCoinPrice = getNationalField("coin_price", 14) ?? avgCoinPrice;
   // sis_national_daily.payout_rateはホール粗利率の逆数（金額ベース）で機械割としては不正確なので、
   // 常に当日のSIS機種データの平均（medal/medal）を使用する
   const nationalPayoutRate = avgRate;
