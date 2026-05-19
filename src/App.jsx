@@ -3003,6 +3003,20 @@ ${policyText}
       {mode==="analyze" && (
         <div>
           <div style={{fontSize:13,color:"#aaa",marginBottom:10}}>投稿データをもとに手動分析した結果です。「〇〇を分析して」と声をかけると追加できます。</div>
+          <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center"}}>
+            <select value={analyzeM} onChange={e => { setAnalyzeM(e.target.value); setAnalyzeResult(null); }}
+              style={{flex:1,fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:analyzeM?"#333":"#aaa",minWidth:0}}>
+              <option value="">機種を選択</option>
+              {analyzeMachineStatuses.map(({name,count,status,stored}) => {
+                const prefix = status==="unanalyzed" ? `📊 未分析（${count}件）` : status==="stale" ? `⚠️ +${count-stored}件` : `✓`;
+                return <option key={name} value={name}>{prefix} {name}</option>;
+              })}
+            </select>
+            <button onClick={analyze} disabled={!analyzeM}
+              style={{padding:"8px 16px",border:"none",borderRadius:10,background:!analyzeM?"#ccc":"#D85A30",color:"#fff",fontSize:15,fontWeight:500,cursor:!analyzeM?"not-allowed":"pointer",whiteSpace:"nowrap",flexShrink:0}}>
+              分析する
+            </button>
+          </div>
           {(() => {
             const needsAttn = analyzeMachineStatuses.filter(s => s.status!=="ok");
             if (!needsAttn.length) return null;
@@ -3022,20 +3036,6 @@ ${policyText}
               </div>
             );
           })()}
-          <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center"}}>
-            <select value={analyzeM} onChange={e => { setAnalyzeM(e.target.value); setAnalyzeResult(null); }}
-              style={{flex:1,fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:analyzeM?"#333":"#aaa",minWidth:0}}>
-              <option value="">機種を選択（3件以上）</option>
-              {analyzeMachineStatuses.map(({name,count,status,stored}) => {
-                const prefix = status==="unanalyzed" ? `📊 未分析（${count}件）` : status==="stale" ? `⚠️ +${count-stored}件` : `✓`;
-                return <option key={name} value={name}>{prefix} {name}</option>;
-              })}
-            </select>
-            <button onClick={analyze} disabled={!analyzeM}
-              style={{padding:"8px 16px",border:"none",borderRadius:10,background:!analyzeM?"#ccc":"#D85A30",color:"#fff",fontSize:15,fontWeight:500,cursor:!analyzeM?"not-allowed":"pointer",whiteSpace:"nowrap",flexShrink:0}}>
-              分析する
-            </button>
-          </div>
           {analyzeResult && !analyzeResult.error && (
             <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:14,overflow:"hidden"}}>
               <div style={{padding:"12px 16px",borderBottom:"0.5px solid #eee",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
