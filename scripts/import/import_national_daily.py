@@ -113,14 +113,7 @@ def extract_records(path):
             current["coin_price"] = float(value) if isinstance(value, (int, float)) else None
         elif label == "玉粗利" and current:
             current["coin_profit"] = float(value) if isinstance(value, (int, float)) else None
-            # 出玉率を計算（暫定）
-            avg_in = current.get("avg_in")
-            cp = current.get("coin_price")
-            gp = current.get("gross_profit")
-            if avg_in and cp and gp is not None and avg_in * cp != 0:
-                current["payout_rate"] = round((1 - gp / (avg_in * cp)) * 100, 2)
-            else:
-                current["payout_rate"] = None
+            # payout_rate は import_sis.py が機種別IN加重平均で書き込むので、ここでは触らない
             records.append(current)
             current = {}
 
@@ -135,13 +128,10 @@ def extract_records(path):
         days_behind = (datetime.strptime(today, "%Y-%m-%d") - datetime.strptime(latest, "%Y-%m-%d")).days
         if days_behind > 3:
             print(f"⚠️ 最新データが {days_behind}日前 ({latest})。Excelの更新を確認してください。", file=sys.stderr)
-        # null率チェック
+        # null率チェック（payout_rateは import_sis.py 側で書き込まれるため、ここではチェックしない）
         null_sales = sum(1 for r in records if r.get("national_sales") is None)
-        null_rate = sum(1 for r in records if r.get("payout_rate") is None)
         if null_sales / len(records) > 0.5:
             print(f"⚠️ national_salesがnullのレコードが {null_sales}/{len(records)} 件。抽出ロジック要確認。", file=sys.stderr)
-        if null_rate / len(records) > 0.5:
-            print(f"⚠️ payout_rateがnullのレコードが {null_rate}/{len(records)} 件。", file=sys.stderr)
 
     return records
 
