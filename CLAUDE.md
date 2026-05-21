@@ -205,6 +205,11 @@ proposal_requestsの処理分岐：
   - result にマークダウン形式で保存、status を done に更新
   - 修正依頼（revision_request あり）の場合も同様に再生成
 
+- **target が空 かつ concept_memo も空** → 「機能単体」相当として即時直接生成（おまかせ提案）
+  - ユーザーが空フォーム送信した場合のフォールバック分岐
+  - 既存questions/answersは無視して、汎用的なゲーム性提案書をmachineAnalysis/gameDesignLibrary参照で生成
+  - result にマークダウンで保存、status を done に更新
+
 - **target !== "機能単体"** かつ questions が空 → ヒアリング質問生成（5問程度）→ questions フィールドに保存、status は pending のまま
 
 - **target !== "機能単体"** かつ questionsあり・answersあり・revision_request が空 → 初回提案書を生成 → result に保存、status を done に更新
