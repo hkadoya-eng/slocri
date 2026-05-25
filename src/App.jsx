@@ -962,6 +962,8 @@ export default function App() {
   const [fbBody, setFbBody] = useState("");
   const [fbSending, setFbSending] = useState(false);
   const [fbDone, setFbDone] = useState(false);
+  const [fbImage, setFbImage] = useState(null);
+  const [fbImagePreview, setFbImagePreview] = useState("");
   const [adminUser, setAdminUser] = useState(null);
   const [showFbInbox, setShowFbInbox] = useState(false);
   const [adminInboxTab, setAdminInboxTab] = useState("feedback");
@@ -988,6 +990,25 @@ export default function App() {
   async function submitFeedback() {
     if (!fbBody.trim()) return;
     setFbSending(true);
+    let imageUrl = "";
+    if (fbImage) {
+      try {
+        const ext = (fbImage.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "");
+        const path = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("feedback-images").upload(path, fbImage, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+        if (!upErr) {
+          const { data: { publicUrl } } = supabase.storage.from("feedback-images").getPublicUrl(path);
+          imageUrl = publicUrl || "";
+        } else {
+          console.warn("feedback image upload failed:", upErr);
+        }
+      } catch (e) {
+        console.warn("feedback image upload exception:", e);
+      }
+    }
     await addPost({
       cat: "feedback",
       machine: "",
@@ -995,12 +1016,30 @@ export default function App() {
       body: fbBody.trim(),
       source: "manual",
       author: "匿名",
-      internal: { ...blank(), author: "匿名", feedbackCat: fbCat, submitterUid: MY_UID },
+      internal: { ...blank(), author: "匿名", feedbackCat: fbCat, submitterUid: MY_UID, imageUrl },
     });
     setFbSending(false);
     setFbDone(true);
     setFbBody("");
+    setFbImage(null);
+    setFbImagePreview("");
   }
+  function onPickFbImage(e) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (f.size > 5 * 1024 * 1024) { alert("画像は5MB以下にしてください"); e.target.value = ""; return; }
+    setFbImage(f);
+    const r = new FileReader();
+    r.onload = () => setFbImagePreview(r.result);
+    r.readAsDataURL(f);
+  }
+  function clearFbImage() {
+    setFbImage(null);
+    setFbImagePreview("");
+  }
+  useEffect(() => {
+    if (!showFeedback) { setFbImage(null); setFbImagePreview(""); }
+  }, [showFeedback]);
   const nextId = useRef(1000);
 
   useEffect(() => {
@@ -1332,10 +1371,26 @@ export default function App() {
                     ))}
                   </div>
                 </div>
-                <div style={{marginBottom:16}}>
+                <div style={{marginBottom:12}}>
                   <div style={{fontSize:13,color:"#888",marginBottom:4}}>内容 <span style={{color:"#e57373"}}>*</span></div>
                   <textarea value={fbBody} onChange={e => setFbBody(e.target.value)} placeholder="気になった点・改善してほしい点など" rows={4}
                     style={{width:"100%",padding:"9px 12px",border:"none",borderRadius:10,background:"#fff",fontSize:16,resize:"vertical",boxSizing:"border-box"}}/>
+                </div>
+                <div style={{marginBottom:16}}>
+                  <div style={{fontSize:13,color:"#888",marginBottom:4}}>画像（任意・5MBまで）</div>
+                  {fbImagePreview ? (
+                    <div style={{position:"relative",display:"inline-block"}}>
+                      <img src={fbImagePreview} alt="preview" style={{maxWidth:160,maxHeight:160,borderRadius:8,border:"1px solid #ddd",display:"block"}}/>
+                      <button onClick={clearFbImage} type="button"
+                        style={{position:"absolute",top:-8,right:-8,width:24,height:24,borderRadius:"50%",border:"none",background:"#333",color:"#fff",fontSize:14,cursor:"pointer",lineHeight:"22px",padding:0}}>×</button>
+                    </div>
+                  ) : (
+                    <label style={{display:"inline-block",padding:"8px 14px",borderRadius:8,background:"#fff",border:"0.5px solid #ddd",fontSize:13,color:"#666",cursor:"pointer"}}>
+                      📷 画像を選ぶ
+                      <input type="file" accept="image/*" onChange={onPickFbImage} style={{display:"none"}}/>
+                    </label>
+                  )}
+                  <div style={{fontSize:11,color:"#aaa",marginTop:6}}>※個人情報（電話番号・氏名等）が映る画像はお控えください</div>
                 </div>
                 <div style={{display:"flex",gap:8}}>
                   <button onClick={() => setShowFeedback(false)}
@@ -1390,6 +1445,11 @@ export default function App() {
                       <span style={{fontSize:12,color:"#ccc",marginLeft:"auto"}}>{p.created_at ? new Date(p.created_at).toLocaleDateString("ja-JP") : ""}</span>
                     </div>
                     <div style={{fontSize:14,color:"#333",lineHeight:1.6}}>{p.body}</div>
+                    {p.internal?.imageUrl && (
+                      <a href={p.internal.imageUrl} target="_blank" rel="noopener noreferrer" style={{display:"inline-block",marginTop:8}}>
+                        <img src={p.internal.imageUrl} alt="添付画像" style={{maxWidth:240,maxHeight:240,borderRadius:8,border:"1px solid #eee",cursor:"zoom-in"}}/>
+                      </a>
+                    )}
                   </div>
                 ))}
               </div>
