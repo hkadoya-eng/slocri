@@ -2741,7 +2741,14 @@ function ResearchTab({ posts, aiEnabled, updatePost, adminUser }) {
       });
   }, []);
 
-  useEffect(() => { if(bottomRef.current) bottomRef.current.scrollIntoView({behavior:"smooth"}); }, [messages]);
+  useEffect(() => {
+    if (!bottomRef.current) return;
+    const el = bottomRef.current;
+    const scroller = el.closest('[data-chat-scroll]') || document.scrollingElement || document.documentElement;
+    if (!scroller) { el.scrollIntoView({behavior:"smooth"}); return; }
+    const distFromBottom = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight;
+    if (distFromBottom < 120) el.scrollIntoView({behavior:"smooth"});
+  }, [messages]);
 
   const analyzeMachines = useMemo(() => {
     const m = {};
