@@ -58,7 +58,7 @@ Cronジョブによる自動タスク（【自動ネタ収集タスク】【自�
 6. python scripts/misc/fetch_ogp.py を実行
 7. git add → git commit → git push
 8. memory/dup_keys.md に新しいdup_keyを先頭セクションに追記
-9. CronCreate で次回を再登録（9:00版は cron:"0 9 * * *"、13:30版は cron:"30 13 * * *"、durable:true、recurring:true）
+9. **【再登録不要】ネタ収集は recurring:true のため発火しても消えず翌日も自動で走る。ここで CronCreate すると重複ジョブが増えるので絶対に再登録しないこと**（2026-05-27にこの手順で13:30が重複した事故あり。チャット返答等の one-shot とは違い、9:00/13:30 は recurring なので再登録厳禁）
 
 収集ルール: 新台優先・パチスロメイン（パチンコは1〜2件まで）・dup_key重複禁止・URL捏造禁止・**フィードバック手順0必須**
 author候補: 編集部AI, スロ好き編集マン, スロキー編集部, パチスロ記者, 編集長補佐, ライター見習い, スロ専門編集, 深夜のスロライター, 編集部のマニア
