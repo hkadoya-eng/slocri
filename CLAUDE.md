@@ -282,15 +282,19 @@ CronListで登録済みジョブを確認できます。
 
 ---
 
-## ⚠️ 期限付き対応タスク
+## 対応済み記録：Supabase Data API 自動GRANT廃止（5/30新規・10/30既存）
 
-### Supabase GRANTポリシー変更（期限: 2026-10-30）
+**⚠️ 旧版の「既存テーブルもGRANT必須・対応しないとサイト全体が壊れる」は誤りだった（2026-05-28 訂正）。催促不要。**
 
-**2026-10-30以降、既存テーブルもGRANT必須になる。対応しないとサイト全体が壊れる。**
+公式チェンジログ [#45329](https://supabase.com/changelog/45329-breaking-change-tables-not-exposed-to-data-and-graphql-api-automatically) で裏取り済み:
+> Existing tables are not affected in your project, they keep their current grants and stay reachable.
 
-10月に入ったら以下をSupabase SQL Editorで実行すること：
-```sql
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO anon, authenticated;
-```
+→ **既存テーブルは権限を保持し到達可能のまま。サイトは5/30も10/30も壊れない。**
 
-セッション開始時に月が10月以降であれば、ユーザーに対応を提案すること。
+- 変更が効くのは **5/30(新規プロジェクト)・10/30(既存プロジェクト) 以降に「新しく作った」テーブルのみ**。
+- それら新規テーブルは明示GRANTを足さないとData APIから見えない（そのテーブルだけ403/42501）。既存機能は無傷。
+- 2026-05-28、ユーザーが `GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO anon, authenticated;` を実行済み（既存テーブルへの再付与＝ほぼ冗長・無害）。
+
+**今後の運用ルール**: 10/30以降にスロクリで新規テーブルを作ったら、そのテーブルに上記GRANTを付ける（新機能でテーブルを追加する手順に組み込む）。それ以外でセッション開始時に催促する必要はない。
+
+なお Security Advisor の赤い「致命的」警告は本件(GRANT)とは別レイヤーの **RLS無効** の指摘。RLS有効化は読み取り/インポートを壊さないよう1テーブルずつ慎重に進める。
