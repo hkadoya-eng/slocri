@@ -1507,6 +1507,8 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const [shareOpen, setShareOpen] = useState(null);
   const [editOpen, setEditOpen] = useState(null);
   const [machineModal, setMachineModal] = useState(null);
+  const [aiReqOpen, setAiReqOpen] = useState(null);
+  const [aiReqText, setAiReqText] = useState("");
 
   useEffect(() => {
     if (directPost) {
@@ -1732,6 +1734,14 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   async function handleDelete(id) {
     if (!window.confirm("削除しますか？")) return;
     await deletePost(id);
+  }
+  async function submitAiFeedback(p) {
+    if (!aiReqText.trim()) return;
+    const aiFeedback = [...(p.internal?.aiFeedback || []), { uid: MY_UID, text: aiReqText.trim(), ts: new Date().toISOString(), processed: false }];
+    await updatePost(p.id, { internal: { ...p.internal, aiFeedback } });
+    setAiReqText("");
+    setAiReqOpen(null);
+    showToast("AI編集部に要望を届けました！");
   }
 
   const filtered = posts.filter(p => {
@@ -2031,6 +2041,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                 <div style={{paddingTop:10,marginTop:8,borderTop:"1px solid rgba(197,201,212,0.4)",display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
                   <button onClick={() => toggleLike(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:"none",borderRadius:20,background:"#E8ECF0",color:iLiked?"#D85A30":"#999",fontSize:13,cursor:"pointer",fontWeight:iLiked?600:400,whiteSpace:"nowrap",boxShadow:iLiked?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>♥</span><span>いいね</span><span style={{fontSize:12}}>{(p.internal?.likes||[]).length}</span></button>
                   <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:"none",borderRadius:20,background:"#E8ECF0",color:isOpen?"#3C3489":"#999",fontSize:13,cursor:"pointer",fontWeight:isOpen?600:400,whiteSpace:"nowrap",boxShadow:isOpen?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>💬</span><span style={{fontSize:12}}>{(p.internal?.comments||[]).length}</span></button>
+                  <button onClick={() => { setAiReqOpen(aiReqOpen===p.id?null:p.id); setAiReqText(""); }} title="このネタへの要望をAI編集部に送る" style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:"none",borderRadius:20,background:"#E8ECF0",color:aiReqOpen===p.id?"#B8860B":"#999",fontSize:13,cursor:"pointer",fontWeight:aiReqOpen===p.id?600:400,whiteSpace:"nowrap",boxShadow:aiReqOpen===p.id?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>💡</span><span style={{fontSize:12}}>要望</span></button>
                   {!p.machine?.includes("全般") && (() => { const isFav=favMachines.includes(p.machine); return <button onClick={()=>toggleFavMachine(p.machine)} title={isFav?"注目台から外す":"この機種を注目台に追加"} style={{padding:"5px 7px",border:"none",borderRadius:20,background:"#E8ECF0",color:isFav?"#E8B000":"#999",fontSize:16,cursor:"pointer",lineHeight:1,boxShadow:isFav?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>{isFav?"★":"☆"}</button>; })()}
                   <div style={{marginLeft:"auto",display:"flex",gap:4}}>
                     <div style={{position:"relative"}}>
@@ -2086,6 +2097,18 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                       <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => { if(e.key==="Enter"){e.preventDefault();addComment(p);}}} placeholder="コメントを入力… (Enter)" style={{flex:1,fontSize:16,padding:"6px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF"}} />
                       <button onClick={() => addComment(p)} style={{padding:"6px 14px",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:15,cursor:"pointer"}}>送信</button>
                     </div>
+                  </div>
+                )}
+                {aiReqOpen===p.id && (
+                  <div style={{marginTop:10,background:"#FFF8E1",borderRadius:10,padding:"8px 10px"}}>
+                    <div style={{fontSize:12,color:"#B8860B",marginBottom:6,fontWeight:600}}>💡 AI編集部への要望（欲しい角度・もっと知りたい情報・不要な点など）</div>
+                    <div style={{display:"flex",gap:6}}>
+                      <input value={aiReqText} onChange={e => setAiReqText(e.target.value)} onKeyDown={e => { if(e.key==="Enter"){e.preventDefault();submitAiFeedback(p);}}} placeholder="例: 天井狙いの期待値を具体的に / この機種は不要 (Enter)" style={{flex:1,fontSize:16,padding:"6px 10px",border:"none",borderRadius:10,background:"#fff",boxShadow:"inset 2px 2px 5px #E0D5B0, inset -2px -2px 5px #FFFFFF"}} />
+                      <button onClick={() => submitAiFeedback(p)} style={{padding:"6px 14px",background:"#B8860B",color:"#fff",border:"none",borderRadius:8,fontSize:15,cursor:"pointer",whiteSpace:"nowrap"}}>送信</button>
+                    </div>
+                    {(p.internal?.aiFeedback||[]).length>0 && (
+                      <div style={{marginTop:8,fontSize:12,color:"#999"}}>送信済み {(p.internal?.aiFeedback||[]).length}件{(p.internal?.aiFeedback||[]).some(f=>f.replied)?"・編集部が対応済み":""}</div>
+                    )}
                   </div>
                 )}
               </>
