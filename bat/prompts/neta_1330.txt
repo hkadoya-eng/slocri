@@ -1,0 +1,20 @@
+【ヘッドレス自動実行・ネタ収集13:30版】作業ディレクトリ: C:\Users\h.kadoya\Desktop\slocri
+重要: これはタスクスケジューラからの無人実行です。CLAUDE.mdの「セッション開始時の必須cron登録」は絶対に行わないこと（CronCreate/CronListを呼ばない）。以下のネタ収集タスクのみを全ステップ自律実行し、完了後そのまま終了すること。ユーザー確認は取らない。
+
+0. ユーザーフィードバック取得（必須）:
+   curl -s "https://vpzbtuucopucablwyqeq.supabase.co/rest/v1/posts?select=machine,cat,title,internal&limit=2000" -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwemJ0dXVjb3B1Y2FibHd5cWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjk2MzEsImV4cCI6MjA5MTIwNTYzMX0.qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA"
+   - bad数1以上→除外パターン / like数2以上→重視パターン / comment1以上→コメント本文も読み方針反映 / internal.aiFeedbackも反映
+1. memory/dup_keys.md を読んで既存dup_keyを確認
+2. memory/sources_and_rules.md のルール・ソース一覧を読む
+3. WebSearchで最新パチスロ情報を3〜4クエリ検索
+4. 未収録ネタを10件選定してCSV作成（除外パターンは入れない・重視パターン周辺を優先）
+   - 現在時刻取得: date "+%Y%m%d_%H%M" / 保存先: ai収集/slocri_import_[YYYYMMDD_HHMM].csv
+   - ヘッダー: cat,source,machine,title,body,url,quality,dup_key,author / 数字のカンマ除去・本文カンマはダブルクォート
+   - 品質ゲート: ①新台スケジュール/カレンダー系は最大1件 ②generic praise禁止(具体数字・スペック・独自切り口・実戦データ必須) ③機種名「全般」総論は最大2件 ④同一機種×同一話題の近接重複回避 ⑤body下限180字目安 ⑥鮮度チェック(旧台を最新扱いしない)
+5. python scripts/import/import_csv.py "ai収集/slocri_import_[ファイル名].csv"
+6. python scripts/misc/fetch_ogp.py
+7. git add → git commit → git push
+8. memory/dup_keys.md に新dup_keyを先頭セクションに追記
+
+収集ルール: 新台優先・パチスロメイン(パチンコ1〜2件)・dup_key重複禁止・URL捏造禁止・手順0必須
+author候補: 編集部AI, スロ好き編集マン, スロキー編集部, パチスロ記者, 編集長補佐, ライター見習い, スロ専門編集, 深夜のスロライター, 編集部のマニア

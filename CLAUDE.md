@@ -5,20 +5,25 @@
 このCLAUDE.mdを読み込んだ**最初のユーザーメッセージ受信時**、ユーザーへの応答より先に必ず：
 
 1. `CronList` を実行して現在のcron状態を確認
-2. 以下の10本が登録されていなければ即 `CronCreate` で全部登録（後述の各タスクの仕様通り）
-   - ネタ収集 9:00 (`0 9 * * *`)・**機種分析更新も連動して走る**(末尾に組み込み済み)
-   - ネタ収集 13:30 (`30 13 * * *`)
+2. 以下の**6本のClaude session cron**が登録されていなければ即 `CronCreate` で全部登録（後述の各タスクの仕様通り）
    - チャット返答 10分 (`*/10 * * * *` / one-shot自己再登録)
    - 管理者チャット 10分 (`*/10 * * * *` / one-shot自己再登録)
    - 企画・ゲーム性提案処理 10分 (`*/10 * * * *` / one-shot自己再登録)
    - 収集要望処理 30分 (`17,47 * * * *` / one-shot自己再登録)
-   - コラム自動生成 週1 (`0 5 * * 1` / 毎週月曜 5:00)
    - フィードバック自動対応 30分 (`8,38 * * * *` / one-shot自己再登録)
    - ネタ要望反映 30分 (`23,53 * * * *` / one-shot自己再登録)・各投稿の「💡AI編集部に要望」を消化
-   - 新台カレンダー更新 週1 (`12 6 * * 2` / 毎週火曜 6:12・recurring)・機種重複スキャン＋導入予定の鮮度メンテ
-3. **1行で**「✅ cron N本登録済み」と報告してから、ユーザー要件に応える
+3. **1行で**「✅ cron 6本登録済み」と報告してから、ユーザー要件に応える
 
-理由: Claude Code のcronは現状 session-only（`durable:true` が効かない仕様）。VS Code/PC再起動のたびに全消滅するため、毎セッション必ず再登録しないと自動収集・チャット返答が止まる。**ユーザーが「動いてない？」と聞くまで気づかれない事故**を防止する。
+> **⚠️ 重要（2026-05-30 アーキテクチャ変更）**: 低頻度の4ジョブ（**ネタ収集9:00・ネタ収集13:30・コラム週1・新台カレンダー更新週1**）は Claude cron から **Windowsタスクスケジューラ＋ヘッドレスclaude実行**に移管した。**これら4本は session cron として CronCreate してはいけない**（タスクスケジューラと二重実行になる）。詳細は末尾「タスクスケジューラ管轄ジョブ」を参照。
+
+理由: Claude Code のcronは現状 session-only（`durable:true` が効かない仕様）。VS Code/PC再起動のたびに全消滅するため、毎セッション必ず再登録しないと自動収集・チャット返答が止まる。**ユーザーが「動いてない？」と聞くまで気づかれない事故**を防止する。低頻度・落とすと痛いジョブはOS側スケジューラに逃がし無人化した。
+
+## ⚠️ cron状態を聞かれた時の報告ルール（2026-05-30追加）
+
+ユーザーが「全cron教えて」「cronどうなってる？」等、cron/自動タスクの状態を尋ねた時は、**Claude側cron（CronList）だけでなく Windowsタスクスケジューラのジョブ状態も必ず一緒に報告する**こと。両者は別系統で動いており、片方だけ見せると全体像を誤認させる。
+- Claude cron: `CronList` で確認
+- タスクスケジューラ: `Get-ScheduledTask -TaskName "Slocri*" | Get-ScheduledTaskInfo` で State/LastRunTime/LastTaskResult/NextRunTime を確認
+- 報告は「Claude cron N本」＋「タスクスケジューラ M本（SIS稼働 + 低頻度Claudeジョブ）」をセットで示す。
 
 ## 自動タスクの実行ルール
 
@@ -33,6 +38,8 @@ Cronジョブによる自動タスク（【自動ネタ収集タスク】【自�
 このプロジェクトを開いたら、以下の2つのCronジョブを **毎回** CronCreateで登録してください。
 
 ### ① ネタ収集（毎日 9:00・13:30）
+
+> **🚚 2026-05-30 タスクスケジューラへ移管済み**: このジョブは Claude cron ではなく Windowsタスクスケジューラ（`SlocriNetaCollect_0900` / `_1330`）＋ヘッドレスclaude（`bat\run_claude_task.bat`）で実行する。**session cron として CronCreate しないこと。** 以下のprompt仕様は `bat\prompts\neta_0900.txt` / `neta_1330.txt` に転記済み（メンテ時は両方を同期）。
 
 **9:00ジョブ** `cron: "0 9 * * *"` / **13:30ジョブ** `cron: "30 13 * * *"`
 両方 durable: true、recurring: true
@@ -164,6 +171,8 @@ recurring: false  ← one-shot。末尾でCronCreateにより自己再登録す�
 
 ### ⑦ コラム自動生成（週1回 月曜5:00・recurring）
 
+> **🚚 2026-05-30 タスクスケジューラへ移管済み**: Claude cron ではなく `SlocriColumnWeekly`（月曜5:00）＋ヘッドレスclaude（`bat\prompts\column_weekly.txt`）で実行。**session cron として CronCreate しないこと。**
+
 **頻度**: 毎週月曜 5:00 (`0 5 * * 1`)・column_feedback 反映のため週1回が適切
 
 ```
@@ -274,6 +283,8 @@ BASE=https://vpzbtuucopucablwyqeq.supabase.co/rest/v1
 
 ### ⑩ 新台カレンダー更新（週1回 火曜6:12・recurring）
 
+> **🚚 2026-05-30 タスクスケジューラへ移管済み**: Claude cron ではなく `SlocriCalendarWeekly`（火曜6:12）＋ヘッドレスclaude（`bat\prompts\calendar_weekly.txt`）で実行。**session cron として CronCreate しないこと。**
+
 **頻度**: 毎週火曜 6:12 (`12 6 * * 2`)・durable: true・recurring: true
 
 新台カレンダー（App.jsx `view==="calendar"`）は `src/machineAnalysis.json` の中で `releaseDate` を持つ機種から自動生成されるビュー。このcronがそのデータの**一意性（重複排除）と鮮度（導入予定の最新化）**を保守する。2026-05-30新設（フィードバック「新台カレンダーに同じ機種がある」対応）。
@@ -332,10 +343,31 @@ proposal_requestsの処理分岐：
 
 ---
 
+## タスクスケジューラ管轄ジョブ（Claude cronとは別系統・2026-05-30〜）
+
+低頻度・落とすと痛いジョブはWindowsタスクスケジューラ＋ヘッドレスclaude実行に移管した。**PCが起動していればClaude/VS Codeを開いていなくても無人で走る**（session cronのように揮発しない）。
+
+| タスク名 | スケジュール | 内容 | プロンプト |
+|---|---|---|---|
+| `SlocriNetaCollect_0900` | 平日含む毎日 9:00 | ネタ収集＋機種分析更新（①） | `bat\prompts\neta_0900.txt` |
+| `SlocriNetaCollect_1330` | 毎日 13:30 | ネタ収集（①） | `bat\prompts\neta_1330.txt` |
+| `SlocriColumnWeekly` | 毎週月曜 5:00 | コラム自動生成（⑦） | `bat\prompts\column_weekly.txt` |
+| `SlocriCalendarWeekly` | 毎週火曜 6:12 | 新台カレンダー更新（⑩） | `bat\prompts\calendar_weekly.txt` |
+| `SlocriSisImport_1000/1100/1200` | 平日 10/11/12時 | SIS稼働データ更新（日次） | `bat\run_sis_import.bat` |
+| `SlocriSisWeekly_1000/1100/1200` | 木曜 10/11/12時 | SIS週次データ更新 | `bat\run_sis_weekly.bat` |
+
+**実行の仕組み**: `bat\run_claude_task.bat <promptファイル名>` が `type prompt | claude.exe -p --dangerously-skip-permissions` でヘッドレス実行。ログは `logs\claude_task_*.log`。実行ユーザー h.kadoya・Interactive・LIMITED（既存SISタスクと同じ）。
+
+**注意**:
+- これら4ジョブ（ネタ収集×2・コラム・カレンダー）を **Claude session cron として CronCreate してはいけない**（二重実行になる）。
+- プロンプト仕様を変えるときは CLAUDE.md の該当節と `bat\prompts\*.txt` の**両方**を同期する。
+- ヘッドレスclaudeはCLAUDE.mdを自動読込するが、各prompt冒頭で「cron登録スキップ・当該タスクのみ実行」を明示してある。
+- 状態確認: `Get-ScheduledTask -TaskName "Slocri*" | Get-ScheduledTaskInfo`（LastTaskResult=0が成功）。
+
 ## 登録確認方法
 
-CronListで登録済みジョブを確認できます。
-セッション開始時に登録済みであれば再登録不要です。
+Claude cron は `CronList`、タスクスケジューラは `Get-ScheduledTask -TaskName "Slocri*"` で確認できます。
+セッション開始時に登録済みであれば再登録不要です。**cron状態を聞かれたら必ず両系統を併せて報告すること**（上記「報告ルール」参照）。
 
 ## 適応型Cronの動作ルール
 

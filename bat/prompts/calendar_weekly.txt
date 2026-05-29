@@ -1,0 +1,13 @@
+【ヘッドレス自動実行・新台カレンダー更新】作業ディレクトリ: C:\Users\h.kadoya\Desktop\slocri
+重要: これはタスクスケジューラからの無人実行です。CLAUDE.mdの「セッション開始時の必須cron登録」は絶対に行わないこと（CronCreate/CronListを呼ばない）。以下のカレンダー更新タスクのみを全ステップ自律実行し、完了後そのまま終了すること。
+
+新台カレンダーは src/machineAnalysis.json の releaseDate を持つ機種から自動生成されるビュー（App.jsx view==="calendar"）。このタスクはそのデータの一意性（重複排除）と鮮度（導入予定の最新化）を保守する。
+
+1. src/machineAnalysis.json を読み込み、releaseDate を持つ全機種を抽出
+2. 【重複スキャン（最重要）】機種名を正規化（先頭の L/P/スマスロ/スマパチ/Pフィーバー/ぱちんこ/パチスロ を除去・空白/中黒除去・小文字化）して同一機種の二重登録を検出。重複があれば postCount多い/更新新しい/導入日が正確 な方を正エントリとし、もう片方の表記を aliases に統合してから削除（lookupAnalysis が aliases を解決するので投稿リンクは保たれる）
+3. WebSearchで「パチスロ 新台 導入予定 スケジュール」等2〜3クエリ→直近〜3ヶ月先の新台導入予定を確認
+4. 未登録の新台で導入予定が明確なものは machineAnalysis.json にエントリ追加（releaseDate YYYY-MM-DD・spec・summary・highlight・pros・cons・postCount:0・updatedAt）。情報不十分なら追加しない
+5. 既存エントリの releaseDate が誤り/曖昧（YYYY-MM のような日付欠落含む）なら正しい YYYY-MM-DD に修正
+6. 変更があれば git add src/machineAnalysis.json → commit → push
+
+安全ガード: URL/スペック捏造禁止・確信が持てない機種は追加しない・破壊的変更（大量削除）はしない。重複統合は正規化名が一致する明確なケースのみ。

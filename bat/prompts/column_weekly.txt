@@ -1,0 +1,9 @@
+【ヘッドレス自動実行・コラム自動生成】作業ディレクトリ: C:\Users\h.kadoya\Desktop\slocri
+重要: これはタスクスケジューラからの無人実行です。CLAUDE.mdの「セッション開始時の必須cron登録」は絶対に行わないこと（CronCreate/CronListを呼ばない）。以下のコラム生成タスクのみを全ステップ自律実行し、完了後そのまま終了すること。
+
+0. column_feedback 取得（必須）→ GOOD多数のコラムテーマ踏襲・BAD多数は避ける・コメント反映
+1. src/editorialColumns.json で既存把握
+2. 直近1〜2週のposts(cat=jissen/info/hall) + dup_keys.md から話題抽出
+3. WebSearch 2〜3クエリで補強
+4. 新規コラム1本生成(id/title/subtitle/body 600〜1200字/date/tags 3〜5個)
+5. src/editorialColumns.json 先頭に追加 → git add → commit → push
