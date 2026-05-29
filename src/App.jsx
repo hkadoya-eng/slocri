@@ -967,6 +967,7 @@ export default function App() {
   const [adminUser, setAdminUser] = useState(null);
   const [showFbInbox, setShowFbInbox] = useState(false);
   const [adminInboxTab, setAdminInboxTab] = useState("feedback");
+  const [hideFbDone, setHideFbDone] = useState(true);
   const [favMachines, setFavMachines] = useState(() => JSON.parse(localStorage.getItem("slotkey_favs") || "[]"));
   function toggleFavMachine(machine) {
     setFavMachines(prev => {
@@ -1432,15 +1433,29 @@ export default function App() {
             </div>
 
             {/* フィードバック一覧 */}
-            {adminInboxTab === "feedback" && (
+            {adminInboxTab === "feedback" && (() => {
+              const doneCount = feedbackPosts.filter(p => p.internal?.fbProcessed).length;
+              const awaitCount = feedbackPosts.filter(p => p.internal?.fbAwaitingApproval && !p.internal?.fbProcessed).length;
+              const shownPosts = hideFbDone ? feedbackPosts.filter(p => !p.internal?.fbProcessed) : feedbackPosts;
+              return (
               <div style={{overflowY:"auto",flex:1}}>
-                <div style={{fontSize:13,color:"#aaa",marginBottom:10}}>{feedbackPosts.length}件</div>
-                {feedbackPosts.length === 0 ? (
-                  <div style={{textAlign:"center",color:"#aaa",padding:"32px 0",fontSize:14}}>まだフィードバックはありません</div>
-                ) : feedbackPosts.map(p => (
-                  <div key={p.id} style={{background:"#fff",borderRadius:12,padding:"12px 14px",marginBottom:8}}>
-                    <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,flexWrap:"wrap"}}>
+                  <span style={{fontSize:13,color:"#aaa"}}>全{feedbackPosts.length}件・未対応{feedbackPosts.length-doneCount}件{awaitCount>0?`（うち承認待ち${awaitCount}件）`:""}</span>
+                  <button onClick={()=>setHideFbDone(v=>!v)} style={{marginLeft:"auto",fontSize:12,padding:"4px 10px",borderRadius:6,border:"1px solid #ddd",background:hideFbDone?"#F0F4F8":"#fff",color:"#555",cursor:"pointer"}}>
+                    {hideFbDone?"☑ 対応済みを隠す":"☐ 対応済みを隠す"}
+                  </button>
+                </div>
+                {shownPosts.length === 0 ? (
+                  <div style={{textAlign:"center",color:"#aaa",padding:"32px 0",fontSize:14}}>{feedbackPosts.length===0?"まだフィードバックはありません":"未対応のフィードバックはありません"}</div>
+                ) : shownPosts.map(p => {
+                  const done = p.internal?.fbProcessed;
+                  const awaiting = p.internal?.fbAwaitingApproval && !done;
+                  return (
+                  <div key={p.id} style={{background:"#fff",borderRadius:12,padding:"12px 14px",marginBottom:8,opacity:done?0.72:1}}>
+                    <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6,flexWrap:"wrap"}}>
                       <span style={{fontSize:12,padding:"2px 8px",borderRadius:6,background:p.title==="バグ報告"?"#FCEBEB":p.title==="機能要望"?"#E6F1FB":"#F3EFF9",color:p.title==="バグ報告"?"#A32D2D":p.title==="機能要望"?"#185FA5":"#6B3FA0",fontWeight:600}}>{p.title}</span>
+                      {done && <span style={{fontSize:11,padding:"2px 8px",borderRadius:6,background:"#E8F5E9",color:"#2E7D32",fontWeight:600}}>✓ 対応済み</span>}
+                      {awaiting && <span style={{fontSize:11,padding:"2px 8px",borderRadius:6,background:"#FFF4E0",color:"#B26A00",fontWeight:600}}>⏳ 承認待ち</span>}
                       <span style={{fontSize:12,color:"#aaa"}}>{p.internal?.author || "匿名"}</span>
                       <span style={{fontSize:12,color:"#ccc",marginLeft:"auto"}}>{p.created_at ? new Date(p.created_at).toLocaleDateString("ja-JP") : ""}</span>
                     </div>
@@ -1450,10 +1465,21 @@ export default function App() {
                         <img src={p.internal.imageUrl} alt="添付画像" style={{maxWidth:240,maxHeight:240,borderRadius:8,border:"1px solid #eee",cursor:"zoom-in"}}/>
                       </a>
                     )}
+                    {awaiting && p.internal?.fbProposal && (
+                      <div style={{marginTop:8,fontSize:12,color:"#B26A00",background:"#FFFBF2",border:"1px solid #FFE0B2",borderRadius:8,padding:"8px 10px",lineHeight:1.6}}>
+                        <b>対応案（承認待ち）:</b> {p.internal.fbProposal}<br/>
+                        <span style={{color:"#999"}}>※「🤖 Claudeと話す」で「おねがい」と返信すると実行されます</span>
+                      </div>
+                    )}
+                    {p.internal?.adminReply && (
+                      <div style={{marginTop:8,fontSize:12,color:"#555",background:"#F7F9FB",borderRadius:8,padding:"8px 10px",lineHeight:1.6}}>
+                        <b style={{color:"#2E7D32"}}>対応内容:</b> {p.internal.adminReply}
+                      </div>
+                    )}
                   </div>
-                ))}
+                )})}
               </div>
-            )}
+            )})()}
 
             {/* Claudeチャット */}
             {adminInboxTab === "claude" && <AdminChat />}

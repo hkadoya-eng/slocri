@@ -20,6 +20,8 @@ export default function AdminChat() {
   const [waiting, setWaiting] = useState(false);
   const bottomRef = useRef(null);
   const prevCountRef = useRef(0);
+  const scrollerRef = useRef(null);
+  const scrollSeenRef = useRef(0);
 
   async function load() {
     const res = await fetch(
@@ -42,7 +44,17 @@ export default function AdminChat() {
   }, [sid]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    // 新着メッセージが増えた時だけ、かつ既に最下部付近にいる時だけ自動スクロールする。
+    // （4秒ポーリングのたびに最下部へ飛ばされて履歴が読めない問題を防止）
+    const firstLoad = scrollSeenRef.current === 0 && msgs.length > 0;
+    const grew = msgs.length > scrollSeenRef.current;
+    const scroller = scrollerRef.current;
+    const nearBottom = scroller
+      ? scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 120
+      : true;
+    if (firstLoad) bottomRef.current?.scrollIntoView();           // 初回は最下部から開く（アニメなし）
+    else if (grew && nearBottom) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    scrollSeenRef.current = msgs.length;
   }, [msgs]);
 
   async function send(text) {
@@ -90,7 +102,7 @@ export default function AdminChat() {
       </div>
 
       {/* メッセージ一覧 */}
-      <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8, marginBottom: 12, paddingRight: 2 }}>
+      <div ref={scrollerRef} style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8, marginBottom: 12, paddingRight: 2 }}>
         {msgs.length === 0 && !waiting && (
           <div style={{ color: "#aaa", fontSize: 13, textAlign: "center", padding: "28px 0", lineHeight: 2 }}>
             何でも指示してください<br />
