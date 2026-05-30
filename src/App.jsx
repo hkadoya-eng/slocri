@@ -405,6 +405,8 @@ function SisTab({ adminUser }) {
   const [weeklyData, setWeeklyData] = useState([]);
   const [sisView, _setSisView] = useState(() => sessionStorage.getItem("slokey_sisView") || "daily");
   const setSisView = (v) => { sessionStorage.setItem("slokey_sisView", v); _setSisView(v); };
+  const [selMachine, setSelMachine] = useState(null); // 機種名タップで開く分析シート
+  const selMachineAnalysis = useMemo(() => selMachine ? lookupAnalysis(selMachine) : null, [selMachine]);
   const [dateRange, setDateRange] = useState("1m");
   const [weekIdx, setWeekIdx] = useState(0);
   const [nationalDaily, setNationalDaily] = useState({});
@@ -846,7 +848,7 @@ function SisTab({ adminUser }) {
                 <div style={{minWidth:24,fontWeight:700,fontSize:14,color:idx<3?"#D85A30":"#bbb",paddingTop:2}}>{idx+1}</div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{display:"flex",alignItems:"baseline",gap:6,marginBottom:6}}>
-                    <span style={{fontSize:13,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0}}>{r.machine}</span>
+                    <span onClick={() => setSelMachine(r.machine)} style={{fontSize:13,fontWeight:700,color:"#1A56B0",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0,cursor:"pointer",textDecoration:"underline",textDecorationColor:"rgba(26,86,176,0.3)",textUnderlineOffset:2}}>{r.machine}</span>
                     {r.machine_count != null && <span style={{fontSize:10,color:"#aaa",whiteSpace:"nowrap",flexShrink:0}}>{r.machine_count}台</span>}
                   </div>
                   <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:"2px 4px"}}>
@@ -912,7 +914,7 @@ function SisTab({ adminUser }) {
                   <div key={r.machine} style={{background:"#fff",borderRadius:12,padding:"10px 12px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff",display:"flex",alignItems:"flex-start",gap:10}}>
                     <div style={{minWidth:24,fontWeight:700,fontSize:14,color:idx<3?"#D85A30":"#bbb",paddingTop:2}}>{idx+1}</div>
                     <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:13,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:6}}>{r.machine}</div>
+                      <div onClick={() => setSelMachine(r.machine)} style={{fontSize:13,fontWeight:700,color:"#1A56B0",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:6,cursor:"pointer",textDecoration:"underline",textDecorationColor:"rgba(26,86,176,0.3)",textUnderlineOffset:2}}>{r.machine}</div>
                       <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:"2px 8px"}}>
                         <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>平均IN</div><div style={{fontWeight:600,color:"#444",fontSize:11}}>{fmtNum(r.out_coins)}</div></div>
                         <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>出玉率</div><div style={{fontWeight:700,color:rateColor(r.payout_rate),fontSize:11}}>{fmtRate(r.payout_rate)}</div></div>
@@ -928,6 +930,68 @@ function SisTab({ adminUser }) {
           </div>
         </div>
       </>}
+
+      {/* 機種名タップ→機種分析シート（稼働ランキングから機種説明・ゲーム性へ） */}
+      {selMachine && (
+        <>
+          <div onClick={() => setSelMachine(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:198}}/>
+          <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:199,background:"#E8ECF0",borderRadius:"20px 20px 0 0",maxHeight:"88vh",display:"flex",flexDirection:"column",maxWidth:740,margin:"0 auto"}}>
+            <div style={{padding:"12px 16px 0",flexShrink:0}}>
+              <div style={{width:40,height:4,background:"#C5C9D4",borderRadius:2,margin:"0 auto 14px"}}/>
+              <div style={{display:"flex",alignItems:"flex-start",gap:8,marginBottom:10}}>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:18,fontWeight:700,color:"#333"}}>{selMachine}</div>
+                  {selMachineAnalysis?.releaseDate && (
+                    <div style={{fontSize:12,color:"#888",marginTop:2}}>導入日: {selMachineAnalysis.releaseDate}</div>
+                  )}
+                </div>
+                <button onClick={() => setSelMachine(null)} style={{background:"none",border:"none",fontSize:22,color:"#bbb",cursor:"pointer",padding:"0 4px",lineHeight:1,flexShrink:0}}>×</button>
+              </div>
+            </div>
+            <div style={{overflowY:"auto",padding:"0 16px 40px",flex:1}}>
+              {selMachineAnalysis ? (
+                <div style={{background:"#fff",borderRadius:14,padding:"14px 16px",marginBottom:14,border:"0.5px solid #E0E4E8"}}>
+                  {selMachineAnalysis.spec && (
+                    <div style={{fontSize:11,color:"#888",marginBottom:10,lineHeight:1.5,borderBottom:"1px solid #F0F0F0",paddingBottom:8}}>{selMachineAnalysis.spec}</div>
+                  )}
+                  {selMachineAnalysis.summary && (
+                    <div style={{fontSize:14,fontWeight:700,color:"#333",marginBottom:8}}>{selMachineAnalysis.summary}</div>
+                  )}
+                  {selMachineAnalysis.highlight && (
+                    <div style={{fontSize:13,color:"#555",lineHeight:1.7,marginBottom:10}}>{selMachineAnalysis.highlight}</div>
+                  )}
+                  {selMachineAnalysis.pros?.length > 0 && (
+                    <div style={{marginBottom:8}}>
+                      <div style={{fontSize:12,fontWeight:700,color:"#2a9d3f",marginBottom:4}}>👍 強み</div>
+                      {selMachineAnalysis.pros.map((p, i) => (
+                        <div key={i} style={{fontSize:12,color:"#555",lineHeight:1.6,paddingLeft:4}}>・{p}</div>
+                      ))}
+                    </div>
+                  )}
+                  {selMachineAnalysis.cons?.length > 0 && (
+                    <div style={{marginBottom:8}}>
+                      <div style={{fontSize:12,fontWeight:700,color:"#E53935",marginBottom:4}}>👎 弱み</div>
+                      {selMachineAnalysis.cons.map((c, i) => (
+                        <div key={i} style={{fontSize:12,color:"#555",lineHeight:1.6,paddingLeft:4}}>・{c}</div>
+                      ))}
+                    </div>
+                  )}
+                  {selMachineAnalysis.updatedAt && (
+                    <div style={{fontSize:11,color:"#bbb",marginTop:8,textAlign:"right"}}>分析更新: {selMachineAnalysis.updatedAt}</div>
+                  )}
+                </div>
+              ) : (
+                <div style={{background:"#fff",borderRadius:14,padding:"20px 16px",marginBottom:14,border:"0.5px solid #E0E4E8",textAlign:"center"}}>
+                  <div style={{fontSize:14,fontWeight:700,color:"#888",marginBottom:6}}>分析準備中</div>
+                  <div style={{fontSize:12,color:"#aaa",lineHeight:1.6,marginBottom:14}}>この機種の分析データはまだ用意できていません。<br/>下記から最新のスペック・ゲーム性を確認できます。</div>
+                  <a href={`https://www.google.com/search?q=${encodeURIComponent(selMachine + " スペック ゲーム性")}`} target="_blank" rel="noopener noreferrer"
+                    style={{display:"inline-block",padding:"8px 18px",background:"#1A56B0",color:"#fff",borderRadius:20,fontSize:13,fontWeight:600,textDecoration:"none"}}>🔍 Webで調べる</a>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       <div style={{textAlign:"right",marginTop:16}}>
         <button onClick={() => supabase.auth.signOut()}
