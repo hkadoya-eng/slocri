@@ -356,7 +356,7 @@ proposal_requestsの処理分岐：
 | `SlocriColumnWeekly` | 毎週月曜 5:00 | コラム自動生成（⑦） | `bat\prompts\column_weekly.txt` |
 | `SlocriCalendarWeekly` | 毎週火曜 6:12 | 新台カレンダー更新（⑩） | `bat\prompts\calendar_weekly.txt` |
 | `SlocriSisImport_1000/1100/1200` | 平日 10/11/12時 | SIS稼働データ更新（日次） | `bat\run_sis_import.bat` |
-| `SlocriSisWeekly_1000/1100/1200` | 木曜 10/11/12時 | SIS週次データ更新 | `bat\run_sis_weekly.bat` |
+| `SlocriSisWeekly_1000/1100/1200` | 木曜 10:07/11:07/12:07 | SIS週次データ更新 | `bat\run_sis_weekly.bat` |
 
 **実行の仕組み**: `bat\run_claude_task.bat <promptファイル名>` が `type prompt | claude.exe -p --dangerously-skip-permissions` でヘッドレス実行。ログは `logs\claude_task_*.log`。実行ユーザー h.kadoya・Interactive・LIMITED（既存SISタスクと同じ）。
 
