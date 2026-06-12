@@ -29,6 +29,10 @@ tmp_archive/
 *_tmp.txt
 tmp_*.txt
 tmp_*.json
+# cron scratch files (curl→python queue checks)
+_*.json
+_*.txt
+.cron_prompts.tmp
 
 # Local SIS data copies (real data is on Z:\01_SISデータ\PS\)
 sisデータ/
