@@ -1,0 +1,16 @@
+【ヘッドレス自動実行・ゲーム性分析の定期拡充】作業ディレクトリ: C:\Users\h.kadoya\Desktop\slocri
+重要: これはタスクスケジューラからの無人実行です。CLAUDE.mdの「セッション開始時の必須cron登録」は絶対に行わないこと（CronCreate/CronListを呼ばない）。以下のゲーム性拡充タスクのみを全ステップ自律実行し、完了後そのまま終了すること。ユーザーへの確認は不要・全自動。
+
+目的: src/gameDesignLibrary.json を毎回少しずつ厚くし、AIが扱えるゲーム性の「型」と知識の幅を着実に広げる（週2回実行）。
+
+0. src/gameDesignLibrary.json を読み、既存の gameFlowPatterns（型）・czDesignPatterns・machines・classicMachines・各設計論セクションを把握する。**既存と重複する追加はしない**。
+1. 【今回のフォーカスを1つだけ選ぶ】次の中から、既存の手薄な領域・市場の新しい動きを踏まえて最も価値が高いものを1つ選定（毎回違う領域を選び、年間で幅が広がるようにローテーションを意識する）:
+   (a) 新しい gameFlowPattern（型）を1つ追加 … 市場に実在する新しいゲーム性トレンドを型として抽象化（description/rules/presentation/examples を既存エントリと同じ構造で）
+   (b) 新しい czDesignPattern を1つ追加（同上の構造）
+   (c) 現行人気機種を2〜3機種 machines{} に追加 … description/highlight/czRules/atRules を付け、該当する gameFlowPatterns の examples にも機種名を追加
+   (d) 整理 … 明確に重複・表記ゆれしているエントリの統合、内容が薄いエントリの加筆、designEvolution への知見追記。**大量削除はしない**
+2. WebSearch 2〜3クエリで実在の機種・仕組みを裏取りする（型・CZ・継続・天井・純増などの具体仕様）。
+3. src/gameDesignLibrary.json を更新する。**スキーマ構造（既存キーの形）を必ず踏襲**し、JSONとして壊さない（追加後に python で json.load 検証）。
+4. git add src/gameDesignLibrary.json → commit（メッセージは「ゲーム性分析拡充: <追加/整理した内容を1行>」）→ push。
+
+安全ガード: スペック/URLの捏造禁止・確信が持てない型や機種は追加しない・破壊的な大量削除はしない・1回の実行で増やすのは型なら1つ、機種なら最大3機種まで（薄く広げすぎない）。Supabase等のcurlは使わないがWebSearchのみ可。JSON破損を避けるため更新後に必ず json.load で検証してから push する。
