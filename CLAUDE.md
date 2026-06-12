@@ -356,7 +356,7 @@ proposal_requestsの処理分岐：
 | `SlocriColumnWeekly` | 毎週月曜 5:00 | コラム自動生成（⑦） | `bat\prompts\column_weekly.txt` |
 | `SlocriCalendarWeekly` | 毎週火曜 6:12 | 新台カレンダー更新（⑩） | `bat\prompts\calendar_weekly.txt` |
 | `SlocriGameDesignWeekly` | 毎週 月・木 7:22（週2回） | ゲーム性分析の定期拡充（⑪）gameDesignLibrary.jsonに型追加/機種追加/整理 | `bat\prompts\gamedesign_weekly.txt` |
-| `SlocriProposalWeekly` | 毎週金曜 6:42 | 企画提案の自動生成（⑫）市場ギャップ起点・proposals/新規提案にMD保存 | `bat\prompts\proposal_weekly.txt` |
+| `SlocriProposalWeekly` | 毎週金曜 6:42 | 企画提案の自動生成（⑫）市場ギャップ起点・分析タブの✏️企画提案(proposal_requests)に公開投稿 | `bat\prompts\proposal_weekly.txt` |
 | `SlocriSisImport_1000/1100/1200` | 平日 10/11/12時 | SIS稼働データ更新（日次） | `bat\run_sis_import.bat` |
 | `SlocriSisWeekly_1000/1100/1200` | 木曜 10:07/11:07/12:07 | SIS週次データ更新 | `bat\run_sis_weekly.bat` |
 
@@ -365,7 +365,7 @@ proposal_requestsの処理分岐：
 **注意**:
 - これら6ジョブ（ネタ収集×2・コラム・カレンダー・ゲーム性拡充・企画提案）を **Claude session cron として CronCreate してはいけない**（二重実行になる）。
 - ⑪ゲーム性拡充（2026-06-13新設）: 受け身の「【ゲーム性分析追加リクエスト】」処理（cron⑤）とは別の**プロアクティブ拡充**。週2回、毎回1テーマだけ（型1つ or 機種最大3 or 整理）を薄く広げ、年間でゲーム性の幅を広げる。捏造・大量削除禁止・更新後 json.load 検証必須。
-- ⑫企画提案自動生成（2026-06-13新設）: ユーザー依頼の proposal_requests 処理（cron⑤）とは別の**プロアクティブ生成**。週1本、marketGaps 起点でオリジナル企画を `proposals/新規提案/[YYYYMMDD]_[タイトル].md` に保存。特定実機の解析値捏造禁止。
+- ⑫企画提案自動生成（2026-06-13新設・出力先は同日 企画タブへ変更）: ユーザー依頼の proposal_requests 処理（cron⑤）とは別の**プロアクティブ生成**。週1本、marketGaps 起点でオリジナル企画を生成し、**proposal_requests に status=done / visibility=public / owner_id=null で insert** → 「分析タブ → ✏️企画提案」(ProposeTab) の依頼履歴に公開表示される。特定実機の解析値捏造禁止。git push不要（DB投稿）。
 - プロンプト仕様を変えるときは CLAUDE.md の該当節と `bat\prompts\*.txt` の**両方**を同期する。
 - ヘッドレスclaudeはCLAUDE.mdを自動読込するが、各prompt冒頭で「cron登録スキップ・当該タスクのみ実行」を明示してある。
 - 状態確認: `Get-ScheduledTask -TaskName "Slocri*" | Get-ScheduledTaskInfo`（LastTaskResult=0が成功）。

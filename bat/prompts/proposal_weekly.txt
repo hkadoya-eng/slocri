@@ -1,13 +1,24 @@
 【ヘッドレス自動実行・企画提案の定期自動生成】作業ディレクトリ: C:\Users\h.kadoya\Desktop\slocri
 重要: これはタスクスケジューラからの無人実行です。CLAUDE.mdの「セッション開始時の必須cron登録」は絶対に行わないこと（CronCreate/CronListを呼ばない）。以下の企画提案生成タスクのみを全ステップ自律実行し、完了後そのまま終了すること。ユーザーへの確認は不要・全自動。
 
-目的: 市場ギャップを起点に、オリジナルのパチスロ企画提案書を週1本自動生成し proposals フォルダに蓄積する（週1回実行）。
+目的: 市場ギャップを起点に、オリジナルのパチスロ企画提案書を週1本自動生成し、**サイトの「分析タブ → ✏️企画提案」(ProposeTab) に公開投稿**する。投稿先は Supabase の proposal_requests テーブル（ProposeTab はここの visibility=public を最新30件表示する）。
+
+ANON=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwemJ0dXVjb3B1Y2FibHd5cWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjk2MzEsImV4cCI6MjA5MTIwNTYzMX0.qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA
+BASE=https://vpzbtuucopucablwyqeq.supabase.co/rest/v1
 
 0. src/gameDesignLibrary.json を読み、特に marketGaps（現在市場に存在しない設計／成功する競合の共通点／失敗パターン）・gameFlowPatterns・playerPsychology・specDesign を根拠に使えるよう把握する。src/machineAnalysis.json も参照して現行市場の機種傾向を掴む。
 1. WebSearch 2〜3クエリで直近の新台・市場トレンド・話題を確認し、「まだ埋まっていない市場ギャップ／伸びしろのある切り口」を1つ特定する。
 2. そのギャップを起点に、オリジナル企画を1本構想する（既存実機のコピーにしない・特定実機の解析値を捏造しない）。
-3. マークダウンで企画提案書を生成する。構成: タイトル/モチーフ・コンセプト/狙う市場ギャップ（なぜ今刺さるか）/ターゲット層/ゲームフロー（CZ・AT・継続・天井・やめ時）/スペック案（specDesignの現実的レンジに収める）/設定差設計/演出・筐体の方向性/既存機種との差別化ポイント/想定リスク。本文は読み応えのある分量で具体的に。
-4. 保存先: proposals/新規提案/ に `[YYYYMMDD]_[企画タイトル].md` で保存（日時は Bash の date "+%Y%m%d" で取得）。フォルダが無ければ作成。
-5. git add proposals/新規提案/ → commit（メッセージは「企画提案自動生成: <タイトル>（市場ギャップ起点）」）→ push。
+3. マークダウンで企画提案書を生成する。構成: タイトル/モチーフ・コンセプト/狙う市場ギャップ（なぜ今刺さるか・marketGapsの該当項目を根拠に）/ターゲット層/ゲームフロー（CZ・AT・継続・天井・やめ時）/スペック案（specDesignの現実的レンジに収める・表で）/設定差設計/演出・筐体の方向性/既存機種との差別化/想定リスクと対策。冒頭に「AI編集部オリジナル企画（市場ギャップ分析起点・実機の解析値は使用していません）」を明記。本文は読み応えのある分量で具体的に。
+4. proposal_requests に1行 POST insert する。クォート崩れを避けるため **python で payload を json.dumps して urllib.request で POST** する（curlの多重クォートは避ける）。送るフィールド:
+   - ip_name: 企画タイトル
+   - target: ターゲット層（"機能単体" 以外の文字列にする。ProposeTabの全体企画リストに出すため必須）
+   - concept_memo: 1〜2文のコンセプト要約（AI編集部オリジナル・市場ギャップ起点である旨を含める）
+   - result: 生成した企画提案書マークダウン全文
+   - status: "done"
+   - visibility: "public"
+   - owner_id: null
+   POSTヘッダ: apikey=ANON / Authorization=Bearer ANON / Content-Type=application/json / Prefer=return=representation。HTTP 201 と返り値の id を確認する。Invalid API key が出たら5秒待って1回リトライ。
+5. これはDBへの投稿でありファイル変更ではないため git push は不要。proposals フォルダへのMD保存も行わない（出力先は企画タブに一本化）。
 
-安全ガード: 特定実機の解析値・スペックの捏造禁止（あくまでオリジナル企画の設計案として現実的レンジで提示）・URLの捏造禁止・1回1本まで。proposals フォルダのサブフォルダ運用ルール（機種別/新規提案）に従い、新規オリジナル企画は proposals/新規提案/ に置く。WebSearchのみ使用可。
+安全ガード: 特定実機の解析値・スペックの捏造禁止（あくまでオリジナル企画の設計案として現実的レンジで提示）・URLの捏造禁止・1回1本まで。WebSearchのみ使用可。proposal_requests への curl/POST は並列禁止・順次。
