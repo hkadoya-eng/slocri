@@ -1169,12 +1169,25 @@ export default function App() {
 
   async function loadPosts() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("posts")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (!error && data) {
-      const mapped = data.map(p => ({ ...p, internal: p.internal || blank(), eng: p.eng || {} }));
+    // PostgREST は1リクエスト最大1000件(db-max-rows)で頭打ちになるため、
+    // .range() で全件をページング取得する(投稿総数が1000を超えても全部読む)
+    const PAGE = 1000;
+    let all = [];
+    let from = 0;
+    let fetchErr = null;
+    while (true) {
+      const { data, error } = await supabase
+        .from("posts")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .range(from, from + PAGE - 1);
+      if (error) { fetchErr = error; break; }
+      if (data && data.length) all = all.concat(data);
+      if (!data || data.length < PAGE) break; // 最終ページ
+      from += PAGE;
+    }
+    if (!fetchErr) {
+      const mapped = all.map(p => ({ ...p, internal: p.internal || blank(), eng: p.eng || {} }));
       setPosts(mapped);
       // ?post=ID で直リンクを処理
       const urlParam = new URLSearchParams(window.location.search).get("post");
