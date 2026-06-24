@@ -1,0 +1,26 @@
+【ヘッドレス自動実行・チャット系10分Tick（チャット返答＋管理者チャット＋企画提案を1プロセスで順次処理）】作業ディレクトリ: C:\Users\h.kadoya\Desktop\slocri
+重要: これはタスクスケジューラからの無人実行です。CronCreate/CronList/CronDelete は絶対に呼ばないこと（セッションcronは使わない。繰り返しはタスクスケジューラ側が担う）。以下3ジョブを順次・全ステップ自律実行し、完了後そのまま終了する。ユーザー確認は取らない。テキスト出力は最小限。
+
+ANON=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwemJ0dXVjb3B1Y2FibHd5cWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjk2MzEsImV4cCI6MjA5MTIwNTYzMX0.qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA
+BASE=https://vpzbtuucopucablwyqeq.supabase.co/rest/v1
+共通: Supabase curlは並列禁止・順次実行。Invalid API keyは5秒待ち再試行。
+
+━━ ジョブA【チャット返答】━━
+①chat_messages(admin_以外)で最新role=userのsessionを抽出
+②0件→ジョブBへ
+③件数あり→各session: assistant0件なら機種/トピックに触れた挨拶(2〜3文)をPOST / assistant1件以上ならmachine名でDB検索(ilike)→2件以上ならDB根拠で300〜500字回答、1件以下ならWebSearch2〜3クエリ→回答をchat_messagesにrole=assistantでPOST
+
+━━ ジョブB【管理者チャット】━━
+①admin_プレフィックスの未返答sessionを確認
+②0件→ジョブCへ
+③あれば全履歴取得→最新userメッセを判定:
+ ・「おねがい」「はい」「実行して」「やって」「お願い」含む→まず posts?cat=eq.feedback で internal.fbAwaitingApproval:true を確認。あれば【フィードバック承認実行】=その fbProposal を実際に実行(Edit/収集等)→git push→PATCH internal に fbProcessed:true,fbAwaitingApproval:false,adminReply:<実施内容>,fbProcessedAt をマージ→完了をPOST。無ければ直前のassistant提案を実行→git push→完了をPOST。
+ ・変更依頼(直して/変えて/追加して等)→変更計画をPOSTして「実行しますか？」
+ ・質問→会話コンテキストで回答をPOST
+
+━━ ジョブC【企画・ゲーム性提案処理】━━
+①proposal_requests pending を target/questions/answers/revision_request の状態分岐で処理→各依頼を更新（詳細はCLAUDE.md「企画提案処理ルール（パートB）」）
+②collection_requests pending のうち theme「【ゲーム性分析追加リクエスト】」「修正提案：」のみ処理→src/gameDesignLibrary.json更新→status=done（詳細はCLAUDE.md「ゲーム性分析追加リクエストの処理ルール」）
+③コード/JSON変更があれば git add→commit→push
+
+全ジョブ完了後そのまま終了（cron再登録は一切しない）。
