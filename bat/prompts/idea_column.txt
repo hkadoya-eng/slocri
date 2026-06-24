@@ -1,0 +1,22 @@
+【ヘッドレス自動実行・スロキー発「新ゲーム性提案」考察コラム 週1投稿】作業ディレクトリ: C:\Users\h.kadoya\Desktop\slocri
+重要: これはタスクスケジューラからの無人実行。CronCreate/CronList/CronDelete は呼ばない。下記を全ステップ自律実行し、完了後そのまま終了。ユーザー確認は取らない。テキスト出力は最小限。
+
+狙い: 編集部(あなた)発の「こういうゲーム性どう？」というオリジナル新ゲーム性提案を、考察コラムとして posts(cat=column) に1本投稿する。実機トレンドと既存実機の仕組みに根ざし、かつ"打ち手の介入で面白くする"視点を必ず入れる。
+
+ANON=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwemJ0dXVjb3B1Y2FibHd5cWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjk2MzEsImV4cCI6MjA5MTIwNTYzMX0.qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA
+BASE=https://vpzbtuucopucablwyqeq.supabase.co/rest/v1
+共通: Supabase curlは並列禁止・順次。Invalid API keyは5秒待ち再試行。
+
+手順:
+0. 既存コラムとの重複回避: posts?cat=eq.column&select=title,dup_key&limit=200 を取得し、既出テーマ・dup_keyを把握。同じ切り口は避ける。
+1. トレンド把握: posts?select=machine,cat&limit=2000 をoffsetページングで取得し機種別投稿数の上位を確認（今ホットな潮流に乗せる）。src/gameDesignLibrary.json の gameFlowPatterns/czDesignPatterns/machines も参照し既出の型は重複させない。
+2. 題材選定: 毎回テーマをずらす。ローテ候補=フリーズ活用 / 擬似レア役・内部状態の可視化 / 特化ゾーン突入契機 / CZの自力介入 / 継続率の見せ方 / コイン単価と射幸性のバランス / 設定示唆の新手法 / 打ち順・狙い目フラグ / 出玉の二段構え 等。手順0で既出の題材は外す。
+3. WebSearch 2-3クエリで該当テーマの実機の仕組みを裏取り（実在機種名・数値を1-2例）。捏造禁止・URL捏造禁止。
+4. オリジナル新ゲーム性を1案、具体設計する。必ず含める: ①参考にした実機の仕組み(実名)と弱点 ②新ゲーム性の核(打ち手の介入ポイント) ③介入と救済のバランス(ハマリ救済等)。可能なら初当り/純増/継続率/天井のおおよその数値イメージも(実機名に実数を紐付けず"オリジナル試算"と明記)。
+5. 考察コラム本文を生成: 600〜1000字・編集部の語り口・カンマ無し(JSON安全のため本文に半角カンマを使わず読点「、」を使う)・最後は前向きな一文。タイトルはキャッチーに。
+6. posts へ insert (curl POST, Prefer: return=representation):
+   {"cat":"column","source":"スロキー編集部","machine":"","title":"<title>","body":"<body>","url":"","quality":4,"dup_key":"<一意キー>_column","eng":{},"internal":{"bad":[],"likes":[],"author":"スロキー編集部","imageUrl":"","shopName":"","bookmarks":[],"ogImageUrl":""},"author":"スロキー編集部"}
+   dup_key は内容を要約した一意文字列＋末尾 _column。手順0の既存dup_keyと衝突しないこと。
+7. git push は不要(DB投稿のみ)。完了後そのまま終了。
+
+安全ガード: 実在機種の解析値の捏造禁止。新ゲーム性は"提案/試算"と明記し断定しない。1回で投稿は1本のみ。

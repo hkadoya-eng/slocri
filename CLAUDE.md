@@ -356,6 +356,7 @@ proposal_requestsの処理分岐：
 | `SlocriCalendarWeekly` | 毎週火曜 6:12 | 新台カレンダー更新（⑩） | `bat\prompts\calendar_weekly.txt` |
 | `SlocriGameDesignWeekly` | 毎日 7:22（2026-06-25 週2→毎日に増頻） | ゲーム性分析の定期拡充（⑪）gameDesignLibrary.jsonに型追加/機種追加/整理 | `bat\prompts\gamedesign_weekly.txt` |
 | `SlocriProposalWeekly` | 毎週 月・水・金 6:42（週3・2026-06-25増頻） | 企画提案の自動生成（⑫）市場ギャップ起点・分析タブの✏️企画提案(proposal_requests)に公開投稿 | `bat\prompts\proposal_weekly.txt` |
+| `SlocriIdeaColumn` | 毎週土 8:12（2026-06-25新設） | 編集部発「新ゲーム性提案」考察コラムを posts(cat=column)へ週1投稿（⑬）。フリーズ活用/擬似レア役/特化ゾーン契機等を題材ローテし"打ち手の介入で面白くする"視点で実機根拠付きの新ゲーム性を提案。git不要(DB投稿) | `bat\prompts\idea_column.txt` |
 | `SlocriSisImport_1000/1100/1200` | 平日 10/11/12時 | SIS稼働データ更新（日次） | `bat\run_sis_import.bat` |
 | `SlocriSisWeekly_1000/1100/1200` | 木曜 10:07/11:07/12:07 | SIS週次データ更新 | `bat\run_sis_weekly.bat` |
 
