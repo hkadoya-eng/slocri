@@ -1,11 +1,21 @@
-' Hidden launcher for Slocri headless claude tasks.
-' Runs bat\run_claude_task.bat with the given prompt-file arg in a fully hidden window
-' (window style 0 = hidden), so no console pops up and focus is never stolen.
-' bWaitOnReturn = True so the scheduled task stays "Running" until claude finishes
+' Generic hidden launcher for Slocri scheduled tasks.
+' Usage (scheduled task action): wscript.exe "...\bat\run_hidden.vbs" <batFileName> [args...]
+'   arg0      = bat file name located in the same folder as this script (e.g. run_claude_task.bat)
+'   arg1..    = arguments passed through to that bat
+' Runs the bat in a fully hidden window (style 0) so no console pops up and focus is never stolen.
+' bWaitOnReturn = True keeps the scheduled task "Running" until the bat finishes
 ' (preserves MultipleInstances=IgnoreNew overlap protection).
-Dim sh, arg, cmd
+Dim sh, fso, batDir, cmd, i, a
 Set sh = CreateObject("WScript.Shell")
-arg = ""
-If WScript.Arguments.Count > 0 Then arg = WScript.Arguments(0)
-cmd = """C:\Users\h.kadoya\Desktop\slocri\bat\run_claude_task.bat"" " & arg
+Set fso = CreateObject("Scripting.FileSystemObject")
+batDir = fso.GetParentFolderName(WScript.ScriptFullName)
+cmd = ""
+For i = 0 To WScript.Arguments.Count - 1
+  a = WScript.Arguments(i)
+  If i = 0 Then
+    cmd = """" & batDir & "\" & a & """"
+  Else
+    cmd = cmd & " " & a
+  End If
+Next
 sh.Run cmd, 0, True
