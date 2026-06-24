@@ -361,6 +361,8 @@ proposal_requestsの処理分岐：
 
 **実行の仕組み**: `bat\run_claude_task.bat <promptファイル名>` が `type prompt | claude.exe -p --dangerously-skip-permissions` でヘッドレス実行。ログは `logs\claude_task_*.log`。実行ユーザー h.kadoya・Interactive・LIMITED（既存SISタスクと同じ）。
 
+> **⚠️ ウィンドウ非表示起動（2026-06-24）**: `SlocriChatTick`/`SlocriReqTick`（高頻度Tick）は、cmdウィンドウが出てフォーカスを奪うのを防ぐため、タスクのアクションを `wscript.exe "bat\run_hidden.vbs" <promptファイル名>` に変更済み（`run_hidden.vbs` が window style 0=非表示・bWaitOnReturn=True で `run_claude_task.bat` を起動）。タスクを作り直す/他タスクも非表示化する時は同じく `run_hidden.vbs` 経由にすること。`run_claude_task.bat` を直接アクションに指定すると毎回コンソールが点滅する。
+
 **注意**:
 - これら6ジョブ（ネタ収集×2・コラム・カレンダー・ゲーム性拡充・企画提案）を **Claude session cron として CronCreate してはいけない**（二重実行になる）。
 - ⑪ゲーム性拡充（2026-06-13新設）: 受け身の「【ゲーム性分析追加リクエスト】」処理（cron⑤）とは別の**プロアクティブ拡充**。週2回、毎回1テーマだけ（型1つ or 機種最大3 or 整理）を薄く広げ、年間でゲーム性の幅を広げる。捏造・大量削除禁止・更新後 json.load 検証必須。
