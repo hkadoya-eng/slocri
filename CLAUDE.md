@@ -351,11 +351,11 @@ proposal_requestsの処理分岐：
 | タスク名 | スケジュール | 内容 | プロンプト |
 |---|---|---|---|
 | `SlocriNetaCollect_0900` | 平日含む毎日 9:00 | ネタ収集＋機種分析更新（①） | `bat\prompts\neta_0900.txt` |
-| `SlocriNetaCollect_1330` | 毎日 13:30 | ネタ収集（①） | `bat\prompts\neta_1330.txt` |
-| `SlocriColumnWeekly` | 毎週月曜 5:00 | コラム自動生成（⑦） | `bat\prompts\column_weekly.txt` |
+| `SlocriNetaCollect_1330` | 毎日 13:30 | ネタ収集＋機種分析更新（①）※2026-06-25 機種分析を日2に増やすため1330にも分析ステップ追加 | `bat\prompts\neta_1330.txt` |
+| `SlocriColumnWeekly` | 毎週 月・水・金 5:00（週3・2026-06-25増頻） | コラム自動生成（⑦） | `bat\prompts\column_weekly.txt` |
 | `SlocriCalendarWeekly` | 毎週火曜 6:12 | 新台カレンダー更新（⑩） | `bat\prompts\calendar_weekly.txt` |
-| `SlocriGameDesignWeekly` | 毎週 月・木 7:22（週2回） | ゲーム性分析の定期拡充（⑪）gameDesignLibrary.jsonに型追加/機種追加/整理 | `bat\prompts\gamedesign_weekly.txt` |
-| `SlocriProposalWeekly` | 毎週金曜 6:42 | 企画提案の自動生成（⑫）市場ギャップ起点・分析タブの✏️企画提案(proposal_requests)に公開投稿 | `bat\prompts\proposal_weekly.txt` |
+| `SlocriGameDesignWeekly` | 毎日 7:22（2026-06-25 週2→毎日に増頻） | ゲーム性分析の定期拡充（⑪）gameDesignLibrary.jsonに型追加/機種追加/整理 | `bat\prompts\gamedesign_weekly.txt` |
+| `SlocriProposalWeekly` | 毎週 月・水・金 6:42（週3・2026-06-25増頻） | 企画提案の自動生成（⑫）市場ギャップ起点・分析タブの✏️企画提案(proposal_requests)に公開投稿 | `bat\prompts\proposal_weekly.txt` |
 | `SlocriSisImport_1000/1100/1200` | 平日 10/11/12時 | SIS稼働データ更新（日次） | `bat\run_sis_import.bat` |
 | `SlocriSisWeekly_1000/1100/1200` | 木曜 10:07/11:07/12:07 | SIS週次データ更新 | `bat\run_sis_weekly.bat` |
 

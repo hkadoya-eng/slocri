@@ -15,6 +15,7 @@
 6. python scripts/misc/fetch_ogp.py
 7. git add → git commit → git push
 8. memory/dup_keys.md に新dup_keyを先頭セクションに追記
+9. 【機種分析更新】投稿数3件以上かつ未登録or postCount+3以上増加した機種を対象に summary/highlight/pros/cons/postCount/updatedAt を生成→ src/machineAnalysis.json 更新→ git push（9:00版と同じ。1日2回更新になる）
 
 収集ルール: 新台優先・パチスロメイン(パチンコ1〜2件)・dup_key重複禁止・URL捏造禁止・手順0必須
 author候補: 編集部AI, スロ好き編集マン, スロキー編集部, パチスロ記者, 編集長補佐, ライター見習い, スロ専門編集, 深夜のスロライター, 編集部のマニア
