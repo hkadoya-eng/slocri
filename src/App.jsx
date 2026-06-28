@@ -587,6 +587,13 @@ function SisTab({ adminUser }) {
       (byM[r.machine] = byM[r.machine] || []).push(r);
       if (r.week_start > latest) latest = r.week_start;
     });
+    // 週ごとの全機種アウト中央値（稼働値=アウト÷週中央値 の基準）。市場が来たか=絶対需要の軸。
+    const wkMed = {};
+    {
+      const tmp = {};
+      weeklyData.forEach(r => { if (r.out_coins) (tmp[r.week_start] = tmp[r.week_start] || []).push(r.out_coins); });
+      Object.entries(tmp).forEach(([w, a]) => { const s = a.slice().sort((x, y) => x - y); wkMed[w] = s[Math.floor(s.length / 2)]; });
+    }
     const latestD = new Date(latest + "T00:00:00");
     const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
     const cutoff = new Date(latestD); cutoff.setDate(latestD.getDate() - 182);
@@ -600,10 +607,13 @@ function SisTab({ adminUser }) {
       const w1 = first.out_coins, w2 = arr[1] && arr[1].out_coins, w4 = arr[3] && arr[3].out_coins, w8 = arr[7] && arr[7].out_coins;
       const c1 = first.avg_machine_count, cLast = arr[arr.length - 1].avg_machine_count;
       const peakC = arr.reduce((m, r) => Math.max(m, r.avg_machine_count || 0), 0);
+      const base1 = wkMed[first.week_start], base2 = arr[1] && wkMed[arr[1].week_start];
       rows.push({
         machine,
         firstWeek: first.week_start,
         weeksCount: arr.length,
+        katsudo1: (w1 && base1) ? Math.round(w1 / base1 * 100) : null,
+        katsudo2: (w2 && base2) ? Math.round(w2 / base2 * 100) : null,
         ret2: (w1 && w2) ? Math.round(w2 / w1 * 100) : null,
         ret4: (w1 && w4) ? Math.round(w4 / w1 * 100) : null,
         ret8: (w1 && w8) ? Math.round(w8 / w1 * 100) : null,
@@ -986,20 +996,29 @@ function SisTab({ adminUser }) {
 
       {sisView === "shindai" && <>
         <div style={{fontSize:11,color:"#888",background:"#fff",borderRadius:10,padding:"8px 10px",marginBottom:8,boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff",lineHeight:1.5}}>
-          <b style={{color:"#D85A30"}}>新台診断</b>：持続率（◯週目アウト÷初週アウト）と台数推移で早期に良し悪しを見抜く。直近約26週に導入・導入日順。台数/IPは入口、生死は持続率。<br/>
-          ・<b>初月(4週)</b>判定：優秀≥66% ／ 注意≥50% ／ 危険&lt;50%（長寿平均66%・短命47%）<br/>
-          ・<b>2週</b>判定（4週未到達の新台用・暫定）：優秀≥83% ／ 注意≥73% ／ 危険&lt;73%（長寿平均86%・短命72%）<br/>
-          ・<b>⚠供給過剰</b>＝大量導入(ピーク≥6台)なのに持続率が低い（戦国乙女型）
+          <b style={{color:"#D85A30"}}>新台診断</b>：<b>2週で仮説 → 4週・8週で検証</b>。直近約26週に導入・導入日順。判別力検証で効いた2軸で見る:<br/>
+          ・<b>稼働値</b>（アウト÷その週の全機種中央値）＝人気・絶対需要。長寿平均335% vs 短命262%。<br/>
+          ・<b>持続率</b>（◯週目÷初週アウト）＝定着・減衰。長寿平均(2週86/4週66) vs 短命(72/47)。<br/>
+          ・<b>2週暫定判定</b>＝稼働値≥260% かつ 持続率≥83%で優秀／稼働値&lt;190% または 持続率&lt;73%で危険。<b>4週が揃えば持続率4週で確定</b>（優秀≥66/注意≥50/危険&lt;50）。<br/>
+          ・<b>⚠供給過剰</b>＝大量導入(ピーク≥6台)なのに振るわない（戦国乙女型）。割数・台数初動は判別力が低く非採用。
         </div>
         <div style={{display:"flex",flexDirection:"column",gap:6}}>
           {machineDiagnosis.length === 0 && <div style={{textAlign:"center",color:"#aaa",padding:"2rem"}}>データなし</div>}
           {machineDiagnosis.map(d => {
+            const k = d.katsudo2 != null ? d.katsudo2 : d.katsudo1; // 直近の稼働値
             const g = d.ret4 != null
               ? (d.ret4 >= 66 ? {l:"優秀",c:"#1f9d4d",bg:"#E3F5E9"} : d.ret4 >= 50 ? {l:"注意",c:"#C77B00",bg:"#FFF3DC"} : {l:"危険",c:"#D03030",bg:"#FCE4E4"})
               : d.ret2 != null
-                ? (d.ret2 >= 83 ? {l:"優秀(暫定)",c:"#1f9d4d",bg:"#E3F5E9"} : d.ret2 >= 73 ? {l:"注意(暫定)",c:"#C77B00",bg:"#FFF3DC"} : {l:"危険(暫定)",c:"#D03030",bg:"#FCE4E4"})
+                ? (() => {
+                    const persistOK = d.ret2 >= 83, persistBad = d.ret2 < 73;
+                    const demandOK = k == null || k >= 260, demandBad = k != null && k < 190;
+                    if (persistOK && demandOK) return {l:"優秀(暫定)",c:"#1f9d4d",bg:"#E3F5E9"};
+                    if (persistBad || demandBad) return {l:"危険(暫定)",c:"#D03030",bg:"#FCE4E4"};
+                    return {l:"注意(暫定)",c:"#C77B00",bg:"#FFF3DC"};
+                  })()
                 : {l:"計測中",c:"#999",bg:"#ECECEC"};
-            const oversupply = d.peakC >= 6 && ((d.ret4 != null && d.ret4 < 66) || (d.ret4 == null && d.ret2 != null && d.ret2 < 83));
+            const oversupply = d.peakC >= 6 && (g.l.indexOf("危険") >= 0 || g.l.indexOf("注意") >= 0);
+            const early = d.ret4 == null;
             return (
               <div key={d.machine} style={{background:"#fff",borderRadius:12,padding:"10px 12px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
                 <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
@@ -1007,16 +1026,18 @@ function SisTab({ adminUser }) {
                   <span style={{flexShrink:0,fontSize:10,fontWeight:700,color:g.c,background:g.bg,borderRadius:6,padding:"2px 8px"}}>{g.l}</span>
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"2px 8px"}}>
-                  <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>2週持続率</div><div style={{fontWeight:700,color:d.ret4 == null ? g.c : "#555",fontSize:12}}>{d.ret2 != null ? d.ret2+"%" : "—"}</div></div>
+                  <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>稼働値(初週)</div><div style={{fontWeight:700,color:early?g.c:"#555",fontSize:12}}>{d.katsudo1 != null ? d.katsudo1+"%" : "—"}</div></div>
+                  <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>2週持続率</div><div style={{fontWeight:700,color:early?g.c:"#555",fontSize:12}}>{d.ret2 != null ? d.ret2+"%" : "—"}</div></div>
                   <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>初月(4週)</div><div style={{fontWeight:700,color:d.ret4 != null ? g.c : "#bbb",fontSize:12}}>{d.ret4 != null ? d.ret4+"%" : "—"}</div></div>
                   <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>8週持続</div><div style={{fontWeight:600,color:"#555",fontSize:12}}>{d.ret8 != null ? d.ret8+"%" : "—"}</div></div>
-                  <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>台数 初週→現</div><div style={{fontWeight:600,color:"#555",fontSize:11}}>{d.c1 != null ? d.c1.toFixed(1) : "—"}→{d.cLast != null ? d.cLast.toFixed(1) : "—"}{d.cgrow != null ? ` (${d.cgrow>0?"+":""}${d.cgrow}%)` : ""}</div></div>
                 </div>
                 <div style={{marginTop:5,fontSize:10,color:"#999"}}>
+                  <span>台数 {d.c1 != null ? d.c1.toFixed(1) : "—"}→{d.cLast != null ? d.cLast.toFixed(1) : "—"}{d.cgrow != null ? ` (${d.cgrow>0?"+":""}${d.cgrow}%)` : ""}</span>
+                  <span style={{color:"#ccc"}}> ・ </span>
                   <span style={{fontWeight:700,color:d.active?"#2a7ae8":"#bbb"}}>{d.weeksCount}週{d.active ? "継続中" : "で終了"}</span>
-                  <span style={{color:"#ccc"}}> ・ 導入 {d.firstWeek}</span>
+                  <span style={{color:"#ccc"}}> ・ 導入{d.firstWeek}</span>
                 </div>
-                {oversupply && <div style={{marginTop:6,fontSize:10,color:"#C77B00",background:"#FFF8EC",borderRadius:6,padding:"3px 8px"}}>⚠ 大量導入(ピーク{d.peakC.toFixed(1)}台)なのに持続率が低い＝供給過剰の疑い</div>}
+                {oversupply && <div style={{marginTop:6,fontSize:10,color:"#C77B00",background:"#FFF8EC",borderRadius:6,padding:"3px 8px"}}>⚠ 大量導入(ピーク{d.peakC.toFixed(1)}台)なのに振るわない＝供給過剰の疑い</div>}
               </div>
             );
           })}
