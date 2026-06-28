@@ -733,6 +733,20 @@ function SisTab({ adminUser }) {
 
   const wkAvgProfit = weekRows.length ? weekRows.reduce((s,r)=>s+(r.gross_profit||0),0)/weekRows.length : null;
   const wkAvgRate = weekRows.length ? weekRows.filter(r=>r.payout_rate!=null).reduce((s,r)=>s+r.payout_rate,0) / weekRows.filter(r=>r.payout_rate!=null).length : null;
+  // ウィークリーの全体「全国IN」は、その週(月〜日)の日次・全国アウト(sis_national_daily.avg_in)の平均を全国実値として出す。
+  // 機種別out_coinsの単純平均は対象L機種だけの偏った値で全国実値ではない（全国実値ソースは日次のみ／週間稼働シートは2016停止）。
+  const weekNationalIn = (() => {
+    if (!selWeek) return null;
+    const mon = new Date(selWeek.key + "T00:00:00");
+    const vals = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(mon); d.setDate(mon.getDate() + i);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+      const v = nationalDaily[key]?.avg_in;
+      if (v != null) vals.push(v);
+    }
+    return vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : null;
+  })();
 
   return (
     <div onTouchStart={handleSwipeStart} onTouchMove={handleSwipeMove} onTouchEnd={handleSwipeEnd} style={{position:"relative",touchAction:"pan-y"}}>
@@ -883,7 +897,7 @@ function SisTab({ adminUser }) {
           {weekRows.length > 0 && (
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:6}}>
               {[
-                {label:"平均IN",    val: weekRows.length ? Math.round(weekRows.reduce((s,r)=>s+(r.out_coins||0),0)/weekRows.length).toLocaleString() : "—", color:"#444"},
+                {label:"全国IN",    val: weekNationalIn != null ? Math.round(weekNationalIn).toLocaleString() : "—", color:"#444"},
                 {label:"平均出玉率", val: wkAvgRate != null ? wkAvgRate.toFixed(1)+"%" : "—", color: wkAvgRate != null ? rateColor(wkAvgRate) : "#888"},
                 {label:"平均粗利",   val: wkAvgProfit != null ? (wkAvgProfit < 0 ? "▲" : "▼")+" ¥"+Math.abs(Math.round(wkAvgProfit)) : "—", color: wkAvgProfit != null ? (wkAvgProfit < 0 ? "#2a9d3f" : "#E53935") : "#888"},
               ].map(s => (
