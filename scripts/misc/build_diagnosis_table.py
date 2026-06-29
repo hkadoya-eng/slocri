@@ -31,6 +31,13 @@ M=defaultdict(list)
 for r in rows: M[r["machine"]].append(r)
 for m in M: M[m].sort(key=lambda x:x["week_start"])
 
+# 初月実態(持続率ベースの生死。設置週数とは別＝死に台も長く設置されるため)
+def jittai(ret4):
+    if ret4 is None: return "計測中"
+    if ret4>=66: return "健全"
+    if ret4>=50: return "微妙"
+    return "実質死亡(設置のみ)"
+
 # 較正済みしきい値
 def grade(ret4, ret2, k):
     if ret4 is not None:
@@ -62,6 +69,7 @@ for m,rs in M.items():
         "機種":m,"初週":rs[0]["week_start"],
         "稼働貢献週":len(rs),"状況":("継続中" if active else "終了"),
         "継続表示":f'{len(rs)}週{"継続中" if active else "で終了"}',
+        "初月実態":jittai(ret4),
         "初週稼働値":kat1,"2週稼働値":kat2,
         "2週持続率":ret2,"初月持続率(4週)":ret4,"8週持続率":ret8,
         "台数初週":round(c1,1) if c1 else None,"台数現在":round(cL,1) if cL else None,
@@ -101,6 +109,10 @@ try:
         ("● 8週持続率 … 中期の定着度。",True,"333333",11),
         ("● 台数(初週→現在 / 推移% / ピーク) = 1店あたり平均設置台数の変化。減少=店が撤去。",True,"333333",11),
         ("● 稼働貢献週 / 状況 = SISで稼働を計上した週数と継続中/終了（『◯週継続中』『◯週で終了』）。",True,"333333",11),
+        ("● 初月実態 = 初月持続率による生死判定（健全≥66 / 微妙50-66 / 実質死亡<50 / 計測中）。",True,"333333",11),
+        ("   ⚠重要: 稼働貢献週(設置週数) ≠ 稼働の生死。ホールは筐体代が沈むので死に台でも撤去せず数十週設置する。",False,"D03030",11),
+        ("   実例: 真・北斗無双=100週設置でも初月持続率47%(実質死に台) / 劇場版まどか=50週設置/22%。",False,"C77B00",11),
+        ("   → 設置週数が長くても『実質死亡』なら良台ではない。良し悪しは設置週数でなく持続率×稼働値で見る。",False,"555555",11),
         ("",False,"",11),
         ("【判定ロジック】",True,"333333",12),
         ("  ・4週が揃う → 初月持続率で確定: 優秀≥66% / 注意≥50% / 危険<50%",False,"555555",11),
@@ -116,7 +128,7 @@ try:
         cell.alignment=Alignment(wrap_text=True,vertical="top")
     ws0.column_dimensions["A"].width=115
 
-    cols=["機種","初週","継続表示","稼働貢献週","状況","初週稼働値","2週稼働値","2週持続率",
+    cols=["機種","初週","継続表示","稼働貢献週","状況","初月実態","初週稼働値","2週稼働値","2週持続率",
           "初月持続率(4週)","8週持続率","台数初週","台数現在","台数ピーク","台数推移%","判定"]
     ws=wb.create_sheet("新台診断データ")
     ws.append(["※直近導入順。判定/しきい値の意味は『説明』シート参照。稼働値=アウト÷週中央値、持続率=◯週÷初週。"])
@@ -127,13 +139,19 @@ try:
         cell=ws.cell(hr,c); cell.font=Font(bold=True,color="FFFFFF")
         cell.fill=PatternFill("solid",fgColor="444444"); cell.alignment=Alignment(horizontal="center")
     GC={"優秀":"E3F5E9","注意":"FFF3DC","危険":"FCE4E4","優秀(暫定)":"E3F5E9","注意(暫定)":"FFF3DC","危険(暫定)":"FCE4E4","計測中":"ECECEC"}
+    JC={"健全":"E3F5E9","微妙":"FFF3DC","実質死亡(設置のみ)":"FCE4E4","計測中":"ECECEC"}
     for r in sorted(recs,key=lambda x:x["初週"],reverse=True):
         ws.append([r[c] for c in cols]); rr=ws.max_row
         fill=GC.get(r["判定"])
         if fill: ws.cell(rr,cols.index("判定")+1).fill=PatternFill("solid",fgColor=fill)
+        jf=JC.get(r["初月実態"])
+        if jf: ws.cell(rr,cols.index("初月実態")+1).fill=PatternFill("solid",fgColor=jf)
+        # 実質死亡なのに長く設置=死に台を長寿に偽装 → 稼働貢献週を赤強調
+        if r["初月実態"]=="実質死亡(設置のみ)" and r["稼働貢献週"]>=20:
+            c0=ws.cell(rr,cols.index("稼働貢献週")+1); c0.fill=PatternFill("solid",fgColor="F8C9C9"); c0.font=Font(bold=True,color="B00000")
         if ("北斗の拳" in r["機種"] and "転生" not in r["機種"] and "無双" not in r["機種"]) or "モンキーターン" in r["機種"] or "戦国乙女" in r["機種"]:
             ws.cell(rr,1).fill=PatternFill("solid",fgColor="FFF2CC")
-    for i,w in enumerate([30,11,12,9,7,9,9,9,13,9,9,9,9,9,11],1):
+    for i,w in enumerate([30,11,12,9,7,15,9,9,9,13,9,9,9,9,9,11],1):
         ws.column_dimensions[get_column_letter(i)].width=w
     ws.freeze_panes="A3"
     wb.save("ai収集/分析_新台診断_v0.3.xlsx")
