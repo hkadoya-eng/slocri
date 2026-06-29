@@ -620,11 +620,12 @@ function SisTab({ adminUser }) {
         c1, cLast, peakC,
         cgrow: (c1 && cLast) ? Math.round((cLast / c1 - 1) * 100) : null,
         active: arr[arr.length - 1].week_start >= recentS,
+        contrib: machineStats[machine.replace(/\s/g, "")] ?? null, // SIS公式の稼働貢献週(設置週数=arr.lengthとは別)
       });
     });
     rows.sort((a, b) => b.firstWeek.localeCompare(a.firstWeek));
     return rows;
-  }, [weeklyData]);
+  }, [weeklyData, machineStats]);
 
   if (!adminUser) {
     return <AdminLoginForm title="稼働データ" desc="社内専用。管理者ログインが必要です。" />;
@@ -1034,8 +1035,8 @@ function SisTab({ adminUser }) {
                 <div style={{marginTop:5,fontSize:10,color:"#999"}}>
                   <span>台数 {d.c1 != null ? d.c1.toFixed(1) : "—"}→{d.cLast != null ? d.cLast.toFixed(1) : "—"}{d.cgrow != null ? ` (${d.cgrow>0?"+":""}${d.cgrow}%)` : ""}</span>
                   <span style={{color:"#ccc"}}> ・ </span>
-                  <span style={{fontWeight:700,color:d.active?"#2a7ae8":"#bbb"}}>{d.weeksCount}週{d.active ? "継続中" : "で終了"}</span>
-                  <span style={{color:"#ccc"}}> ・ 導入{d.firstWeek}</span>
+                  <span style={{fontWeight:700,color:"#2a7ae8"}}>稼働貢献{d.contrib != null ? d.contrib+"週" : "—"}</span>
+                  <span style={{color:"#ccc"}}> ・ 設置{d.weeksCount}週 ・ 導入{d.firstWeek}</span>
                 </div>
                 {oversupply && <div style={{marginTop:6,fontSize:10,color:"#C77B00",background:"#FFF8EC",borderRadius:6,padding:"3px 8px"}}>⚠ 大量導入(ピーク{d.peakC.toFixed(1)}台)なのに振るわない＝供給過剰の疑い</div>}
               </div>
