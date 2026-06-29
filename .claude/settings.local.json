@@ -14,7 +14,7 @@
       "CronList",
       "CronDelete",
       "Agent(*)",
-      "mcp__*"
+      "mcp__ide__getDiagnostics"
     ]
   }
 }
