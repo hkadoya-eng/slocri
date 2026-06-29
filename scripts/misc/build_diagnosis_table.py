@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-"""新台診断テーブル v0.4（2軸: 稼働値×持続率）
-- 稼働値(アウト÷その週の全機種中央値)=人気/絶対需要、持続率=定着/減衰 の2軸で早期診断
-- 2週/初月(4週)/8週持続率・初週/2週稼働値・台数推移・稼働貢献週・状況(継続中/終了)・判定
-- Excel(説明シート＋データシート)を生成
-入力: _wk_p*.json / 出力: ai収集/分析_新台診断_v0.3.xlsx（同ファイル上書き＝最新版）
-"""
+"""新台診断テーブル v0.5（稼働貢献週を SIS公式値=sis_machine_stats.contrib_weeks に修正）
+重大修正: 旧版は週次行数(len)を稼働貢献週として誤用していた(死に台も設置週として水増し)。
+正: 稼働貢献週=公式contrib_weeks。設置週数(週次行数)は参考として別掲。持続率/稼働値は週次outから(従来通り有効)。
+入力: _wk_p*.json + _stats.json / 出力: ai収集/分析_新台診断_v0.3.xlsx"""
 import json, io, glob, statistics
 from collections import defaultdict
 
@@ -14,39 +12,46 @@ for fp in sorted(glob.glob("_wk_p*.json")):
 if not rows:
     print("週次ファイル無し"); raise SystemExit
 
+# 公式 稼働貢献週(機種名は同一インポート元なので完全一致で結合)
+stats={}
+try:
+    with io.open("_stats.json",encoding="utf-8") as f:
+        for r in json.load(f):
+            if r.get("machine") and r["machine"]!="__config__":
+                stats[r["machine"]]=r.get("contrib_weeks")
+except FileNotFoundError:
+    print("警告: _stats.json なし → 稼働貢献週が出せない");
+
 def f_(x):
     try: return float(x)
     except: return None
 
-# 週ごとの全機種アウト中央値（稼働値の基準）
 wk_med={}
-_tmp=defaultdict(list)
+_t=defaultdict(list)
 for r in rows:
     o=f_(r["out_coins"])
-    if o: _tmp[r["week_start"]].append(o)
-for w,a in _tmp.items():
-    s=sorted(a); wk_med[w]=s[len(s)//2]
+    if o: _t[r["week_start"]].append(o)
+for w,a in _t.items(): s=sorted(a); wk_med[w]=s[len(s)//2]
 
 M=defaultdict(list)
 for r in rows: M[r["machine"]].append(r)
 for m in M: M[m].sort(key=lambda x:x["week_start"])
 
-# 初月実態(持続率ベースの生死。設置週数とは別＝死に台も長く設置されるため)
 def jittai(ret4):
     if ret4 is None: return "計測中"
     if ret4>=66: return "健全"
     if ret4>=50: return "微妙"
-    return "実質死亡(設置のみ)"
+    return "実質死亡"
 
-# 較正済みしきい値
-def grade(ret4, ret2, k):
+R2_OK,R2_WARN=83,73
+def grade(ret4,ret2,k):
     if ret4 is not None:
         return "優秀" if ret4>=66 else ("注意" if ret4>=50 else "危険")
     if ret2 is not None:
-        persistOK, persistBad = ret2>=83, ret2<73
-        demandOK = (k is None or k>=260); demandBad = (k is not None and k<190)
-        if persistOK and demandOK: return "優秀(暫定)"
-        if persistBad or demandBad: return "危険(暫定)"
+        pOK,pBad=ret2>=R2_OK,ret2<R2_WARN
+        dOK=(k is None or k>=260); dBad=(k is not None and k<190)
+        if pOK and dOK: return "優秀(暫定)"
+        if pBad or dBad: return "危険(暫定)"
         return "注意(暫定)"
     return "計測中"
 
@@ -57,18 +62,19 @@ for m,rs in M.items():
     w1,w2,w4,w8=out(0),out(1),out(3),out(7)
     c1,cL=mc(0),mc(len(rs)-1)
     peakv=[f_(r["avg_machine_count"]) for r in rs if f_(r["avg_machine_count"]) is not None]
-    b1,b2=wk_med.get(rs[0]["week_start"]), (wk_med.get(rs[1]["week_start"]) if len(rs)>1 else None)
-    active = rs[-1]["week_start"]>="2026-06-01"
+    b1,b2=wk_med.get(rs[0]["week_start"]),(wk_med.get(rs[1]["week_start"]) if len(rs)>1 else None)
     ret2=round(w2/w1*100) if (w1 and w2) else None
     ret4=round(w4/w1*100) if (w1 and w4) else None
     ret8=round(w8/w1*100) if (w1 and w8) else None
     kat1=round(w1/b1*100) if (w1 and b1) else None
     kat2=round(w2/b2*100) if (w2 and b2) else None
     k=kat2 if kat2 is not None else kat1
+    contrib=stats.get(m)              # 公式 稼働貢献週
+    setti=len(rs)                     # 設置週数(週次行数・参考)
     recs.append({
         "機種":m,"初週":rs[0]["week_start"],
-        "稼働貢献週":len(rs),"状況":("継続中" if active else "終了"),
-        "継続表示":f'{len(rs)}週{"継続中" if active else "で終了"}',
+        "稼働貢献週(公式)":contrib,"設置週数":setti,
+        "死に台期間": (setti-contrib) if (contrib is not None) else None,  # 設置-貢献=惰性設置
         "初月実態":jittai(ret4),
         "初週稼働値":kat1,"2週稼働値":kat2,
         "2週持続率":ret2,"初月持続率(4週)":ret4,"8週持続率":ret8,
@@ -78,60 +84,63 @@ for m,rs in M.items():
         "判定":grade(ret4,ret2,k),
     })
 
-# 較正出力
-mat=[r for r in recs if r["初週"]<="2025-09-01"]
+# ===== 公式稼働貢献週での再検証(持続率は効くか) =====
+mat=[r for r in recs if r["初週"]<="2025-09-01" and r["稼働貢献週(公式)"] is not None]
 def bkt(n): return "短命<=13" if n<=13 else ("長寿>=45" if n>=45 else "中")
 G=defaultdict(list)
-for r in mat: G[bkt(r["稼働貢献週"])].append(r)
+for r in mat: G[bkt(r["稼働貢献週(公式)"])].append(r)
 def gm(items,k2):
     v=[i[k2] for i in items if i.get(k2) is not None]
     return round(statistics.mean(v),1) if v else None
-print("=== 寿命別平均(判別力較正) ===")
+print("=== 【公式稼働貢献週】での寿命別 持続率/稼働値（再検証） ===")
 for b in ["短命<=13","中","長寿>=45"]:
-    g=G[b]; print(f'{b}: n={len(g):>3} 初週稼働値={gm(g,"初週稼働値")} 2週稼働値={gm(g,"2週稼働値")} 2週持続={gm(g,"2週持続率")} 4週持続={gm(g,"初月持続率(4週)")}')
+    g=G[b]; print(f'  {b}: n={len(g):>3} 初週稼働値={gm(g,"初週稼働値")} 2週持続={gm(g,"2週持続率")} 4週持続={gm(g,"初月持続率(4週)")}')
+def corr(xs,ys):
+    n=len(xs)
+    if n<3: return None
+    mx,my=statistics.mean(xs),statistics.mean(ys)
+    cov=sum((x-mx)*(y-my) for x,y in zip(xs,ys))/n
+    sx,sy=statistics.pstdev(xs),statistics.pstdev(ys)
+    return round(cov/((sx*sy) or 1),2)
+p4=[(r["初月持続率(4週)"],r["稼働貢献週(公式)"]) for r in mat if r["初月持続率(4週)"] is not None]
+print(f'  相関 4週持続率→公式稼働貢献週: r={corr([a for a,_ in p4],[b for _,b in p4])}')
 
-# Excel
+# 公式 vs 旧カウントの乖離トップ
+print("\n=== 死に台期間(設置-公式貢献)が長い=旧版が水増ししてた台 ===")
+for r in sorted([x for x in recs if x["死に台期間"] is not None],key=lambda x:-x["死に台期間"])[:8]:
+    print(f'  公式{r["稼働貢献週(公式)"]}週 / 設置{r["設置週数"]}週 (惰性{r["死に台期間"]}週)  {r["機種"][:28]}')
+
+# ===== Excel =====
 try:
     from openpyxl import Workbook
-    from openpyxl.styles import Font, PatternFill, Alignment
+    from openpyxl.styles import Font,PatternFill,Alignment
     from openpyxl.utils import get_column_letter
     wb=Workbook()
     ws0=wb.active; ws0.title="説明"
     L=[
-        ("新台診断テーブル ― 指標の説明（2軸: 稼働値×持続率）", True, "D85A30", 14),
+        ("新台診断テーブル v0.5（稼働貢献週=SIS公式値に修正）",True,"D85A30",14),
         ("",False,"",11),
-        ("【考え方】台数やIPは“入口”でしかない。台の生死は『人気(稼働値)』と『定着(持続率)』の2軸で決まる。2週で仮説→4週/8週で検証。",False,"333333",11),
+        ("【重大修正 2026-06-29】旧版は週次データの行数を『稼働貢献週』として誤用していた。死に台でも設置されてる限り週次行が残るため大幅に水増しされていた(例:真北斗無双 誤100週→正5週)。",False,"D03030",11),
         ("",False,"",11),
-        ("● 稼働値 = アウト ÷ その週の全機種アウト中央値 ×100（人気・絶対需要。市場が来たか）",True,"333333",11),
-        ("   寿命別平均: 長寿 初週335%/2週291% ・ 短命 初週262%/2週190%。判別力1.0前後で有効。",False,"555555",11),
-        ("● 持続率 = ◯週目アウト ÷ 初週アウト ×100（定着・減衰）",True,"333333",11),
-        ("   初月(4週): 優秀≥66/注意≥50/危険<50（長寿66 vs 短命47）。2週: 長寿86 vs 短命72。判別力最強(1.31)。",False,"555555",11),
-        ("● 8週持続率 … 中期の定着度。",True,"333333",11),
-        ("● 台数(初週→現在 / 推移% / ピーク) = 1店あたり平均設置台数の変化。減少=店が撤去。",True,"333333",11),
-        ("● 稼働貢献週 / 状況 = SISで稼働を計上した週数と継続中/終了（『◯週継続中』『◯週で終了』）。",True,"333333",11),
-        ("● 初月実態 = 初月持続率による生死判定（健全≥66 / 微妙50-66 / 実質死亡<50 / 計測中）。",True,"333333",11),
-        ("   ⚠重要: 稼働貢献週(設置週数) ≠ 稼働の生死。ホールは筐体代が沈むので死に台でも撤去せず数十週設置する。",False,"D03030",11),
-        ("   実例: 真・北斗無双=100週設置でも初月持続率47%(実質死に台) / 劇場版まどか=50週設置/22%。",False,"C77B00",11),
-        ("   → 設置週数が長くても『実質死亡』なら良台ではない。良し悪しは設置週数でなく持続率×稼働値で見る。",False,"555555",11),
+        ("● 稼働貢献週(公式) = sis_machine_stats のSIS公式値。SISが『○週稼動貢献中』と認めた週数(稼働が一定水準を満たした週)。これが正。",True,"333333",11),
+        ("● 設置週数 = 週次データに行がある週数(参考)。死に台でも設置され続ければ伸びる。設置週数≠生死。",False,"555555",11),
+        ("● 死に台期間 = 設置週数 − 公式稼働貢献週。大きいほど『貢献しなくなった後も惰性で設置された』台。",False,"C77B00",11),
         ("",False,"",11),
-        ("【判定ロジック】",True,"333333",12),
-        ("  ・4週が揃う → 初月持続率で確定: 優秀≥66% / 注意≥50% / 危険<50%",False,"555555",11),
-        ("  ・4週未到達(新台) → 2週で暫定: 稼働値≥260%かつ持続率≥83%=優秀 / 稼働値<190%または持続率<73%=危険 / 中間=注意",False,"555555",11),
-        ("  ・2週も未到達 → 計測中",False,"555555",11),
-        ("  ・⚠供給過剰 = 大量導入(台数ピーク≥6)なのに判定が注意/危険（戦国乙女型。台数で初動は出るが客が薄まる）",False,"C77B00",11),
+        ("● 稼働値 = アウト ÷ その週の全機種中央値(人気/需要)。持続率 = ◯週目アウト ÷ 初週アウト(定着)。※週次outは『平均IN』=1台平均値で総量ではない。比率なので診断は有効。",True,"333333",11),
+        ("● 初月実態 = 初月持続率による生死(健全≥66/微妙50-66/実質死亡<50/計測中)。",True,"333333",11),
+        ("● 判定 = 4週揃えば持続率4週(優秀≥66/注意≥50/危険<50)、新台は2週暫定(稼働値≥260かつ持続率≥83で優秀)。",True,"333333",11),
         ("",False,"",11),
-        ("【非採用】割数(判別力0.34)・台数初動(0.7)は寿命をほぼ分けず材料にしない。機械割(設定6)は規則で全台115%未満に張付き＝比較情報ゼロ。",False,"888888",10),
-        ("【データ源】SIS週次(sis_weekly_data)。生成: scripts/misc/build_diagnosis_table.py。週次更新に追従。",False,"888888",10),
+        ("【データ源】SIS週次(sis_weekly_data)+稼働貢献週(sis_machine_stats)。元はZ:/01_SISデータ/PS/週毎SISデータ一覧_2026.xlsm。生成: scripts/misc/build_diagnosis_table.py。",False,"888888",10),
     ]
     for i,(t,b,c,sz) in enumerate(L,1):
         cell=ws0.cell(i,1,t); cell.font=Font(bold=b,color=c or "000000",size=sz)
         cell.alignment=Alignment(wrap_text=True,vertical="top")
-    ws0.column_dimensions["A"].width=115
+    ws0.column_dimensions["A"].width=118
 
-    cols=["機種","初週","継続表示","稼働貢献週","状況","初月実態","初週稼働値","2週稼働値","2週持続率",
-          "初月持続率(4週)","8週持続率","台数初週","台数現在","台数ピーク","台数推移%","判定"]
+    cols=["機種","初週","稼働貢献週(公式)","設置週数","死に台期間","初月実態","初週稼働値","2週稼働値",
+          "2週持続率","初月持続率(4週)","8週持続率","台数初週","台数現在","台数ピーク","台数推移%","判定"]
     ws=wb.create_sheet("新台診断データ")
-    ws.append(["※直近導入順。判定/しきい値の意味は『説明』シート参照。稼働値=アウト÷週中央値、持続率=◯週÷初週。"])
+    ws.append(["※直近導入順。稼働貢献週=SIS公式値(これが正)。設置週数は参考。意味は『説明』シート参照。"])
     ws.merge_cells(start_row=1,start_column=1,end_row=1,end_column=len(cols))
     ws.cell(1,1).font=Font(italic=True,color="996600")
     ws.append(cols); hr=ws.max_row
@@ -139,27 +148,26 @@ try:
         cell=ws.cell(hr,c); cell.font=Font(bold=True,color="FFFFFF")
         cell.fill=PatternFill("solid",fgColor="444444"); cell.alignment=Alignment(horizontal="center")
     GC={"優秀":"E3F5E9","注意":"FFF3DC","危険":"FCE4E4","優秀(暫定)":"E3F5E9","注意(暫定)":"FFF3DC","危険(暫定)":"FCE4E4","計測中":"ECECEC"}
-    JC={"健全":"E3F5E9","微妙":"FFF3DC","実質死亡(設置のみ)":"FCE4E4","計測中":"ECECEC"}
+    JC={"健全":"E3F5E9","微妙":"FFF3DC","実質死亡":"FCE4E4","計測中":"ECECEC"}
     for r in sorted(recs,key=lambda x:x["初週"],reverse=True):
         ws.append([r[c] for c in cols]); rr=ws.max_row
-        fill=GC.get(r["判定"])
-        if fill: ws.cell(rr,cols.index("判定")+1).fill=PatternFill("solid",fgColor=fill)
+        f=GC.get(r["判定"])
+        if f: ws.cell(rr,cols.index("判定")+1).fill=PatternFill("solid",fgColor=f)
         jf=JC.get(r["初月実態"])
         if jf: ws.cell(rr,cols.index("初月実態")+1).fill=PatternFill("solid",fgColor=jf)
-        # 実質死亡なのに長く設置=死に台を長寿に偽装 → 稼働貢献週を赤強調
-        if r["初月実態"]=="実質死亡(設置のみ)" and r["稼働貢献週"]>=20:
-            c0=ws.cell(rr,cols.index("稼働貢献週")+1); c0.fill=PatternFill("solid",fgColor="F8C9C9"); c0.font=Font(bold=True,color="B00000")
+        if r["死に台期間"] is not None and r["死に台期間"]>=20:
+            c0=ws.cell(rr,cols.index("死に台期間")+1); c0.fill=PatternFill("solid",fgColor="F8C9C9"); c0.font=Font(bold=True,color="B00000")
         if ("北斗の拳" in r["機種"] and "転生" not in r["機種"] and "無双" not in r["機種"]) or "モンキーターン" in r["機種"] or "戦国乙女" in r["機種"]:
             ws.cell(rr,1).fill=PatternFill("solid",fgColor="FFF2CC")
-    for i,w in enumerate([30,11,12,9,7,15,9,9,9,13,9,9,9,9,9,11],1):
+    for i,w in enumerate([30,11,14,9,10,9,9,9,9,13,9,9,9,9,9,11],1):
         ws.column_dimensions[get_column_letter(i)].width=w
     ws.freeze_panes="A3"
     wb.save("ai収集/分析_新台診断_v0.3.xlsx")
-    print("\n出力: ai収集/分析_新台診断_v0.3.xlsx （説明シート＋データ{}機種）".format(len(recs)))
+    print("\n出力: ai収集/分析_新台診断_v0.3.xlsx （データ{}機種・稼働貢献週は公式値）".format(len(recs)))
 except ImportError:
     print("openpyxl無し")
 
-print("\n=== 戦国乙女 ===")
+print("\n=== 戦国乙女(公式稼働貢献週) ===")
 for r in recs:
     if "戦国乙女" in r["機種"]:
-        print(f' {r["機種"][:26]} {r["継続表示"]} 初週稼働値{r["初週稼働値"]} 2週稼働値{r["2週稼働値"]} 2週持続{r["2週持続率"]} 判定={r["判定"]}')
+        print(f' {r["機種"][:24]} 公式{r["稼働貢献週(公式)"]}週/設置{r["設置週数"]}週 2週持続{r["2週持続率"]} 判定={r["判定"]}')
