@@ -11,11 +11,16 @@
    - 現在時刻取得: date "+%Y%m%d_%H%M" / 保存先: ai収集/slocri_import_[YYYYMMDD_HHMM].csv
    - ヘッダー: cat,source,machine,title,body,url,quality,dup_key,author / 数字のカンマ除去・本文カンマはダブルクォート
    - 品質ゲート: ①新台スケジュール/カレンダー系は最大1件 ②generic praise禁止(具体数字・スペック・独自切り口・実戦データ必須) ③機種名「全般」総論は最大2件 ④同一機種×同一話題の近接重複回避 ⑤body下限180字目安 ⑥鮮度チェック(旧台を最新扱いしない)
+   - 【飽和対策・最優先 2026-07-13】info(機種情報)が約950件・総投稿1900件近くで"量"は飽和。単純な新台スペック収集はやめ切り口を変える:
+     (A)10件中 最低3件は「読み物/横断」系にする＝機種間比較・ランキング・シリーズ変遷・メーカー特集・用語や業界の仕組み解説・気持ちよさ/演出考察(cat=column推奨・具体データ根拠つき)
+     (B)機種ネタは"同一機種でも打ち手目線の別角度"を狙う＝天井/設定差/実戦結果/演出/気持ちよさ/打ち筋/やめ時(単なるスペック羅列は不可)
+     (C)名機エピソード(cat=episode)の掘り起こしも歓迎(495機種の歴史がある)
+     (D)「新台情報」の単純追加はnew/info合計で最大2件まで(量産をやめる)
 5. python scripts/import/import_csv.py "ai収集/slocri_import_[ファイル名].csv"
 6. python scripts/misc/fetch_ogp.py
 7. git add → git commit → git push
 8. memory/dup_keys.md に新dup_keyを先頭セクションに追記
 9. 【機種分析更新】投稿数3件以上かつ未登録or postCount+3以上増加した機種を対象に summary/highlight/pros/cons/postCount/updatedAt を生成→ src/machineAnalysis.json 更新→ git push
 
-収集ルール: 新台優先・パチスロメイン(パチンコ1〜2件)・dup_key重複禁止・URL捏造禁止・手順0必須
+収集ルール: 【量より質・別角度優先】infoの新台スペック量産をやめ読み物/横断/深掘りへ・パチスロメイン(パチンコ1〜2件)・dup_key重複禁止・URL捏造禁止・手順0必須
 author候補: 編集部AI, スロ好き編集マン, スロキー編集部, パチスロ記者, 編集長補佐, ライター見習い, スロ専門編集, 深夜のスロライター, 編集部のマニア
