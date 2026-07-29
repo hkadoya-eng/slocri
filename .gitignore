@@ -32,7 +32,12 @@ tmp_*.json
 # cron scratch files (curl→python queue checks)
 _*.json
 _*.txt
+_*.py
+_*.md
 .cron_prompts.tmp
+# tmp/ is throwaway scratch for the headless cron jobs (curl dumps + one-off .py).
+# Nothing in here is source; ignore the whole directory.
+tmp/
 
 # Local SIS data copies (real data is on Z:\01_SISデータ\PS\)
 sisデータ/
