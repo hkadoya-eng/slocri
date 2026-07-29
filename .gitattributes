@@ -1,0 +1,12 @@
+# Windows スクリプトは作業ツリーで必ず CRLF を保つ。
+#
+# このリポジトリは core.autocrlf=input のため、.bat は LF でオブジェクト格納され、
+# かつ input はチェックアウト時に CRLF へ戻さない。つまり新規clone や
+# git checkout -- bat/ をすると LF のみの .bat が生成される。
+# cmd.exe は行末が LF だけだと複数行の "if (...)" / "for (...)" ブロックを
+# 正しく解釈できず、run_claude_task.bat(ログローテーション) /
+# run_sis_import.bat / run_sis_weekly.bat が壊れる。
+# よって .bat / .vbs はチェックアウト時 CRLF を明示的に固定する。
+# 参考: memory feedback_bat_encoding（UTF-8+CRLF維持・日本語含む場合はBOM付き）
+*.bat text eol=crlf
+*.vbs text eol=crlf
