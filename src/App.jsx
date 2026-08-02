@@ -846,14 +846,20 @@ function SisTab({ adminUser }) {
         <div style={{display:"flex",gap:6,alignItems:"center"}}>
           {[{k:"daily",l:"デイリー"},{k:"weekly",l:"ウィークリー"},{k:"shindai",l:"新台診断"}].map(({k,l}) => {
             const on = sisView === k;
-            return <button key={k} onClick={() => setSisView(k)} style={{flex:1,padding:"8px 0",border:"none",borderRadius:10,fontSize:14,fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 5px rgba(0,0,0,0.2)":"2px 2px 5px #C5C9D4,-2px -2px 5px #fff"}}>{l}</button>;
+            return <button key={k} onClick={() => setSisView(k)} style={{flex:1,minWidth:0,whiteSpace:"nowrap",padding:"8px 2px",border:"none",borderRadius:10,fontSize:13,fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 5px rgba(0,0,0,0.2)":"2px 2px 5px #C5C9D4,-2px -2px 5px #fff"}}>{l}</button>;
           })}
-          <div style={{display:"flex",gap:3,background:"#E8ECF0",borderRadius:10,padding:3,boxShadow:"inset 2px 2px 4px #C5C9D4,inset -2px -2px 4px #fff",flexShrink:0}}>
-            {[{k:"1m",l:"1ヶ月"},{k:"3m",l:"3ヶ月"},{k:"6m",l:"6ヶ月"},{k:"all",l:"全期間"}].map(({k,l}) => {
-              const on = dateRange === k;
-              return <button key={k} onClick={() => setDateRange(k)} style={{padding:"5px 10px",border:"none",borderRadius:8,fontSize:12,fontWeight:on?700:400,background:on?"#fff":"transparent",color:on?"#D85A30":"#aaa",cursor:"pointer",boxShadow:on?"1px 1px 3px #C5C9D4":"none",transition:"all 0.15s"}}>{l}</button>;
-            })}
-          </div>
+          {/* 期間フィルターは sis_data(デイリー)のみを絞る変数。ウィークリー/新台診断は weeklyData 由来で
+              dateRange が効かないため表示しない（効かないUIを出さない）。加えて4ボタンを常設すると
+              ビューボタン3つが潰れて「ウィークリー」が2行に折り返すため、デイリー時のみselectに集約する。 */}
+          {sisView === "daily" && (
+            <select value={dateRange} onChange={e => setDateRange(e.target.value)} title="デイリーの集計期間"
+              style={{flexShrink:0,fontSize:12,fontWeight:600,padding:"7px 4px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666",cursor:"pointer"}}>
+              <option value="1m">1ヶ月</option>
+              <option value="3m">3ヶ月</option>
+              <option value="6m">6ヶ月</option>
+              <option value="all">全期間</option>
+            </select>
+          )}
         </div>
       </div>
 
