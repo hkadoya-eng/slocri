@@ -3451,14 +3451,27 @@ ${policyText}
                       </div>
                     </div>
                   )}
-                  {/* 稼働貢献が終了した機種は予測を出さず実績を出す。終わった台に予測を出し続けると
-                      新台診断側の表示と矛盾して混乱するため（2026-08-03 一本化）。 */}
-                  {!col.longevityMin && col.sisOutcome?.status === "終了" && (
-                    <div style={{textAlign:"center",background:"#F0F0F0",borderRadius:10,padding:"6px 10px",minWidth:70}}>
-                      <div style={{fontSize:10,color:"#666",fontWeight:600,marginBottom:2}}>稼働貢献</div>
-                      <div style={{fontSize:14,fontWeight:700,color:"#555",lineHeight:1}}>
+                  {/* 終了した機種は「予測◯週 → 実績◯週」を並べて答え合わせを成立させる。
+                      予測を消すと比較ができずFBが不能になる（当初その設計にして失敗した）。 */}
+                  {col.sisOutcome?.status === "終了" && (
+                    <div style={{textAlign:"center",background: col.sisOutcome.verdict === "hit" ? "#E8F5E9" : "#FDECEA",borderRadius:10,padding:"6px 10px",minWidth:70}}>
+                      <div style={{fontSize:10,color: col.sisOutcome.verdict === "hit" ? "#1f7a4d" : "#C62828",fontWeight:600,marginBottom:2}}>
+                        {col.sisOutcome.verdict === "hit" ? "✓ 的中" : "✗ 外れ"}
+                      </div>
+                      <div style={{fontSize:14,fontWeight:700,color: col.sisOutcome.verdict === "hit" ? "#1f7a4d" : "#C62828",lineHeight:1}}>
                         {col.sisOutcome.contribWeeks}<span style={{fontSize:10}}>週で終了</span>
                       </div>
+                      {col.sisOutcome.diff != null && (
+                        <div style={{fontSize:9,color:"#888",marginTop:2}}>
+                          予測差 {col.sisOutcome.contribWeeks - col.sisOutcome.predicted > 0 ? "+" : ""}{col.sisOutcome.contribWeeks - col.sisOutcome.predicted}週
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {col.sisOutcome?.status === "継続中" && col.sisOutcome.contribWeeks != null && (
+                    <div style={{textAlign:"center",background:"#FFF8E1",borderRadius:8,padding:"4px 8px",minWidth:70}}>
+                      <div style={{fontSize:9,color:"#F57F17",fontWeight:600,marginBottom:1}}>現在 継続中</div>
+                      <div style={{fontSize:13,fontWeight:700,color:"#E65100",lineHeight:1}}>{col.sisOutcome.contribWeeks}<span style={{fontSize:9}}>週</span></div>
                     </div>
                   )}
                   {liveWeeks != null && (
@@ -3481,6 +3494,11 @@ ${policyText}
                     <b style={{color:"#1565C0"}}>予測の根拠</b>
                     {col.longevityTier && <span style={{marginLeft:6,fontWeight:700,color:"#555"}}>2週判定: {col.longevityTier}</span>}
                     <br/>{col.longevityReason}
+                    {col.sisOutcome?.verdictNote && (
+                      <div style={{marginTop:4,fontWeight:600,color: col.sisOutcome.verdict === "hit" ? "#1f7a4d" : "#C62828"}}>
+                        答え合わせ: {col.sisOutcome.verdictNote}
+                      </div>
+                    )}
                     {col.longevityPrev && (
                       <div style={{marginTop:4,color:"#bbb"}}>
                         旧予測 {col.longevityPrev.min}〜{col.longevityPrev.max}週（{col.longevityPrev.method}）から変更

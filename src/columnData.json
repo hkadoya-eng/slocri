@@ -93,14 +93,20 @@
       },
       "longevityMethod": "新台診断(2週持続率×2週稼働値×傾き)",
       "longevityTier": "注意",
-      "longevityReason": "稼働貢献6週で終了済み。終わった台に予測を出し続けると混乱するため予測を削除し実績表示に切替。",
+      "longevityReason": "2週判定=注意（2週持続78%・2週稼働値301%・傾き-79）。確定126機種の注意×稼働値300%以上(n=12)の実測中央値6週。",
       "sisOutcome": {
         "contribWeeks": 6,
         "status": "終了",
         "installedWeeks": 16,
         "deadWeeks": 10,
-        "asOf": "2026-07-20"
-      }
+        "asOf": "2026-07-20",
+        "predicted": 6,
+        "diff": 0,
+        "verdict": "hit",
+        "verdictNote": "予測6週に対し実績6週。差+0週で的中(±2週以内)。"
+      },
+      "longevityMin": 6,
+      "longevityMax": 6
     },
     {
       "id": "yoshimune",
@@ -227,14 +233,20 @@
       },
       "longevityMethod": "新台診断(2週持続率×2週稼働値×傾き)",
       "longevityTier": "注意",
-      "longevityReason": "稼働貢献4週で終了済み。終わった台に予測を出し続けると混乱するため予測を削除し実績表示に切替。",
+      "longevityReason": "2週判定=注意（2週持続76%・2週稼働値208%・傾き-111）。確定126機種の注意×稼働値300%未満(n=25)の実測中央値5週。",
       "sisOutcome": {
         "contribWeeks": 4,
         "status": "終了",
         "installedWeeks": 14,
         "deadWeeks": 10,
-        "asOf": "2026-07-20"
-      }
+        "asOf": "2026-07-20",
+        "predicted": 5,
+        "diff": 1,
+        "verdict": "hit",
+        "verdictNote": "予測5週に対し実績4週。差-1週で的中(±2週以内)。"
+      },
+      "longevityMin": 5,
+      "longevityMax": 5
     },
     {
       "id": "lycoris",
@@ -321,14 +333,20 @@
       },
       "longevityMethod": "新台診断(2週持続率×2週稼働値×傾き)",
       "longevityTier": "注意",
-      "longevityReason": "稼働貢献5週で終了済み。終わった台に予測を出し続けると混乱するため予測を削除し実績表示に切替。",
+      "longevityReason": "2週判定=注意（2週持続80%・2週稼働値285%・傾き-68）。確定126機種の注意×稼働値300%未満(n=25)の実測中央値5週。",
       "sisOutcome": {
         "contribWeeks": 5,
         "status": "終了",
         "installedWeeks": 11,
         "deadWeeks": 6,
-        "asOf": "2026-07-20"
-      }
+        "asOf": "2026-07-20",
+        "predicted": 5,
+        "diff": 0,
+        "verdict": "hit",
+        "verdictNote": "予測5週に対し実績5週。差+0週で的中(±2週以内)。"
+      },
+      "longevityMin": 5,
+      "longevityMax": 5
     },
     {
       "id": "akudama",
@@ -354,14 +372,20 @@
       },
       "longevityMethod": "新台診断(2週持続率×2週稼働値×傾き)",
       "longevityTier": "注意",
-      "longevityReason": "稼働貢献6週で終了済み。終わった台に予測を出し続けると混乱するため予測を削除し実績表示に切替。",
+      "longevityReason": "2週判定=注意（2週持続80%・2週稼働値291%・傾き-68）。確定126機種の注意×稼働値300%未満(n=25)の実測中央値5週。",
       "sisOutcome": {
         "contribWeeks": 6,
         "status": "終了",
         "installedWeeks": 16,
         "deadWeeks": 10,
-        "asOf": "2026-07-20"
-      }
+        "asOf": "2026-07-20",
+        "predicted": 5,
+        "diff": -1,
+        "verdict": "hit",
+        "verdictNote": "予測5週に対し実績6週。差+1週で的中(±2週以内)。"
+      },
+      "longevityMin": 5,
+      "longevityMax": 5
     },
     {
       "id": "kabaneri",
