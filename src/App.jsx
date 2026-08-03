@@ -1302,32 +1302,50 @@ export default function App() {
     // PostgREST は1リクエスト最大1000件(db-max-rows)で頭打ちになるため、
     // .range() で全件をページング取得する(投稿総数が1000を超えても全部読む)
     const PAGE = 1000;
-    let all = [];
-    let from = 0;
-    let fetchErr = null;
+    const norm = rows => rows.map(p => ({ ...p, internal: p.internal || blank(), eng: p.eng || {} }));
+    const fetchPage = from => supabase
+      .from("posts")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .range(from, from + PAGE - 1);
+
+    // 全件で約2.5MB あるため、逐次awaitで全ページ揃うまで待つと初期表示がその分遅れる。
+    // 1ページ目(=最新1000件)だけ先に描画して待ち時間を切り、残りは裏で並列取得して継ぎ足す。
+    const { data: first, error } = await fetchPage(0);
+    if (error) { setLoading(false); return; }
+    const firstMapped = norm(first || []);
+    setPosts(firstMapped);
+    setLoading(false); // ここで一覧が出る（残りの取得は待たせない）
+
+    // ?post=ID の直リンク。1ページ目に無ければ全件取得後に再判定する。
+    const urlParam = new URLSearchParams(window.location.search).get("post");
+    const openDirect = list => {
+      if (!urlParam) return false;
+      const target = list.find(p => String(p.id) === urlParam);
+      if (target) { setTab("feed"); setFeedFilter("all"); setTimeout(() => setDirectPost(target), 100); }
+      return !!target;
+    };
+    let directDone = openDirect(firstMapped);
+    if (urlParam) window.history.replaceState({}, "", window.location.pathname);
+
+    if (!first || first.length < PAGE) return; // 1ページで完結
+
+    // 残りページ数が不明なので、空が返るまで2ページずつ並列で取る（逐次より往復待ちが減る）
+    let from = PAGE;
+    let rest = [];
     while (true) {
-      const { data, error } = await supabase
-        .from("posts")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .range(from, from + PAGE - 1);
-      if (error) { fetchErr = error; break; }
-      if (data && data.length) all = all.concat(data);
-      if (!data || data.length < PAGE) break; // 最終ページ
-      from += PAGE;
+      const res = await Promise.all([fetchPage(from), fetchPage(from + PAGE)]);
+      const got = res.flatMap(r => r.data || []);
+      if (!got.length) break;
+      rest = rest.concat(got);
+      if (res.some(r => !r.data || r.data.length < PAGE)) break;
+      from += PAGE * 2;
     }
-    if (!fetchErr) {
-      const mapped = all.map(p => ({ ...p, internal: p.internal || blank(), eng: p.eng || {} }));
-      setPosts(mapped);
-      // ?post=ID で直リンクを処理
-      const urlParam = new URLSearchParams(window.location.search).get("post");
-      if (urlParam) {
-        const target = mapped.find(p => String(p.id) === urlParam);
-        if (target) { setTab("feed"); setFeedFilter("all"); setTimeout(() => setDirectPost(target), 100); }
-        window.history.replaceState({}, "", window.location.pathname);
-      }
+    if (rest.length) {
+      const allMapped = firstMapped.concat(norm(rest));
+      setPosts(allMapped);
+      if (!directDone) openDirect(allMapped);
     }
-    setLoading(false);
   }
 
   async function addPost(item) {
@@ -1697,6 +1715,28 @@ export default function App() {
   );
 }
 
+// コメント/返信/AI要望の入力欄。下書きテキストを親(FeedTab)のstateに置くと、1文字打つごとに
+// FeedTabが再描画され「filtered の再filter+sort(全投稿)」と「全カードの再描画」が走って重くなる。
+// 下書きはこのコンポーネント内に閉じ込め、送信時だけ onSubmit で親へ渡す。
+// 開閉時は呼び出し側の条件レンダリングでアンマウントされるため、下書きは自然にクリアされる。
+const InlineComposer = React.memo(function InlineComposer({ placeholder, onSubmit, btnLabel = "送信", autoFocus = false, wrapStyle, inputStyle, btnStyle }) {
+  const [text, setText] = useState("");
+  function submit() {
+    const t = text.trim();
+    if (!t) return;
+    setText("");
+    onSubmit(t);
+  }
+  return (
+    <div style={wrapStyle}>
+      <input value={text} onChange={e => setText(e.target.value)}
+        onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); submit(); } }}
+        placeholder={placeholder} autoFocus={autoFocus} style={inputStyle} />
+      <button onClick={submit} style={btnStyle}>{btnLabel}</button>
+    </div>
+  );
+});
+
 function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFilter = "all", onFilterChange, directPost, onDirectPostClear, favMachines, toggleFavMachine }) {
   const [filter, setFilter] = useState(initialFilter);
   const [showMachines, setShowMachines] = useState(false);
@@ -1706,7 +1746,8 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("new");
   const [commentOpen, setCommentOpen] = useState(null);
-  const [commentText, setCommentText] = useState("");
+  // 下書きテキストのstateは意図的に持たない（InlineComposer内に閉じ込めている）。
+  // ここに置くと1文字ごとにFeedTab全体が再描画され、投稿カード全件の再描画が走る。
   const [showForm, setShowForm] = useState(false);
   const [fMachine, setFMachine] = useState("");
   const [fCat, setFCat] = useState("info");
@@ -1735,13 +1776,11 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
   const imgModalScrollRef = React.useRef(null);
   React.useEffect(() => { imgModalScrollRef.current?.scrollTo(0, 0); }, [imgSelectedPost?.id]);
   const [replyTo, setReplyTo] = useState(null); // {postId, idx}
-  const [replyText, setReplyText] = useState("");
   const [fullscreenImg, setFullscreenImg] = useState(null);
   const [shareOpen, setShareOpen] = useState(null);
   const [editOpen, setEditOpen] = useState(null);
   const [machineModal, setMachineModal] = useState(null);
   const [aiReqOpen, setAiReqOpen] = useState(null);
-  const [aiReqText, setAiReqText] = useState("");
 
   useEffect(() => {
     if (directPost) {
@@ -1949,40 +1988,61 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
     const newBads = toggleArr(p.internal.bads || [], MY_UID);
     await updatePost(p.id, { internal: { ...p.internal, bads: newBads } });
   }
-  async function addComment(p) {
-    if (!commentText.trim()) return;
-    const comments = [...(p.internal.comments || []), { uid: MY_UID, text: commentText.trim(), ts: "たった今", replies: [] }];
+  async function addComment(p, text) {
+    if (!text || !text.trim()) return;
+    const comments = [...(p.internal.comments || []), { uid: MY_UID, text: text.trim(), ts: "たった今", replies: [] }];
     await updatePost(p.id, { internal: { ...p.internal, comments } });
-    setCommentText("");
   }
-  async function addReply(p, commentIdx) {
-    if (!replyText.trim()) return;
+  async function addReply(p, commentIdx, text) {
+    if (!text || !text.trim()) return;
     const comments = [...(p.internal.comments || [])];
-    const c = { ...comments[commentIdx], replies: [...(comments[commentIdx].replies || []), { uid: MY_UID, text: replyText.trim(), ts: "たった今" }] };
+    const c = { ...comments[commentIdx], replies: [...(comments[commentIdx].replies || []), { uid: MY_UID, text: text.trim(), ts: "たった今" }] };
     comments[commentIdx] = c;
     await updatePost(p.id, { internal: { ...p.internal, comments } });
-    setReplyText("");
     setReplyTo(null);
   }
   async function handleDelete(id) {
     if (!window.confirm("削除しますか？")) return;
     await deletePost(id);
   }
-  async function submitAiFeedback(p) {
-    if (!aiReqText.trim()) return;
-    const aiFeedback = [...(p.internal?.aiFeedback || []), { uid: MY_UID, text: aiReqText.trim(), ts: new Date().toISOString(), processed: false }];
+  async function submitAiFeedback(p, text) {
+    if (!text || !text.trim()) return;
+    const aiFeedback = [...(p.internal?.aiFeedback || []), { uid: MY_UID, text: text.trim(), ts: new Date().toISOString(), processed: false }];
     await updatePost(p.id, { internal: { ...p.internal, aiFeedback } });
-    setAiReqText("");
     setAiReqOpen(null);
     showToast("AI編集部に要望を届けました！");
   }
 
-  const filtered = posts.filter(p => {
-    if (filter === "img") return !!(p.internal?.imageUrl || p.internal?.ogImageUrl);
-    if (filter !== "all" && p.cat !== filter) return false;
-    if (query.trim() && !(p.machine+p.title+p.body).toLowerCase().includes(query.toLowerCase())) return false;
-    return true;
-  }).sort((a,b) => sortBy === "internal" ? (b.internal?.likes?.length||0) - (a.internal?.likes?.length||0) : new Date(b.created_at) - new Date(a.created_at));
+  // useMemo必須: これを毎描画で回すと、投稿2200件超のfilter+sort(Date生成込み)が
+  // コメント入力の1文字ごとに走る。依存はこの4つだけ。
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return posts.filter(p => {
+      if (filter === "img") return !!(p.internal?.imageUrl || p.internal?.ogImageUrl);
+      if (filter !== "all" && p.cat !== filter) return false;
+      if (q && !(p.machine+p.title+p.body).toLowerCase().includes(q)) return false;
+      return true;
+    }).sort((a,b) => sortBy === "internal"
+      ? (b.internal?.likes?.length||0) - (a.internal?.likes?.length||0)
+      : (a.created_at < b.created_at ? 1 : a.created_at > b.created_at ? -1 : 0));
+  }, [posts, filter, query, sortBy]);
+
+  // 描画件数の窓。全件(2200超)をDOMに載せると初回描画も再描画も重いため一定数ずつ出す。
+  const PAGE_SIZE = 30;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [filter, query, sortBy, showMachines]);
+  const shown = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
+  const hasMore = filtered.length > shown.length;
+  // 末尾のセンチネルが見えたら自動で次の30件。スクロール中に継ぎ足すので体感は全件表示のまま。
+  const moreRef = React.useRef(null);
+  useEffect(() => {
+    if (!hasMore || !moreRef.current || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(entries => {
+      if (entries.some(e => e.isIntersecting)) setVisibleCount(c => c + PAGE_SIZE);
+    }, { rootMargin: "600px" });
+    io.observe(moreRef.current);
+    return () => io.disconnect();
+  }, [hasMore, shown.length]);
 
   return (
     <div style={{minWidth:0}}>
@@ -2155,7 +2215,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
 
       {!showMachines && filter === "img" && filtered.length > 0 && (
         <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:8,marginBottom:12}}>
-          {filtered.map(p => (
+          {shown.map(p => (
             <div key={p.id} onClick={() => setImgSelectedPost(p)} style={{borderRadius:12,overflow:"hidden",background:"#E8ECF0",boxShadow:"3px 3px 8px #C5C9D4, -3px -3px 8px #FFFFFF",cursor:"pointer",position:"relative"}}>
               <img src={p.internal.imageUrl || p.internal.ogImageUrl} alt="" loading="lazy" decoding="async" style={{width:"100%",aspectRatio:"1",objectFit:"cover",display:"block"}}/>
               <div style={{padding:"6px 8px"}}>
@@ -2168,7 +2228,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
         </div>
       )}
 
-      {!showMachines && filter !== "img" && filtered.map(p => {
+      {!showMachines && filter !== "img" && shown.map(p => {
         const engDefs = ENG_DEFS[p.source] || [];
         const hasEng = engDefs.some(d => fmtNum(p.eng?.[d.key]));
         const iLiked = (p.internal?.likes || []).indexOf(MY_UID) >= 0;
@@ -2273,8 +2333,8 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
 
                 <div style={{paddingTop:10,marginTop:8,borderTop:"1px solid rgba(197,201,212,0.4)",display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
                   <button onClick={() => toggleLike(p)} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:"none",borderRadius:20,background:"#E8ECF0",color:iLiked?"#D85A30":"#999",fontSize:13,cursor:"pointer",fontWeight:iLiked?600:400,whiteSpace:"nowrap",boxShadow:iLiked?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>♥</span><span>いいね</span><span style={{fontSize:12}}>{(p.internal?.likes||[]).length}</span></button>
-                  <button onClick={() => { setCommentOpen(isOpen?null:p.id); setCommentText(""); }} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:"none",borderRadius:20,background:"#E8ECF0",color:isOpen?"#3C3489":"#999",fontSize:13,cursor:"pointer",fontWeight:isOpen?600:400,whiteSpace:"nowrap",boxShadow:isOpen?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>💬</span><span style={{fontSize:12}}>{(p.internal?.comments||[]).length}</span></button>
-                  <button onClick={() => { setAiReqOpen(aiReqOpen===p.id?null:p.id); setAiReqText(""); }} title="このネタへの要望をAI編集部に送る" style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:"none",borderRadius:20,background:"#E8ECF0",color:aiReqOpen===p.id?"#B8860B":"#999",fontSize:13,cursor:"pointer",fontWeight:aiReqOpen===p.id?600:400,whiteSpace:"nowrap",boxShadow:aiReqOpen===p.id?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>💡</span><span style={{fontSize:12}}>要望</span></button>
+                  <button onClick={() => { setCommentOpen(isOpen?null:p.id); }} style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:"none",borderRadius:20,background:"#E8ECF0",color:isOpen?"#3C3489":"#999",fontSize:13,cursor:"pointer",fontWeight:isOpen?600:400,whiteSpace:"nowrap",boxShadow:isOpen?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>💬</span><span style={{fontSize:12}}>{(p.internal?.comments||[]).length}</span></button>
+                  <button onClick={() => { setAiReqOpen(aiReqOpen===p.id?null:p.id); }} title="このネタへの要望をAI編集部に送る" style={{display:"flex",alignItems:"center",gap:3,padding:"5px 9px",border:"none",borderRadius:20,background:"#E8ECF0",color:aiReqOpen===p.id?"#B8860B":"#999",fontSize:13,cursor:"pointer",fontWeight:aiReqOpen===p.id?600:400,whiteSpace:"nowrap",boxShadow:aiReqOpen===p.id?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}><span>💡</span><span style={{fontSize:12}}>要望</span></button>
                   {!p.machine?.includes("全般") && (() => { const isFav=favMachines.includes(p.machine); return <button onClick={()=>toggleFavMachine(p.machine)} title={isFav?"注目台から外す":"この機種を注目台に追加"} style={{padding:"5px 7px",border:"none",borderRadius:20,background:"#E8ECF0",color:isFav?"#E8B000":"#999",fontSize:16,cursor:"pointer",lineHeight:1,boxShadow:isFav?"inset 2px 2px 5px #C5C9D4, inset -2px -2px 5px #FFFFFF":"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>{isFav?"★":"☆"}</button>; })()}
                   <div style={{marginLeft:"auto",display:"flex",gap:4}}>
                     <div style={{position:"relative"}}>
@@ -2309,7 +2369,7 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                           <div style={{width:24,height:24,borderRadius:"50%",background:c.uid===MY_UID?"#FAECE7":"#f0f0f0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:c.uid===MY_UID?"#993C1D":"#888",flexShrink:0,fontWeight:500}}>{c.uid===MY_UID?"自":"他"}</div>
                           <div style={{flex:1}}>
                             <div style={{background:"#E8ECF0",borderRadius:10,boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",padding:"6px 10px",fontSize:15,color:"#333",lineHeight:1.5}}>{c.text}<span style={{fontSize:13,color:"#aaa",marginLeft:8}}>{c.ts}</span></div>
-                            <button onClick={() => { setReplyTo(replyTo?.postId===p.id&&replyTo?.idx===i?null:{postId:p.id,idx:i}); setReplyText(""); }} style={{fontSize:12,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:"2px 4px"}}>↩ 返信</button>
+                            <button onClick={() => { setReplyTo(replyTo?.postId===p.id&&replyTo?.idx===i?null:{postId:p.id,idx:i}); }} style={{fontSize:12,color:"#aaa",background:"none",border:"none",cursor:"pointer",padding:"2px 4px"}}>↩ 返信</button>
                           </div>
                         </div>
                         {(c.replies||[]).map((r,j) => (
@@ -2320,15 +2380,19 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                         ))}
                         {replyTo?.postId===p.id && replyTo?.idx===i && (
                           <div style={{display:"flex",gap:6,marginTop:6,paddingLeft:32}}>
-                            <input value={replyText} onChange={e=>setReplyText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"){e.preventDefault();addReply(p,i);}}} placeholder="返信を入力… (Enter)" style={{flex:1,fontSize:16,padding:"5px 8px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF"}} autoFocus />
-                            <button onClick={()=>addReply(p,i)} style={{padding:"5px 12px",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:14,cursor:"pointer"}}>送信</button>
+                            <InlineComposer placeholder="返信を入力… (Enter)" autoFocus onSubmit={t => addReply(p, i, t)}
+                              wrapStyle={{display:"flex",gap:6,flex:1}}
+                              inputStyle={{flex:1,fontSize:16,padding:"5px 8px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF"}}
+                              btnStyle={{padding:"5px 12px",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:14,cursor:"pointer"}} />
                           </div>
                         )}
                       </div>
                     ))}
                     <div style={{display:"flex",gap:6}}>
-                      <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => { if(e.key==="Enter"){e.preventDefault();addComment(p);}}} placeholder="コメントを入力… (Enter)" style={{flex:1,fontSize:16,padding:"6px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF"}} />
-                      <button onClick={() => addComment(p)} style={{padding:"6px 14px",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:15,cursor:"pointer"}}>送信</button>
+                      <InlineComposer placeholder="コメントを入力… (Enter)" onSubmit={t => addComment(p, t)}
+                        wrapStyle={{display:"flex",gap:6,flex:1}}
+                        inputStyle={{flex:1,fontSize:16,padding:"6px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF"}}
+                        btnStyle={{padding:"6px 14px",background:"#D85A30",color:"#fff",border:"none",borderRadius:8,fontSize:15,cursor:"pointer"}} />
                     </div>
                   </div>
                 )}
@@ -2336,8 +2400,10 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
                   <div style={{marginTop:10,background:"#FFF8E1",borderRadius:10,padding:"8px 10px"}}>
                     <div style={{fontSize:12,color:"#B8860B",marginBottom:6,fontWeight:600}}>💡 AI編集部への要望（欲しい角度・もっと知りたい情報・不要な点など）</div>
                     <div style={{display:"flex",gap:6}}>
-                      <input value={aiReqText} onChange={e => setAiReqText(e.target.value)} onKeyDown={e => { if(e.key==="Enter"){e.preventDefault();submitAiFeedback(p);}}} placeholder="例: 天井狙いの期待値を具体的に / この機種は不要 (Enter)" style={{flex:1,fontSize:16,padding:"6px 10px",border:"none",borderRadius:10,background:"#fff",boxShadow:"inset 2px 2px 5px #E0D5B0, inset -2px -2px 5px #FFFFFF"}} />
-                      <button onClick={() => submitAiFeedback(p)} style={{padding:"6px 14px",background:"#B8860B",color:"#fff",border:"none",borderRadius:8,fontSize:15,cursor:"pointer",whiteSpace:"nowrap"}}>送信</button>
+                      <InlineComposer placeholder="例: 天井狙いの期待値を具体的に / この機種は不要 (Enter)" onSubmit={t => submitAiFeedback(p, t)}
+                        wrapStyle={{display:"flex",gap:6,flex:1}}
+                        inputStyle={{flex:1,fontSize:16,padding:"6px 10px",border:"none",borderRadius:10,background:"#fff",boxShadow:"inset 2px 2px 5px #E0D5B0, inset -2px -2px 5px #FFFFFF"}}
+                        btnStyle={{padding:"6px 14px",background:"#B8860B",color:"#fff",border:"none",borderRadius:8,fontSize:15,cursor:"pointer",whiteSpace:"nowrap"}} />
                     </div>
                     {(p.internal?.aiFeedback||[]).length>0 && (
                       <div style={{marginTop:8,fontSize:12,color:"#999"}}>送信済み {(p.internal?.aiFeedback||[]).length}件{(p.internal?.aiFeedback||[]).some(f=>f.replied)?"・編集部が対応済み":""}</div>
@@ -2349,6 +2415,16 @@ function FeedTab({ posts, updatePost, deletePost, addPost, showToast, initialFil
           </div>
         );
       })}
+
+      {/* 追加読み込み。スクロールで自動、+ボタンでも増やせる（IntersectionObserver未対応環境の保険） */}
+      {!showMachines && hasMore && (
+        <div ref={moreRef} style={{padding:"14px 0",textAlign:"center"}}>
+          <button onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
+            style={{padding:"9px 20px",border:"none",borderRadius:20,background:"#E8ECF0",color:"#888",fontSize:14,cursor:"pointer",boxShadow:"3px 3px 6px #C5C9D4, -3px -3px 6px #FFFFFF"}}>
+            さらに読み込む（残り {filtered.length - shown.length} 件）
+          </button>
+        </div>
+      )}
     </div>
   );
 }
