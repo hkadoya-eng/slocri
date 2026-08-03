@@ -34,7 +34,19 @@
       "yamenikusa": "Z-GAMEのストック積み上げが止まらない感覚と天井3段階構造が打ち続けを促すが、AT終了後は通常時に帰還"
     },
     "postCount": 168,
-    "updatedAt": "2026-07-06"
+    "updatedAt": "2026-07-06",
+    "sisRecord": {
+      "sisName": "Lミリオンゴッド－神々の軌跡－",
+      "contribWeeks": 13,
+      "status": "継続中",
+      "statusReason": "直近稼働値201%で市場平均超え",
+      "installedWeeks": 14,
+      "firstWeek": "2026-04-20",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 201,
+      "deadWeeks": 1,
+      "asOf": "2026-07-20"
+    }
   },
   "Lヨルムンガンド": {
     "aliases": [
@@ -70,7 +82,19 @@
       "yamenikusa": "AT終了後は通常時へ完全帰還する設計でやめ時が明確に発生する"
     },
     "postCount": 85,
-    "updatedAt": "2026-07-06"
+    "updatedAt": "2026-07-06",
+    "sisRecord": {
+      "sisName": "Lヨルムンガンド",
+      "contribWeeks": 6,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 16,
+      "firstWeek": "2026-04-06",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 69,
+      "deadWeeks": 10,
+      "asOf": "2026-07-20"
+    }
   },
   "L虚構推理": {
     "aliases": [
@@ -106,7 +130,19 @@
       "yamenikusa": "ボーナス終了後の強制フェーズ突入設計によりATが連鎖するやめ時がない状態が続く"
     },
     "postCount": 58,
-    "updatedAt": "2026-07-06"
+    "updatedAt": "2026-07-06",
+    "sisRecord": {
+      "sisName": "L虚構推理",
+      "contribWeeks": 10,
+      "status": "継続中",
+      "statusReason": "直近稼働値136%で市場平均超え",
+      "installedWeeks": 16,
+      "firstWeek": "2026-04-06",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 136,
+      "deadWeeks": 6,
+      "asOf": "2026-07-20"
+    }
   },
   "Lアクダマドライブ": {
     "aliases": [
@@ -138,7 +174,19 @@
       "yamenikusa": "AT終了後は通常時へ完全帰還するため明確なやめ時が生まれる"
     },
     "postCount": 46,
-    "updatedAt": "2026-07-06"
+    "updatedAt": "2026-07-06",
+    "sisRecord": {
+      "sisName": "Lアクダマドライブ",
+      "contribWeeks": 6,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 16,
+      "firstWeek": "2026-04-06",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 87,
+      "deadWeeks": 10,
+      "asOf": "2026-07-20"
+    }
   },
   "L真打吉宗": {
     "aliases": [
@@ -172,7 +220,19 @@
       "yamenikusa": "1G連ループ継続中は物理的にやめにくく6周期天井構造もあり次の周期への期待でやめ時が消えやすい"
     },
     "postCount": 62,
-    "updatedAt": "2026-07-06"
+    "updatedAt": "2026-07-06",
+    "sisRecord": {
+      "sisName": "L真打吉宗",
+      "contribWeeks": 15,
+      "status": "継続中",
+      "statusReason": "直近稼働値215%で市場平均超え",
+      "installedWeeks": 16,
+      "firstWeek": "2026-04-06",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 215,
+      "deadWeeks": 1,
+      "asOf": "2026-07-20"
+    }
   },
   "L甲鉄城のカバネリ海門決戦": {
     "aliases": [
@@ -207,7 +267,19 @@
       "yamenikusa": "AT終了後は通常時へ帰還し明確なやめ時が発生するためやめにくさは低い"
     },
     "postCount": 53,
-    "updatedAt": "2026-06-16"
+    "updatedAt": "2026-06-16",
+    "sisRecord": {
+      "sisName": "L甲鉄城のカバネリ海門決戦",
+      "contribWeeks": 20,
+      "status": "継続中",
+      "statusReason": "直近稼働値213%で市場平均超え",
+      "installedWeeks": 21,
+      "firstWeek": "2026-03-02",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 213,
+      "deadWeeks": 1,
+      "asOf": "2026-07-20"
+    }
   },
   "異世界かるてっと BT": {
     "aliases": [
@@ -245,7 +317,19 @@
       "yamenikusa": "CZが軽くBTに頻繁にトライできる構造だが転落後は通常時帰還でやめ時が生まれる"
     },
     "postCount": 34,
-    "updatedAt": "2026-07-06"
+    "updatedAt": "2026-07-06",
+    "sisRecord": {
+      "sisName": "LB異世界かるてっと",
+      "contribWeeks": 10,
+      "status": "継続中",
+      "statusReason": "直近稼働値128%で市場平均超え",
+      "installedWeeks": 16,
+      "firstWeek": "2026-04-06",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 128,
+      "deadWeeks": 6,
+      "asOf": "2026-07-20"
+    }
   },
   "Lガンダムユニコーン覚醒DRIVE": {
     "aliases": [
@@ -282,7 +366,19 @@
       "yamenikusa": "最上位AT到達を目指す段階育成中はやめにくいが終了後は通常帰還"
     },
     "postCount": 44,
-    "updatedAt": "2026-07-06"
+    "updatedAt": "2026-07-06",
+    "sisRecord": {
+      "sisName": "L機動戦士ガンダムユニコーン覚醒DRIVE",
+      "contribWeeks": 4,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 14,
+      "firstWeek": "2026-04-20",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 47,
+      "deadWeeks": 10,
+      "asOf": "2026-07-20"
+    }
   },
   "eリコリス・リコイル": {
     "aliases": [
@@ -350,7 +446,19 @@
       "yamenikusa": "AT終了後は通常時帰還でやめ時が発生するがフェイク前兆で追走判断が分かれる"
     },
     "postCount": 43,
-    "updatedAt": "2026-07-10"
+    "updatedAt": "2026-07-10",
+    "sisRecord": {
+      "sisName": "L北斗の拳転生の章2",
+      "contribWeeks": 23,
+      "status": "継続中",
+      "statusReason": "直近稼働値137%で市場平均超え",
+      "installedWeeks": 29,
+      "firstWeek": "2026-01-05",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 137,
+      "deadWeeks": 6,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ新鬼武者3": {
     "aliases": [
@@ -382,7 +490,19 @@
       "yamenikusa": "AT終了後は通常時へ完全帰還しやめ時が明確"
     },
     "postCount": 18,
-    "updatedAt": "2026-07-08"
+    "updatedAt": "2026-07-08",
+    "sisRecord": {
+      "sisName": "L新鬼武者3",
+      "contribWeeks": 15,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 42,
+      "firstWeek": "2025-10-06",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 95,
+      "deadWeeks": 27,
+      "asOf": "2026-07-20"
+    }
   },
   "Lからくりサーカス2": {
     "aliases": [
@@ -420,7 +540,19 @@
       "yamenikusa": "段階AT進行中はやめにくいが各段階終了時にやめ時が生まれる"
     },
     "postCount": 65,
-    "updatedAt": "2026-07-06"
+    "updatedAt": "2026-07-06",
+    "sisRecord": {
+      "sisName": "Lからくりサーカス2",
+      "contribWeeks": 2,
+      "status": "継続中",
+      "statusReason": "直近稼働値259%で市場平均超え",
+      "installedWeeks": 3,
+      "firstWeek": "2026-07-06",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 259,
+      "deadWeeks": 1,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ バイオハザードRE:3": {
     "aliases": [
@@ -446,7 +578,19 @@
       "DMMユーザー評価が3.05スタートで前作RE:2への名作イメージとのギャップを嘆く声が根強い"
     ],
     "postCount": 118,
-    "updatedAt": "2026-07-06"
+    "updatedAt": "2026-07-06",
+    "sisRecord": {
+      "sisName": "LバイオハザードRE：3",
+      "contribWeeks": 5,
+      "status": "継続中",
+      "statusReason": "直近稼働値93%で市場平均超え",
+      "installedWeeks": 11,
+      "firstWeek": "2026-05-11",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 93,
+      "deadWeeks": 6,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ ソードアート・オンラインⅡ": {
     "aliases": [
@@ -485,7 +629,19 @@
       "yamenikusa": "2段階ATの進行中はやめにくいが各AT終了時に明確なやめ時が発生する"
     },
     "postCount": 40,
-    "updatedAt": "2026-07-30"
+    "updatedAt": "2026-07-30",
+    "sisRecord": {
+      "sisName": "Lソードアート・オンラインII",
+      "contribWeeks": 6,
+      "status": "継続中",
+      "statusReason": "直近稼働値362%で市場平均超え",
+      "installedWeeks": 7,
+      "firstWeek": "2026-06-08",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 362,
+      "deadWeeks": 1,
+      "asOf": "2026-07-20"
+    }
   },
   "e転生したらスライムだった件2": {
     "aliases": [
@@ -604,7 +760,19 @@
       "yamenikusa": "ループ率77.5%の継続中はやめにくいがAT終了後は通常帰還"
     },
     "postCount": 30,
-    "updatedAt": "2026-07-06"
+    "updatedAt": "2026-07-06",
+    "sisRecord": {
+      "sisName": "Lスーパーリオエース2",
+      "contribWeeks": 7,
+      "status": "継続中",
+      "statusReason": "直近稼働値116%で市場平均超え",
+      "installedWeeks": 11,
+      "firstWeek": "2026-05-11",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 116,
+      "deadWeeks": 4,
+      "asOf": "2026-07-20"
+    }
   },
   "L東京喰種": {
     "aliases": [
@@ -638,7 +806,19 @@
       "yamenikusa": "天井1000Gが明確な目安になるため、超えていなければ辞めやすい設計"
     },
     "postCount": 23,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "L東京喰種",
+      "contribWeeks": 76,
+      "status": "継続中",
+      "statusReason": "直近稼働値209%で市場平均超え",
+      "installedWeeks": 75,
+      "firstWeek": "2025-02-03",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 209,
+      "deadWeeks": -1,
+      "asOf": "2026-07-20"
+    }
   },
   "北斗の拳（4号機）": {
     "aliases": [
@@ -700,7 +880,19 @@
       "「スマスロゴッドとは別物」との評価が定着し、ゴッド待機層からの支持を得られていない面もある"
     ],
     "postCount": 79,
-    "updatedAt": "2026-07-06"
+    "updatedAt": "2026-07-06",
+    "sisRecord": {
+      "sisName": "LビッグドリームTHEGOLDENPUSHER",
+      "contribWeeks": 5,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 11,
+      "firstWeek": "2026-05-11",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 75,
+      "deadWeeks": 6,
+      "asOf": "2026-07-20"
+    }
   },
   "Lタクトオーパス デスティニー": {
     "aliases": [
@@ -736,7 +928,19 @@
       "yamenikusa": "報酬ジャッジ終了後がやめどきとして明確でやめやすい設計"
     },
     "postCount": 31,
-    "updatedAt": "2026-07-06"
+    "updatedAt": "2026-07-06",
+    "sisRecord": {
+      "sisName": "Lタクトオーパスデスティニー",
+      "contribWeeks": 6,
+      "status": "継続中",
+      "statusReason": "直近稼働値121%で市場平均超え",
+      "installedWeeks": 11,
+      "firstWeek": "2026-05-11",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 121,
+      "deadWeeks": 5,
+      "asOf": "2026-07-20"
+    }
   },
   "LBスロット GALFY": {
     "aliases": [
@@ -767,7 +971,19 @@
       "yamenikusa": "準完全告知のためATの当落が明確でやめどきがはっきりしやすい"
     },
     "postCount": 10,
-    "updatedAt": "2026-07-06"
+    "updatedAt": "2026-07-06",
+    "sisRecord": {
+      "sisName": "LBGALFY",
+      "contribWeeks": 4,
+      "status": "継続中",
+      "statusReason": "直近稼働値101%で市場平均超え",
+      "installedWeeks": 9,
+      "firstWeek": "2026-05-25",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 101,
+      "deadWeeks": 5,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ モンキーターンV": {
     "aliases": [
@@ -797,7 +1013,19 @@
       "yamenikusa": "AT終了後は通常帰還でやめどきは明確だが継続率設計によりやめにくい場面もある"
     },
     "postCount": 24,
-    "updatedAt": "2026-07-25"
+    "updatedAt": "2026-07-25",
+    "sisRecord": {
+      "sisName": "LスマスロモンキーターンＶ",
+      "contribWeeks": 111,
+      "status": "継続中",
+      "statusReason": "直近稼働値155%で市場平均超え",
+      "installedWeeks": 136,
+      "firstWeek": "2023-12-04",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 155,
+      "deadWeeks": 25,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ とんでもスキルで異世界放浪メシ": {
     "aliases": [
@@ -892,7 +1120,19 @@
       "yamenikusa": "ボーナス完走で通常時帰還でやめ時が明確に発生するノーマル機の伝統設計"
     },
     "postCount": 12,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "LBサンダーV",
+      "contribWeeks": 20,
+      "status": "継続中",
+      "statusReason": "直近稼働値161%で市場平均超え",
+      "installedWeeks": 21,
+      "firstWeek": "2026-03-02",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 161,
+      "deadWeeks": 1,
+      "asOf": "2026-07-20"
+    }
   },
   "スマート沖スロ ダークハイビ": {
     "aliases": [
@@ -922,7 +1162,19 @@
       "yamenikusa": "32G以内連チャン狙い構造のためBB終了後のヤメ時判断がしやすい"
     },
     "postCount": 15,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "Lダークハイビ",
+      "contribWeeks": 4,
+      "status": "継続中",
+      "statusReason": "直近稼働値136%で市場平均超え",
+      "installedWeeks": 5,
+      "firstWeek": "2026-06-22",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 136,
+      "deadWeeks": 1,
+      "asOf": "2026-07-20"
+    }
   },
   "L ダーリン・イン・ザ・フランキス": {
     "aliases": [
@@ -1005,7 +1257,19 @@
     "scores": null,
     "scoreReason": null,
     "postCount": 27,
-    "updatedAt": "2026-07-26"
+    "updatedAt": "2026-07-26",
+    "sisRecord": {
+      "sisName": "L戦国乙女5業火を穿つ宿焔の双刃",
+      "contribWeeks": 6,
+      "status": "継続中",
+      "statusReason": "直近稼働値294%で市場平均超え",
+      "installedWeeks": 7,
+      "firstWeek": "2026-06-08",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 294,
+      "deadWeeks": 1,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ BIRDIE WING -Golf Girls' Story-": {
     "aliases": [
@@ -1135,7 +1399,19 @@
       "yamenikusa": "AT終了後はゾーン・CZ前兆確認が必要でヤメ時はやや明確"
     },
     "postCount": 13,
-    "updatedAt": "2026-07-25"
+    "updatedAt": "2026-07-25",
+    "sisRecord": {
+      "sisName": "L鉄拳6",
+      "contribWeeks": 10,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 29,
+      "firstWeek": "2026-01-05",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 85,
+      "deadWeeks": 19,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ秘宝伝": {
     "aliases": [
@@ -1168,7 +1444,19 @@
       "yamenikusa": "ボーナスループ・伝説モード終了で区切りが明確でやめどきは判断しやすい"
     },
     "postCount": 16,
-    "updatedAt": "2026-07-25"
+    "updatedAt": "2026-07-25",
+    "sisRecord": {
+      "sisName": "L秘宝伝",
+      "contribWeeks": 7,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 31,
+      "firstWeek": "2025-12-22",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 68,
+      "deadWeeks": 24,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ攻殻機動隊": {
     "aliases": [
@@ -1200,7 +1488,19 @@
       "yamenikusa": "AT・CZ終了で区切りが付きやめどきは比較的明確"
     },
     "postCount": 18,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "L攻殻機動隊",
+      "contribWeeks": 24,
+      "status": "継続中",
+      "statusReason": "直近稼働値173%で市場平均超え",
+      "installedWeeks": 25,
+      "firstWeek": "2026-02-01",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 173,
+      "deadWeeks": 1,
+      "asOf": "2026-07-20"
+    }
   },
   "Lパチスロ喰霊-零-Re": {
     "aliases": [
@@ -1256,7 +1556,19 @@
       "コイン単価約5.7円で軽い当たりでは削られ続けるため、資金を厚く用意しないと塊到達前に力尽きる"
     ],
     "postCount": 19,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "Lヤバチバ",
+      "contribWeeks": 2,
+      "status": "継続中",
+      "statusReason": "直近稼働値148%で市場平均超え",
+      "installedWeeks": 3,
+      "firstWeek": "2026-07-06",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 148,
+      "deadWeeks": 1,
+      "asOf": "2026-07-20"
+    }
   },
   "L南国育ちSPECIAL": {
     "aliases": [
@@ -1282,7 +1594,19 @@
       "初当り設定差が約1.14倍と薄く、短時間実戦では高低の判別が進みにくい"
     ],
     "postCount": 20,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "L南国育ちSPECIAL",
+      "contribWeeks": 2,
+      "status": "継続中",
+      "statusReason": "直近稼働値224%で市場平均超え",
+      "installedWeeks": 3,
+      "firstWeek": "2026-07-06",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 224,
+      "deadWeeks": 1,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ リコリス・リコイル": {
     "aliases": [
@@ -1344,7 +1668,19 @@
       "yamenikusa": "天井(周期/G数)と短縮条件が明確でST後の区切りも分かりやすく、やめどきの判断は比較的つけやすい"
     },
     "postCount": 7,
-    "updatedAt": "2026-07-10"
+    "updatedAt": "2026-07-10",
+    "sisRecord": {
+      "sisName": "Lプリズムナナ",
+      "contribWeeks": 9,
+      "status": "継続中",
+      "statusReason": "直近稼働値120%で市場平均超え",
+      "installedWeeks": 33,
+      "firstWeek": "2025-12-08",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 120,
+      "deadWeeks": 24,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ デビルメイクライ5": {
     "aliases": [
@@ -1379,7 +1715,19 @@
       "yamenikusa": "ST・ボーナス連の区切りでやめどきは比較的明確"
     },
     "postCount": 7,
-    "updatedAt": "2026-06-24"
+    "updatedAt": "2026-06-24",
+    "sisRecord": {
+      "sisName": "Lデビルメイクライ5スタイリッシュトライブ",
+      "contribWeeks": 8,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 58,
+      "firstWeek": "2025-06-02",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 83,
+      "deadWeeks": 50,
+      "asOf": "2026-07-20"
+    }
   },
   "マイジャグラーV": {
     "aliases": [
@@ -1506,7 +1854,19 @@
       "yamenikusa": "AT終了1Gは静かで即やめ可だが百竜ノ淵源後の天国確定示唆に注意"
     },
     "postCount": 8,
-    "updatedAt": "2026-07-11"
+    "updatedAt": "2026-07-11",
+    "sisRecord": {
+      "sisName": "Lモンスターハンターライズ",
+      "contribWeeks": 26,
+      "status": "継続中",
+      "statusReason": "直近稼働値136%で市場平均超え",
+      "installedWeeks": 86,
+      "firstWeek": "2024-11-18",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 136,
+      "deadWeeks": 60,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ 押忍!番長4": {
     "aliases": [
@@ -1530,7 +1890,19 @@
       "7枚役の吸い込みや対決勝率の低さにストレスの声が多く、通常時がやや退屈で噛み合い待ちになりやすい"
     ],
     "postCount": 6,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "L押忍！番長４",
+      "contribWeeks": 14,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 116,
+      "firstWeek": "2024-04-22",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 67,
+      "deadWeeks": 102,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ ゴッドイーター リザレクション": {
     "aliases": [
@@ -1556,7 +1928,19 @@
       "通常時の重さやストーリーパートの好みが分かれ、高純増ATに辿り着けないと淡白に終わる玄人好みの尖った設計"
     ],
     "postCount": 10,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "Lスマスロゴッドイーターリザレクション",
+      "contribWeeks": 43,
+      "status": "継続中",
+      "statusReason": "直近稼働値102%で市場平均超え",
+      "installedWeeks": 104,
+      "firstWeek": "2024-07-22",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 102,
+      "deadWeeks": 61,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ リゼロ2": {
     "aliases": [
@@ -1581,7 +1965,19 @@
       "単発示唆だけでは設定を読みづらく、初当りの軽さと終了画面傾向の併用が必要で判別の手間がかかる"
     ],
     "postCount": 7,
-    "updatedAt": "2026-06-28"
+    "updatedAt": "2026-06-28",
+    "sisRecord": {
+      "sisName": "LRe：ゼロから始める異世界生活season2",
+      "contribWeeks": 7,
+      "status": "終了",
+      "statusReason": "撤去(直近にデータなし)",
+      "installedWeeks": 83,
+      "firstWeek": "2024-10-21",
+      "lastWeek": "2026-06-01",
+      "katsudoLast": 70,
+      "deadWeeks": 76,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ銀河英雄伝説": {
     "aliases": [
@@ -1604,7 +2000,19 @@
       "設定6でも111.0%とスマスロとしては上限が控えめで、低中設定域では出玉の伸びに欠ける淡白さが出やすい"
     ],
     "postCount": 3,
-    "updatedAt": "2026-06-14"
+    "updatedAt": "2026-06-14",
+    "sisRecord": {
+      "sisName": "L銀河英雄伝説DIENEUETHESE",
+      "contribWeeks": 6,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 33,
+      "firstWeek": "2025-12-08",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 79,
+      "deadWeeks": 27,
+      "asOf": "2026-07-20"
+    }
   },
   "L ULTRAMAN最終決戦": {
     "aliases": [
@@ -1634,7 +2042,19 @@
       "AT終了後の引き戻し区間がリール下部表示でしか分からず、知らずに離席して損をする打ち手が出やすい"
     ],
     "postCount": 15,
-    "updatedAt": "2026-07-27"
+    "updatedAt": "2026-07-27",
+    "sisRecord": {
+      "sisName": "LULTRAMAN最終決戦",
+      "contribWeeks": 2,
+      "status": "継続中",
+      "statusReason": "直近稼働値159%で市場平均超え",
+      "installedWeeks": 3,
+      "firstWeek": "2026-07-06",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 159,
+      "deadWeeks": 1,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ無職転生": {
     "aliases": [],
@@ -1692,7 +2112,19 @@
       "yamenikusa": "モードループ型でモード示唆を見てのやめどき判断、引き戻しゾーンもあり中程度"
     },
     "postCount": 12,
-    "updatedAt": "2026-07-17"
+    "updatedAt": "2026-07-17",
+    "sisRecord": {
+      "sisName": "Lローティス",
+      "contribWeeks": 2,
+      "status": "継続中",
+      "statusReason": "直近稼働値143%で市場平均超え",
+      "installedWeeks": 3,
+      "firstWeek": "2026-07-06",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 143,
+      "deadWeeks": 1,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ やじきた道中記参る！": {
     "aliases": [
@@ -1817,7 +2249,19 @@
       "yamenikusa": "BTループ中はやめづらいが終了で区切れる"
     },
     "postCount": 17,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "LBケロット5",
+      "contribWeeks": 2,
+      "status": "継続中",
+      "statusReason": "直近稼働値196%で市場平均超え",
+      "installedWeeks": 3,
+      "firstWeek": "2026-07-06",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 196,
+      "deadWeeks": 1,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ タコスロ": {
     "aliases": [
@@ -1929,7 +2373,19 @@
       "設定差は初当り頻度中心でサンプルを積まないと判別精度が出にくい"
     ],
     "postCount": 5,
-    "updatedAt": "2026-07-30"
+    "updatedAt": "2026-07-30",
+    "sisRecord": {
+      "sisName": "Lスマスロかぐや様は告らせたい",
+      "contribWeeks": 57,
+      "status": "継続中",
+      "statusReason": "直近稼働値100%で市場平均超え",
+      "installedWeeks": 97,
+      "firstWeek": "2024-09-02",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 100,
+      "deadWeeks": 40,
+      "asOf": "2026-07-20"
+    }
   },
   "SLOT魔法少女まどか☆マギカ": {
     "aliases": [
@@ -2216,7 +2672,19 @@
       "250Gゾーン以外の設定判別は終了画面・キャラ示唆の蓄積頼みで、短時間では高低を絞りにくい"
     ],
     "postCount": 4,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "L七つの魔剣が支配する",
+      "contribWeeks": 17,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 77,
+      "firstWeek": "2025-01-20",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 96,
+      "deadWeeks": 60,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ コードギアス 復活のルルーシュ": {
     "aliases": [
@@ -2317,7 +2785,19 @@
       "yamenikusa": "AT終了後は通常時帰還でやめ時が発生する"
     },
     "postCount": 42,
-    "updatedAt": "2026-07-06"
+    "updatedAt": "2026-07-06",
+    "sisRecord": {
+      "sisName": "L炎炎ノ消防隊2",
+      "contribWeeks": 24,
+      "status": "継続中",
+      "statusReason": "直近稼働値156%で市場平均超え",
+      "installedWeeks": 25,
+      "firstWeek": "2026-02-01",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 156,
+      "deadWeeks": 1,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ 緑ドン VIVA!情熱南米編 REVIVAL": {
     "aliases": [
@@ -2350,7 +2830,19 @@
       "yamenikusa": "ボーナス・AT後は前兆確認後に区切りをつけやすい"
     },
     "postCount": 4,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "L緑ドンVIVA!情熱南米編REVIVAL",
+      "contribWeeks": 6,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 62,
+      "firstWeek": "2025-05-05",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 48,
+      "deadWeeks": 56,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ 咲-Saki- 頂上決戦": {
     "aliases": [
@@ -2387,7 +2879,19 @@
       "yamenikusa": "CZスルー天井・AT終了で区切りが付き、駆け抜け短縮の把握でやめどきは比較的明確"
     },
     "postCount": 7,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "L咲-Saki-頂上決戦",
+      "contribWeeks": 6,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 51,
+      "firstWeek": "2025-08-04",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 77,
+      "deadWeeks": 45,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ ネオプラネット": {
     "aliases": [
@@ -2416,7 +2920,19 @@
       "yamenikusa": "ボーナス後の高確・プラネット連ループ抜けを見てやめやすい"
     },
     "postCount": 5,
-    "updatedAt": "2026-07-30"
+    "updatedAt": "2026-07-30",
+    "sisRecord": {
+      "sisName": "Lネオプラネット",
+      "contribWeeks": 8,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 36,
+      "firstWeek": "2025-11-17",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 67,
+      "deadWeeks": 28,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ 沖ドキ！DUO アンコール": {
     "aliases": [
@@ -2450,7 +2966,19 @@
       "yamenikusa": "モード示唆・スルー回数から比較的やめどきを判断しやすい"
     },
     "postCount": 7,
-    "updatedAt": "2026-07-30"
+    "updatedAt": "2026-07-30",
+    "sisRecord": {
+      "sisName": "L沖ドキ！DUOアンコール",
+      "contribWeeks": 5,
+      "status": "継続中",
+      "statusReason": "直近稼働値112%で市場平均超え",
+      "installedWeeks": 31,
+      "firstWeek": "2025-12-22",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 112,
+      "deadWeeks": 26,
+      "asOf": "2026-07-20"
+    }
   },
   "e学園黙示録ハイスクール・オブ・ザ・デッド3": {
     "aliases": [
@@ -2545,7 +3073,19 @@
       "yamenikusa": "扉色シナリオ示唆と周期・モード管理でヤメ時判断はつくが、修羅モード前兆や周期途中で見極めが要る"
     },
     "postCount": 6,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "L戦国コレクション6",
+      "contribWeeks": 2,
+      "status": "継続中",
+      "statusReason": "直近稼働値295%で市場平均超え",
+      "installedWeeks": 3,
+      "firstWeek": "2026-07-06",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 295,
+      "deadWeeks": 1,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ 獣王": {
     "aliases": [
@@ -2624,7 +3164,19 @@
       "設定示唆がボーナス終了画面中心のため、ボーナスを引くまで高低の手掛かりが乏しい"
     ],
     "postCount": 5,
-    "updatedAt": "2026-07-30"
+    "updatedAt": "2026-07-30",
+    "sisRecord": {
+      "sisName": "L主役は銭形5",
+      "contribWeeks": 14,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 42,
+      "firstWeek": "2025-10-06",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 83,
+      "deadWeeks": 28,
+      "asOf": "2026-07-20"
+    }
   },
   "L邪神ちゃんドロップキック": {
     "aliases": [
@@ -2697,7 +3249,19 @@
       "ユーザー評価は約2.29と辛口でATに届くまでの道のりが淡白という声が多い"
     ],
     "postCount": 4,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "Lマギアレコード魔法少女まどか☆マギカ外伝",
+      "contribWeeks": 29,
+      "status": "継続中",
+      "statusReason": "直近稼働値134%で市場平均超え",
+      "installedWeeks": 66,
+      "firstWeek": "2025-04-07",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 134,
+      "deadWeeks": 37,
+      "asOf": "2026-07-20"
+    }
   },
   "L範馬刃牙": {
     "aliases": [
@@ -2729,7 +3293,19 @@
       "yamenikusa": "AT/CZ後は有利区間ランプ消灯でやめ時が明確、天井700Gも把握しやすい"
     },
     "postCount": 7,
-    "updatedAt": "2026-07-14"
+    "updatedAt": "2026-07-14",
+    "sisRecord": {
+      "sisName": "L範馬刃牙",
+      "contribWeeks": 5,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 25,
+      "firstWeek": "2026-02-01",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 64,
+      "deadWeeks": 20,
+      "asOf": "2026-07-20"
+    }
   },
   "大花火(4号機)": {
     "aliases": [
@@ -2903,7 +3479,19 @@
       "pt減算はG侵食失敗やAT非当選ボーナスが契機のため、天井までの実質距離が読みにくい場面がある"
     ],
     "postCount": 5,
-    "updatedAt": "2026-07-26"
+    "updatedAt": "2026-07-26",
+    "sisRecord": {
+      "sisName": "Lゴジラ対エヴァンゲリオン",
+      "contribWeeks": 26,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 127,
+      "firstWeek": "2024-02-05",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 73,
+      "deadWeeks": 101,
+      "asOf": "2026-07-20"
+    }
   },
   "マイジャグラーVI": {
     "aliases": [
@@ -2950,7 +3538,19 @@
       "ST突破前は淡々とした展開になりやすく、突破できないと出玉が動かない"
     ],
     "postCount": 5,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "Lアニマルスロットドッチ",
+      "contribWeeks": 8,
+      "status": "継続中",
+      "statusReason": "直近稼働値126%で市場平均超え",
+      "installedWeeks": 14,
+      "firstWeek": "2026-04-20",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 126,
+      "deadWeeks": 6,
+      "asOf": "2026-07-20"
+    }
   },
   "L アズールレーン THE ANIMATION": {
     "aliases": [
@@ -2975,7 +3575,19 @@
       "上位AT到達の有無で体感が大きく割れ、通常AT止まりだと純増2.5枚の淡々とした展開になる"
     ],
     "postCount": 4,
-    "updatedAt": "2026-07-26"
+    "updatedAt": "2026-07-26",
+    "sisRecord": {
+      "sisName": "LアズールレーンTHEANIMATION",
+      "contribWeeks": 31,
+      "status": "継続中",
+      "statusReason": "直近稼働値124%で市場平均超え",
+      "installedWeeks": 51,
+      "firstWeek": "2025-08-04",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 124,
+      "deadWeeks": 20,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ バーニングエクスプレス": {
     "aliases": [
@@ -2996,7 +3608,19 @@
       "上位ボーナスに入らないと平均約500枚の刻みが続くだけで、爆発力を体感しにくい"
     ],
     "postCount": 4,
-    "updatedAt": "2026-07-26"
+    "updatedAt": "2026-07-26",
+    "sisRecord": {
+      "sisName": "Lバーニングエクスプレス",
+      "contribWeeks": 5,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 34,
+      "firstWeek": "2025-12-01",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 33,
+      "deadWeeks": 29,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ HEY!エリートサラリーマン鏡": {
     "aliases": [
@@ -3020,7 +3644,19 @@
       "モード管理型ゆえ低モード滞在時のハマりが長く、通常時の手応えが薄くなる場面がある"
     ],
     "postCount": 4,
-    "updatedAt": "2026-07-26"
+    "updatedAt": "2026-07-26",
+    "sisRecord": {
+      "sisName": "LＨＥＹ！エリートサラリーマン鏡",
+      "contribWeeks": 19,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 184,
+      "firstWeek": "2022-12-26",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 93,
+      "deadWeeks": 165,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ からくりサーカス": {
     "aliases": [
@@ -3043,7 +3679,19 @@
       "上位到達には激情ジャッジ3回以上の成功が必要で、到達率の低さが評価を割る要因になっている"
     ],
     "postCount": 3,
-    "updatedAt": "2026-07-26"
+    "updatedAt": "2026-07-26",
+    "sisRecord": {
+      "sisName": "Lパチスロからくりサーカス",
+      "contribWeeks": 89,
+      "status": "継続中",
+      "statusReason": "直近稼働値80%で市場平均超え",
+      "installedWeeks": 160,
+      "firstWeek": "2023-07-03",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 80,
+      "deadWeeks": 71,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ ギルティクラウン2": {
     "aliases": [
@@ -3066,7 +3714,19 @@
       "機械割上限113.6%に対し設定1は97.9%で、低設定を長く打つと削られやすい"
     ],
     "postCount": 3,
-    "updatedAt": "2026-07-26"
+    "updatedAt": "2026-07-26",
+    "sisRecord": {
+      "sisName": "Lギルティクラウン2",
+      "contribWeeks": 5,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 58,
+      "firstWeek": "2025-06-02",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 95,
+      "deadWeeks": 53,
+      "asOf": "2026-07-20"
+    }
   },
   "ぱちんこ 必殺仕事人VI": {
     "aliases": [
@@ -3243,7 +3903,19 @@
       "yamenikusa": "連チャンゾーンや天井に縛られず、ボーナス後にやめられるので判断は明快"
     },
     "postCount": 4,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "LBニューキングハナハナV",
+      "contribWeeks": 10,
+      "status": "継続中",
+      "statusReason": "直近稼働値163%で市場平均超え",
+      "installedWeeks": 29,
+      "firstWeek": "2026-01-05",
+      "lastWeek": "2026-07-20",
+      "katsudoLast": 163,
+      "deadWeeks": 19,
+      "asOf": "2026-07-20"
+    }
   },
   "スマスロ いざ！番長": {
     "aliases": [

@@ -265,6 +265,29 @@ function MachineListTab({ posts, onGoToFeed, favMachines = [], toggleFavMachine 
                   {selAnalysis.spec && (
                     <div style={{fontSize:11,color:"#888",marginBottom:10,lineHeight:1.5,borderBottom:"1px solid #F0F0F0",paddingBottom:8}}>{selAnalysis.spec}</div>
                   )}
+                  {/* SIS稼働の実績。新台診断は直近26週しか出さないため、窓を出た機種の
+                      「◯週で終了」がどこにも残らなかった。機種側に永続記録として持たせる。 */}
+                  {selAnalysis.sisRecord && (() => {
+                    const r = selAnalysis.sisRecord;
+                    const ended = r.status === "終了";
+                    return (
+                      <div style={{marginBottom:10,padding:"8px 10px",borderRadius:10,background: ended ? "#F4F4F4" : "#EEF7F1",border:"0.5px solid " + (ended ? "#E0E0E0" : "#CFE8D8")}}>
+                        <div style={{fontSize:13,fontWeight:700,color: ended ? "#666" : "#1f7a4d",marginBottom:3}}>
+                          {ended
+                            ? `稼働貢献 ${r.contribWeeks != null ? r.contribWeeks + "週で終了" : "終了"}`
+                            : `稼働貢献 ${r.contribWeeks != null ? r.contribWeeks + "週（継続中）" : "継続中"}`}
+                        </div>
+                        <div style={{fontSize:11,color:"#888",lineHeight:1.6}}>
+                          {r.firstWeek} 導入・設置{r.installedWeeks}週
+                          {ended && r.deadWeeks != null && r.deadWeeks > 0 && (
+                            <> ／ <span style={{color:"#C77B00",fontWeight:600}}>うち死に台 約{r.deadWeeks}週</span></>
+                          )}
+                          {!ended && r.katsudoLast != null && <> ／ 直近稼働値 {r.katsudoLast}%</>}
+                          <br/>{r.statusReason}（{r.asOf} 時点）
+                        </div>
+                      </div>
+                    );
+                  })()}
                   {selAnalysis.summary && (
                     <div style={{fontSize:14,fontWeight:700,color:"#333",marginBottom:8}}>{selAnalysis.summary}</div>
                   )}
