@@ -3561,15 +3561,14 @@ ${policyText}
                       )}
                     </div>
                   )}
-                  {col.sisOutcome?.status === "継続中" && col.sisOutcome.contribWeeks != null && (
+                  {/* 貢献週の表示はここ1箇所だけ。終了機種は上の答え合わせバッジが最終週数を出すので
+                      重複させない（「現在の貢献週」と「継続中◯週」で同じ数字を2つ出していたのを統合）。
+                      数値は sisOutcome(ビルド時点の値)ではなく liveWeeks(Supabaseから毎回取得)を使う。 */}
+                  {liveWeeks != null && col.sisOutcome?.status !== "終了" && (
                     <div style={{textAlign:"center",background:"#FFF8E1",borderRadius:8,padding:"4px 8px",minWidth:70}}>
-                      <div style={{fontSize:9,color:"#F57F17",fontWeight:600,marginBottom:1}}>現在 継続中</div>
-                      <div style={{fontSize:13,fontWeight:700,color:"#E65100",lineHeight:1}}>{col.sisOutcome.contribWeeks}<span style={{fontSize:9}}>週</span></div>
-                    </div>
-                  )}
-                  {liveWeeks != null && (
-                    <div style={{textAlign:"center",background:"#FFF8E1",borderRadius:8,padding:"4px 8px",minWidth:70}}>
-                      <div style={{fontSize:9,color:"#F57F17",fontWeight:600,marginBottom:1}}>現在の貢献週</div>
+                      <div style={{fontSize:9,color:"#F57F17",fontWeight:600,marginBottom:1}}>
+                        貢献週{col.sisOutcome?.status === "継続中" ? "（継続中）" : ""}
+                      </div>
                       <div style={{fontSize:14,fontWeight:700,color:"#E65100",lineHeight:1}}>{liveWeeks}<span style={{fontSize:10}}>週</span></div>
                     </div>
                   )}
