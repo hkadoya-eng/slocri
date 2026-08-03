@@ -7,7 +7,7 @@ import GAME_LIBRARY from "./gameDesignLibrary.json";
 import MACHINE_LIBRARY from "./machineLibrary.json";
 import ProposeTab from "./ProposeTab";
 import ChatTab from "./ChatTab";
-import GameDesignTab from "./GameDesignTab";
+import GameDesignTab, { PresentationTab } from "./GameDesignTab";
 import ColumnFeedback from "./ColumnFeedback";
 import AdminChat from "./AdminChat";
 
@@ -3453,7 +3453,7 @@ ${policyText}
   return (
     <div style={{minWidth:0}}>
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"wrap"}}>
-        {[["column","コラム"],["machine_review","機種評価"],["analyze","機種分析"],["gamedesign","ゲーム性分析"],["ai_chat","💬 チャット"],["ai_propose","✏️ 企画提案"]].map(([k,l]) => {
+        {[["column","コラム"],["machine_review","機種評価"],["analyze","機種分析"],["gamedesign","ゲーム性分析"],["hyogen","表現評価"],["ai_chat","💬 チャット"],["ai_propose","✏️ 企画提案"]].map(([k,l]) => {
           const on = mode===k;
           const isInteractive = k==="ai_chat" || k==="ai_propose";
           const sep = isInteractive && k==="ai_chat"
@@ -3793,6 +3793,7 @@ ${policyText}
       )}
       {mode==="ai_propose" && <ProposeTab user={adminUser} />}
       {mode==="gamedesign" && <GameDesignTab />}
+      {mode==="hyogen" && <PresentationTab />}
     </div>
   );
 }

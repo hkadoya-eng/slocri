@@ -125,6 +125,67 @@ const DATA = {
   },
 };
 
+// 表現評価（介入度）の一覧。分析タブの独立モード「表現評価」として使う。
+// 型のexamplesに載っているかに依存せず、presentationを持つ全機種を介入度の降順で出す。
+// ※新台診断の仕分けには使わない（説明軸。昇格条件は presentationDesign.介入度の検証状況 に明記）
+export function PresentationTab() {
+  const rows = Object.entries(GAME_LIBRARY.machines || {})
+    .filter(([, v]) => v.presentation)
+    .map(([name, v]) => ({ name, p: v.presentation }))
+    .sort((a, b) => (b.p.intervention - a.p.intervention) || a.name.localeCompare(b.name, "ja"));
+  const LV = ["完全自動", "押し順のみ", "狙い目あり", "常設の自力契機"];
+  const COL = ["#999", "#8D9BA8", "#2a7ae8", "#7B1FA2"];
+  const BG = ["#F2F2F2", "#EFF2F5", "#EAF2FD", "#F5E9FA"];
+  const crit = GAME_LIBRARY.presentationDesign?.["介入度の検証状況"];
+  return (
+    <div>
+      <div style={{ fontSize: 12, color: "#888", lineHeight: 1.7, marginBottom: 12, background: "#fff", borderRadius: 12, padding: "12px 14px", border: "0.5px solid #E0E4E8" }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: "#333", marginBottom: 6 }}>🎯 表現評価（介入度）</div>
+        打ち手の操作が結果にどれだけ効くかを機種横断で比較するための軸。
+        <b>0</b>=完全自動／<b>1</b>=押し順のみ・周期やポイント到達型／<b>2</b>=狙い目あり（チャンス目・自力CZ）／<b>3</b>=常設の自力契機（全場面に介入対象があり目押しが結果認知に直結）。
+        あわせて<b>範囲</b>（どこで介入できるか）と<b>効く先</b>（当否だけか出玉量まで動くか）を持つ。突破契機は全て実機解析で裏取りし、参照URLを記録している。
+        <div style={{ marginTop: 8, paddingTop: 8, borderTop: "0.5px solid #F0F0F0", color: "#999", fontSize: 11 }}>
+          <b style={{ color: "#C77B00" }}>⚠ 稼働の予測には使っていません（説明用の軸です）。</b>
+          {crit && <> 予測軸への昇格条件は「貢献週が確定した機種×採点が40件を超えた時点で、既存2軸（2週持続率 r=+0.54 / 2週稼働値 r=+0.39）との相関を比較して判断」と先に固定してある。
+            パイロットでは介入度2の機種が真逆に割れており（東京喰種76週 vs ダンバイン8週・麻雀物語7週）、粗い0〜3では寿命を分離できないことが判明済み。</>}
+        </div>
+      </div>
+      <div style={{ fontSize: 12, color: "#aaa", marginBottom: 8 }}>採点済み {rows.length}機種（自動で毎日最大3機種ずつ追加）</div>
+      {rows.length === 0 && (
+        <div style={{ textAlign: "center", color: "#aaa", padding: "2rem", fontSize: 13 }}>まだ採点済みの機種がありません</div>
+      )}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {rows.map(({ name, p }) => (
+          <div key={name} style={{ background: "#fff", borderRadius: 12, padding: "11px 13px", border: "0.5px solid #E0E4E8" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 14, fontWeight: 700, color: "#333", minWidth: 0, overflowWrap: "anywhere" }}>{name}</span>
+              <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 700, color: COL[p.intervention] || "#999", background: BG[p.intervention] || "#F2F2F2", borderRadius: 6, padding: "3px 9px", whiteSpace: "nowrap" }}>
+                介入度 {p.intervention}／3・{LV[p.intervention] || "—"}
+              </span>
+            </div>
+            <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 6 }}>
+              {p.interventionScope && <span style={{ fontSize: 11, fontWeight: 600, color: "#555", background: "#EEF1F4", borderRadius: 6, padding: "3px 8px", whiteSpace: "nowrap" }}>範囲: {p.interventionScope}</span>}
+              {p.interventionPayoff && <span style={{ fontSize: 11, fontWeight: 600, color: p.interventionPayoff === "出玉量に直結" ? "#C77B00" : "#555", background: p.interventionPayoff === "出玉量に直結" ? "#FFF6E5" : "#EEF1F4", borderRadius: 6, padding: "3px 8px", whiteSpace: "nowrap" }}>効く先: {p.interventionPayoff}</span>}
+            </div>
+            {p.interventionNote && <div style={{ fontSize: 12.5, color: "#555", lineHeight: 1.8 }}>{p.interventionNote}</div>}
+            {p.scopeNote && <div style={{ fontSize: 11.5, color: "#888", lineHeight: 1.7, marginTop: 5 }}>{p.scopeNote}</div>}
+            <div style={{ fontSize: 11, color: "#999", lineHeight: 1.75, marginTop: 7, borderTop: "0.5px solid #F0F0F0", paddingTop: 6 }}>
+              {p.escalation && <div><b style={{ color: "#777" }}>段階</b>: {p.escalation}</div>}
+              {p.noticeType && <div><b style={{ color: "#777" }}>告知</b>: {p.noticeType}</div>}
+              {p.disclosure && <div><b style={{ color: "#777" }}>情報開示</b>: {p.disclosure}</div>}
+              {(p.soundDesign || p.cabinet) && <div><b style={{ color: "#777" }}>音・筐体</b>: {[p.soundDesign, p.cabinet].filter(Boolean).join("／")}</div>}
+              <div style={{ color: "#bbb", marginTop: 4 }}>
+                {p.scoredBasis || "採点"}・{p.scoredAt}
+                {(p.evidence || []).length > 0 && <>／裏取り{(p.evidence || []).length}件</>}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function GameDesignTab() {
   const [activeCat, setActiveCat]     = useState("CZ");
   const [openTypes, setOpenTypes]     = useState({});  // { typeName: bool }
@@ -220,51 +281,6 @@ export default function GameDesignTab() {
           );
         })}
       </div>
-
-      {/* 表現評価（介入度）の一覧。型のexamplesに載っているかに依存せず、presentationを持つ
-          全機種をここに出す。機種横断で「打ち手がどれだけ介入できるか」を比較するための軸。
-          ※新台診断の仕分けには使わない（説明軸。昇格条件は presentationDesign.介入度の検証状況 参照） */}
-      {(() => {
-        const rows = Object.entries(GAME_LIBRARY.machines || {})
-          .filter(([, v]) => v.presentation)
-          .map(([name, v]) => ({ name, p: v.presentation }))
-          .sort((a, b) => (b.p.intervention - a.p.intervention) || a.name.localeCompare(b.name, "ja"));
-        if (!rows.length) return null;
-        const LV = ["完全自動", "押し順のみ", "狙い目あり", "常設の自力契機"];
-        const COL = ["#999", "#8D9BA8", "#2a7ae8", "#7B1FA2"];
-        const BG  = ["#F2F2F2", "#EFF2F5", "#EAF2FD", "#F5E9FA"];
-        return (
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 6 }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: "#333" }}>🎯 表現評価（介入度）</span>
-              <span style={{ fontSize: 11, color: "#aaa" }}>{rows.length}機種</span>
-            </div>
-            <div style={{ fontSize: 11, color: "#888", lineHeight: 1.6, marginBottom: 8 }}>
-              打ち手の操作が結果にどれだけ効くかを0〜3で採点したもの。<b>0</b>=完全自動／<b>1</b>=押し順のみ・周期到達型／<b>2</b>=狙い目あり／<b>3</b>=常設の自力契機。
-              あわせて<b>範囲</b>（どこで介入できるか）と<b>効く先</b>（当否だけか出玉量まで動くか）を持つ。全て実機解析で裏取り済み。
-              <br/>※稼働の予測には使っていません（説明用の軸です）。
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {rows.map(({ name, p }) => (
-                <div key={name} style={{ background: "#fff", borderRadius: 10, padding: "9px 11px", border: "0.5px solid #ECEFF1" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 5, flexWrap: "wrap" }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: "#333", minWidth: 0, overflowWrap: "anywhere" }}>{name}</span>
-                    <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 700, color: COL[p.intervention] || "#999", background: BG[p.intervention] || "#F2F2F2", borderRadius: 6, padding: "2px 8px", whiteSpace: "nowrap" }}>
-                      介入度 {p.intervention}／3
-                    </span>
-                    <span style={{ flexShrink: 0, fontSize: 11, color: "#777", whiteSpace: "nowrap" }}>{LV[p.intervention]}</span>
-                  </div>
-                  <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 5 }}>
-                    {p.interventionScope && <span style={{ fontSize: 10.5, fontWeight: 600, color: "#555", background: "#EEF1F4", borderRadius: 5, padding: "2px 7px", whiteSpace: "nowrap" }}>範囲: {p.interventionScope}</span>}
-                    {p.interventionPayoff && <span style={{ fontSize: 10.5, fontWeight: 600, color: p.interventionPayoff === "出玉量に直結" ? "#C77B00" : "#555", background: p.interventionPayoff === "出玉量に直結" ? "#FFF6E5" : "#EEF1F4", borderRadius: 5, padding: "2px 7px", whiteSpace: "nowrap" }}>効く先: {p.interventionPayoff}</span>}
-                  </div>
-                  {p.interventionNote && <div style={{ fontSize: 11.5, color: "#666", lineHeight: 1.7 }}>{p.interventionNote}</div>}
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      })()}
 
       {/* 準備中 */}
       {catData._note && (
