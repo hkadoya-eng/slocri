@@ -11,8 +11,11 @@
    (d) 整理 … 明確に重複・表記ゆれしているエントリの統合、内容が薄いエントリの加筆、designEvolution への知見追記。**大量削除はしない**
    (e) 表現分析（presentation）の付与 … machines{} の既存機種に presentation フィールドを付ける。**1回の実行で最大3機種まで**
 1-2. 【(e)を選んだ場合／および(c)で機種を追加した場合は必須】presentationDesign.介入度スコア基準 の定義に従って presentation を付与する:
-   ・フィールドは intervention(0〜3) / interventionNote / noticeType / disclosure / soundDesign / cabinet / escalation / scoredAt / scoredBasis / evidence
+   ・フィールドは intervention(0〜3) / interventionNote / interventionScope / interventionPayoff / scopeNote / noticeType / disclosure / soundDesign / cabinet / escalation / scoredAt / scoredBasis / evidence
    ・intervention は 0=完全自動 / 1=押し順のみ・周期やポイント到達型 / 2=狙い目がある(チャンス目・自力CZ等) / 3=常設の自力契機(全場面に介入対象があり目押しが結果認知に直結)
+   ・interventionScope は 常時(通常時から全場面) / 状態中(高確・AT中など特定状態) / 局所(CZ中のみ・突入画面の選択のみ等) / なし ＝「どこで介入できるか」
+   ・interventionPayoff は 出玉量に直結(介入の成否が上乗せ枚数を動かす) / 当否のみ(CZ・AT当選にしか効かない) / なし ＝「介入が何に効くか」
+   ・**interventionの0〜3の定義は変更しないこと**(寿命に合わせて基準をいじると過剰適合になる)。粒度が足りないと感じた場合は intervention をいじらず、観察できる事実を別フィールドとして足す方針
    ・**突破契機は必ず実機解析で裏取りし evidence に参照URLを入れる**（曖昧なまま数値を置くと捏造になる）。裏取りできない機種は付与せずスキップする
    ・scoredBasis は導入2週時点で付けたなら「2週時点」、過去機種に遡って付けたなら「遡り採点」と書く
    ・**この値を新台診断の仕分けに使ってはいけない**（現状は説明軸のみ。予測軸への昇格条件は presentationDesign.介入度の検証状況 に明記してある通り、確定台×presentation付与が40件を超えてから相関を測って判断する）
