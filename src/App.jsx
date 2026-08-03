@@ -841,25 +841,35 @@ function SisTab({ adminUser }) {
           )}
         </>;
       })()}
-      {/* デイリー/ウィークリー サブタブ + 期間フィルター */}
+      {/* 日次/週次/新台診断 サブタブ + 期間フィルター */}
       <div style={{position:"sticky",top:52,zIndex:15,background:"#E8ECF0",paddingBottom:6}}>
         <div style={{display:"flex",gap:6,alignItems:"center"}}>
-          {[{k:"daily",l:"デイリー"},{k:"weekly",l:"ウィークリー"},{k:"shindai",l:"新台診断"}].map(({k,l}) => {
+          {/* ラベルは「デイリー/ウィークリー」から日次/週次へ短縮。3分割でも余裕が出るため文字サイズを14pxまで戻せる。
+              nowrap + minWidth:0 で将来ラベルが伸びても2行折返しにならないようにしている。
+              fontSizeは clamp で可変: 最長「新台診断」は14pxで66.3px必要だが320px端末の取り分は66.7pxしかなく、
+              selectの実幅がブラウザ差で数px増えると破綻するため、狭い端末では自動的に12pxまで縮める。 */}
+          {[{k:"daily",l:"日次"},{k:"weekly",l:"週次"},{k:"shindai",l:"新台診断"}].map(({k,l}) => {
             const on = sisView === k;
-            return <button key={k} onClick={() => setSisView(k)} style={{flex:1,minWidth:0,whiteSpace:"nowrap",padding:"8px 2px",border:"none",borderRadius:10,fontSize:13,fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 5px rgba(0,0,0,0.2)":"2px 2px 5px #C5C9D4,-2px -2px 5px #fff"}}>{l}</button>;
+            return <button key={k} onClick={() => setSisView(k)} style={{flex:1,minWidth:0,whiteSpace:"nowrap",padding:"8px 2px",border:"none",borderRadius:10,fontSize:"clamp(12px,3.6vw,14px)",fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 5px rgba(0,0,0,0.2)":"2px 2px 5px #C5C9D4,-2px -2px 5px #fff"}}>{l}</button>;
           })}
-          {/* 期間フィルターは sis_data(デイリー)のみを絞る変数。ウィークリー/新台診断は weeklyData 由来で
-              dateRange が効かないため表示しない（効かないUIを出さない）。加えて4ボタンを常設すると
-              ビューボタン3つが潰れて「ウィークリー」が2行に折り返すため、デイリー時のみselectに集約する。 */}
-          {sisView === "daily" && (
-            <select value={dateRange} onChange={e => setDateRange(e.target.value)} title="デイリーの集計期間"
-              style={{flexShrink:0,fontSize:12,fontWeight:600,padding:"7px 4px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666",cursor:"pointer"}}>
-              <option value="1m">1ヶ月</option>
-              <option value="3m">3ヶ月</option>
-              <option value="6m">6ヶ月</option>
-              <option value="all">全期間</option>
-            </select>
-          )}
+          {/* 期間フィルター(dateRange)は sis_data=日次のみを絞る変数。週次は weeklyData 由来(weeks:548行)で、
+              新台診断は各機種の「初週」を必要とする(machineDiagnosis:582行)ため全履歴が必須＝どちらも絞れない。
+              ただし日次以外で消すとレイアウトが動いて「表示が消えた」ように見えるので、常に出したまま
+              淡色の無効状態にする（消えないが、効くように見せる嘘もつかない）。
+              4ボタンのままだと約259px占有してビューボタンが潰れて折り返すため、selectへ集約している。 */}
+          {(() => {
+            const active = sisView === "daily";
+            return (
+              <select value={dateRange} onChange={e => setDateRange(e.target.value)} disabled={!active}
+                title={active ? "日次の集計期間" : "期間の絞り込みは日次のみ（週次・新台診断は全期間の週次データを使用）"}
+                style={{flexShrink:0,fontSize:12,fontWeight:600,padding:"7px 4px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666",cursor:active?"pointer":"default",opacity:active?1:0.4}}>
+                <option value="1m">1ヶ月</option>
+                <option value="3m">3ヶ月</option>
+                <option value="6m">6ヶ月</option>
+                <option value="all">全期間</option>
+              </select>
+            );
+          })()}
         </div>
       </div>
 
