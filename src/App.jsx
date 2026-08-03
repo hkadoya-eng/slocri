@@ -608,12 +608,17 @@ function SisTab({ adminUser }) {
       const c1 = first.avg_machine_count, cLast = arr[arr.length - 1].avg_machine_count;
       const peakC = arr.reduce((m, r) => Math.max(m, r.avg_machine_count || 0), 0);
       const base1 = wkMed[first.week_start], base2 = arr[1] && wkMed[arr[1].week_start];
+      const lastR = arr[arr.length - 1];
+      const baseLast = wkMed[lastR.week_start];
       rows.push({
         machine,
         firstWeek: first.week_start,
         weeksCount: arr.length,
         katsudo1: (w1 && base1) ? Math.round(w1 / base1 * 100) : null,
         katsudo2: (w2 && base2) ? Math.round(w2 / base2 * 100) : null,
+        // 直近週の絶対稼働値。答え合わせに必須（持続率だけで採点すると、初週が高すぎた台が
+        // 健全でも「外れ」になる。例: ミリオンゴッドは8週持続53%だが直近稼働値201%で貢献継続中）
+        katsudoLast: (lastR.out_coins && baseLast) ? Math.round(lastR.out_coins / baseLast * 100) : null,
         ret2: (w1 && w2) ? Math.round(w2 / w1 * 100) : null,
         ret4: (w1 && w4) ? Math.round(w4 / w1 * 100) : null,
         ret8: (w1 && w8) ? Math.round(w8 / w1 * 100) : null,
@@ -1019,7 +1024,7 @@ function SisTab({ adminUser }) {
           ・<b>傾き</b>＝2週稼働値−初週稼働値（r=+0.36）。超優良の条件にのみ使う。<br/>
           <b>仕分け基準（2週で確定）</b>：<b>超優良</b>=持続率≥92% かつ 稼働値≥300% かつ 傾き≥−40／<b>優良</b>=持続率≥89% かつ 稼働値≥300%／<b>優秀</b>=持続率≥83% かつ 稼働値≥200%／<b>危険</b>=持続率&lt;73% または 稼働値&lt;190%／残りが<b>注意</b>。<br/>
           <b>実測精度</b>（貢献週が確定した126機種でバックテスト。進行中の台は伸び続けるため除外）：超優良4件で<b>的中100%</b>・優良8件で62%・上位2区分まとめて<b>的中75%／短命混入0%／全成功の47%を2週で捕獲</b>。4週持続率で判定する方式（的中70%・捕獲37%）より上＝<b>待っても精度は上がらない</b>。<br/>
-          ・<b>✓/✗マーク</b>＝2週予測の答え合わせ。8週持続率55%割れが崩落ライン（大ハズシ7件は全てここを割り、4週→8週で平均26.8pt低下した）。<br/>
+          ・<b>✓/…/✗マーク</b>＝2週予測の答え合わせ。<b>成果変数である稼働貢献週で採点する</b>（持続率は予測の"入力"なので採点には使わない）。貢献週が成功ライン13週を超えたら<b>✓的中</b>／まだ稼働値100%超で貢献週が増える余地があれば<b>…判定保留</b>／平均を割ったまま13週以下で終わったら<b>✗外れ</b>。<br/>
           ・<b>⚠供給過剰</b>＝大量導入(ピーク≥6台)なのに振るわない。割数(出玉率)・コイン単価・台数初動は寿命と無関係のため<b>非採用</b>（出玉率は上位帯で検証しても締めた側が有利にならず r=+0.26と逆方向）。
         </div>
         <div style={{display:"flex",flexDirection:"column",gap:6}}>
@@ -1041,8 +1046,19 @@ function SisTab({ adminUser }) {
               : (d.ret2 >= 83 && k2 >= 200) ? {l:"優秀",c:"#5B9E6F",bg:"#EFF7F1"}
               : (d.ret2 < 73 || k2 < 190) ? {l:"危険",c:"#D03030",bg:"#FCE4E4"}
               : {l:"注意",c:"#C77B00",bg:"#FFF3DC"};
-            // 予測の答え合わせ。8週持続率55%が崩落ライン(大ハズシ7件は全てここを割った)。
-            const verdict = (g.top && d.ret8 != null) ? (d.ret8 >= 55 ? "hold" : "miss") : null;
+            // 【答え合わせは"成果変数"=稼働貢献週で採点する】
+            // 旧実装は8週持続率55%割れを「外れ」としていたが、持続率は予測の"入力"であって成果ではない。
+            // 初週が異常に高かった台は健全でも持続率を割るため判定が逆転していた
+            // (ミリオンゴッド: 8週持続53%で「外れ」表示だが直近稼働値201%・貢献週13で貢献継続中。
+            //  一方「維持」表示の炎炎ノ消防隊2は直近156%で、外れ側より稼働が低いという矛盾)。
+            // → 貢献週が成功ライン(13週=確定台の上位25%相当)を超えたら的中、
+            //   まだ市場平均超え(稼働値>100%)なら貢献週が増える余地があるので判定保留、
+            //   平均を割ったまま13週以下で終わったら外れ。
+            const SUCCESS_WEEKS = 13;
+            const verdict = !g.top || d.contrib == null ? null
+              : d.contrib > SUCCESS_WEEKS ? "hit"
+              : (d.katsudoLast != null && d.katsudoLast > 100) ? "pending"
+              : "miss";
             const oversupply = d.peakC >= 6 && (g.l.indexOf("危険") >= 0 || g.l.indexOf("注意") >= 0);
             return (
               <div key={d.machine} style={{background:"#fff",borderRadius:12,padding:"10px 12px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
@@ -1064,9 +1080,10 @@ function SisTab({ adminUser }) {
                   <span style={{color:"#ccc"}}> ・ 設置{d.weeksCount}週 ・ 導入{d.firstWeek}</span>
                 </div>
                 {oversupply && <div style={{marginTop:6,fontSize:10,color:"#C77B00",background:"#FFF8EC",borderRadius:6,padding:"3px 8px"}}>⚠ 大量導入(ピーク{d.peakC.toFixed(1)}台)なのに振るわない＝供給過剰の疑い</div>}
-                {/* 2週予測の答え合わせ。8週持続55%が崩落ライン。当たり外れを隠さず出す。 */}
-                {verdict === "hold" && <div style={{marginTop:6,fontSize:10,color:"#1f9d4d",background:"#F0FAF3",borderRadius:6,padding:"3px 8px"}}>✓ 2週予測どおり8週も維持({d.ret8}%)</div>}
-                {verdict === "miss" && <div style={{marginTop:6,fontSize:10,color:"#D03030",background:"#FDF0F0",borderRadius:6,padding:"3px 8px"}}>✗ 2週予測が外れ: 8週持続{d.ret8}%で崩落(55%割れ)</div>}
+                {/* 2週予測の答え合わせ。成果=貢献週で採点し、当たり外れを隠さず出す。 */}
+                {verdict === "hit" && <div style={{marginTop:6,fontSize:10,color:"#1f9d4d",background:"#F0FAF3",borderRadius:6,padding:"3px 8px"}}>✓ 2週予測が的中: 稼働貢献{d.contrib}週で成功ライン(13週)超え</div>}
+                {verdict === "pending" && <div style={{marginTop:6,fontSize:10,color:"#2a7ae8",background:"#EEF4FD",borderRadius:6,padding:"3px 8px"}}>… 判定保留: 貢献{d.contrib}週だが直近稼働値{d.katsudoLast}%で market平均超え＝まだ伸びる</div>}
+                {verdict === "miss" && <div style={{marginTop:6,fontSize:10,color:"#D03030",background:"#FDF0F0",borderRadius:6,padding:"3px 8px"}}>✗ 2週予測が外れ: 貢献{d.contrib}週で終了(稼働値{d.katsudoLast != null ? d.katsudoLast+"%" : "—"}＝平均割れ)</div>}
               </div>
             );
           })}
