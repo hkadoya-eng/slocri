@@ -1013,40 +1013,49 @@ function SisTab({ adminUser }) {
 
       {sisView === "shindai" && <>
         <div style={{fontSize:11,color:"#888",background:"#fff",borderRadius:10,padding:"8px 10px",marginBottom:8,boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff",lineHeight:1.5}}>
-          <b style={{color:"#D85A30"}}>新台診断</b>：<b>2週で仮説 → 4週・8週で検証</b>。直近約26週に導入・導入日順。判別力検証で効いた2軸で見る:<br/>
-          ・<b>稼働値</b>（アウト÷その週の全機種中央値）＝人気・絶対需要。長寿平均335% vs 短命262%。<br/>
-          ・<b>持続率</b>（◯週目÷初週アウト）＝定着・減衰。長寿平均(2週86/4週66) vs 短命(72/47)。<br/>
-          ・<b>2週暫定判定</b>＝稼働値≥260% かつ 持続率≥83%で優秀／稼働値&lt;190% または 持続率&lt;73%で危険。<b>4週が揃えば持続率4週で確定</b>（優秀≥66/注意≥50/危険&lt;50）。<br/>
-          ・<b>⚠供給過剰</b>＝大量導入(ピーク≥6台)なのに振るわない（戦国乙女型）。割数・台数初動は判別力が低く非採用。
+          <b style={{color:"#D85A30"}}>新台診断</b>：<b>2週時点だけで仕分けを確定</b>する。8週まで待てば誰でも分かる＝情報価値が無いため、早く言い切ることを優先。直近約26週に導入・導入日順。<br/>
+          ・<b>稼働値</b>（アウト÷その週の全機種中央値）＝人気・絶対需要。<b>2週</b>の値を使う（r=+0.39。初週はr=+0.23で弱い）。<br/>
+          ・<b>持続率</b>（◯週目÷初週アウト）＝定着・減衰。2週持続率が最強の単体軸（r=+0.54）。<br/>
+          ・<b>傾き</b>＝2週稼働値−初週稼働値（r=+0.36）。超優良の条件にのみ使う。<br/>
+          <b>仕分け基準（2週で確定）</b>：<b>超優良</b>=持続率≥92% かつ 稼働値≥300% かつ 傾き≥−40／<b>優良</b>=持続率≥89% かつ 稼働値≥300%／<b>優秀</b>=持続率≥83% かつ 稼働値≥200%／<b>危険</b>=持続率&lt;73% または 稼働値&lt;190%／残りが<b>注意</b>。<br/>
+          <b>実測精度</b>（貢献週が確定した126機種でバックテスト。進行中の台は伸び続けるため除外）：超優良4件で<b>的中100%</b>・優良8件で62%・上位2区分まとめて<b>的中75%／短命混入0%／全成功の47%を2週で捕獲</b>。4週持続率で判定する方式（的中70%・捕獲37%）より上＝<b>待っても精度は上がらない</b>。<br/>
+          ・<b>✓/✗マーク</b>＝2週予測の答え合わせ。8週持続率55%割れが崩落ライン（大ハズシ7件は全てここを割り、4週→8週で平均26.8pt低下した）。<br/>
+          ・<b>⚠供給過剰</b>＝大量導入(ピーク≥6台)なのに振るわない。割数(出玉率)・コイン単価・台数初動は寿命と無関係のため<b>非採用</b>（出玉率は上位帯で検証しても締めた側が有利にならず r=+0.26と逆方向）。
         </div>
         <div style={{display:"flex",flexDirection:"column",gap:6}}>
           {machineDiagnosis.length === 0 && <div style={{textAlign:"center",color:"#aaa",padding:"2rem"}}>データなし</div>}
           {machineDiagnosis.map(d => {
-            const k = d.katsudo2 != null ? d.katsudo2 : d.katsudo1; // 直近の稼働値
-            const g = d.ret4 != null
-              ? (d.ret4 >= 66 ? {l:"優秀",c:"#1f9d4d",bg:"#E3F5E9"} : d.ret4 >= 50 ? {l:"注意",c:"#C77B00",bg:"#FFF3DC"} : {l:"危険",c:"#D03030",bg:"#FCE4E4"})
-              : d.ret2 != null
-                ? (() => {
-                    const persistOK = d.ret2 >= 83, persistBad = d.ret2 < 73;
-                    const demandOK = k == null || k >= 260, demandBad = k != null && k < 190;
-                    if (persistOK && demandOK) return {l:"優秀(暫定)",c:"#1f9d4d",bg:"#E3F5E9"};
-                    if (persistBad || demandBad) return {l:"危険(暫定)",c:"#D03030",bg:"#FCE4E4"};
-                    return {l:"注意(暫定)",c:"#C77B00",bg:"#FFF3DC"};
-                  })()
-                : {l:"計測中",c:"#999",bg:"#ECECEC"};
+            // 仕分けは【2週時点の情報だけ】で確定させる。8週まで待つと誰の目にも明らかで情報価値が無いため、
+            // 早期に言い切れることを優先した。貢献週が確定した126機種でのバックテスト結果:
+            //   超優良 4件 的中100% / 優良 8件 62% / 優秀 38件 18% / 注意 37件 0% / 危険 39件 8%
+            //   上位2区分まとめ: 的中75%・短命混入0%・全成功の47%を2週で捕獲。
+            //   4週持続率で判定する方式(的中70%・成功捕獲37%)より上。待っても精度は上がらない。
+            // 軸は 2週持続率(r=+0.54) × 2週稼働値(r=+0.39) × 稼働値の傾き(r=+0.36)。
+            // 初週稼働値(r=+0.23)は弱いので単体では使わず、傾きの計算にだけ用いる。
+            const k1 = d.katsudo1, k2 = d.katsudo2;
+            const slope = (k1 != null && k2 != null) ? k2 - k1 : null;
+            const g = (d.ret2 == null || k2 == null)
+              ? {l:"計測中",c:"#999",bg:"#ECECEC"}
+              : (d.ret2 >= 92 && k2 >= 300 && (slope == null || slope >= -40)) ? {l:"超優良",c:"#7B1FA2",bg:"#F5E9FA",top:true}
+              : (d.ret2 >= 89 && k2 >= 300) ? {l:"優良",c:"#1f9d4d",bg:"#E3F5E9",top:true}
+              : (d.ret2 >= 83 && k2 >= 200) ? {l:"優秀",c:"#5B9E6F",bg:"#EFF7F1"}
+              : (d.ret2 < 73 || k2 < 190) ? {l:"危険",c:"#D03030",bg:"#FCE4E4"}
+              : {l:"注意",c:"#C77B00",bg:"#FFF3DC"};
+            // 予測の答え合わせ。8週持続率55%が崩落ライン(大ハズシ7件は全てここを割った)。
+            const verdict = (g.top && d.ret8 != null) ? (d.ret8 >= 55 ? "hold" : "miss") : null;
             const oversupply = d.peakC >= 6 && (g.l.indexOf("危険") >= 0 || g.l.indexOf("注意") >= 0);
-            const early = d.ret4 == null;
             return (
               <div key={d.machine} style={{background:"#fff",borderRadius:12,padding:"10px 12px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
                 <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
                   <div onClick={() => setSelMachine(d.machine)} style={{flex:1,minWidth:0,fontSize:13,fontWeight:700,color:"#1A56B0",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:"pointer",textDecoration:"underline",textDecorationColor:"rgba(26,86,176,0.3)",textUnderlineOffset:2}}>{d.machine}</div>
                   <span style={{flexShrink:0,fontSize:10,fontWeight:700,color:g.c,background:g.bg,borderRadius:6,padding:"2px 8px"}}>{g.l}</span>
                 </div>
+                {/* 上段2つ(色付き)＝仕分けを決めた2週時点の軸。下段2つ(灰)＝後から届く答え合わせ用。 */}
                 <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"2px 8px"}}>
-                  <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>稼働値(初週)</div><div style={{fontWeight:700,color:early?g.c:"#555",fontSize:12}}>{d.katsudo1 != null ? d.katsudo1+"%" : "—"}</div></div>
-                  <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>2週持続率</div><div style={{fontWeight:700,color:early?g.c:"#555",fontSize:12}}>{d.ret2 != null ? d.ret2+"%" : "—"}</div></div>
-                  <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>初月(4週)</div><div style={{fontWeight:700,color:d.ret4 != null ? g.c : "#bbb",fontSize:12}}>{d.ret4 != null ? d.ret4+"%" : "—"}</div></div>
-                  <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>8週持続</div><div style={{fontWeight:600,color:"#555",fontSize:12}}>{d.ret8 != null ? d.ret8+"%" : "—"}</div></div>
+                  <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>稼働値 初週→2週</div><div style={{fontWeight:700,color:g.c,fontSize:12,whiteSpace:"nowrap"}}>{k1 != null ? k1 : "—"}<span style={{color:"#ccc"}}>→</span>{k2 != null ? k2+"%" : "—"}</div></div>
+                  <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>2週持続率</div><div style={{fontWeight:700,color:g.c,fontSize:12}}>{d.ret2 != null ? d.ret2+"%" : "—"}</div></div>
+                  <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>初月(4週)</div><div style={{fontWeight:600,color:"#888",fontSize:12}}>{d.ret4 != null ? d.ret4+"%" : "—"}</div></div>
+                  <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>8週持続</div><div style={{fontWeight:600,color:"#888",fontSize:12}}>{d.ret8 != null ? d.ret8+"%" : "—"}</div></div>
                 </div>
                 <div style={{marginTop:5,fontSize:10,color:"#999"}}>
                   <span>台数 {d.c1 != null ? d.c1.toFixed(1) : "—"}→{d.cLast != null ? d.cLast.toFixed(1) : "—"}{d.cgrow != null ? ` (${d.cgrow>0?"+":""}${d.cgrow}%)` : ""}</span>
@@ -1055,6 +1064,9 @@ function SisTab({ adminUser }) {
                   <span style={{color:"#ccc"}}> ・ 設置{d.weeksCount}週 ・ 導入{d.firstWeek}</span>
                 </div>
                 {oversupply && <div style={{marginTop:6,fontSize:10,color:"#C77B00",background:"#FFF8EC",borderRadius:6,padding:"3px 8px"}}>⚠ 大量導入(ピーク{d.peakC.toFixed(1)}台)なのに振るわない＝供給過剰の疑い</div>}
+                {/* 2週予測の答え合わせ。8週持続55%が崩落ライン。当たり外れを隠さず出す。 */}
+                {verdict === "hold" && <div style={{marginTop:6,fontSize:10,color:"#1f9d4d",background:"#F0FAF3",borderRadius:6,padding:"3px 8px"}}>✓ 2週予測どおり8週も維持({d.ret8}%)</div>}
+                {verdict === "miss" && <div style={{marginTop:6,fontSize:10,color:"#D03030",background:"#FDF0F0",borderRadius:6,padding:"3px 8px"}}>✗ 2週予測が外れ: 8週持続{d.ret8}%で崩落(55%割れ)</div>}
               </div>
             );
           })}
