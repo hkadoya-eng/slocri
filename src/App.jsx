@@ -3451,6 +3451,16 @@ ${policyText}
                       </div>
                     </div>
                   )}
+                  {/* 稼働貢献が終了した機種は予測を出さず実績を出す。終わった台に予測を出し続けると
+                      新台診断側の表示と矛盾して混乱するため（2026-08-03 一本化）。 */}
+                  {!col.longevityMin && col.sisOutcome?.status === "終了" && (
+                    <div style={{textAlign:"center",background:"#F0F0F0",borderRadius:10,padding:"6px 10px",minWidth:70}}>
+                      <div style={{fontSize:10,color:"#666",fontWeight:600,marginBottom:2}}>稼働貢献</div>
+                      <div style={{fontSize:14,fontWeight:700,color:"#555",lineHeight:1}}>
+                        {col.sisOutcome.contribWeeks}<span style={{fontSize:10}}>週で終了</span>
+                      </div>
+                    </div>
+                  )}
                   {liveWeeks != null && (
                     <div style={{textAlign:"center",background:"#FFF8E1",borderRadius:8,padding:"4px 8px",minWidth:70}}>
                       <div style={{fontSize:9,color:"#F57F17",fontWeight:600,marginBottom:1}}>現在の貢献週</div>
@@ -3463,6 +3473,20 @@ ${policyText}
                 <div style={{fontSize:14,color:"#444",lineHeight:1.75,overflowWrap:"anywhere"}}>{col.column}</div>
                 {col.longevityNote && (
                   <div style={{marginTop:10,fontSize:12,color:"#aaa",borderTop:"0.5px solid #f5f5f5",paddingTop:8}}>📊 {col.longevityNote}</div>
+                )}
+                {/* 予測の根拠と変更理由を開示する。旧予測(デイリー全国ランキング起点)からの
+                    引き直しを隠さず出すことで、新台診断の判定と突き合わせられるようにする。 */}
+                {col.longevityReason && (
+                  <div style={{marginTop:8,fontSize:11,color:"#888",background:"#FAFAFA",borderRadius:8,padding:"7px 9px",lineHeight:1.6}}>
+                    <b style={{color:"#1565C0"}}>予測の根拠</b>
+                    {col.longevityTier && <span style={{marginLeft:6,fontWeight:700,color:"#555"}}>2週判定: {col.longevityTier}</span>}
+                    <br/>{col.longevityReason}
+                    {col.longevityPrev && (
+                      <div style={{marginTop:4,color:"#bbb"}}>
+                        旧予測 {col.longevityPrev.min}〜{col.longevityPrev.max}週（{col.longevityPrev.method}）から変更
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
