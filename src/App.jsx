@@ -626,6 +626,14 @@ function SisTab({ adminUser }) {
         cgrow: (c1 && cLast) ? Math.round((cLast / c1 - 1) * 100) : null,
         active: arr[arr.length - 1].week_start >= recentS,
         contrib: machineStats[machine.replace(/\s/g, "")] ?? null, // SIS公式の稼働貢献週(設置週数=arr.lengthとは別)
+        // 貢献週はもう増えないか？ 貢献週=市場平均超えの週数の累計なので、直近4週すべて稼働値100%以下
+        // なら以後は増えない＝確定。データが途切れている(撤去)場合も確定。設置終了だけを条件にすると
+        // 死に台が数十週放置されるため誤判定になる。
+        contribDone: (() => {
+          if (arr[arr.length - 1].week_start < recentS) return true; // 直近にデータが無い=撤去
+          const tail = arr.slice(-4).map(r => (r.out_coins && wkMed[r.week_start]) ? r.out_coins / wkMed[r.week_start] * 100 : null).filter(v => v != null);
+          return tail.length > 0 && !tail.some(v => v > 100);
+        })(),
       });
     });
     rows.sort((a, b) => b.firstWeek.localeCompare(a.firstWeek));
@@ -1025,6 +1033,7 @@ function SisTab({ adminUser }) {
           <b>仕分け基準（2週で確定）</b>：<b>超優良</b>=持続率≥92% かつ 稼働値≥300% かつ 傾き≥−40／<b>優良</b>=持続率≥89% かつ 稼働値≥300%／<b>優秀</b>=持続率≥83% かつ 稼働値≥200%／<b>危険</b>=持続率&lt;73% または 稼働値&lt;190%／残りが<b>注意</b>。<br/>
           <b>実測精度</b>（貢献週が確定した126機種でバックテスト。進行中の台は伸び続けるため除外）：超優良4件で<b>的中100%</b>・優良8件で62%・上位2区分まとめて<b>的中75%／短命混入0%／全成功の47%を2週で捕獲</b>。4週持続率で判定する方式（的中70%・捕獲37%）より上＝<b>待っても精度は上がらない</b>。<br/>
           ・<b>✓/…/✗マーク</b>＝2週予測の答え合わせ。<b>成果変数である稼働貢献週で採点する</b>（持続率は予測の"入力"なので採点には使わない）。貢献週が成功ライン13週を超えたら<b>✓的中</b>／まだ稼働値100%超で貢献週が増える余地があれば<b>…判定保留</b>／平均を割ったまま13週以下で終わったら<b>✗外れ</b>。<br/>
+          ・<b>状態バッジ</b>＝各カードに2つ表示。<b>稼働貢献</b>は「継続中（直近も市場平均超え＝貢献週がまだ増える）」か「終了（直近4週すべて平均以下、または撤去＝貢献週が確定）」。<b>予測</b>は「期間中（リリース前〜1週目。まだ変更可・変更時は理由を残す）」か「確定済（2週到達。以降は変更しない）」。導入日と経過週数も併記してあるので、どの段階の台かが分かる。<br/>
           ・<b>⚠供給過剰</b>＝大量導入(ピーク≥6台)なのに振るわない。割数(出玉率)・コイン単価・台数初動は寿命と無関係のため<b>非採用</b>（出玉率は上位帯で検証しても締めた側が有利にならず r=+0.26と逆方向）。
         </div>
         <div style={{display:"flex",flexDirection:"column",gap:6}}>
@@ -1077,7 +1086,18 @@ function SisTab({ adminUser }) {
                   <span>台数 {d.c1 != null ? d.c1.toFixed(1) : "—"}→{d.cLast != null ? d.cLast.toFixed(1) : "—"}{d.cgrow != null ? ` (${d.cgrow>0?"+":""}${d.cgrow}%)` : ""}</span>
                   <span style={{color:"#ccc"}}> ・ </span>
                   <span style={{fontWeight:700,color:"#2a7ae8"}}>稼働貢献{d.contrib != null ? d.contrib+"週" : "—"}</span>
-                  <span style={{color:"#ccc"}}> ・ 設置{d.weeksCount}週 ・ 導入{d.firstWeek}</span>
+                  <span style={{color:"#ccc"}}> ・ </span>
+                  <span><b style={{color:"#666"}}>{d.firstWeek}</b> 導入 → <b style={{color:"#666"}}>{d.weeksCount}週目</b></span>
+                </div>
+                {/* 「何が終わって何がまだ動いているか」を一目で分かるようにする2つの状態バッジ。
+                    ①稼働貢献: まだ増えるのか確定したのか ②予測: 2週で確定したのかまだ変更可能な期間か */}
+                <div style={{marginTop:5,display:"flex",gap:5,flexWrap:"wrap"}}>
+                  {d.contribDone
+                    ? <span style={{fontSize:9,fontWeight:700,color:"#777",background:"#ECECEC",borderRadius:5,padding:"2px 7px"}}>■ 稼働貢献 終了（{d.contrib != null ? d.contrib+"週で確定" : "確定"}）</span>
+                    : <span style={{fontSize:9,fontWeight:700,color:"#1f7a4d",background:"#E6F5EC",borderRadius:5,padding:"2px 7px"}}>▶ 稼働貢献 継続中{d.katsudoLast != null ? `（稼働値${d.katsudoLast}%）` : ""}</span>}
+                  {d.weeksCount >= 2
+                    ? <span style={{fontSize:9,fontWeight:700,color:"#7B1FA2",background:"#F5E9FA",borderRadius:5,padding:"2px 7px"}}>■ 予測 確定済（2週到達・以降変更なし）</span>
+                    : <span style={{fontSize:9,fontWeight:700,color:"#C77B00",background:"#FFF3DC",borderRadius:5,padding:"2px 7px"}}>▶ 予測 期間中（あと{2 - d.weeksCount}週で確定）</span>}
                 </div>
                 {oversupply && <div style={{marginTop:6,fontSize:10,color:"#C77B00",background:"#FFF8EC",borderRadius:6,padding:"3px 8px"}}>⚠ 大量導入(ピーク{d.peakC.toFixed(1)}台)なのに振るわない＝供給過剰の疑い</div>}
                 {/* 2週予測の答え合わせ。成果=貢献週で採点し、当たり外れを隠さず出す。 */}
