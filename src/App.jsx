@@ -431,6 +431,7 @@ function SisTab({ adminUser }) {
   const [selMachine, setSelMachine] = useState(null); // 機種名タップで開く分析シート
   const selMachineAnalysis = useMemo(() => selMachine ? lookupAnalysis(selMachine) : null, [selMachine]);
   const [dateRange, setDateRange] = useState("1m");
+  const [contribFilter, setContribFilter] = useState("all"); // 貢献週ランキングの絞り込み: all / live(継続中) / done(終了)
   const [weekIdx, setWeekIdx] = useState(0);
   const [nationalDaily, setNationalDaily] = useState({});
   const swipeTouchX = useRef(null);
@@ -663,6 +664,47 @@ function SisTab({ adminUser }) {
     return rows;
   }, [weeklyData, machineStats]);
 
+  // 稼働貢献週ランキング。新台診断は直近26週の新台だけなので、全機種を貢献週順に並べたビューを別に持つ。
+  // 週次データ(sis_weekly_data)と sis_machine_stats が更新されれば自動で最新化される＝毎週更新。
+  const contribRanking = useMemo(() => {
+    if (!weeklyData.length) return [];
+    const byM = {};
+    weeklyData.forEach(r => { (byM[r.machine] = byM[r.machine] || []).push(r); });
+    const wkMed = {};
+    {
+      const tmp = {};
+      weeklyData.forEach(r => { if (r.out_coins) (tmp[r.week_start] = tmp[r.week_start] || []).push(r.out_coins); });
+      Object.entries(tmp).forEach(([w, a]) => { const s = a.slice().sort((x, y) => x - y); wkMed[w] = s[Math.floor(s.length / 2)]; });
+    }
+    const latest = Object.keys(wkMed).sort().pop();
+    const latestD = new Date(latest + "T00:00:00");
+    const recent = new Date(latestD); recent.setDate(latestD.getDate() - 21);
+    const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    const recentS = fmt(recent);
+    const out = [];
+    Object.entries(byM).forEach(([machine, arr]) => {
+      arr.sort((a, b) => a.week_start.localeCompare(b.week_start));
+      const cw = machineStats[machine.replace(/\s/g, "")];
+      if (cw == null) return; // SIS公式の貢献週が無い機種は並べない(自前計算はしない)
+      const last = arr[arr.length - 1];
+      const kLast = (last.out_coins && wkMed[last.week_start]) ? Math.round(last.out_coins / wkMed[last.week_start] * 100) : null;
+      let done;
+      if (last.week_start < recentS) done = true;
+      else {
+        const tail = arr.slice(-4).map(r => (r.out_coins && wkMed[r.week_start]) ? r.out_coins / wkMed[r.week_start] * 100 : null).filter(v => v != null);
+        done = tail.length > 0 && !tail.some(v => v > 100);
+      }
+      out.push({
+        machine, contrib: cw, done, katsudoLast: kLast,
+        firstWeek: arr[0].week_start, weeksCount: arr.length,
+        deadWeeks: Math.max(0, arr.length - cw),
+        cLast: last.avg_machine_count,
+      });
+    });
+    out.sort((a, b) => b.contrib - a.contrib || a.firstWeek.localeCompare(b.firstWeek));
+    return out;
+  }, [weeklyData, machineStats]);
+
   if (!adminUser) {
     return <AdminLoginForm title="稼働データ" desc="社内専用。管理者ログインが必要です。" />;
   }
@@ -884,7 +926,7 @@ function SisTab({ adminUser }) {
               nowrap + minWidth:0 で将来ラベルが伸びても2行折返しにならないようにしている。
               fontSizeは clamp で可変: 最長「新台診断」は14pxで66.3px必要だが320px端末の取り分は66.7pxしかなく、
               selectの実幅がブラウザ差で数px増えると破綻するため、狭い端末では自動的に12pxまで縮める。 */}
-          {[{k:"daily",l:"日次"},{k:"weekly",l:"週次"},{k:"shindai",l:"新台診断"}].map(({k,l}) => {
+          {[{k:"daily",l:"日次"},{k:"weekly",l:"週次"},{k:"shindai",l:"診断"},{k:"contrib",l:"貢献週"}].map(({k,l}) => {
             const on = sisView === k;
             return <button key={k} onClick={() => setSisView(k)} style={{flex:1,minWidth:0,whiteSpace:"nowrap",padding:"8px 2px",border:"none",borderRadius:10,fontSize:"clamp(12px,3.6vw,14px)",fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 5px rgba(0,0,0,0.2)":"2px 2px 5px #C5C9D4,-2px -2px 5px #fff"}}>{l}</button>;
           })}
@@ -1131,6 +1173,57 @@ function SisTab({ adminUser }) {
             );
           })}
         </div>
+      </>}
+
+      {sisView === "contrib" && <>
+        <div style={{fontSize:11,color:"#888",background:"#fff",borderRadius:10,padding:"8px 10px",marginBottom:8,boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff",lineHeight:1.5}}>
+          <b style={{color:"#D85A30"}}>稼働貢献週ランキング</b>：SIS公式の<b>稼働貢献週</b>（累計で市場平均稼働を超えた週数）で全機種を並べたもの。週次データの更新に追随して<b>毎週自動で最新化</b>される。<br/>
+          ・<b style={{color:"#1f7a4d"}}>継続中</b>＝直近も市場平均超えで貢献週がまだ増える／<b style={{color:"#777"}}>終了</b>＝直近4週すべて平均以下、または撤去で確定。<br/>
+          ・<b>死に台</b>＝設置週数−貢献週。稼働が死んでも撤去されず置かれていた期間。<b>設置週数の長さは長寿の証拠にならない</b>（筐体代が沈むためホールは死に台を放置する）。
+        </div>
+        {(() => {
+          const list = contribFilter === "live" ? contribRanking.filter(r => !r.done)
+                     : contribFilter === "done" ? contribRanking.filter(r => r.done)
+                     : contribRanking;
+          const liveN = contribRanking.filter(r => !r.done).length;
+          const doneN = contribRanking.length - liveN;
+          return (
+            <>
+              <div style={{display:"flex",gap:6,marginBottom:8}}>
+                {[{k:"all",l:`全${contribRanking.length}`},{k:"live",l:`継続中 ${liveN}`},{k:"done",l:`終了 ${doneN}`}].map(({k,l}) => {
+                  const on = contribFilter === k;
+                  return <button key={k} onClick={() => setContribFilter(k)} style={{flex:1,padding:"7px 0",border:"none",borderRadius:9,fontSize:12,fontWeight:on?700:500,whiteSpace:"nowrap",background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 5px rgba(0,0,0,0.2)":"2px 2px 5px #C5C9D4,-2px -2px 5px #fff"}}>{l}</button>;
+                })}
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:5}}>
+                {list.length === 0 && <div style={{textAlign:"center",color:"#aaa",padding:"2rem"}}>データなし</div>}
+                {list.map((r, i) => (
+                  <div key={r.machine} style={{background:"#fff",borderRadius:10,padding:"8px 10px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff",display:"flex",alignItems:"center",gap:9,opacity:r.done?0.82:1}}>
+                    <div style={{flexShrink:0,width:22,textAlign:"center",fontSize:12,fontWeight:700,color: i<3 ? "#D85A30" : "#ccc"}}>{contribRanking.indexOf(r)+1}</div>
+                    <div style={{flexShrink:0,textAlign:"center",minWidth:44,background:r.done?"#F0F0F0":"#E6F5EC",borderRadius:8,padding:"3px 4px"}}>
+                      <div style={{fontSize:15,fontWeight:700,lineHeight:1,color:r.done?"#666":"#1f7a4d"}}>{r.contrib}</div>
+                      <div style={{fontSize:8,color:"#999"}}>貢献週</div>
+                    </div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div onClick={() => setSelMachine(r.machine)} style={{fontSize:12,fontWeight:700,color:"#1A56B0",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:"pointer",textDecoration:"underline",textDecorationColor:"rgba(26,86,176,0.3)",textUnderlineOffset:2}}>{r.machine}</div>
+                      <div style={{fontSize:9.5,color:"#999",marginTop:2}}>
+                        {/* 直近週が平均割れでも「直近4週のどこかで平均超え」なら貢献週は増えうるので継続中扱い。
+                            ただし継続中(稼働値80%)は矛盾して見えるため、平均割れ時は文言を変える。 */}
+                        {r.done
+                          ? <span style={{color:"#777",fontWeight:700}}>■ 終了</span>
+                          : (r.katsudoLast != null && r.katsudoLast <= 100)
+                            ? <span style={{color:"#C77B00",fontWeight:700}}>▶ 継続中（直近{r.katsudoLast}%＝平均割れ・終了間近）</span>
+                            : <span style={{color:"#1f7a4d",fontWeight:700}}>▶ 継続中{r.katsudoLast != null ? `（稼働値${r.katsudoLast}%）` : ""}</span>}
+                        <span style={{color:"#ccc"}}> ・ </span>{r.firstWeek} 導入・設置{r.weeksCount}週
+                        {r.deadWeeks > 0 && <span style={{color:"#C77B00"}}> ・死に台{r.deadWeeks}週</span>}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          );
+        })()}
       </>}
 
       {/* 機種名タップ→機種分析シート（稼働ランキングから機種説明・ゲーム性へ） */}
