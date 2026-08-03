@@ -9,9 +9,17 @@
    (b) 新しい czDesignPattern を1つ追加（同上の構造）
    (c) 現行人気機種を2〜3機種 machines{} に追加 … description/highlight/czRules/atRules を付け、該当する gameFlowPatterns の examples にも機種名を追加
    (d) 整理 … 明確に重複・表記ゆれしているエントリの統合、内容が薄いエントリの加筆、designEvolution への知見追記。**大量削除はしない**
+   (e) 表現分析（presentation）の付与 … machines{} の既存機種に presentation フィールドを付ける。**1回の実行で最大3機種まで**
+1-2. 【(e)を選んだ場合／および(c)で機種を追加した場合は必須】presentationDesign.介入度スコア基準 の定義に従って presentation を付与する:
+   ・フィールドは intervention(0〜3) / interventionNote / noticeType / disclosure / soundDesign / cabinet / escalation / scoredAt / scoredBasis / evidence
+   ・intervention は 0=完全自動 / 1=押し順のみ・周期やポイント到達型 / 2=狙い目がある(チャンス目・自力CZ等) / 3=常設の自力契機(全場面に介入対象があり目押しが結果認知に直結)
+   ・**突破契機は必ず実機解析で裏取りし evidence に参照URLを入れる**（曖昧なまま数値を置くと捏造になる）。裏取りできない機種は付与せずスキップする
+   ・scoredBasis は導入2週時点で付けたなら「2週時点」、過去機種に遡って付けたなら「遡り採点」と書く
+   ・**この値を新台診断の仕分けに使ってはいけない**（現状は説明軸のみ。予測軸への昇格条件は presentationDesign.介入度の検証状況 に明記してある通り、確定台×presentation付与が40件を超えてから相関を測って判断する）
+   ・優先順位: 直近導入で2週を迎えた新台 ＞ 貢献週が確定した機種（検証母数を増やすため）＞ その他
 2. WebSearch 2〜3クエリで実在の機種・仕組みを裏取りする（型・CZ・継続・天井・純増などの具体仕様）。
    【必須・czRules/atRulesの深さ／打ち手目線】CZ・AT説明は確率や期待度の"数字"だけで止めないこと。次の2点を必ず入れる: ①「何をすれば当たりか＝打ち手の行動・突破/継続契機」（どのレア役/押し順/ジャッジゲーム/バトル勝利/規定ポイント等の具体）②「なぜその確率か＝内部の仕組み」（内部抽選・継続率・段階など）。可能なら設定差の見え方・救済(引き継ぎ等)も。突破契機は実機解析(一撃/なな徹/ちょんぼりすた/P-WORLD等)で裏取りしてから書く（捏造禁止）。例: 虚構推理CZ＝「道中の強レア役 or 最後のジャッジで小役以上で突破。各EPは突入時に約75%で内部抽選、5話完走はEP1から0.75^5≒25%」。
 3. src/gameDesignLibrary.json を更新する。**スキーマ構造（既存キーの形）を必ず踏襲**し、JSONとして壊さない（追加後に python で json.load 検証）。
 4. git add src/gameDesignLibrary.json → commit（メッセージは「ゲーム性分析拡充: <追加/整理した内容を1行>」）→ push。
 
-安全ガード: スペック/URLの捏造禁止・確信が持てない型や機種は追加しない・破壊的な大量削除はしない・1回の実行で増やすのは型なら1つ、機種なら最大3機種まで（薄く広げすぎない）。Supabase等のcurlは使わないがWebSearchのみ可。JSON破損を避けるため更新後に必ず json.load で検証してから push する。
+安全ガード: スペック/URLの捏造禁止・確信が持てない型や機種は追加しない・破壊的な大量削除はしない・1回の実行で増やすのは型なら1つ、機種なら最大3機種まで、presentation付与も最大3機種まで（薄く広げすぎない）。Supabase等のcurlは使わないがWebSearchのみ可。JSON破損を避けるため更新後に必ず json.load で検証してから push する。
