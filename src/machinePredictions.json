@@ -20,7 +20,11 @@
           "changedFrom": null
         }
       ],
-      "outcome": { "contribWeeksActual": null, "verdict": null, "note": "8週目=2026-07-27週。8/06の週次取込で初回答え合わせ" }
+      "outcome": {
+        "contribWeeksActual": null,
+        "verdict": null,
+        "note": "8週目=2026-07-27週。8/06の週次取込で初回答え合わせ"
+      }
     },
     "Lソードアート・オンラインII": {
       "releaseDate": "2026-06-08",
@@ -34,11 +38,150 @@
           "changedFrom": null
         }
       ],
-      "outcome": { "contribWeeksActual": null, "verdict": null, "note": "8週目=2026-07-27週。8/06の週次取込で初回答え合わせ" }
+      "outcome": {
+        "contribWeeksActual": null,
+        "verdict": null,
+        "note": "8週目=2026-07-27週。8/06の週次取込で初回答え合わせ"
+      }
     }
   },
   "_backlog": {
     "説明": "リリース前・1週目の予測を残せていない機種。ルール運用開始(2026-08-03)より前に導入されたため、2週目時点の予測のみを遡って記録している。以降の新台はリリース前から3段階で記録する。",
-    "該当": ["L戦国乙女5業火を穿つ宿焔の双刃", "Lソードアート・オンラインII"]
+    "該当": [
+      "L戦国乙女5業火を穿つ宿焔の双刃",
+      "Lソードアート・オンラインII"
+    ]
+  },
+  "_retrospective": {
+    "説明": "ルール運用開始(2026-08-03)より前に導入され、2週判定の結果が出た機種の答え合わせ。予測は台帳に事前記録していないため、2週の実データから当時の判定を再計算して突き合わせた遡り評価。前向き予測(machines)とは性質が違うので分けてある。",
+    "採点基準": "成果変数は稼働貢献週。上位判定(超優良/優良)は成功ライン13週超で的中。下位判定(優秀/注意/危険)は各区分の実測中央値(優秀8週/注意5週/危険3週)に対し±3週以内なら的中とみなす。",
+    "貢献週が確定した台": [
+      {
+        "machine": "Lヨルムンガンド",
+        "tier": "注意",
+        "ret2": 78,
+        "katsudo2": 301,
+        "contribWeeks": 6,
+        "verdict": "hit",
+        "note": "注意の実測中央値5週に対し6週。想定どおり短命"
+      },
+      {
+        "machine": "Lアクダマドライブ",
+        "tier": "注意",
+        "ret2": 80,
+        "katsudo2": 291,
+        "contribWeeks": 6,
+        "verdict": "hit",
+        "note": "豪華筐体で期待を集めたが出玉が伴わず。presentationDesign.演出評価の落とし穴に既出の事例と一致"
+      },
+      {
+        "machine": "LゴブリンスレイヤーII",
+        "tier": "注意",
+        "ret2": 80,
+        "katsudo2": 269,
+        "contribWeeks": 5,
+        "verdict": "hit",
+        "note": "中央値どおり"
+      },
+      {
+        "machine": "LビッグドリームTHEGOLDENPUSHER",
+        "tier": "注意",
+        "ret2": 80,
+        "katsudo2": 285,
+        "contribWeeks": 5,
+        "verdict": "hit",
+        "note": "中央値どおり"
+      },
+      {
+        "machine": "L機動戦士ガンダムユニコーン覚醒DRIVE",
+        "tier": "注意",
+        "ret2": 76,
+        "katsudo2": 208,
+        "contribWeeks": 4,
+        "verdict": "hit",
+        "note": "強IPでも2週稼働値208%と需要が伸びず。IPは入口にすぎないという結論を補強する事例"
+      },
+      {
+        "machine": "L範馬刃牙",
+        "tier": "優秀",
+        "ret2": 85,
+        "katsudo2": 289,
+        "contribWeeks": 5,
+        "verdict": "miss",
+        "note": "★外し。優秀の実測中央値8週に対し5週で3週下振れ。2週持続85%・稼働値289%は優秀の下限付近(83%/200%)で、ギリギリ通した台が落ちた。優秀区分は的中18%と元々弱く、下限付近は注意寄りに見るべきという示唆"
+      }
+    ],
+    "上位判定で成功ライン超えが確定した台": [
+      {
+        "machine": "Lうみねこのなく頃に2",
+        "tier": "超優良",
+        "ret2": 101,
+        "katsudo2": 436,
+        "contribWeeks": 24,
+        "verdict": "hit"
+      },
+      {
+        "machine": "L攻殻機動隊",
+        "tier": "優良",
+        "ret2": 93,
+        "katsudo2": 376,
+        "contribWeeks": 24,
+        "verdict": "hit"
+      },
+      {
+        "machine": "L炎炎ノ消防隊2",
+        "tier": "優良",
+        "ret2": 93,
+        "katsudo2": 394,
+        "contribWeeks": 24,
+        "verdict": "hit"
+      },
+      {
+        "machine": "L甲鉄城のカバネリ海門決戦",
+        "tier": "超優良",
+        "ret2": 95,
+        "katsudo2": 479,
+        "contribWeeks": 20,
+        "verdict": "hit"
+      },
+      {
+        "machine": "L真打吉宗",
+        "tier": "超優良",
+        "ret2": 93,
+        "katsudo2": 383,
+        "contribWeeks": 15,
+        "verdict": "hit"
+      }
+    ],
+    "判定保留": [
+      {
+        "machine": "Lミリオンゴッド－神々の軌跡－",
+        "tier": "優良",
+        "ret2": 96,
+        "katsudo2": 374,
+        "contribWeeks": 13,
+        "katsudoLast": 201,
+        "verdict": "pending",
+        "note": "貢献13週で成功ライン未達だが直近稼働値201%で市場平均の2倍。貢献週はまだ増える。当初これを『8週持続53%で外れ』と誤判定していた(採点に持続率を使っていた誤り)"
+      },
+      {
+        "machine": "L虚構推理",
+        "tier": "優良",
+        "ret2": 89,
+        "katsudo2": 368,
+        "contribWeeks": 10,
+        "katsudoLast": 136,
+        "verdict": "pending",
+        "note": "同様に保留。直近136%で平均超えを維持"
+      }
+    ],
+    "集計": {
+      "確定した台": 11,
+      "的中": 10,
+      "外し": 1,
+      "的中率": "91%",
+      "保留": 2,
+      "内訳": "下位判定(注意)5件は実測中央値5週に対し4〜6週で全て的中。上位判定5件は全て成功ライン13週超で的中。外しは優秀判定の範馬刃牙1件のみ。"
+    }
   }
 }
