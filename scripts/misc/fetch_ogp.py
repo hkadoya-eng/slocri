@@ -56,11 +56,28 @@ def fetch_ogp_image(url):
 
 def run():
     print("URLがある投稿を取得中...")
-    res = requests.get(
-        f"{SUPABASE_URL}/rest/v1/posts?select=id,url,internal&url=neq.&url=not.is.null&limit=1000",
-        headers=HEADERS,
-    )
-    posts = res.json()
+    # PostgRESTは1回のGETで最大1000件しか返さないため offset でページングする。
+    # 単発 limit=1000 だと新しい投稿(id末尾)に永久に到達せずOGPが付かない。
+    # 新しい投稿から先に処理したいので id.desc で取得する。
+    posts = []
+    offset = 0
+    while True:
+        res = requests.get(
+            f"{SUPABASE_URL}/rest/v1/posts"
+            f"?select=id,url,internal&url=neq.&url=not.is.null"
+            f"&order=id.desc&offset={offset}&limit=1000",
+            headers=HEADERS,
+        )
+        res.raise_for_status()
+        page = res.json()
+        if not isinstance(page, list):
+            raise RuntimeError(f"想定外のレスポンス: {page}")
+        posts.extend(page)
+        if len(page) < 1000:
+            break
+        offset += 1000
+
+    print(f"URLあり投稿: {len(posts)}件")
 
     # ogImageUrl が未設定の投稿だけ対象
     targets = [
