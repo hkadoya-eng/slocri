@@ -141,18 +141,33 @@ def build_sheet_year_map(sheet_names):
             sm = int(sp.split(".")[0])
             sd = int(sp.split(".")[1])
             em = int(ep.split(".")[0])
+            ed = int(ep.split(".")[1])
         except (ValueError, IndexError):
             continue
-        if not (1 <= sm <= 12 and 1 <= sd <= 31 and 1 <= em <= 12):
+        if not (1 <= sm <= 12 and 1 <= sd <= 31 and 1 <= em <= 12 and 1 <= ed <= 31):
+            continue
+        # 週シートは「開始月と同じ月で開始日より後」か「翌月」で終わるはず。
+        # それ以外(例: '8.27~8.2' = 7.27~8.2 のシート名タイポ)は壊れた見出しなので採用しない。
+        # 採用すると後続の forward sweep が偽の年境界を検出し、全シートが1年ずれる。
+        if em == sm:
+            # 見出しは '6.2~6.8'(日曜終わり) と '6.2~6.9'(翌月曜終わり) の両方の書き方が混在するので +7 まで許容
+            valid = sd < ed <= sd + 7
+        elif em == sm + 1 or (sm == 12 and em == 1):
+            valid = True
+        else:
+            valid = False
+        if not valid:
+            print(f"  [skip] 週見出しが不正なシートを除外: {s}")
             continue
         parsed.append({"sheet": s, "sm": sm, "sd": sd, "em": em})
     if not parsed:
         return {}
-    # Forward sweep: 開始月が前のシートより小さくなったら年が変わった
+    # Forward sweep: 開始月が前のシートより大きく戻ったら年が変わった。
+    # 12→1 の本物の年跨ぎは月が11戻るので、しきい値6で誤検出(見出しの前後入れ替わり等)を弾く。
     rel = 0
     prev_sm = parsed[0]["sm"]
     for p in parsed:
-        if p["sm"] < prev_sm:
+        if p["sm"] < prev_sm - 6:
             rel += 1
         p["rel"] = rel
         prev_sm = p["sm"]
