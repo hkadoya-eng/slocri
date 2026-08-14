@@ -42,3 +42,4 @@ tmp/
 # Local SIS data copies (real data is on Z:\01_SISデータ\PS\)
 sisデータ/
 tmpwork/
+.tmpfb/
