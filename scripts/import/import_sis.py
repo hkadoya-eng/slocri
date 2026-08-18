@@ -141,6 +141,37 @@ def aggregate_national_payout_rate(records, service_key):
     return updated
 
 
+def verify_payout_rate_stored(records, service_key):
+    """書いた payout_rate が本当にDBに残っているか読み戻して確認する。
+    同じBAT内で後から走る import_national_daily.py が payout_rate=None を送って
+    毎回消していた事故(〜2026-08-18)を二度と見逃さないための健全性チェック。"""
+    dates = sorted(set(r["date"] for r in records))
+    if not dates:
+        return
+    check = dates[-10:]
+    try:
+        res = requests.get(
+            f"{SUPABASE_URL}/rest/v1/sis_national_daily",
+            headers={"apikey": service_key},
+            params={"select": "date,payout_rate", "date": f"in.({','.join(check)})"},
+            timeout=30,
+        )
+        rows = res.json() if res.status_code == 200 else []
+    except Exception as e:
+        print(f"  ⚠️ payout_rate の読み戻し確認に失敗: {e}", file=sys.stderr)
+        return
+    got = [r for r in rows if r.get("payout_rate") is not None]
+    if not got:
+        print(f"  ❌ payout_rate が直近{len(check)}日すべてDBで null。"
+              "他のインポータが上書きしていないか確認（import_national_daily.py の all_keys）",
+              file=sys.stderr)
+    elif len(got) < len(check):
+        print(f"  ⚠️ payout_rate が入っているのは直近{len(check)}日のうち{len(got)}日のみ", file=sys.stderr)
+    else:
+        print(f"  読み戻し確認OK: 直近{len(check)}日すべてに payout_rate あり "
+              f"(最新 {max(r['date'] for r in got)} = {[r['payout_rate'] for r in rows if r['date'] == max(x['date'] for x in got)][0]}%)")
+
+
 def upsert_records(records, service_key):
     headers = {
         "apikey": service_key,
@@ -199,6 +230,7 @@ def run():
     print("\n全国出玉率を集計中...")
     n = aggregate_national_payout_rate(records, service_key)
     print(f"  {n} 日分の payout_rate を更新")
+    verify_payout_rate_stored(records, service_key)
 
     print(f"\n完了。")
 

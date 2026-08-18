@@ -747,19 +747,13 @@ function SisTab({ adminUser }) {
   const nationalSales = getNationalField("national_sales", 14);
   const nationalGrossProfit = getNationalField("gross_profit", 14);
   const nationalCoinPrice = getNationalField("coin_price", 14);
-  // 出玉率: SIS集計値（import_sis.py が機種別データから枚数加重平均してsis_national_dailyへ書き込む）を最優先。
-  // それが無い時のみ当日のdayRowsから加重平均で算出する。
-  const nationalPayoutRate = (() => {
-    const fromDb = getNationalField("payout_rate", 14);
-    if (fromDb != null) return fromDb;
-    const rows = dayRows.filter(r => r.payout_rate != null && r.out_coins != null && r.out_coins > 0);
-    if (!rows.length) return null;
-    const sumW = rows.reduce((s, r) => s + r.out_coins, 0);
-    const sumWP = rows.reduce((s, r) => s + r.payout_rate * r.out_coins, 0);
-    return sumW > 0 ? sumWP / sumW : null;
-  })();
-  // 取得失敗を画面に出すフラグ（金額系のみ。出玉率は機種側データから計算するので別管理）
-  const nationalStale = (nationalSales == null) || (nationalGrossProfit == null) || (nationalCoinPrice == null);
+  // 出玉率: sis_national_daily の実値だけを使う（import_sis.py が SIS機種別データを
+  // アウト加重平均して書き込んだ値。原典 日毎稼働全体.xlsx に全国出玉率の行が無いため加重平均が実値相当）。
+  // 以前はDB値が無い時に「表示中のdayRowsだけ」の加重平均へ黙って差し替えていたが、
+  // 母集団が画面の絞り込みに依存する別物を「全国」として見せてしまうので廃止した。取れなければ「—」。
+  const nationalPayoutRate = getNationalField("payout_rate", 14);
+  // 取得失敗を画面に出すフラグ（全国実値4項目すべてを対象にする）
+  const nationalStale = (nationalSales == null) || (nationalGrossProfit == null) || (nationalCoinPrice == null) || (nationalPayoutRate == null);
 
   function sortVal(r) {
     if (sortKey === "gross_profit") return r.gross_profit == null ? Infinity : r.gross_profit;
@@ -860,21 +854,34 @@ function SisTab({ adminUser }) {
   });
 
   const wkAvgProfit = weekRows.length ? weekRows.reduce((s,r)=>s+(r.gross_profit||0),0)/weekRows.length : null;
+  // 対象L機種だけの平均IN。全国実値ではないので画面のラベルにも「L◯機種平均」と機種数を出す。
+  const wkAvgOut = (() => {
+    const rows = weekRows.filter(r => r.out_coins != null);
+    return rows.length ? rows.reduce((s,r)=>s+r.out_coins,0)/rows.length : null;
+  })();
   const wkAvgRate = weekRows.length ? weekRows.filter(r=>r.payout_rate!=null).reduce((s,r)=>s+r.payout_rate,0) / weekRows.filter(r=>r.payout_rate!=null).length : null;
-  // ウィークリーの全体「全国IN」は、その週(月〜日)の日次・全国アウト(sis_national_daily.avg_in)の平均を全国実値として出す。
-  // 機種別out_coinsの単純平均は対象L機種だけの偏った値で全国実値ではない（全国実値ソースは日次のみ／週間稼働シートは2016停止）。
-  const weekNationalIn = (() => {
+  // ウィークリーの「全国◯◯」は、その週(月〜日)の日次実値(sis_national_daily)の平均を全国実値として出す。
+  // 機種別out_coins等の単純平均は対象L機種だけの偏った値で全国実値ではない（全国実値ソースは日次のみ／週間稼働シートは2016停止）。
+  // デイリーと同じソース・同じ母集団なので、同じ週なら両タブの数字が整合する。取れない週は「—」（補完しない）。
+  const weekNationalAvg = (field) => {
     if (!selWeek) return null;
     const mon = new Date(selWeek.key + "T00:00:00");
     const vals = [];
     for (let i = 0; i < 7; i++) {
       const d = new Date(mon); d.setDate(mon.getDate() + i);
       const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-      const v = nationalDaily[key]?.avg_in;
+      const v = nationalDaily[key]?.[field];
       if (v != null) vals.push(v);
     }
     return vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : null;
-  })();
+  };
+  const weekNationalIn = weekNationalAvg("avg_in");
+  const weekNationalRate = weekNationalAvg("payout_rate");
+  const weekNationalSales = weekNationalAvg("national_sales");
+  const weekNationalProfit = weekNationalAvg("gross_profit");
+  const weekNationalCoinPrice = weekNationalAvg("coin_price");
+  const weekNationalStale = weekNationalIn == null || weekNationalRate == null || weekNationalSales == null
+    || weekNationalProfit == null || weekNationalCoinPrice == null;
 
   return (
     <div onTouchStart={handleSwipeStart} onTouchMove={handleSwipeMove} onTouchEnd={handleSwipeEnd} style={{position:"relative",touchAction:"pan-y"}}>
@@ -1039,18 +1046,36 @@ function SisTab({ adminUser }) {
               style={{border:"none",background:"none",fontSize:20,cursor:"pointer",color:weekIdx<=0?"#ccc":"#555",padding:"0 6px"}}>›</button>
           </div>
           {weekRows.length > 0 && (
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:6}}>
-              {[
-                {label:"全国IN",    val: weekNationalIn != null ? Math.round(weekNationalIn).toLocaleString() : "—", color:"#444"},
-                {label:"平均出玉率", val: wkAvgRate != null ? wkAvgRate.toFixed(1)+"%" : "—", color: wkAvgRate != null ? rateColor(wkAvgRate) : "#888"},
-                {label:"平均粗利",   val: wkAvgProfit != null ? (wkAvgProfit < 0 ? "▲" : "▼")+" ¥"+Math.abs(Math.round(wkAvgProfit)) : "—", color: wkAvgProfit != null ? (wkAvgProfit < 0 ? "#2a9d3f" : "#E53935") : "#888"},
-              ].map(s => (
-                <div key={s.label} style={{background:"#fff",borderRadius:8,padding:"3px 4px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
-                  <div style={{fontSize:8,color:"#aaa",marginBottom:0}}>{s.label}</div>
-                  <div style={{fontSize:11,fontWeight:700,color:s.color,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.val}</div>
+            <>
+              {weekNationalStale && (
+                <div style={{fontSize:9,color:"#D03030",background:"#FDF0F0",borderRadius:6,padding:"3px 8px",marginBottom:4}}>
+                  ⚠ この週の全国実値が一部欠けています（sis_national_daily 未取得。import_national_daily.py / import_sis.py 要確認）
                 </div>
-              ))}
-            </div>
+              )}
+              {/* 全国◯◯はすべて sis_national_daily の実値（その週の月〜日平均）。デイリータブと同一ソース。
+                  対象L機種の単純平均を「全国」として出さない（母集団が違い低く出るため）。 */}
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginBottom:4}}>
+                {[
+                  {label:"全国IN",    val: weekNationalIn != null ? Math.round(weekNationalIn).toLocaleString() : "—", color:"#444"},
+                  {label:"全国出玉率", val: weekNationalRate != null ? weekNationalRate.toFixed(1)+"%" : "—", color: weekNationalRate != null ? rateColor(weekNationalRate) : "#888"},
+                  {label:"全国売上",   val: fmtYenSmart(weekNationalSales), color:"#555"},
+                  {label:"全国粗利",   val: weekNationalProfit != null ? (weekNationalProfit<0?"▲":"▼")+fmtYenSmart(weekNationalProfit) : "—", color: weekNationalProfit != null ? (weekNationalProfit<0?"#2a9d3f":"#E53935") : "#888"},
+                  {label:"全国単価",   val: weekNationalCoinPrice != null ? weekNationalCoinPrice.toFixed(2)+"円" : "—", color:"#555"},
+                  {label:`L${weekRows.length}機種平均IN`, val: wkAvgOut != null ? Math.round(wkAvgOut).toLocaleString() : "—", color:"#777"},
+                ].map(s => (
+                  <div key={s.label} style={{background:"#fff",borderRadius:8,padding:"3px 4px",boxShadow:"2px 2px 5px #C5C9D4,-2px -2px 5px #fff",textAlign:"center"}}>
+                    <div style={{fontSize:8,color:"#aaa",marginBottom:0}}>{s.label}</div>
+                    <div style={{fontSize:11,fontWeight:700,color:s.color,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.val}</div>
+                  </div>
+                ))}
+              </div>
+              {/* 下段は「対象L機種だけの平均」＝全国実値とは母集団が違うと分かる書き方にする */}
+              <div style={{fontSize:9,color:"#999",marginBottom:6,paddingLeft:2}}>
+                対象L{weekRows.length}機種の平均: 出玉率 {wkAvgRate != null ? wkAvgRate.toFixed(1)+"%" : "—"}
+                ／粗利 {wkAvgProfit != null ? (wkAvgProfit<0?"▲":"▼")+"¥"+Math.abs(Math.round(wkAvgProfit)) : "—"}
+                <span style={{color:"#bbb"}}>（機種単位の実値の平均。全国実値とは母集団が異なる）</span>
+              </div>
+            </>
           )}
           <div style={{display:"flex",gap:6}}>
             {WEEKLY_SORT_OPTS.map(o => { const on = sortKey === o.k; return (

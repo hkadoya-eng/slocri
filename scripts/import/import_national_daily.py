@@ -209,7 +209,10 @@ def run():
     merged = {r["date"]: r for r in records}
     for r in weekly_records:
         merged[r["date"]] = {**merged.get(r["date"], {}), **r}
-    all_keys = {"date", "avg_in", "national_sales", "gross_profit", "coin_price", "coin_profit", "payout_rate"}
+    # payout_rate は **絶対にこのリストへ入れない**。このスクリプトは原典に全国出玉率の行が無いので
+    # 値を持っておらず、キーを含めると upsert が payout_rate=None を送り、同じBAT内で先に走った
+    # import_sis.py が書いた値(機種別IN加重平均)を毎回消してしまう(2026-08-18まで実際に消えていた)。
+    all_keys = {"date", "avg_in", "national_sales", "gross_profit", "coin_price", "coin_profit"}
     records = sorted([{k: v.get(k) for k in all_keys} for v in merged.values()], key=lambda r: r["date"])
 
     print(f"\n抽出合計: {len(records)} 件")
