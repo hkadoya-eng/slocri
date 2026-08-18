@@ -40,11 +40,11 @@
       "contribWeeks": 15,
       "status": "継続中",
       "statusReason": "直近稼働値181%で市場平均超え",
-      "installedWeeks": 31,
-      "firstWeek": "2025-04-20",
+      "installedWeeks": 16,
+      "firstWeek": "2026-04-20",
       "lastWeek": "2026-08-03",
       "katsudoLast": 181,
-      "deadWeeks": 16,
+      "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
   },
@@ -88,11 +88,11 @@
       "contribWeeks": 6,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 35,
-      "firstWeek": "2025-04-06",
+      "installedWeeks": 18,
+      "firstWeek": "2026-04-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 61,
-      "deadWeeks": 29,
+      "deadWeeks": 12,
       "asOf": "2026-08-03"
     }
   },
@@ -136,11 +136,11 @@
       "contribWeeks": 10,
       "status": "継続中",
       "statusReason": "直近稼働値120%で市場平均超え",
-      "installedWeeks": 35,
-      "firstWeek": "2025-04-06",
+      "installedWeeks": 18,
+      "firstWeek": "2026-04-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 120,
-      "deadWeeks": 25,
+      "deadWeeks": 8,
       "asOf": "2026-08-03"
     }
   },
@@ -180,11 +180,11 @@
       "contribWeeks": 6,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 35,
-      "firstWeek": "2025-04-06",
+      "installedWeeks": 18,
+      "firstWeek": "2026-04-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 75,
-      "deadWeeks": 29,
+      "deadWeeks": 12,
       "asOf": "2026-08-03"
     }
   },
@@ -226,11 +226,11 @@
       "contribWeeks": 17,
       "status": "継続中",
       "statusReason": "直近稼働値195%で市場平均超え",
-      "installedWeeks": 35,
-      "firstWeek": "2025-04-06",
+      "installedWeeks": 18,
+      "firstWeek": "2026-04-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 195,
-      "deadWeeks": 18,
+      "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
   },
@@ -273,11 +273,11 @@
       "contribWeeks": 22,
       "status": "継続中",
       "statusReason": "直近稼働値205%で市場平均超え",
-      "installedWeeks": 45,
-      "firstWeek": "2025-03-02",
+      "installedWeeks": 23,
+      "firstWeek": "2026-03-02",
       "lastWeek": "2026-08-03",
       "katsudoLast": 205,
-      "deadWeeks": 23,
+      "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
   },
@@ -323,11 +323,11 @@
       "contribWeeks": 10,
       "status": "継続中",
       "statusReason": "直近稼働値121%で市場平均超え",
-      "installedWeeks": 35,
-      "firstWeek": "2025-04-06",
+      "installedWeeks": 18,
+      "firstWeek": "2026-04-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 121,
-      "deadWeeks": 25,
+      "deadWeeks": 8,
       "asOf": "2026-08-03"
     }
   },
@@ -372,11 +372,11 @@
       "contribWeeks": 4,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 31,
-      "firstWeek": "2025-04-20",
+      "installedWeeks": 16,
+      "firstWeek": "2026-04-20",
       "lastWeek": "2026-08-03",
       "katsudoLast": 41,
-      "deadWeeks": 27,
+      "deadWeeks": 12,
       "asOf": "2026-08-03"
     }
   },
@@ -452,11 +452,11 @@
       "contribWeeks": 23,
       "status": "継続中",
       "statusReason": "直近稼働値135%で市場平均超え",
-      "installedWeeks": 61,
-      "firstWeek": "2025-01-05",
+      "installedWeeks": 31,
+      "firstWeek": "2026-01-05",
       "lastWeek": "2026-08-03",
       "katsudoLast": 135,
-      "deadWeeks": 38,
+      "deadWeeks": 8,
       "asOf": "2026-08-03"
     }
   },
@@ -499,11 +499,11 @@
       "contribWeeks": 15,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 87,
-      "firstWeek": "2024-10-06",
+      "installedWeeks": 44,
+      "firstWeek": "2025-10-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 89,
-      "deadWeeks": 72,
+      "deadWeeks": 29,
       "asOf": "2026-08-03"
     }
   },
@@ -549,11 +549,11 @@
       "contribWeeks": 4,
       "status": "継続中",
       "statusReason": "直近稼働値175%で市場平均超え",
-      "installedWeeks": 9,
-      "firstWeek": "2025-07-06",
+      "installedWeeks": 5,
+      "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 175,
-      "deadWeeks": 5,
+      "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
   },
@@ -587,11 +587,11 @@
       "contribWeeks": 5,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 25,
-      "firstWeek": "2025-05-11",
+      "installedWeeks": 13,
+      "firstWeek": "2026-05-11",
       "lastWeek": "2026-08-03",
       "katsudoLast": 80,
-      "deadWeeks": 20,
+      "deadWeeks": 8,
       "asOf": "2026-08-03"
     }
   },
@@ -638,11 +638,11 @@
       "contribWeeks": 8,
       "status": "継続中",
       "statusReason": "直近稼働値327%で市場平均超え",
-      "installedWeeks": 17,
-      "firstWeek": "2025-06-08",
+      "installedWeeks": 9,
+      "firstWeek": "2026-06-08",
       "lastWeek": "2026-08-03",
       "katsudoLast": 327,
-      "deadWeeks": 9,
+      "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
   },
@@ -769,11 +769,11 @@
       "contribWeeks": 7,
       "status": "継続中",
       "statusReason": "直近稼働値104%で市場平均超え",
-      "installedWeeks": 25,
-      "firstWeek": "2025-05-11",
+      "installedWeeks": 13,
+      "firstWeek": "2026-05-11",
       "lastWeek": "2026-08-03",
       "katsudoLast": 104,
-      "deadWeeks": 18,
+      "deadWeeks": 6,
       "asOf": "2026-08-03"
     }
   },
@@ -818,11 +818,11 @@
       "contribWeeks": 78,
       "status": "継続中",
       "statusReason": "直近稼働値192%で市場平均超え",
-      "installedWeeks": 154,
-      "firstWeek": "2024-02-03",
+      "installedWeeks": 79,
+      "firstWeek": "2025-02-03",
       "lastWeek": "2026-08-03",
       "katsudoLast": 192,
-      "deadWeeks": 76,
+      "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
   },
@@ -892,11 +892,11 @@
       "contribWeeks": 5,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 25,
-      "firstWeek": "2025-05-11",
+      "installedWeeks": 13,
+      "firstWeek": "2026-05-11",
       "lastWeek": "2026-08-03",
       "katsudoLast": 57,
-      "deadWeeks": 20,
+      "deadWeeks": 8,
       "asOf": "2026-08-03"
     }
   },
@@ -940,11 +940,11 @@
       "contribWeeks": 6,
       "status": "継続中",
       "statusReason": "直近稼働値99%で市場平均超え",
-      "installedWeeks": 25,
-      "firstWeek": "2025-05-11",
+      "installedWeeks": 13,
+      "firstWeek": "2026-05-11",
       "lastWeek": "2026-08-03",
       "katsudoLast": 99,
-      "deadWeeks": 19,
+      "deadWeeks": 7,
       "asOf": "2026-08-03"
     }
   },
@@ -983,11 +983,11 @@
       "contribWeeks": 4,
       "status": "継続中",
       "statusReason": "直近稼働値101%で市場平均超え",
-      "installedWeeks": 18,
-      "firstWeek": "2025-05-25",
+      "installedWeeks": 9,
+      "firstWeek": "2026-05-25",
       "lastWeek": "2026-07-20",
       "katsudoLast": 101,
-      "deadWeeks": 14,
+      "deadWeeks": 5,
       "asOf": "2026-08-03"
     }
   },
@@ -1027,11 +1027,11 @@
       "contribWeeks": 111,
       "status": "継続中",
       "statusReason": "直近稼働値151%で市場平均超え",
-      "installedWeeks": 269,
-      "firstWeek": "2022-12-04",
+      "installedWeeks": 140,
+      "firstWeek": "2023-12-04",
       "lastWeek": "2026-08-03",
       "katsudoLast": 151,
-      "deadWeeks": 158,
+      "deadWeeks": 29,
       "asOf": "2026-08-03"
     }
   },
@@ -1159,11 +1159,11 @@
       "contribWeeks": 22,
       "status": "継続中",
       "statusReason": "直近稼働値162%で市場平均超え",
-      "installedWeeks": 45,
-      "firstWeek": "2025-03-02",
+      "installedWeeks": 23,
+      "firstWeek": "2026-03-02",
       "lastWeek": "2026-08-03",
       "katsudoLast": 162,
-      "deadWeeks": 23,
+      "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
   },
@@ -1201,11 +1201,11 @@
       "contribWeeks": 4,
       "status": "継続中",
       "statusReason": "直近稼働値119%で市場平均超え",
-      "installedWeeks": 13,
-      "firstWeek": "2025-06-22",
+      "installedWeeks": 7,
+      "firstWeek": "2026-06-22",
       "lastWeek": "2026-08-03",
       "katsudoLast": 119,
-      "deadWeeks": 9,
+      "deadWeeks": 3,
       "asOf": "2026-08-03"
     }
   },
@@ -1296,11 +1296,11 @@
       "contribWeeks": 8,
       "status": "継続中",
       "statusReason": "直近稼働値246%で市場平均超え",
-      "installedWeeks": 17,
-      "firstWeek": "2025-06-08",
+      "installedWeeks": 9,
+      "firstWeek": "2026-06-08",
       "lastWeek": "2026-08-03",
       "katsudoLast": 246,
-      "deadWeeks": 9,
+      "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
   },
@@ -1453,11 +1453,11 @@
       "contribWeeks": 10,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 61,
-      "firstWeek": "2025-01-05",
+      "installedWeeks": 31,
+      "firstWeek": "2026-01-05",
       "lastWeek": "2026-08-03",
       "katsudoLast": 86,
-      "deadWeeks": 51,
+      "deadWeeks": 21,
       "asOf": "2026-08-03"
     }
   },
@@ -1498,11 +1498,11 @@
       "contribWeeks": 7,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 65,
-      "firstWeek": "2024-12-22",
+      "installedWeeks": 33,
+      "firstWeek": "2025-12-22",
       "lastWeek": "2026-08-03",
       "katsudoLast": 63,
-      "deadWeeks": 58,
+      "deadWeeks": 26,
       "asOf": "2026-08-03"
     }
   },
@@ -1542,11 +1542,11 @@
       "contribWeeks": 26,
       "status": "継続中",
       "statusReason": "直近稼働値156%で市場平均超え",
-      "installedWeeks": 53,
-      "firstWeek": "2025-02-01",
+      "installedWeeks": 27,
+      "firstWeek": "2026-02-01",
       "lastWeek": "2026-08-03",
       "katsudoLast": 156,
-      "deadWeeks": 27,
+      "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
   },
@@ -1618,11 +1618,11 @@
       "contribWeeks": 3,
       "status": "継続中",
       "statusReason": "直近稼働値117%で市場平均超え",
-      "installedWeeks": 9,
-      "firstWeek": "2025-07-06",
+      "installedWeeks": 5,
+      "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 117,
-      "deadWeeks": 6,
+      "deadWeeks": 2,
       "asOf": "2026-08-03"
     }
   },
@@ -1656,11 +1656,11 @@
       "contribWeeks": 4,
       "status": "継続中",
       "statusReason": "直近稼働値165%で市場平均超え",
-      "installedWeeks": 9,
-      "firstWeek": "2025-07-06",
+      "installedWeeks": 5,
+      "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 165,
-      "deadWeeks": 5,
+      "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
   },
@@ -1730,11 +1730,11 @@
       "contribWeeks": 9,
       "status": "継続中",
       "statusReason": "直近稼働値99%で市場平均超え",
-      "installedWeeks": 69,
-      "firstWeek": "2024-12-08",
+      "installedWeeks": 35,
+      "firstWeek": "2025-12-08",
       "lastWeek": "2026-08-03",
       "katsudoLast": 99,
-      "deadWeeks": 60,
+      "deadWeeks": 26,
       "asOf": "2026-08-03"
     }
   },
@@ -1777,11 +1777,11 @@
       "contribWeeks": 8,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 119,
-      "firstWeek": "2024-06-02",
+      "installedWeeks": 62,
+      "firstWeek": "2025-06-02",
       "lastWeek": "2026-08-03",
       "katsudoLast": 75,
-      "deadWeeks": 111,
+      "deadWeeks": 54,
       "asOf": "2026-08-03"
     }
   },
@@ -1916,11 +1916,11 @@
       "contribWeeks": 26,
       "status": "継続中",
       "statusReason": "直近稼働値126%で市場平均超え",
-      "installedWeeks": 175,
-      "firstWeek": "2023-11-18",
+      "installedWeeks": 90,
+      "firstWeek": "2024-11-18",
       "lastWeek": "2026-08-03",
       "katsudoLast": 126,
-      "deadWeeks": 149,
+      "deadWeeks": 64,
       "asOf": "2026-08-03"
     }
   },
@@ -1952,11 +1952,11 @@
       "contribWeeks": 14,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 231,
-      "firstWeek": "2023-04-22",
+      "installedWeeks": 120,
+      "firstWeek": "2024-04-22",
       "lastWeek": "2026-08-03",
       "katsudoLast": 66,
-      "deadWeeks": 217,
+      "deadWeeks": 106,
       "asOf": "2026-08-03"
     }
   },
@@ -1990,11 +1990,11 @@
       "contribWeeks": 43,
       "status": "継続中",
       "statusReason": "直近稼働値104%で市場平均超え",
-      "installedWeeks": 208,
-      "firstWeek": "2023-07-22",
+      "installedWeeks": 107,
+      "firstWeek": "2024-07-22",
       "lastWeek": "2026-08-03",
       "katsudoLast": 104,
-      "deadWeeks": 165,
+      "deadWeeks": 64,
       "asOf": "2026-08-03"
     }
   },
@@ -2027,11 +2027,11 @@
       "contribWeeks": 7,
       "status": "終了",
       "statusReason": "撤去(直近にデータなし)",
-      "installedWeeks": 167,
-      "firstWeek": "2023-10-21",
+      "installedWeeks": 85,
+      "firstWeek": "2024-10-21",
       "lastWeek": "2026-06-01",
       "katsudoLast": 70,
-      "deadWeeks": 160,
+      "deadWeeks": 78,
       "asOf": "2026-08-03"
     }
   },
@@ -2062,11 +2062,11 @@
       "contribWeeks": 6,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 69,
-      "firstWeek": "2024-12-08",
+      "installedWeeks": 35,
+      "firstWeek": "2025-12-08",
       "lastWeek": "2026-08-03",
       "katsudoLast": 63,
-      "deadWeeks": 63,
+      "deadWeeks": 29,
       "asOf": "2026-08-03"
     }
   },
@@ -2108,11 +2108,11 @@
       "contribWeeks": 3,
       "status": "継続中",
       "statusReason": "直近稼働値99%で市場平均超え",
-      "installedWeeks": 9,
-      "firstWeek": "2025-07-06",
+      "installedWeeks": 5,
+      "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 99,
-      "deadWeeks": 6,
+      "deadWeeks": 2,
       "asOf": "2026-08-03"
     }
   },
@@ -2184,11 +2184,11 @@
       "contribWeeks": 2,
       "status": "継続中",
       "statusReason": "直近稼働値108%で市場平均超え",
-      "installedWeeks": 9,
-      "firstWeek": "2025-07-06",
+      "installedWeeks": 5,
+      "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 108,
-      "deadWeeks": 7,
+      "deadWeeks": 3,
       "asOf": "2026-08-03"
     }
   },
@@ -2335,11 +2335,11 @@
       "contribWeeks": 4,
       "status": "継続中",
       "statusReason": "直近稼働値166%で市場平均超え",
-      "installedWeeks": 9,
-      "firstWeek": "2025-07-06",
+      "installedWeeks": 5,
+      "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 166,
-      "deadWeeks": 5,
+      "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
   },
@@ -2459,11 +2459,11 @@
       "contribWeeks": 57,
       "status": "継続中",
       "statusReason": "直近稼働値94%で市場平均超え",
-      "installedWeeks": 196,
-      "firstWeek": "2023-09-02",
+      "installedWeeks": 101,
+      "firstWeek": "2024-09-02",
       "lastWeek": "2026-08-03",
       "katsudoLast": 94,
-      "deadWeeks": 139,
+      "deadWeeks": 44,
       "asOf": "2026-08-03"
     }
   },
@@ -2760,11 +2760,11 @@
       "contribWeeks": 17,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 157,
-      "firstWeek": "2024-01-20",
+      "installedWeeks": 81,
+      "firstWeek": "2025-01-20",
       "lastWeek": "2026-08-03",
       "katsudoLast": 88,
-      "deadWeeks": 140,
+      "deadWeeks": 64,
       "asOf": "2026-08-03"
     }
   },
@@ -2891,11 +2891,11 @@
       "contribWeeks": 24,
       "status": "継続中",
       "statusReason": "直近稼働値142%で市場平均超え",
-      "installedWeeks": 53,
-      "firstWeek": "2025-02-01",
+      "installedWeeks": 27,
+      "firstWeek": "2026-02-01",
       "lastWeek": "2026-08-03",
       "katsudoLast": 142,
-      "deadWeeks": 29,
+      "deadWeeks": 3,
       "asOf": "2026-08-03"
     }
   },
@@ -2936,11 +2936,11 @@
       "contribWeeks": 6,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 126,
-      "firstWeek": "2024-05-05",
+      "installedWeeks": 66,
+      "firstWeek": "2025-05-05",
       "lastWeek": "2026-08-03",
       "katsudoLast": 46,
-      "deadWeeks": 120,
+      "deadWeeks": 60,
       "asOf": "2026-08-03"
     }
   },
@@ -2985,11 +2985,11 @@
       "contribWeeks": 6,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 105,
-      "firstWeek": "2024-08-04",
+      "installedWeeks": 53,
+      "firstWeek": "2025-08-04",
       "lastWeek": "2026-08-03",
       "katsudoLast": 65,
-      "deadWeeks": 99,
+      "deadWeeks": 47,
       "asOf": "2026-08-03"
     }
   },
@@ -3026,11 +3026,11 @@
       "contribWeeks": 8,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 75,
-      "firstWeek": "2024-11-17",
+      "installedWeeks": 38,
+      "firstWeek": "2025-11-17",
       "lastWeek": "2026-08-03",
       "katsudoLast": 66,
-      "deadWeeks": 67,
+      "deadWeeks": 30,
       "asOf": "2026-08-03"
     }
   },
@@ -3072,11 +3072,11 @@
       "contribWeeks": 5,
       "status": "継続中",
       "statusReason": "直近稼働値114%で市場平均超え",
-      "installedWeeks": 65,
-      "firstWeek": "2024-12-22",
+      "installedWeeks": 33,
+      "firstWeek": "2025-12-22",
       "lastWeek": "2026-08-03",
       "katsudoLast": 114,
-      "deadWeeks": 60,
+      "deadWeeks": 28,
       "asOf": "2026-08-03"
     }
   },
@@ -3179,11 +3179,11 @@
       "contribWeeks": 4,
       "status": "継続中",
       "statusReason": "直近稼働値211%で市場平均超え",
-      "installedWeeks": 9,
-      "firstWeek": "2025-07-06",
+      "installedWeeks": 5,
+      "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 211,
-      "deadWeeks": 5,
+      "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
   },
@@ -3285,11 +3285,11 @@
       "contribWeeks": 14,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 87,
-      "firstWeek": "2024-10-06",
+      "installedWeeks": 44,
+      "firstWeek": "2025-10-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 76,
-      "deadWeeks": 73,
+      "deadWeeks": 30,
       "asOf": "2026-08-03"
     }
   },
@@ -3390,11 +3390,11 @@
       "contribWeeks": 29,
       "status": "継続中",
       "statusReason": "直近稼働値125%で市場平均超え",
-      "installedWeeks": 134,
-      "firstWeek": "2024-04-07",
+      "installedWeeks": 70,
+      "firstWeek": "2025-04-07",
       "lastWeek": "2026-08-03",
       "katsudoLast": 125,
-      "deadWeeks": 105,
+      "deadWeeks": 41,
       "asOf": "2026-08-03"
     }
   },
@@ -3434,11 +3434,11 @@
       "contribWeeks": 5,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 53,
-      "firstWeek": "2025-02-01",
+      "installedWeeks": 27,
+      "firstWeek": "2026-02-01",
       "lastWeek": "2026-08-03",
       "katsudoLast": 48,
-      "deadWeeks": 48,
+      "deadWeeks": 22,
       "asOf": "2026-08-03"
     }
   },
@@ -3620,11 +3620,11 @@
       "contribWeeks": 26,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 253,
-      "firstWeek": "2023-02-05",
+      "installedWeeks": 131,
+      "firstWeek": "2024-02-05",
       "lastWeek": "2026-08-03",
       "katsudoLast": 72,
-      "deadWeeks": 227,
+      "deadWeeks": 105,
       "asOf": "2026-08-03"
     }
   },
@@ -3679,11 +3679,11 @@
       "contribWeeks": 8,
       "status": "継続中",
       "statusReason": "直近稼働値111%で市場平均超え",
-      "installedWeeks": 31,
-      "firstWeek": "2025-04-20",
+      "installedWeeks": 16,
+      "firstWeek": "2026-04-20",
       "lastWeek": "2026-08-03",
       "katsudoLast": 111,
-      "deadWeeks": 23,
+      "deadWeeks": 8,
       "asOf": "2026-08-03"
     }
   },
@@ -3716,11 +3716,11 @@
       "contribWeeks": 31,
       "status": "継続中",
       "statusReason": "直近稼働値110%で市場平均超え",
-      "installedWeeks": 105,
-      "firstWeek": "2024-08-04",
+      "installedWeeks": 53,
+      "firstWeek": "2025-08-04",
       "lastWeek": "2026-08-03",
       "katsudoLast": 110,
-      "deadWeeks": 74,
+      "deadWeeks": 22,
       "asOf": "2026-08-03"
     }
   },
@@ -3749,11 +3749,11 @@
       "contribWeeks": 5,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 71,
-      "firstWeek": "2024-12-01",
+      "installedWeeks": 36,
+      "firstWeek": "2025-12-01",
       "lastWeek": "2026-08-03",
       "katsudoLast": 30,
-      "deadWeeks": 66,
+      "deadWeeks": 31,
       "asOf": "2026-08-03"
     }
   },
@@ -3785,11 +3785,11 @@
       "contribWeeks": 19,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 367,
-      "firstWeek": "2021-12-26",
+      "installedWeeks": 189,
+      "firstWeek": "2022-12-26",
       "lastWeek": "2026-08-03",
       "katsudoLast": 94,
-      "deadWeeks": 348,
+      "deadWeeks": 170,
       "asOf": "2026-08-03"
     }
   },
@@ -3820,11 +3820,11 @@
       "contribWeeks": 89,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 313,
-      "firstWeek": "2022-07-03",
+      "installedWeeks": 162,
+      "firstWeek": "2023-07-03",
       "lastWeek": "2026-08-03",
       "katsudoLast": 69,
-      "deadWeeks": 224,
+      "deadWeeks": 73,
       "asOf": "2026-08-03"
     }
   },
@@ -3855,11 +3855,11 @@
       "contribWeeks": 5,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 119,
-      "firstWeek": "2024-06-02",
+      "installedWeeks": 62,
+      "firstWeek": "2025-06-02",
       "lastWeek": "2026-08-03",
       "katsudoLast": 72,
-      "deadWeeks": 114,
+      "deadWeeks": 57,
       "asOf": "2026-08-03"
     }
   },
@@ -4044,11 +4044,11 @@
       "contribWeeks": 10,
       "status": "継続中",
       "statusReason": "直近稼働値195%で市場平均超え",
-      "installedWeeks": 61,
-      "firstWeek": "2025-01-05",
+      "installedWeeks": 31,
+      "firstWeek": "2026-01-05",
       "lastWeek": "2026-08-03",
       "katsudoLast": 195,
-      "deadWeeks": 51,
+      "deadWeeks": 21,
       "asOf": "2026-08-03"
     }
   },
@@ -4695,11 +4695,11 @@
       "contribWeeks": 9,
       "status": "継続中",
       "statusReason": "直近稼働値108%で市場平均超え",
-      "installedWeeks": 155,
-      "firstWeek": "2024-02-03",
+      "installedWeeks": 79,
+      "firstWeek": "2025-02-03",
       "lastWeek": "2026-08-03",
       "katsudoLast": 108,
-      "deadWeeks": 146,
+      "deadWeeks": 70,
       "asOf": "2026-08-03"
     }
   },
@@ -4775,11 +4775,11 @@
       "contribWeeks": 11,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 79,
-      "firstWeek": "2024-11-03",
+      "installedWeeks": 40,
+      "firstWeek": "2025-11-03",
       "lastWeek": "2026-08-03",
       "katsudoLast": 87,
-      "deadWeeks": 68,
+      "deadWeeks": 29,
       "asOf": "2026-08-03"
     }
   },

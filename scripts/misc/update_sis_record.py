@@ -58,7 +58,9 @@ def main():
             if a:
                 resolve[a] = key
 
-    weekly = get_all("/sis_weekly_data?select=machine,week_start,out_coins&order=week_start.asc")
+    # order は必ず一意になるキー(week_start+machine)で。week_start だけだと
+    # limit/offset ページング間で並びが揺れ、行の重複取得/取りこぼしが起きる。
+    weekly = get_all("/sis_weekly_data?select=machine,week_start,out_coins&order=week_start.asc,machine.asc")
     stats = get_all("/sis_machine_stats?select=machine,contrib_weeks")
     contrib = {s["machine"].replace(" ", ""): s.get("contrib_weeks") for s in stats}
 

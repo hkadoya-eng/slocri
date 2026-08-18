@@ -25,22 +25,46 @@ _year_match = re.search(r"_(\d{4})\.xlsm", WEEKLY_PATH)
 FILE_YEAR = int(_year_match.group(1)) if _year_match else 2026
 
 
+def split_month_day(part, start_month=None):
+    """'5.3' → (5, 3)。区切りが抜けた '713' '720' のような表記も許容する。
+       (シート名 '7.7~713' '7.14~720' が実在し、弾くとその週が丸ごと欠落する)
+       曖昧さは「終了月は開始月 or 翌月」という週シートの性質で解消する。"""
+    part = part.strip().lstrip(".")
+    ps = part.split(".")
+    if len(ps) == 2:
+        try:
+            return int(ps[0]), int(ps[1])
+        except ValueError:
+            return None
+    if len(ps) != 1 or not part.isdigit() or not (3 <= len(part) <= 4):
+        return None
+    cands = []
+    if start_month is not None:
+        cands = [start_month, 1 if start_month == 12 else start_month + 1]
+    else:
+        cands = list(range(1, 13))
+    for m in cands:
+        pre = str(m)
+        if part.startswith(pre):
+            d_str = part[len(pre):]
+            if d_str.isdigit() and 1 <= int(d_str) <= 31:
+                return m, int(d_str)
+    return None
+
+
 def parse_week_range(s):
     """'4.27~5.3' → '2026-04-27' / '12.26~1.1' → '2025-12-26' (年跨ぎ補正あり)"""
     if not isinstance(s, str) or "~" not in s:
         return None
     start_part, end_part = s.split("~", 1)
-    start_part = start_part.strip().lstrip(".")
-    end_part = end_part.strip().lstrip(".")
-    s_parts = start_part.split(".")
-    e_parts = end_part.split(".")
-    if len(s_parts) != 2 or len(e_parts) != 2:
+    sp = split_month_day(start_part)
+    if not sp:
         return None
-    try:
-        sm, sd = int(s_parts[0]), int(s_parts[1])
-        em = int(e_parts[0])
-    except ValueError:
+    ep = split_month_day(end_part, sp[0])
+    if not ep:
         return None
+    sm, sd = sp
+    em = ep[0]
     if not (1 <= sm <= 12 and 1 <= sd <= 31 and 1 <= em <= 12):
         return None
     # 年跨ぎ判定: 開始月 > 終了月 (例: 12→1) なら開始は前年扱い
@@ -134,16 +158,15 @@ def build_sheet_year_map(sheet_names):
     for s in sheet_names:
         if "~" not in s:
             continue
-        sp, ep = s.split("~", 1)
-        sp = sp.strip().lstrip(".")
-        ep = ep.strip().lstrip(".")
-        try:
-            sm = int(sp.split(".")[0])
-            sd = int(sp.split(".")[1])
-            em = int(ep.split(".")[0])
-            ed = int(ep.split(".")[1])
-        except (ValueError, IndexError):
+        sp_raw, ep_raw = s.split("~", 1)
+        sp = split_month_day(sp_raw)
+        if not sp:
             continue
+        ep = split_month_day(ep_raw, sp[0])
+        if not ep:
+            continue
+        sm, sd = sp
+        em, ed = ep
         if not (1 <= sm <= 12 and 1 <= sd <= 31 and 1 <= em <= 12 and 1 <= ed <= 31):
             continue
         # 週シートは「開始月と同じ月で開始日より後」か「翌月」で終わるはず。
