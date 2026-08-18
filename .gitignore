@@ -43,3 +43,8 @@ tmp/
 sisデータ/
 tmpwork/
 .tmpfb/
+
+# 自動タスクが吐く一時ダンプ（リポジトリに入れない）
+chat.json
+fb_temp.json
+posts*.json
