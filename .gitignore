@@ -48,3 +48,4 @@ tmpwork/
 chat.json
 fb_temp.json
 posts*.json
+__pycache__/
