@@ -12,7 +12,14 @@ sisRecord の内容:
   statusReason   … その判定理由
   installedWeeks … 週次データに現れた週数(=設置週数)
   deadWeeks      … 設置週数 - 貢献週。稼働が死んでも撤去されず放置された期間の目安
-  katsudoLast    … 直近週の稼働値(アウト÷その週の全機種中央値)
+  katsudoLast    … 直近週の稼働値(アウト÷その週の全国平均アウト=実値)
+
+稼働値の分母(2026-08-18 実値化):
+  sis_national_daily(日次・全国アウト)の月〜日平均を「その週の市場平均アウト」として使う。
+  週次Excelの実値「稼動平均」行(SISが稼働貢献週を判定している基準)と直近18週で+0.6〜+2.3%差。
+  以前は「その週のL機種アウトの中央値」を自前計算していたが実値より約38%低く、稼働値が約1.6倍に
+  膨らんで「100%超=市場平均超え」が成立していなかった(終了判定が甘く49機種が誤って継続中扱い)。
+  全国実値が取れない週は分母なし=その週の稼働値は算出しない(自前計算で代替しない)。
 
 「終了」の判定:
   貢献週=市場平均超えの週数の累計なので、直近4週すべて稼働値100%以下ならもう増えない=確定。
@@ -21,7 +28,7 @@ sisRecord の内容:
 
 使い方: python scripts/misc/update_sis_record.py [--dry]
 """
-import json, io, os, sys, statistics as st, urllib.request
+import json, io, os, sys, urllib.request
 from datetime import date, timedelta
 
 ANON = os.environ.get("SLOCRI_ANON") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwemJ0dXVjb3B1Y2FibHd5cWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjk2MzEsImV4cCI6MjA5MTIwNTYzMX0.qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA"
@@ -69,10 +76,22 @@ def main():
         print("週次データが空。中止")
         return 1
     latest = weeks[-1]
+    # 稼働値の分母＝その週の全国平均アウト(実値)。sis_national_daily の月〜日平均。
+    national = {r["date"]: r.get("avg_in") for r in get_all("/sis_national_daily?select=date,avg_in")}
     med = {}
     for w in weeks:
-        v = [r["out_coins"] for r in weekly if r["week_start"] == w and r["out_coins"]]
-        med[w] = st.median(v) if v else None
+        d0 = date.fromisoformat(w)
+        vals = [national.get((d0 + timedelta(days=i)).isoformat()) for i in range(7)]
+        vals = [v for v in vals if v is not None]
+        med[w] = (sum(vals) / len(vals)) if vals else None
+    missing = [w for w in weeks if med[w] is None]
+    if missing:
+        print("⚠ 全国実値が無い週 %d件（稼働値は算出しない）: %s%s"
+              % (len(missing), ", ".join(missing[:5]), " …" if len(missing) > 5 else ""))
+    if len(missing) > len(weeks) * 0.2:
+        print("❌ 全国実値が欠けすぎ(%d/%d週)。import_national_daily.py を確認。中止"
+              % (len(missing), len(weeks)))
+        return 1
 
     by = {}
     for r in weekly:

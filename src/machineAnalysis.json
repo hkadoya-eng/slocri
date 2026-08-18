@@ -39,11 +39,11 @@
       "sisName": "Lミリオンゴッド－神々の軌跡－",
       "contribWeeks": 15,
       "status": "継続中",
-      "statusReason": "直近稼働値181%で市場平均超え",
+      "statusReason": "直近稼働値112%で市場平均超え",
       "installedWeeks": 16,
       "firstWeek": "2026-04-20",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 181,
+      "katsudoLast": 112,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -91,7 +91,7 @@
       "installedWeeks": 18,
       "firstWeek": "2026-04-06",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 61,
+      "katsudoLast": 38,
       "deadWeeks": 12,
       "asOf": "2026-08-03"
     }
@@ -134,12 +134,12 @@
     "sisRecord": {
       "sisName": "L虚構推理",
       "contribWeeks": 10,
-      "status": "継続中",
-      "statusReason": "直近稼働値120%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 18,
       "firstWeek": "2026-04-06",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 120,
+      "katsudoLast": 74,
       "deadWeeks": 8,
       "asOf": "2026-08-03"
     }
@@ -183,7 +183,7 @@
       "installedWeeks": 18,
       "firstWeek": "2026-04-06",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 75,
+      "katsudoLast": 46,
       "deadWeeks": 12,
       "asOf": "2026-08-03"
     }
@@ -225,11 +225,11 @@
       "sisName": "L真打吉宗",
       "contribWeeks": 17,
       "status": "継続中",
-      "statusReason": "直近稼働値195%で市場平均超え",
+      "statusReason": "直近稼働値120%で市場平均超え",
       "installedWeeks": 18,
       "firstWeek": "2026-04-06",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 195,
+      "katsudoLast": 120,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -272,11 +272,11 @@
       "sisName": "L甲鉄城のカバネリ海門決戦",
       "contribWeeks": 22,
       "status": "継続中",
-      "statusReason": "直近稼働値205%で市場平均超え",
+      "statusReason": "直近稼働値127%で市場平均超え",
       "installedWeeks": 23,
       "firstWeek": "2026-03-02",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 205,
+      "katsudoLast": 127,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -321,12 +321,12 @@
     "sisRecord": {
       "sisName": "LB異世界かるてっと",
       "contribWeeks": 10,
-      "status": "継続中",
-      "statusReason": "直近稼働値121%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 18,
       "firstWeek": "2026-04-06",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 121,
+      "katsudoLast": 75,
       "deadWeeks": 8,
       "asOf": "2026-08-03"
     }
@@ -375,7 +375,7 @@
       "installedWeeks": 16,
       "firstWeek": "2026-04-20",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 41,
+      "katsudoLast": 26,
       "deadWeeks": 12,
       "asOf": "2026-08-03"
     }
@@ -450,12 +450,12 @@
     "sisRecord": {
       "sisName": "L北斗の拳転生の章2",
       "contribWeeks": 23,
-      "status": "継続中",
-      "statusReason": "直近稼働値135%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 31,
       "firstWeek": "2026-01-05",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 135,
+      "katsudoLast": 83,
       "deadWeeks": 8,
       "asOf": "2026-08-03"
     }
@@ -502,7 +502,7 @@
       "installedWeeks": 44,
       "firstWeek": "2025-10-06",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 89,
+      "katsudoLast": 55,
       "deadWeeks": 29,
       "asOf": "2026-08-03"
     }
@@ -548,11 +548,11 @@
       "sisName": "Lからくりサーカス2",
       "contribWeeks": 4,
       "status": "継続中",
-      "statusReason": "直近稼働値175%で市場平均超え",
+      "statusReason": "直近稼働値108%で市場平均超え",
       "installedWeeks": 5,
       "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 175,
+      "katsudoLast": 108,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -590,7 +590,7 @@
       "installedWeeks": 13,
       "firstWeek": "2026-05-11",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 80,
+      "katsudoLast": 50,
       "deadWeeks": 8,
       "asOf": "2026-08-03"
     }
@@ -637,11 +637,11 @@
       "sisName": "Lソードアート・オンラインII",
       "contribWeeks": 8,
       "status": "継続中",
-      "statusReason": "直近稼働値327%で市場平均超え",
+      "statusReason": "直近稼働値201%で市場平均超え",
       "installedWeeks": 9,
       "firstWeek": "2026-06-08",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 327,
+      "katsudoLast": 201,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -767,12 +767,12 @@
     "sisRecord": {
       "sisName": "Lスーパーリオエース2",
       "contribWeeks": 7,
-      "status": "継続中",
-      "statusReason": "直近稼働値104%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 13,
       "firstWeek": "2026-05-11",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 104,
+      "katsudoLast": 64,
       "deadWeeks": 6,
       "asOf": "2026-08-03"
     }
@@ -817,11 +817,11 @@
       "sisName": "L東京喰種",
       "contribWeeks": 78,
       "status": "継続中",
-      "statusReason": "直近稼働値192%で市場平均超え",
+      "statusReason": "直近稼働値118%で市場平均超え",
       "installedWeeks": 79,
       "firstWeek": "2025-02-03",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 192,
+      "katsudoLast": 118,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -895,7 +895,7 @@
       "installedWeeks": 13,
       "firstWeek": "2026-05-11",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 57,
+      "katsudoLast": 35,
       "deadWeeks": 8,
       "asOf": "2026-08-03"
     }
@@ -938,12 +938,12 @@
     "sisRecord": {
       "sisName": "Lタクトオーパスデスティニー",
       "contribWeeks": 6,
-      "status": "継続中",
-      "statusReason": "直近稼働値99%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 13,
       "firstWeek": "2026-05-11",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 99,
+      "katsudoLast": 61,
       "deadWeeks": 7,
       "asOf": "2026-08-03"
     }
@@ -981,12 +981,12 @@
     "sisRecord": {
       "sisName": "LBGALFY",
       "contribWeeks": 4,
-      "status": "継続中",
-      "statusReason": "直近稼働値101%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 9,
       "firstWeek": "2026-05-25",
       "lastWeek": "2026-07-20",
-      "katsudoLast": 101,
+      "katsudoLast": 63,
       "deadWeeks": 5,
       "asOf": "2026-08-03"
     }
@@ -1025,12 +1025,12 @@
     "sisRecord": {
       "sisName": "LスマスロモンキーターンＶ",
       "contribWeeks": 111,
-      "status": "継続中",
-      "statusReason": "直近稼働値151%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 140,
       "firstWeek": "2023-12-04",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 151,
+      "katsudoLast": 93,
       "deadWeeks": 29,
       "asOf": "2026-08-03"
     }
@@ -1115,11 +1115,11 @@
       "sisName": "Lストリートファイター6",
       "contribWeeks": 0,
       "status": "継続中",
-      "statusReason": "直近稼働値262%で市場平均超え",
+      "statusReason": "直近稼働値162%で市場平均超え",
       "installedWeeks": 1,
       "firstWeek": "2026-08-03",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 262,
+      "katsudoLast": 162,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -1158,11 +1158,11 @@
       "sisName": "LBサンダーV",
       "contribWeeks": 22,
       "status": "継続中",
-      "statusReason": "直近稼働値162%で市場平均超え",
+      "statusReason": "直近稼働値100%で市場平均超え",
       "installedWeeks": 23,
       "firstWeek": "2026-03-02",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 162,
+      "katsudoLast": 100,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -1199,12 +1199,12 @@
     "sisRecord": {
       "sisName": "Lダークハイビ",
       "contribWeeks": 4,
-      "status": "継続中",
-      "statusReason": "直近稼働値119%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 7,
       "firstWeek": "2026-06-22",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 119,
+      "katsudoLast": 74,
       "deadWeeks": 3,
       "asOf": "2026-08-03"
     }
@@ -1295,11 +1295,11 @@
       "sisName": "L戦国乙女5業火を穿つ宿焔の双刃",
       "contribWeeks": 8,
       "status": "継続中",
-      "statusReason": "直近稼働値246%で市場平均超え",
+      "statusReason": "直近稼働値152%で市場平均超え",
       "installedWeeks": 9,
       "firstWeek": "2026-06-08",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 246,
+      "katsudoLast": 152,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -1409,11 +1409,11 @@
       "sisName": "Lワールドダイスター",
       "contribWeeks": 0,
       "status": "継続中",
-      "statusReason": "直近稼働値293%で市場平均超え",
+      "statusReason": "直近稼働値181%で市場平均超え",
       "installedWeeks": 1,
       "firstWeek": "2026-08-03",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 293,
+      "katsudoLast": 181,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -1456,7 +1456,7 @@
       "installedWeeks": 31,
       "firstWeek": "2026-01-05",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 86,
+      "katsudoLast": 53,
       "deadWeeks": 21,
       "asOf": "2026-08-03"
     }
@@ -1501,7 +1501,7 @@
       "installedWeeks": 33,
       "firstWeek": "2025-12-22",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 63,
+      "katsudoLast": 39,
       "deadWeeks": 26,
       "asOf": "2026-08-03"
     }
@@ -1541,11 +1541,11 @@
       "sisName": "L攻殻機動隊",
       "contribWeeks": 26,
       "status": "継続中",
-      "statusReason": "直近稼働値156%で市場平均超え",
+      "statusReason": "直近稼働値96%で市場平均超え",
       "installedWeeks": 27,
       "firstWeek": "2026-02-01",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 156,
+      "katsudoLast": 96,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -1617,11 +1617,11 @@
       "sisName": "Lヤバチバ",
       "contribWeeks": 3,
       "status": "継続中",
-      "statusReason": "直近稼働値117%で市場平均超え",
+      "statusReason": "直近稼働値72%で市場平均超え",
       "installedWeeks": 5,
       "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 117,
+      "katsudoLast": 72,
       "deadWeeks": 2,
       "asOf": "2026-08-03"
     }
@@ -1655,11 +1655,11 @@
       "sisName": "L南国育ちSPECIAL",
       "contribWeeks": 4,
       "status": "継続中",
-      "statusReason": "直近稼働値165%で市場平均超え",
+      "statusReason": "直近稼働値102%で市場平均超え",
       "installedWeeks": 5,
       "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 165,
+      "katsudoLast": 102,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -1728,12 +1728,12 @@
     "sisRecord": {
       "sisName": "Lプリズムナナ",
       "contribWeeks": 9,
-      "status": "継続中",
-      "statusReason": "直近稼働値99%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 35,
       "firstWeek": "2025-12-08",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 99,
+      "katsudoLast": 61,
       "deadWeeks": 26,
       "asOf": "2026-08-03"
     }
@@ -1780,7 +1780,7 @@
       "installedWeeks": 62,
       "firstWeek": "2025-06-02",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 75,
+      "katsudoLast": 46,
       "deadWeeks": 54,
       "asOf": "2026-08-03"
     }
@@ -1914,12 +1914,12 @@
     "sisRecord": {
       "sisName": "Lモンスターハンターライズ",
       "contribWeeks": 26,
-      "status": "継続中",
-      "statusReason": "直近稼働値126%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 90,
       "firstWeek": "2024-11-18",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 126,
+      "katsudoLast": 78,
       "deadWeeks": 64,
       "asOf": "2026-08-03"
     }
@@ -1955,7 +1955,7 @@
       "installedWeeks": 120,
       "firstWeek": "2024-04-22",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 66,
+      "katsudoLast": 41,
       "deadWeeks": 106,
       "asOf": "2026-08-03"
     }
@@ -1988,12 +1988,12 @@
     "sisRecord": {
       "sisName": "Lスマスロゴッドイーターリザレクション",
       "contribWeeks": 43,
-      "status": "継続中",
-      "statusReason": "直近稼働値104%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 107,
       "firstWeek": "2024-07-22",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 104,
+      "katsudoLast": 64,
       "deadWeeks": 64,
       "asOf": "2026-08-03"
     }
@@ -2030,7 +2030,7 @@
       "installedWeeks": 85,
       "firstWeek": "2024-10-21",
       "lastWeek": "2026-06-01",
-      "katsudoLast": 70,
+      "katsudoLast": 43,
       "deadWeeks": 78,
       "asOf": "2026-08-03"
     }
@@ -2065,7 +2065,7 @@
       "installedWeeks": 35,
       "firstWeek": "2025-12-08",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 63,
+      "katsudoLast": 39,
       "deadWeeks": 29,
       "asOf": "2026-08-03"
     }
@@ -2107,11 +2107,11 @@
       "sisName": "LULTRAMAN最終決戦",
       "contribWeeks": 3,
       "status": "継続中",
-      "statusReason": "直近稼働値99%で市場平均超え",
+      "statusReason": "直近稼働値61%で市場平均超え",
       "installedWeeks": 5,
       "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 99,
+      "katsudoLast": 61,
       "deadWeeks": 2,
       "asOf": "2026-08-03"
     }
@@ -2182,12 +2182,12 @@
     "sisRecord": {
       "sisName": "Lローティス",
       "contribWeeks": 2,
-      "status": "継続中",
-      "statusReason": "直近稼働値108%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 5,
       "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 108,
+      "katsudoLast": 66,
       "deadWeeks": 3,
       "asOf": "2026-08-03"
     }
@@ -2334,11 +2334,11 @@
       "sisName": "LBケロット5",
       "contribWeeks": 4,
       "status": "継続中",
-      "statusReason": "直近稼働値166%で市場平均超え",
+      "statusReason": "直近稼働値102%で市場平均超え",
       "installedWeeks": 5,
       "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 166,
+      "katsudoLast": 102,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -2457,12 +2457,12 @@
     "sisRecord": {
       "sisName": "Lスマスロかぐや様は告らせたい",
       "contribWeeks": 57,
-      "status": "継続中",
-      "statusReason": "直近稼働値94%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 101,
       "firstWeek": "2024-09-02",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 94,
+      "katsudoLast": 58,
       "deadWeeks": 44,
       "asOf": "2026-08-03"
     }
@@ -2763,7 +2763,7 @@
       "installedWeeks": 81,
       "firstWeek": "2025-01-20",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 88,
+      "katsudoLast": 54,
       "deadWeeks": 64,
       "asOf": "2026-08-03"
     }
@@ -2843,11 +2843,11 @@
       "sisName": "Lとある魔術の禁書目録2",
       "contribWeeks": 0,
       "status": "継続中",
-      "statusReason": "直近稼働値373%で市場平均超え",
+      "statusReason": "直近稼働値230%で市場平均超え",
       "installedWeeks": 1,
       "firstWeek": "2026-08-03",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 373,
+      "katsudoLast": 230,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -2889,12 +2889,12 @@
     "sisRecord": {
       "sisName": "L炎炎ノ消防隊2",
       "contribWeeks": 24,
-      "status": "継続中",
-      "statusReason": "直近稼働値142%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 27,
       "firstWeek": "2026-02-01",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 142,
+      "katsudoLast": 87,
       "deadWeeks": 3,
       "asOf": "2026-08-03"
     }
@@ -2939,7 +2939,7 @@
       "installedWeeks": 66,
       "firstWeek": "2025-05-05",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 46,
+      "katsudoLast": 28,
       "deadWeeks": 60,
       "asOf": "2026-08-03"
     }
@@ -2988,7 +2988,7 @@
       "installedWeeks": 53,
       "firstWeek": "2025-08-04",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 65,
+      "katsudoLast": 40,
       "deadWeeks": 47,
       "asOf": "2026-08-03"
     }
@@ -3029,7 +3029,7 @@
       "installedWeeks": 38,
       "firstWeek": "2025-11-17",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 66,
+      "katsudoLast": 41,
       "deadWeeks": 30,
       "asOf": "2026-08-03"
     }
@@ -3070,12 +3070,12 @@
     "sisRecord": {
       "sisName": "L沖ドキ！DUOアンコール",
       "contribWeeks": 5,
-      "status": "継続中",
-      "statusReason": "直近稼働値114%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 33,
       "firstWeek": "2025-12-22",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 114,
+      "katsudoLast": 70,
       "deadWeeks": 28,
       "asOf": "2026-08-03"
     }
@@ -3178,11 +3178,11 @@
       "sisName": "L戦国コレクション6",
       "contribWeeks": 4,
       "status": "継続中",
-      "statusReason": "直近稼働値211%で市場平均超え",
+      "statusReason": "直近稼働値130%で市場平均超え",
       "installedWeeks": 5,
       "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 211,
+      "katsudoLast": 130,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -3250,11 +3250,11 @@
       "sisName": "Lすーぱぁびん娘",
       "contribWeeks": 0,
       "status": "継続中",
-      "statusReason": "直近稼働値231%で市場平均超え",
+      "statusReason": "直近稼働値142%で市場平均超え",
       "installedWeeks": 1,
       "firstWeek": "2026-08-03",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 231,
+      "katsudoLast": 142,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -3288,7 +3288,7 @@
       "installedWeeks": 44,
       "firstWeek": "2025-10-06",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 76,
+      "katsudoLast": 47,
       "deadWeeks": 30,
       "asOf": "2026-08-03"
     }
@@ -3327,11 +3327,11 @@
       "sisName": "L邪神ちゃんドロップキック",
       "contribWeeks": 0,
       "status": "継続中",
-      "statusReason": "直近稼働値327%で市場平均超え",
+      "statusReason": "直近稼働値202%で市場平均超え",
       "installedWeeks": 1,
       "firstWeek": "2026-08-03",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 327,
+      "katsudoLast": 202,
       "deadWeeks": 1,
       "asOf": "2026-08-03"
     }
@@ -3388,12 +3388,12 @@
     "sisRecord": {
       "sisName": "Lマギアレコード魔法少女まどか☆マギカ外伝",
       "contribWeeks": 29,
-      "status": "継続中",
-      "statusReason": "直近稼働値125%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 70,
       "firstWeek": "2025-04-07",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 125,
+      "katsudoLast": 77,
       "deadWeeks": 41,
       "asOf": "2026-08-03"
     }
@@ -3437,7 +3437,7 @@
       "installedWeeks": 27,
       "firstWeek": "2026-02-01",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 48,
+      "katsudoLast": 29,
       "deadWeeks": 22,
       "asOf": "2026-08-03"
     }
@@ -3623,7 +3623,7 @@
       "installedWeeks": 131,
       "firstWeek": "2024-02-05",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 72,
+      "katsudoLast": 44,
       "deadWeeks": 105,
       "asOf": "2026-08-03"
     }
@@ -3677,12 +3677,12 @@
     "sisRecord": {
       "sisName": "Lアニマルスロットドッチ",
       "contribWeeks": 8,
-      "status": "継続中",
-      "statusReason": "直近稼働値111%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 16,
       "firstWeek": "2026-04-20",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 111,
+      "katsudoLast": 69,
       "deadWeeks": 8,
       "asOf": "2026-08-03"
     }
@@ -3714,12 +3714,12 @@
     "sisRecord": {
       "sisName": "LアズールレーンTHEANIMATION",
       "contribWeeks": 31,
-      "status": "継続中",
-      "statusReason": "直近稼働値110%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 53,
       "firstWeek": "2025-08-04",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 110,
+      "katsudoLast": 68,
       "deadWeeks": 22,
       "asOf": "2026-08-03"
     }
@@ -3752,7 +3752,7 @@
       "installedWeeks": 36,
       "firstWeek": "2025-12-01",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 30,
+      "katsudoLast": 18,
       "deadWeeks": 31,
       "asOf": "2026-08-03"
     }
@@ -3788,7 +3788,7 @@
       "installedWeeks": 189,
       "firstWeek": "2022-12-26",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 94,
+      "katsudoLast": 58,
       "deadWeeks": 170,
       "asOf": "2026-08-03"
     }
@@ -3823,7 +3823,7 @@
       "installedWeeks": 162,
       "firstWeek": "2023-07-03",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 69,
+      "katsudoLast": 42,
       "deadWeeks": 73,
       "asOf": "2026-08-03"
     }
@@ -3858,7 +3858,7 @@
       "installedWeeks": 62,
       "firstWeek": "2025-06-02",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 72,
+      "katsudoLast": 44,
       "deadWeeks": 57,
       "asOf": "2026-08-03"
     }
@@ -4043,11 +4043,11 @@
       "sisName": "LBニューキングハナハナV",
       "contribWeeks": 10,
       "status": "継続中",
-      "statusReason": "直近稼働値195%で市場平均超え",
+      "statusReason": "直近稼働値120%で市場平均超え",
       "installedWeeks": 31,
       "firstWeek": "2026-01-05",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 195,
+      "katsudoLast": 120,
       "deadWeeks": 21,
       "asOf": "2026-08-03"
     }
@@ -4693,12 +4693,12 @@
     "sisRecord": {
       "sisName": "Lシャーマンキング",
       "contribWeeks": 9,
-      "status": "継続中",
-      "statusReason": "直近稼働値108%で市場平均超え",
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
       "installedWeeks": 79,
       "firstWeek": "2025-02-03",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 108,
+      "katsudoLast": 66,
       "deadWeeks": 70,
       "asOf": "2026-08-03"
     }
@@ -4778,7 +4778,7 @@
       "installedWeeks": 40,
       "firstWeek": "2025-11-03",
       "lastWeek": "2026-08-03",
-      "katsudoLast": 87,
+      "katsudoLast": 54,
       "deadWeeks": 29,
       "asOf": "2026-08-03"
     }

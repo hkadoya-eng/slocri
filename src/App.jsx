@@ -601,6 +601,31 @@ function SisTab({ adminUser }) {
     return map;
   }, [weeklyData]);
 
+  // 稼働値の分母＝その週の「市場平均アウト」。sis_national_daily(日次・全国アウト)の月〜日平均＝全国実値。
+  // 週次Excelの実値「稼動平均」行（機種一覧表2行目・SISが稼働貢献週を判定している基準）と
+  // 直近18週で +0.6〜+2.3% しか差がないので、これを実値として使える。
+  // ※2026-08-18まで「その週のL機種アウトの中央値」を自前計算していたが、実値より約38%低く
+  //   （直近16週で-36〜-42%）、稼働値が約1.6倍に膨らみ「100%超=市場平均超え」が成立していなかった。
+  //   実値化で2週稼働値と貢献週の相関は r=+0.24 → +0.55 に改善（確定機種178件で実測）。
+  const weekMarketBase = useMemo(() => {
+    const out = {};
+    if (!weeklyData.length || !Object.keys(nationalDaily).length) return out;
+    const weeks = new Set(weeklyData.map(r => r.week_start));
+    weeks.forEach(w => {
+      const mon = new Date(w + "T00:00:00");
+      const vals = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(mon); d.setDate(mon.getDate() + i);
+        const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+        const v = nationalDaily[key]?.avg_in;
+        if (v != null) vals.push(v);
+      }
+      // 全国実値が取れない週は載せない（自前計算で代替しない＝稼働値は「—」になる）
+      if (vals.length) out[w] = vals.reduce((s, v) => s + v, 0) / vals.length;
+    });
+    return out;
+  }, [weeklyData, nationalDaily]);
+
   // 新台診断: 各機種の「初月持続率(4週÷初週アウト)×台数推移」を週次から算出。
   // 台数/IPは入口、初月持続率が生死を決める(長寿平均66% vs 短命47%)という分析に基づく早期診断。直近約26週導入の新台のみ。
   const machineDiagnosis = useMemo(() => {
@@ -611,13 +636,7 @@ function SisTab({ adminUser }) {
       (byM[r.machine] = byM[r.machine] || []).push(r);
       if (r.week_start > latest) latest = r.week_start;
     });
-    // 週ごとの全機種アウト中央値（稼働値=アウト÷週中央値 の基準）。市場が来たか=絶対需要の軸。
-    const wkMed = {};
-    {
-      const tmp = {};
-      weeklyData.forEach(r => { if (r.out_coins) (tmp[r.week_start] = tmp[r.week_start] || []).push(r.out_coins); });
-      Object.entries(tmp).forEach(([w, a]) => { const s = a.slice().sort((x, y) => x - y); wkMed[w] = s[Math.floor(s.length / 2)]; });
-    }
+    const wkMed = weekMarketBase; // 稼働値の分母＝全国実値の市場平均アウト（上の weekMarketBase 参照）
     const latestD = new Date(latest + "T00:00:00");
     const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
     const cutoff = new Date(latestD); cutoff.setDate(latestD.getDate() - 182);
@@ -662,7 +681,7 @@ function SisTab({ adminUser }) {
     });
     rows.sort((a, b) => b.firstWeek.localeCompare(a.firstWeek));
     return rows;
-  }, [weeklyData, machineStats]);
+  }, [weeklyData, machineStats, weekMarketBase]);
 
   // 稼働貢献週ランキング。新台診断は直近26週の新台だけなので、全機種を貢献週順に並べたビューを別に持つ。
   // 週次データ(sis_weekly_data)と sis_machine_stats が更新されれば自動で最新化される＝毎週更新。
@@ -670,13 +689,9 @@ function SisTab({ adminUser }) {
     if (!weeklyData.length) return [];
     const byM = {};
     weeklyData.forEach(r => { (byM[r.machine] = byM[r.machine] || []).push(r); });
-    const wkMed = {};
-    {
-      const tmp = {};
-      weeklyData.forEach(r => { if (r.out_coins) (tmp[r.week_start] = tmp[r.week_start] || []).push(r.out_coins); });
-      Object.entries(tmp).forEach(([w, a]) => { const s = a.slice().sort((x, y) => x - y); wkMed[w] = s[Math.floor(s.length / 2)]; });
-    }
-    const latest = Object.keys(wkMed).sort().pop();
+    const wkMed = weekMarketBase; // 稼働値の分母＝全国実値の市場平均アウト（weekMarketBase 参照）
+    const latest = weeklyData.reduce((mx, r) => r.week_start > mx ? r.week_start : mx, "");
+    if (!latest || !Object.keys(wkMed).length) return [];
     const latestD = new Date(latest + "T00:00:00");
     const recent = new Date(latestD); recent.setDate(latestD.getDate() - 21);
     const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
@@ -703,7 +718,7 @@ function SisTab({ adminUser }) {
     });
     out.sort((a, b) => b.contrib - a.contrib || a.firstWeek.localeCompare(b.firstWeek));
     return out;
-  }, [weeklyData, machineStats]);
+  }, [weeklyData, machineStats, weekMarketBase]);
 
   if (!adminUser) {
     return <AdminLoginForm title="稼働データ" desc="社内専用。管理者ログインが必要です。" />;
@@ -1117,12 +1132,13 @@ function SisTab({ adminUser }) {
       {sisView === "shindai" && <>
         <div style={{fontSize:11,color:"#888",background:"#fff",borderRadius:10,padding:"8px 10px",marginBottom:8,boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff",lineHeight:1.5}}>
           <b style={{color:"#D85A30"}}>新台診断</b>：<b>2週時点だけで仕分けを確定</b>する。8週まで待てば誰でも分かる＝情報価値が無いため、早く言い切ることを優先。直近約26週に導入・導入日順。<br/>
-          ・<b>稼働値</b>（アウト÷その週の全機種中央値）＝人気・絶対需要。<b>2週</b>の値を使う（r=+0.39。初週はr=+0.23で弱い）。<br/>
-          ・<b>持続率</b>（◯週目÷初週アウト）＝定着・減衰。2週持続率が最強の単体軸（r=+0.54）。<br/>
-          ・<b>傾き</b>＝2週稼働値−初週稼働値（r=+0.36）。超優良の条件にのみ使う。<br/>
-          <b>仕分け基準（2週で確定）</b>：<b>超優良</b>=持続率≥92% かつ 稼働値≥300% かつ 傾き≥−40／<b>優良</b>=持続率≥89% かつ 稼働値≥300%／<b>優良(定着型)</b>=持続率≥100% かつ 稼働値≥120%（需要下限の免除）／<b>優秀</b>=持続率≥83% かつ 稼働値≥200%／<b>危険</b>=持続率&lt;73% または 稼働値&lt;190%／残りが<b>注意</b>。<br/>
-          ・<b>「優良(定着型)」を足した理由</b>：取り逃した当たり台10件を調べると、持続率は捕獲組とほぼ同じ（93.1% vs 92.8%）で、落ちた原因は稼働値だけ（377.8% vs 269.1%）だった＝<b>需要は小さいが客が離れない台</b>（HEY!エリートサラリーマン鏡は稼働値127%で19週）を下限で切っていた。持続率100%超＝2週目のアウトが初週以上＝客が増えた台は稼働値の水準に関係なく強い。稼働値120%未満を除くのはリノヘブン型（稼働値25%→2週）の混入を防ぐため。検証: <b>的中75%→79%・短命混入0%のまま・捕獲47%→58%</b>の純粋な改善。<br/>
-          <b>実測精度</b>（貢献週が確定した126機種でバックテスト。進行中の台は伸び続けるため除外）：超優良4件で<b>的中100%</b>・優良8件で62%・上位2区分まとめて<b>的中75%／短命混入0%／全成功の47%を2週で捕獲</b>。4週持続率で判定する方式（的中70%・捕獲37%）より上＝<b>待っても精度は上がらない</b>。<br/>
+          ・<b>稼働値</b>（アウト÷<b>その週の全国平均アウト＝実値</b>）＝人気・絶対需要。<b>2週</b>の値を使う（r=+0.55。初週はr=+0.36）。<b>100%超＝全国平均超え＝稼働貢献週が増える状態</b>。<br/>
+          ・<b>持続率</b>（◯週目÷初週アウト）＝定着・減衰。2週持続率（r=+0.46）。<br/>
+          ・<b>傾き</b>＝2週稼働値−初週稼働値（r=+0.23）。超優良の条件にのみ使う。<br/>
+          <b>仕分け基準（2週で確定）</b>：<b>超優良</b>=持続率≥92% かつ 稼働値≥200% かつ 傾き≥−40／<b>優良</b>=持続率≥89% かつ 稼働値≥200%／<b>優良(定着型)</b>=持続率≥100% かつ 稼働値≥140%（<b>需要</b>下限の免除）／<b>優秀(需要型)</b>=持続率≥83% かつ 稼働値≥220%（<b>持続率</b>下限の免除）／<b>危険</b>=持続率&lt;73% または 稼働値&lt;170%／残りが<b>注意</b>。<br/>
+          ・<b>2つの拾い上げ枠</b>：<b>定着型</b>＝需要は小さいが客が離れない台（持続率100%超＝2週目のアウトが初週以上＝客が増えた）。<b>需要型</b>＝持続率は平凡でも需要が突出して強い台。どちらも「片方の軸だけで上位に届く台」を落とさないための枠で、稼働値140%/220%の下限はリノヘブン型（稼働値25%→2週）の混入を防ぐために置いている。<br/>
+          <b>実測精度</b>（貢献週が確定した<b>178機種</b>でバックテスト。進行中の台は伸び続けるため除外。導入日で古い124件＝学習／新しい54件＝検証に分け、学習で閾値を決めて検証で評価）：<b>学習 的中79%・捕獲84% / 検証 的中79%・捕獲79% / 短命混入(貢献6週以下)は両方0%</b>。階層別の当たり率は 超優良19件<b>100%</b>（貢献週 平均37.7）・優良18件67%・定着型3件67%・需要型8件62%・注意64件12%・<b>危険66件0%</b>。<br/>
+          ・<b>採点定義（探索前に固定）</b>：母集団=貢献週が確定した機種／当たり台=貢献週&gt;13／短命=貢献週≤6／的中率=上位判定のうち当たり台の割合／捕獲率=当たり台のうち上位判定の割合。<b>短命混入0%を必須条件にし、その中で的中と捕獲のF1が最大の組を採用</b>（閾値を後から都合よく選ばないため、定義と目的関数を先に決めてから20刻みの粗い格子で探索）。<br/>
           ・<b>✓/…/✗マーク</b>＝2週予測の答え合わせ。<b>成果変数である稼働貢献週で採点する</b>（持続率は予測の"入力"なので採点には使わない）。貢献週が成功ライン13週を超えたら<b>✓的中</b>／まだ稼働値100%超で貢献週が増える余地があれば<b>…判定保留</b>／平均を割ったまま13週以下で終わったら<b>✗外れ</b>。<br/>
           ・<b>状態バッジ</b>＝各カードに2つ表示。<b>稼働貢献</b>は「継続中（直近も市場平均超え＝貢献週がまだ増える）」か「終了（直近4週すべて平均以下、または撤去＝貢献週が確定）」。<b>予測</b>は「期間中（リリース前〜1週目。まだ変更可・変更時は理由を残す）」か「確定済（2週到達。以降は変更しない）」。導入日と経過週数も併記してあるので、どの段階の台かが分かる。<br/>
           ・<b>⚠供給過剰</b>＝大量導入(ピーク≥6台)なのに振るわない。割数(出玉率)・コイン単価・台数初動は寿命と無関係のため<b>非採用</b>（出玉率は上位帯で検証しても締めた側が有利にならず r=+0.26と逆方向）。
@@ -1131,29 +1147,32 @@ function SisTab({ adminUser }) {
           {machineDiagnosis.length === 0 && <div style={{textAlign:"center",color:"#aaa",padding:"2rem"}}>データなし</div>}
           {machineDiagnosis.map(d => {
             // 仕分けは【2週時点の情報だけ】で確定させる。8週まで待つと誰の目にも明らかで情報価値が無いため、
-            // 早期に言い切れることを優先した。貢献週が確定した126機種でのバックテスト結果:
-            //   超優良 4件 的中100% / 優良 8件 62% / 優秀 38件 18% / 注意 37件 0% / 危険 39件 8%
-            //   上位2区分まとめ: 的中75%・短命混入0%・全成功の47%を2週で捕獲。
-            //   4週持続率で判定する方式(的中70%・成功捕獲37%)より上。待っても精度は上がらない。
-            // 軸は 2週持続率(r=+0.54) × 2週稼働値(r=+0.39) × 稼働値の傾き(r=+0.36)。
-            // 初週稼働値(r=+0.23)は弱いので単体では使わず、傾きの計算にだけ用いる。
+            // 早期に言い切れることを優先した。
+            // 【2026-08-18 稼働値の分母を実値化して全面再フィット】
+            //   分母を「L機種アウトの中央値(自前計算)」→「その週の全国平均アウト(実値)」に変更した。
+            //   旧分母は実値より約38%低く、稼働値が約1.6倍に膨らみ「100%超=市場平均超え」が
+            //   成立していなかった(実際の平均超えは稼働値≈161%相当)。実値化で相関が改善:
+            //   2週稼働値 r=+0.24→+0.55 / 2週持続率 +0.41→+0.46 / 傾き +0.32→+0.23。
+            //   貢献週が確定した母数も 129→178件に増えた(終了判定が正しくなったため)。
+            //   閾値は「採点定義を先に固定 → 短命混入0%を必須制約 → F1最大」で再探索し、
+            //   導入日の古い124件で選定・新しい54件で検証: 学習 的中79%/捕獲84%、検証 的中79%/捕獲79%。
+            //   階層別の当たり率(全178件): 超優良19件100% / 優良18件67% / 定着型3件67% /
+            //   需要型8件62% / 注意64件12% / 危険66件0%。
             const k1 = d.katsudo1, k2 = d.katsudo2;
             const slope = (k1 != null && k2 != null) ? k2 - k1 : null;
-            // 【需要下限の免除ルール（2026-08-03 追加）】
-            // 取り逃した当たり台10件を調べたところ、持続率は捕獲組と同じ(93.1% vs 92.8%)で、
-            // 落ちた原因は稼働値だけ(377.8% vs 269.1%)だった＝需要が小さいが客が離れない台
-            // (HEY!エリートサラリーマン鏡 稼働値127%→19週 等)を下限で切り捨てていた。
-            // 2週持続率100%超＝2週目のアウトが初週以上＝客が増えている台は、稼働値の絶対水準に
-            // 関係なく強い。ただし稼働値120%未満はリノヘブン型(稼働値25%→2週)が混ざるので除外。
-            // 確定126機種での検証: 的中75%→79% / 短命混入0%のまま / 捕獲47%→58%（純粋な改善）。
-            const viaRetention = d.ret2 != null && k2 != null && d.ret2 >= 100 && k2 >= 120;
+            // 【拾い上げ枠は2つ】どちらも「片方の軸だけで上位に届く台」を落とさないための枠。
+            //  定着型: 需要は小さいが客が離れない(持続率100%超=2週目のアウトが初週以上=客が増えた)。
+            //          HEY!エリートサラリーマン鏡のような台を需要下限で切り捨てないため。
+            //  需要型: 持続率は平凡でも需要が突出して強い。持続率下限を緩めるかわり需要下限を上げる。
+            //  下限(140%/220%)はリノヘブン型(稼働値25%→2週)の混入を防ぐために必要。
+            const viaRetention = d.ret2 != null && k2 != null && d.ret2 >= 100 && k2 >= 140;
             const g = (d.ret2 == null || k2 == null)
               ? {l:"計測中",c:"#999",bg:"#ECECEC"}
-              : (d.ret2 >= 92 && k2 >= 300 && (slope == null || slope >= -40)) ? {l:"超優良",c:"#7B1FA2",bg:"#F5E9FA",top:true}
-              : (d.ret2 >= 89 && k2 >= 300) ? {l:"優良",c:"#1f9d4d",bg:"#E3F5E9",top:true}
+              : (d.ret2 >= 92 && k2 >= 200 && (slope == null || slope >= -40)) ? {l:"超優良",c:"#7B1FA2",bg:"#F5E9FA",top:true}
+              : (d.ret2 >= 89 && k2 >= 200) ? {l:"優良",c:"#1f9d4d",bg:"#E3F5E9",top:true}
               : viaRetention ? {l:"優良(定着型)",c:"#1f9d4d",bg:"#E3F5E9",top:true,retention:true}
-              : (d.ret2 >= 83 && k2 >= 200) ? {l:"優秀",c:"#5B9E6F",bg:"#EFF7F1"}
-              : (d.ret2 < 73 || k2 < 190) ? {l:"危険",c:"#D03030",bg:"#FCE4E4"}
+              : (d.ret2 >= 83 && k2 >= 220) ? {l:"優秀(需要型)",c:"#5B9E6F",bg:"#EFF7F1",top:true,demand:true}
+              : (d.ret2 < 73 || k2 < 170) ? {l:"危険",c:"#D03030",bg:"#FCE4E4"}
               : {l:"注意",c:"#C77B00",bg:"#FFF3DC"};
             // 【答え合わせは"成果変数"=稼働貢献週で採点する】
             // 旧実装は8週持続率55%割れを「外れ」としていたが、持続率は予測の"入力"であって成果ではない。
@@ -1201,7 +1220,8 @@ function SisTab({ adminUser }) {
                 </div>
                 {oversupply && <div style={{marginTop:6,fontSize:10,color:"#C77B00",background:"#FFF8EC",borderRadius:6,padding:"3px 8px"}}>⚠ 大量導入(ピーク{d.peakC.toFixed(1)}台)なのに振るわない＝供給過剰の疑い</div>}
                 {/* 2週予測の答え合わせ。成果=貢献週で採点し、当たり外れを隠さず出す。 */}
-                {g.retention && <div style={{marginTop:6,fontSize:10,color:"#1f7a4d",background:"#F0FAF3",borderRadius:6,padding:"3px 8px"}}>▲ 定着型で拾い上げ: 稼働値{k2}%は下限未満だが2週持続率{d.ret2}%（＝2週目に客が増えた）ため上位判定</div>}
+                {g.retention && <div style={{marginTop:6,fontSize:10,color:"#1f7a4d",background:"#F0FAF3",borderRadius:6,padding:"3px 8px"}}>▲ 定着型で拾い上げ: 稼働値{k2}%は需要下限(200%)未満だが2週持続率{d.ret2}%（＝2週目に客が増えた）ため上位判定</div>}
+                {g.demand && <div style={{marginTop:6,fontSize:10,color:"#3d7a5c",background:"#F0FAF3",borderRadius:6,padding:"3px 8px"}}>▲ 需要型で拾い上げ: 2週持続率{d.ret2}%は優良の下限(89%)未満だが稼働値{k2}%（＝全国平均の{Math.round(k2/100*10)/10}倍の需要）のため上位判定</div>}
                 {verdict === "hit" && <div style={{marginTop:6,fontSize:10,color:"#1f9d4d",background:"#F0FAF3",borderRadius:6,padding:"3px 8px"}}>✓ 2週予測が的中: 稼働貢献{d.contrib}週で成功ライン(13週)超え</div>}
                 {verdict === "pending" && <div style={{marginTop:6,fontSize:10,color:"#2a7ae8",background:"#EEF4FD",borderRadius:6,padding:"3px 8px"}}>… 判定保留: 貢献{d.contrib}週だが直近稼働値{d.katsudoLast}%で market平均超え＝まだ伸びる</div>}
                 {verdict === "miss" && <div style={{marginTop:6,fontSize:10,color:"#D03030",background:"#FDF0F0",borderRadius:6,padding:"3px 8px"}}>✗ 2週予測が外れ: 貢献{d.contrib}週で終了(稼働値{d.katsudoLast != null ? d.katsudoLast+"%" : "—"}＝平均割れ)</div>}
