@@ -517,7 +517,15 @@ function Section({ s }) {
   const p = { fontSize: 13.5, color: C.ink2, lineHeight: 1.85, margin: "0 0 10px" };
   switch (s.t) {
     case "h":
-      return <div style={{ fontSize: 15, fontWeight: 700, color: C.ink, margin: "22px 0 8px", lineHeight: 1.5 }}>{s.v}</div>;
+      // lv2=中見出し（左に色帯） / lv3=小見出し（▸付き・一段小さく）
+      return s.lv === 3 ? (
+        <div style={{ fontSize: 13.5, fontWeight: 700, color: C.brandDim, margin: "20px 0 7px", lineHeight: 1.5 }}>
+          <span style={{ color: C.brand, marginRight: 5 }}>▸</span>{s.v}
+        </div>
+      ) : (
+        <div style={{ fontSize: 16, fontWeight: 700, color: C.ink, margin: "26px 0 9px", lineHeight: 1.45,
+          borderLeft: `3px solid ${C.brand}`, paddingLeft: 10 }}>{s.v}</div>
+      );
     case "p":
       return <p style={{ ...p, whiteSpace: "pre-line" }}><RichText v={s.v} /></p>;
     case "note":
@@ -781,6 +789,55 @@ function Section({ s }) {
   }
 }
 
+
+/* ---------------- 大見出し（part）ごとの折りたたみ ---------------- */
+function PartGroups({ sections }) {
+  const groups = useMemo(() => {
+    const out = [];
+    let cur = null;
+    sections.forEach(s => {
+      if (s.t === "part") { cur = { part: s, items: [] }; out.push(cur); }
+      else if (cur) cur.items.push(s);
+      else { cur = { part: null, items: [s] }; out.push(cur); }
+    });
+    return out;
+  }, [sections]);
+  const [openIdx, setOpenIdx] = useState(() => groups.map(() => true));
+  useEffect(() => { setOpenIdx(groups.map(() => true)); }, [groups.length]);
+  const allOpen = openIdx.every(Boolean);
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+        <button onClick={() => setOpenIdx(groups.map(() => !allOpen))}
+          style={{ border: `0.5px solid ${C.hair}`, background: "#fff", color: C.brand, fontSize: 11.5,
+            borderRadius: 8, padding: "5px 11px", cursor: "pointer" }}>
+          {allOpen ? "すべて閉じる" : "すべて開く"}
+        </button>
+      </div>
+      {groups.map((g, i) => {
+        if (!g.part) return g.items.map((s, k) => <Section key={`${i}-${k}`} s={s} />);
+        const on = openIdx[i];
+        return (
+          <div key={i} style={{ marginBottom: 14 }}>
+            <button onClick={() => setOpenIdx(p => p.map((v, k) => (k === i ? !v : v)))} aria-expanded={on}
+              style={{ width: "100%", textAlign: "left", display: "flex", alignItems: "center", gap: 10,
+                background: on ? "#FBF3EF" : "#fff", border: `0.5px solid ${on ? "#F0DAD0" : C.hair}`,
+                borderLeft: `4px solid ${C.brand}`, borderRadius: 12, padding: "11px 13px", cursor: "pointer" }}>
+              <span style={{ fontSize: 14, fontWeight: 700, color: C.brand, minWidth: 22 }}>{g.part.num}</span>
+              <span style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
+                <span style={{ fontSize: 16.5, fontWeight: 700, color: C.ink, lineHeight: 1.4 }}>{g.part.v}</span>
+                {g.part.sub && <span style={{ fontSize: 11, color: C.muted }}>{g.part.sub}</span>}
+              </span>
+              <span style={{ fontSize: 15, color: C.brand, fontWeight: 700 }}>{on ? "−" : "＋"}</span>
+            </button>
+            {on && <div style={{ padding: "4px 2px 0" }}>{g.items.map((s, k) => <Section key={`${i}-${k}`} s={s} />)}</div>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ---------------- 一覧＋詳細 ---------------- */
 export default function MachineDossierTab() {
   const [openId, setOpenId] = useState(null);
@@ -810,7 +867,7 @@ export default function MachineDossierTab() {
           <div style={{ fontSize: 11, color: C.muted }}>{open.author} · 更新 {open.date}</div>
         </div>
 
-        {(open.sections || []).map((s, i) => <Section key={i} s={s} />)}
+        <PartGroups sections={open.sections || []} />
 
         <div style={{ marginTop: 18 }}>
           <ColumnFeedback columnId={`dossier_${open.id}`} columnTitle={`【深堀り】${open.title}`} />
