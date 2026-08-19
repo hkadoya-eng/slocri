@@ -504,6 +504,37 @@ function Section({ s }) {
           ))}
         </div>
       );
+    case "voices":
+      // テーマ別に声を束ね、最後に「何が起きているか」の読みを1行添える
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, margin: "2px 0 12px" }}>
+          {s.v.map((th, i) => {
+            const col = th.tone === "pos" ? C.good : th.tone === "neg" ? C.bad : C.brand;
+            const bg = th.tone === "pos" ? "#F1FAF4" : th.tone === "neg" ? "#FDF3F3" : "#FBF3EF";
+            return (
+              <div key={i} style={{ background: "#fff", border: `0.5px solid ${C.hair}`, borderRadius: 12, overflow: "hidden" }}>
+                <div style={{ background: bg, padding: "8px 12px", display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: col }}>
+                    {th.tone === "pos" ? "◎" : th.tone === "neg" ? "×" : "△"}
+                  </span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: C.ink }}>{th.theme}</span>
+                  {th.n && <span style={{ fontSize: 10.5, color: C.muted, marginLeft: "auto" }}>{th.n}</span>}
+                </div>
+                <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
+                  {th.quotes.map((q, j) => (
+                    <div key={j} style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.7, paddingLeft: 12, borderLeft: `2px solid ${C.hair}` }}>{q}</div>
+                  ))}
+                  {th.read && (
+                    <div style={{ fontSize: 12, color: C.ink, lineHeight: 1.75, marginTop: 3, background: "#F7F8FA", borderRadius: 8, padding: "7px 10px" }}>
+                      <b style={{ color: col }}>読み</b>　<RichText v={th.read} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
     case "videos":
       return (
         <div style={{ margin: "2px 0 12px", display: "flex", flexDirection: "column", gap: 12 }}>
