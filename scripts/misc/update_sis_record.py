@@ -12,6 +12,8 @@ sisRecord の内容:
   statusReason   … その判定理由
   installedWeeks … 週次データに現れた週数(=設置週数)
   deadWeeks      … 設置週数 - 貢献週。稼働が死んでも撤去されず放置された期間の目安
+                   ※継続中の機種は最新週を除いて計算する（SISの貢献週は最新週が未加算のため）
+  weeksBelowAvg  … 自前計算で稼働値100%以下だった週数。contribWeeksとの突合用
   katsudoLast    … 直近週の稼働値(アウト÷その週の全国平均アウト=実値)
 
 稼働値の分母(2026-08-18 実値化):
@@ -119,6 +121,20 @@ def main():
             done = len(tail) > 0 and not any(v > 100 for v in tail)
             why = "直近4週すべて市場平均以下" if done else (
                 "直近稼働値%d%%で市場平均超え" % k_last if k_last is not None else "継続中")
+        # 自前計算での「平均以下だった週数」。SIS公式のcontribWeeksとの突合に使う
+        below = sum(1 for r in arr
+                    if r["out_coins"] and med[r["week_start"]]
+                    and r["out_coins"] / med[r["week_start"]] * 100 <= 100)
+        # 死に台週数 = 設置週数 - 貢献週。ただし SIS の貢献週は最新週がまだ加算されていない
+        # (全週평균超えの新台がすべて「貢献=設置-1」になることを2026-08-19に確認)。
+        # そのため継続中＝最新週が平均超えの機種では、最新週を除いて差を取る。
+        # 終了済みの機種は最新週が実際に平均以下なので、そのまま引く。
+        if cw is None:
+            dead = None
+        elif done:
+            dead = max(0, len(arr) - cw)
+        else:
+            dead = max(0, (len(arr) - 1) - cw)
         rec = {
             "sisName": m,
             "contribWeeks": cw,
@@ -128,7 +144,8 @@ def main():
             "firstWeek": arr[0]["week_start"],
             "lastWeek": last["week_start"],
             "katsudoLast": k_last,
-            "deadWeeks": (len(arr) - cw) if cw is not None else None,
+            "deadWeeks": dead,
+            "weeksBelowAvg": below,
             "asOf": latest,
         }
         # 同一エントリに複数のSIS表記が当たる場合は貢献週が多い方を採用

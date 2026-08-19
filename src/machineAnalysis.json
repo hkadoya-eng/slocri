@@ -44,7 +44,8 @@
       "firstWeek": "2026-04-20",
       "lastWeek": "2026-08-03",
       "katsudoLast": 112,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
       "asOf": "2026-08-03"
     }
   },
@@ -93,6 +94,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 38,
       "deadWeeks": 12,
+      "weeksBelowAvg": 14,
       "asOf": "2026-08-03"
     }
   },
@@ -141,6 +143,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 74,
       "deadWeeks": 8,
+      "weeksBelowAvg": 9,
       "asOf": "2026-08-03"
     }
   },
@@ -185,6 +188,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 46,
       "deadWeeks": 12,
+      "weeksBelowAvg": 14,
       "asOf": "2026-08-03"
     }
   },
@@ -230,7 +234,8 @@
       "firstWeek": "2026-04-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 120,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
       "asOf": "2026-08-03"
     }
   },
@@ -277,7 +282,8 @@
       "firstWeek": "2026-03-02",
       "lastWeek": "2026-08-03",
       "katsudoLast": 127,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
       "asOf": "2026-08-03"
     }
   },
@@ -328,6 +334,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 75,
       "deadWeeks": 8,
+      "weeksBelowAvg": 10,
       "asOf": "2026-08-03"
     }
   },
@@ -377,6 +384,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 26,
       "deadWeeks": 12,
+      "weeksBelowAvg": 14,
       "asOf": "2026-08-03"
     }
   },
@@ -457,6 +465,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 83,
       "deadWeeks": 8,
+      "weeksBelowAvg": 9,
       "asOf": "2026-08-03"
     }
   },
@@ -504,6 +513,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 55,
       "deadWeeks": 29,
+      "weeksBelowAvg": 31,
       "asOf": "2026-08-03"
     }
   },
@@ -553,7 +563,8 @@
       "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 108,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
       "asOf": "2026-08-03"
     }
   },
@@ -592,6 +603,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 50,
       "deadWeeks": 8,
+      "weeksBelowAvg": 9,
       "asOf": "2026-08-03"
     }
   },
@@ -642,7 +654,8 @@
       "firstWeek": "2026-06-08",
       "lastWeek": "2026-08-03",
       "katsudoLast": 201,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
       "asOf": "2026-08-03"
     }
   },
@@ -774,6 +787,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 64,
       "deadWeeks": 6,
+      "weeksBelowAvg": 7,
       "asOf": "2026-08-03"
     }
   },
@@ -822,7 +836,8 @@
       "firstWeek": "2025-02-03",
       "lastWeek": "2026-08-03",
       "katsudoLast": 118,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
       "asOf": "2026-08-03"
     }
   },
@@ -897,6 +912,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 35,
       "deadWeeks": 8,
+      "weeksBelowAvg": 9,
       "asOf": "2026-08-03"
     }
   },
@@ -945,6 +961,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 61,
       "deadWeeks": 7,
+      "weeksBelowAvg": 8,
       "asOf": "2026-08-03"
     }
   },
@@ -988,6 +1005,7 @@
       "lastWeek": "2026-07-20",
       "katsudoLast": 63,
       "deadWeeks": 5,
+      "weeksBelowAvg": 6,
       "asOf": "2026-08-03"
     }
   },
@@ -1032,6 +1050,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 93,
       "deadWeeks": 29,
+      "weeksBelowAvg": 26,
       "asOf": "2026-08-03"
     }
   },
@@ -1120,7 +1139,8 @@
       "firstWeek": "2026-08-03",
       "lastWeek": "2026-08-03",
       "katsudoLast": 162,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
       "asOf": "2026-08-03"
     }
   },
@@ -1163,7 +1183,8 @@
       "firstWeek": "2026-03-02",
       "lastWeek": "2026-08-03",
       "katsudoLast": 100,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 2,
       "asOf": "2026-08-03"
     }
   },
@@ -1206,6 +1227,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 74,
       "deadWeeks": 3,
+      "weeksBelowAvg": 4,
       "asOf": "2026-08-03"
     }
   },
@@ -1300,7 +1322,8 @@
       "firstWeek": "2026-06-08",
       "lastWeek": "2026-08-03",
       "katsudoLast": 152,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
       "asOf": "2026-08-03"
     }
   },
@@ -1414,7 +1437,8 @@
       "firstWeek": "2026-08-03",
       "lastWeek": "2026-08-03",
       "katsudoLast": 181,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
       "asOf": "2026-08-03"
     }
   },
@@ -1458,6 +1482,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 53,
       "deadWeeks": 21,
+      "weeksBelowAvg": 22,
       "asOf": "2026-08-03"
     }
   },
@@ -1503,6 +1528,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 39,
       "deadWeeks": 26,
+      "weeksBelowAvg": 27,
       "asOf": "2026-08-03"
     }
   },
@@ -1546,7 +1572,8 @@
       "firstWeek": "2026-02-01",
       "lastWeek": "2026-08-03",
       "katsudoLast": 96,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 1,
       "asOf": "2026-08-03"
     }
   },
@@ -1622,7 +1649,8 @@
       "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 72,
-      "deadWeeks": 2,
+      "deadWeeks": 1,
+      "weeksBelowAvg": 3,
       "asOf": "2026-08-03"
     }
   },
@@ -1660,7 +1688,8 @@
       "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 102,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
       "asOf": "2026-08-03"
     }
   },
@@ -1735,6 +1764,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 61,
       "deadWeeks": 26,
+      "weeksBelowAvg": 27,
       "asOf": "2026-08-03"
     }
   },
@@ -1782,6 +1812,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 46,
       "deadWeeks": 54,
+      "weeksBelowAvg": 54,
       "asOf": "2026-08-03"
     }
   },
@@ -1921,6 +1952,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 78,
       "deadWeeks": 64,
+      "weeksBelowAvg": 58,
       "asOf": "2026-08-03"
     }
   },
@@ -1957,6 +1989,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 41,
       "deadWeeks": 106,
+      "weeksBelowAvg": 106,
       "asOf": "2026-08-03"
     }
   },
@@ -1995,6 +2028,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 64,
       "deadWeeks": 64,
+      "weeksBelowAvg": 58,
       "asOf": "2026-08-03"
     }
   },
@@ -2032,6 +2066,7 @@
       "lastWeek": "2026-06-01",
       "katsudoLast": 43,
       "deadWeeks": 78,
+      "weeksBelowAvg": 79,
       "asOf": "2026-08-03"
     }
   },
@@ -2067,6 +2102,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 39,
       "deadWeeks": 29,
+      "weeksBelowAvg": 31,
       "asOf": "2026-08-03"
     }
   },
@@ -2112,7 +2148,8 @@
       "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 61,
-      "deadWeeks": 2,
+      "deadWeeks": 1,
+      "weeksBelowAvg": 3,
       "asOf": "2026-08-03"
     }
   },
@@ -2189,6 +2226,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 66,
       "deadWeeks": 3,
+      "weeksBelowAvg": 4,
       "asOf": "2026-08-03"
     }
   },
@@ -2339,7 +2377,8 @@
       "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 102,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
       "asOf": "2026-08-03"
     }
   },
@@ -2464,6 +2503,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 58,
       "deadWeeks": 44,
+      "weeksBelowAvg": 44,
       "asOf": "2026-08-03"
     }
   },
@@ -2765,6 +2805,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 54,
       "deadWeeks": 64,
+      "weeksBelowAvg": 60,
       "asOf": "2026-08-03"
     }
   },
@@ -2848,7 +2889,8 @@
       "firstWeek": "2026-08-03",
       "lastWeek": "2026-08-03",
       "katsudoLast": 230,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
       "asOf": "2026-08-03"
     }
   },
@@ -2896,6 +2938,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 87,
       "deadWeeks": 3,
+      "weeksBelowAvg": 4,
       "asOf": "2026-08-03"
     }
   },
@@ -2941,6 +2984,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 28,
       "deadWeeks": 60,
+      "weeksBelowAvg": 61,
       "asOf": "2026-08-03"
     }
   },
@@ -2990,6 +3034,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 40,
       "deadWeeks": 47,
+      "weeksBelowAvg": 48,
       "asOf": "2026-08-03"
     }
   },
@@ -3031,6 +3076,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 41,
       "deadWeeks": 30,
+      "weeksBelowAvg": 33,
       "asOf": "2026-08-03"
     }
   },
@@ -3077,6 +3123,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 70,
       "deadWeeks": 28,
+      "weeksBelowAvg": 29,
       "asOf": "2026-08-03"
     }
   },
@@ -3183,7 +3230,8 @@
       "firstWeek": "2026-07-06",
       "lastWeek": "2026-08-03",
       "katsudoLast": 130,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
       "asOf": "2026-08-03"
     }
   },
@@ -3255,7 +3303,8 @@
       "firstWeek": "2026-08-03",
       "lastWeek": "2026-08-03",
       "katsudoLast": 142,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
       "asOf": "2026-08-03"
     }
   },
@@ -3290,6 +3339,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 47,
       "deadWeeks": 30,
+      "weeksBelowAvg": 33,
       "asOf": "2026-08-03"
     }
   },
@@ -3332,7 +3382,8 @@
       "firstWeek": "2026-08-03",
       "lastWeek": "2026-08-03",
       "katsudoLast": 202,
-      "deadWeeks": 1,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
       "asOf": "2026-08-03"
     }
   },
@@ -3395,6 +3446,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 77,
       "deadWeeks": 41,
+      "weeksBelowAvg": 40,
       "asOf": "2026-08-03"
     }
   },
@@ -3439,6 +3491,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 29,
       "deadWeeks": 22,
+      "weeksBelowAvg": 23,
       "asOf": "2026-08-03"
     }
   },
@@ -3625,6 +3678,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 44,
       "deadWeeks": 105,
+      "weeksBelowAvg": 106,
       "asOf": "2026-08-03"
     }
   },
@@ -3684,6 +3738,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 69,
       "deadWeeks": 8,
+      "weeksBelowAvg": 8,
       "asOf": "2026-08-03"
     }
   },
@@ -3721,6 +3776,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 68,
       "deadWeeks": 22,
+      "weeksBelowAvg": 26,
       "asOf": "2026-08-03"
     }
   },
@@ -3754,6 +3810,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 18,
       "deadWeeks": 31,
+      "weeksBelowAvg": 32,
       "asOf": "2026-08-03"
     }
   },
@@ -3790,6 +3847,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 58,
       "deadWeeks": 170,
+      "weeksBelowAvg": 172,
       "asOf": "2026-08-03"
     }
   },
@@ -3825,6 +3883,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 42,
       "deadWeeks": 73,
+      "weeksBelowAvg": 66,
       "asOf": "2026-08-03"
     }
   },
@@ -3860,6 +3919,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 44,
       "deadWeeks": 57,
+      "weeksBelowAvg": 58,
       "asOf": "2026-08-03"
     }
   },
@@ -4048,7 +4108,8 @@
       "firstWeek": "2026-01-05",
       "lastWeek": "2026-08-03",
       "katsudoLast": 120,
-      "deadWeeks": 21,
+      "deadWeeks": 20,
+      "weeksBelowAvg": 3,
       "asOf": "2026-08-03"
     }
   },
@@ -4700,6 +4761,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 66,
       "deadWeeks": 70,
+      "weeksBelowAvg": 71,
       "asOf": "2026-08-03"
     }
   },
@@ -4780,6 +4842,7 @@
       "lastWeek": "2026-08-03",
       "katsudoLast": 54,
       "deadWeeks": 29,
+      "weeksBelowAvg": 31,
       "asOf": "2026-08-03"
     }
   },
