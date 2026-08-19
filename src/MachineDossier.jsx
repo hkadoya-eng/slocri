@@ -367,9 +367,29 @@ function Section({ s }) {
             <div key={g.group} style={{ background: "#fff", border: `0.5px solid ${C.hair}`, borderRadius: 12, padding: "12px 13px" }}>
               <div style={{ fontSize: 12.5, fontWeight: 700, color: C.ink, marginBottom: 8 }}>{g.group}</div>
               {g.items.map(it => (
-                <div key={it.url} style={{ marginBottom: 9 }}>
+                <div key={it.url} style={{ marginBottom: 11 }}>
                   <a href={it.url} target="_blank" rel="noreferrer"
                     style={{ fontSize: 13, color: C.brand, textDecoration: "none", lineHeight: 1.6, overflowWrap: "anywhere" }}>▶ {it.title}</a>
+                  {(it.ch || it.len) && (
+                    <div style={{ fontSize: 11, color: "#bbb", margin: "1px 0 2px" }}>
+                      {it.ch}{it.ch && it.len ? " · " : ""}{it.len && `${it.len}`}
+                    </div>
+                  )}
+                  {/* at は「見どころの時間」。手で埋めたら ?t= 付きリンクになる（自動では特定できない） */}
+                  {(it.at || []).length > 0 && (
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", margin: "2px 0 3px" }}>
+                      {it.at.map(a => {
+                        const [mm, ss] = String(a.time).split(":").map(Number);
+                        const sec = (mm || 0) * 60 + (ss || 0);
+                        return (
+                          <a key={a.time} href={`${it.url}&t=${sec}s`} target="_blank" rel="noreferrer"
+                            style={{ fontSize: 11, color: C.brandDim, background: "#FAECE7", borderRadius: 6, padding: "2px 7px", textDecoration: "none" }}>
+                            {a.time} {a.label}
+                          </a>
+                        );
+                      })}
+                    </div>
+                  )}
                   <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.7 }}><RichText v={it.note} /></div>
                 </div>
               ))}
