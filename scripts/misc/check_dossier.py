@@ -91,6 +91,42 @@ if vs:
     if inart != len(set(urls)): ng.append("動画がArtifact版に未反映 %d本" % (len(set(urls)) - inart))
 
 print()
+print("=== ⑧ 表の整合（見出し数と行の幅・貼り付け事故）===")
+tables = [(w, s) for w, s in ([("本文", x) for x in S] + [("共通", x) for x in d["common"]["criteria"]]) if s.get("t") == "table"]
+seen_rows, tb = {}, []
+for w, s in tables:
+    bad_w = [r for r in s["rows"] if len(r) != len(s["head"])]
+    if bad_w:
+        tb.append("%s 表 head=%d だが幅の違う行 %d件: %s" % (w, len(s["head"]), len(bad_w), s["head"]))
+    key = json.dumps(s["rows"], ensure_ascii=False)
+    if key in seen_rows:
+        tb.append("%s 表『%s』の行が『%s』と完全に同一（貼り付け事故の疑い）" % (w, s["head"][0], seen_rows[key]))
+    seen_rows[key] = s["head"][0]
+print("  表", len(tables), "件 →", "問題なし" if not tb else "%d件" % len(tb))
+for x in tb:
+    print("   ⚠", x)
+ng += tb
+
+print()
+print("=== ⑨ 表の中身がArtifact版にもあるか（行のどのセルも見つからなければ欠落）===")
+import html as _h
+# Artifact側は表をJS配列から描くことがある（out:24160 のような無整形の値）ので、
+# カンマ・円記号などを落として突合する。行のセルが1つも見つからないときだけ欠落とみなす。
+def norm(x):
+    return re.sub(r"[,\s円%\*—〜~]", "", str(x))
+plain = norm(_h.unescape(re.sub(r"<[^>]+>", " ", html)) + " " + html)
+miss = []
+for w, s in tables:
+    for r in s["rows"]:
+        cells = [norm(c) for c in r if len(norm(c)) >= 3]
+        if cells and not any(c in plain for c in cells):
+            miss.append("%s 表『%s』の行「%s」がArtifact版に無い" % (w, s["head"][0], str(r[0])[:24]))
+print("  照合", sum(len(s["rows"]) for _, s in tables), "行 →", "問題なし" if not miss else "%d件" % len(miss))
+for x in miss[:12]:
+    print("   ⚠", x)
+ng += miss
+
+print()
 print("=== 結果 ===")
 print("  問題なし" if not ng else "  要確認 %d件:" % len(ng))
 for x in ng:
