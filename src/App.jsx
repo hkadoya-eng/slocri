@@ -8,6 +8,7 @@ import MACHINE_LIBRARY from "./machineLibrary.json";
 import ProposeTab from "./ProposeTab";
 import ChatTab from "./ChatTab";
 import GameDesignTab, { PresentationTab } from "./GameDesignTab";
+import MachineDossierTab from "./MachineDossier";
 import ColumnFeedback from "./ColumnFeedback";
 import AdminChat from "./AdminChat";
 
@@ -3498,7 +3499,7 @@ ${policyText}
   return (
     <div style={{minWidth:0}}>
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"wrap"}}>
-        {[["column","コラム"],["machine_review","機種評価"],["analyze","機種分析"],["gamedesign","ゲーム性分析"],["hyogen","表現評価"],["ai_chat","💬 チャット"],["ai_propose","✏️ 企画提案"]].map(([k,l]) => {
+        {[["column","コラム"],["dossier","深堀り分析"],["machine_review","機種評価"],["analyze","機種分析"],["gamedesign","ゲーム性分析"],["hyogen","表現評価"],["ai_chat","💬 チャット"],["ai_propose","✏️ 企画提案"]].map(([k,l]) => {
           const on = mode===k;
           const isInteractive = k==="ai_chat" || k==="ai_propose";
           const sep = isInteractive && k==="ai_chat"
@@ -3839,6 +3840,9 @@ ${policyText}
       {mode==="ai_propose" && <ProposeTab user={adminUser} />}
       {mode==="gamedesign" && <GameDesignTab />}
       {mode==="hyogen" && <PresentationTab />}
+      {/* 機種深堀り分析（ドシエ）。本文は src/machineDossiers.json で管理。
+          コラムと同じ分析タブ(🔒)配下なので、閲覧は @key-cre.co.jp ログイン者のみ。 */}
+      {mode==="dossier" && <MachineDossierTab />}
     </div>
   );
 }
