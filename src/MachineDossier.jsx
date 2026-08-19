@@ -187,7 +187,7 @@ function FigRadar({ spec }) {
           </span>
         ))}
       </div>
-      <svg viewBox="0 0 570 470" role="img" style={{ width: "100%", height: "auto", maxWidth: 560, margin: "0 auto", display: "block" }}
+      <svg viewBox="0 0 570 470" role="img" style={{ width: "100%", height: "auto", maxWidth: 520, margin: "0 auto", display: "block" }}
         aria-label={`評価5軸の5角形チャート。${spec.series.map(s => `${s.label}は${axes.map((a, i) => `${a.name}が上位${100 - s.values[i]}%（percentile ${s.values[i]}）`).join("、")}`).join("。")}`}>
         {grid.map(g => (
           <polygon key={g} points={poly(axes.map(() => g))} fill="none"
@@ -218,15 +218,16 @@ function FigRadar({ spec }) {
           const [x, y] = pt(i, 100);
           const dx = Math.cos(ang(i)), dy = Math.sin(ang(i));
           const anchor = Math.abs(dx) < 0.2 ? "middle" : (dx > 0 ? "start" : "end");
-          const lx = x + dx * 22, ly = y + dy * 24 + (Math.abs(dx) < 0.2 ? (dy < 0 ? -6 : 14) : 0);
+          const lx = x + dx * 20, ly = y + dy * 22 + (Math.abs(dx) < 0.2 ? (dy < 0 ? -4 : 14) : 0);
+          const v = spec.series[0].values[i];
           return (
             <g key={a.name}>
-              <text x={lx} y={ly} textAnchor={anchor} style={{ fontSize: 12, fill: C.ink, fontWeight: 700 }}>
+              <text x={lx} y={ly} textAnchor={anchor} style={{ fontSize: 12.5, fill: C.ink, fontWeight: 700 }}>
                 {a.name}{a.small ? "※" : ""}
               </text>
-              {(a.lines || []).map((l, k) => (
-                <text key={k} x={lx} y={ly + 15 + k * 13} textAnchor={anchor} style={{ fontSize: 10, fill: C.muted }}>{l}</text>
-              ))}
+              <text x={lx} y={ly + 15} textAnchor={anchor} style={{ fontSize: 11, fill: C.brand, fontWeight: 700 }}>
+                上位{100 - v}%
+              </text>
             </g>
           );
         })}
@@ -736,8 +737,39 @@ function Section({ s }) {
           ))}
         </div>
       );
-    case "radar":
-      return <div style={{ margin: "8px 0 14px" }}><FigRadar spec={s.v} /></div>;
+    case "radar": {
+      // 表（左）＋5角形（右）。狭い画面では自動で上下に積む
+      const tb = s.v.table;
+      return (
+        <div style={{ margin: "8px 0 14px", display: "grid", gap: 14,
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", alignItems: "start" }}>
+          {tb && (
+            <div style={{ background: "#fff", border: `0.5px solid ${C.hair}`, borderRadius: 12, padding: "12px 13px" }}>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 12 }}>
+                  <thead><tr>{tb.head.map((h, i) => (
+                    <th key={i} style={{ padding: "6px 7px", textAlign: i ? "right" : "left", fontSize: 10.5, color: C.muted, borderBottom: `1px solid ${C.hair}`, whiteSpace: "nowrap" }}>{h}</th>
+                  ))}</tr></thead>
+                  <tbody>
+                    {tb.rows.map((r, ri) => (
+                      <tr key={ri} style={ri === tb.hi ? { background: "#F5E9FA" } : undefined}>
+                        {r.map((c, ci) => (
+                          <td key={ci} style={{ padding: "6px 7px", textAlign: ci ? "right" : "left", color: ri === tb.hi ? C.tier : C.ink2, fontWeight: ri === tb.hi ? 700 : 400, borderBottom: `1px solid ${C.hair}`, lineHeight: 1.5 }}>
+                            <RichText v={c} />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {tb.note && <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.7, marginTop: 7 }}><RichText v={tb.note} /></div>}
+            </div>
+          )}
+          <FigRadar spec={s.v} />
+        </div>
+      );
+    }
     case "fig": {
       const F = FIGURES[s.v];
       return F ? <div style={{ margin: "6px 0 14px" }}><F /></div> : null;
