@@ -647,11 +647,17 @@ function Section({ s }) {
         </div>
       );
     }
-    case "glossary":
-      // 用語集。group ごとに 語→説明 を並べる
+    case "common": {
+      // 全機種共通の説明は DOSSIER_DATA.common から差し込む（機種ごとにコピーしない）
+      const blk = (DOSSIER_DATA.common || {})[s.v] || [];
+      return <>{blk.map((x, i) => <Section key={i} s={x} />)}</>;
+    }
+    case "glossary": {
+      // 共通語（DOSSIER_DATA.common.glossaryBase）＋この台だけの用語
+      const gs = (s.base ? ((DOSSIER_DATA.common || {}).glossaryBase || []) : []).concat(s.v || []);
       return (
         <div style={{ display: "flex", flexDirection: "column", gap: 12, margin: "2px 0 12px" }}>
-          {s.v.map(g => (
+          {gs.map(g => (
             <div key={g.group} style={{ background: "#fff", border: `0.5px solid ${C.hair}`, borderRadius: 12, padding: "12px 13px" }}>
               <div style={{ fontSize: 12.5, fontWeight: 700, color: C.brand, marginBottom: 8 }}>{g.group}</div>
               <dl style={{ margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>
@@ -666,6 +672,7 @@ function Section({ s }) {
           ))}
         </div>
       );
+    }
     case "voices":
       // テーマ別に声を束ね、最後に「何が起きているか」の読みを1行添える
       return (
@@ -751,6 +758,27 @@ function Section({ s }) {
       return (
         <div style={{ margin: "8px 0 14px", display: "grid", gap: 14,
           gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", alignItems: "start" }}>
+          {s.v.score && (
+            <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap",
+              background: "#fff", border: `0.5px solid ${C.hair}`, borderRadius: 12, padding: "12px 15px" }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                <span style={{ fontSize: 11.5, color: C.muted }}>総合スコア</span>
+                <span style={{ fontSize: 40, fontWeight: 700, color: C.brand, lineHeight: 1 }}>{s.v.score.total}</span>
+                <span style={{ fontSize: 13, color: C.muted }}>/ 100</span>
+              </div>
+              <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+                {s.v.score.parts.map(p => (
+                  <div key={p.k} style={{ display: "flex", flexDirection: "column" }}>
+                    <span style={{ fontSize: 10.5, color: C.muted }}>{p.k}</span>
+                    <span style={{ fontSize: 19, fontWeight: 700, color: C.ink }}>{p.v}</span>
+                  </div>
+                ))}
+              </div>
+              <span style={{ fontSize: 11, color: C.muted, flex: 1, minWidth: 180, lineHeight: 1.6 }}>
+                5軸のパーセンタイルの単純平均。軸の順序を全機種で固定しているので他機種と直接比較できる。
+              </span>
+            </div>
+          )}
           {tb && (
             <div style={{ background: "#fff", border: `0.5px solid ${C.hair}`, borderRadius: 12, padding: "12px 13px" }}>
               <div style={{ overflowX: "auto" }}>
@@ -802,8 +830,9 @@ function PartGroups({ sections }) {
     });
     return out;
   }, [sections]);
-  const [openIdx, setOpenIdx] = useState(() => groups.map(() => true));
-  useEffect(() => { setOpenIdx(groups.map(() => true)); }, [groups.length]);
+  const initial = g => !(g.part && g.part.closed);
+  const [openIdx, setOpenIdx] = useState(() => groups.map(initial));
+  useEffect(() => { setOpenIdx(groups.map(initial)); }, [groups.length]);
   const allOpen = openIdx.every(Boolean);
   return (
     <div>
