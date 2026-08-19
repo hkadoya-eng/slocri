@@ -167,6 +167,77 @@ function FigGauge() {
   );
 }
 
+/* ---------------- 5角形チャート（評価5軸） ----------------
+   軸ごとに単位が違うので、すべて「同種の機種と比べた上位%（パーセンタイル）」に揃える。
+   レーダーは軸の並び順で形が変わるため、順序は 需要→持続→ホール→関心→納得 に固定する。 */
+function FigRadar({ spec }) {
+  const cx = 285, cy = 232, R = 138;
+  const axes = spec.axes, n = axes.length;
+  const ang = i => (-90 + i * (360 / n)) * Math.PI / 180;
+  const pt = (i, v) => [cx + R * (v / 100) * Math.cos(ang(i)), cy + R * (v / 100) * Math.sin(ang(i))];
+  const poly = vals => vals.map((v, i) => pt(i, v).map(x => Math.round(x * 10) / 10).join(",")).join(" ");
+  const grid = [25, 50, 75, 100];
+  return (
+    <figure style={{ margin: 0 }}>
+      <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 2 }}>
+        {spec.series.map(s => (
+          <span key={s.label} style={{ fontSize: 11.5, color: C.ink2, display: "inline-flex", alignItems: "center", gap: 5 }}>
+            <i style={{ width: 13, height: 3, borderRadius: 2, background: s.color === "blue" ? C.blue : C.brand, display: "inline-block" }} />
+            {s.label}
+          </span>
+        ))}
+      </div>
+      <svg viewBox="0 0 570 470" role="img" style={{ width: "100%", height: "auto", maxWidth: 560, margin: "0 auto", display: "block" }}
+        aria-label={`評価5軸の5角形チャート。${spec.series.map(s => `${s.label}は${axes.map((a, i) => `${a.name}が上位${100 - s.values[i]}%（percentile ${s.values[i]}）`).join("、")}`).join("。")}`}>
+        {grid.map(g => (
+          <polygon key={g} points={poly(axes.map(() => g))} fill="none"
+            stroke={C.hair} strokeWidth={g === 100 ? 1.4 : 1} />
+        ))}
+        {axes.map((a, i) => {
+          const [x, y] = pt(i, 100);
+          return <line key={a.name} x1={cx} y1={cy} x2={x} y2={y} stroke={C.hair} strokeWidth="1" />;
+        })}
+        {grid.map(g => {
+          const [, y] = pt(0, g);
+          return <text key={g} x={cx + 4} y={y + 3} style={{ fontSize: 9, fill: C.muted }}>{g}</text>;
+        })}
+        {spec.series.map(s => {
+          const col = s.color === "blue" ? C.blue : C.brand;
+          return (
+            <g key={s.label}>
+              <polygon points={poly(s.values)} fill={col} fillOpacity={s.color === "blue" ? 0.06 : 0.16}
+                stroke={col} strokeWidth="2.2" strokeDasharray={s.color === "blue" ? "5 4" : undefined} />
+              {s.values.map((v, i) => {
+                const [x, y] = pt(i, v);
+                return <circle key={i} cx={x} cy={y} r="4" fill={col} />;
+              })}
+            </g>
+          );
+        })}
+        {axes.map((a, i) => {
+          const [x, y] = pt(i, 100);
+          const dx = Math.cos(ang(i)), dy = Math.sin(ang(i));
+          const anchor = Math.abs(dx) < 0.2 ? "middle" : (dx > 0 ? "start" : "end");
+          const lx = x + dx * 22, ly = y + dy * 24 + (Math.abs(dx) < 0.2 ? (dy < 0 ? -6 : 14) : 0);
+          return (
+            <g key={a.name}>
+              <text x={lx} y={ly} textAnchor={anchor} style={{ fontSize: 12, fill: C.ink, fontWeight: 700 }}>
+                {a.name}{a.small ? "※" : ""}
+              </text>
+              {(a.lines || []).map((l, k) => (
+                <text key={k} x={lx} y={ly + 15 + k * 13} textAnchor={anchor} style={{ fontSize: 10, fill: C.muted }}>{l}</text>
+              ))}
+            </g>
+          );
+        })}
+      </svg>
+      <figcaption style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.7, marginTop: 4 }}>
+        <RichText v={spec.caption} />
+      </figcaption>
+    </figure>
+  );
+}
+
 /* ---------------- フロー図の部品 ---------------- */
 function Box({ x, y, w, h, title, lines, tone = "ink", strong, mark }) {
   const col = { ink: C.ink2, brand: C.brand, blue: C.blue, tier: C.tier, muted: C.muted }[tone];
@@ -619,6 +690,8 @@ function Section({ s }) {
           ))}
         </div>
       );
+    case "radar":
+      return <div style={{ margin: "8px 0 14px" }}><FigRadar spec={s.v} /></div>;
     case "fig": {
       const F = FIGURES[s.v];
       return F ? <div style={{ margin: "6px 0 14px" }}><F /></div> : null;
