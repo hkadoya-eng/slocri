@@ -516,10 +516,10 @@ function Section({ s }) {
     case "h":
       return <div style={{ fontSize: 15, fontWeight: 700, color: C.ink, margin: "22px 0 8px", lineHeight: 1.5 }}>{s.v}</div>;
     case "p":
-      return <p style={p}><RichText v={s.v} /></p>;
+      return <p style={{ ...p, whiteSpace: "pre-line" }}><RichText v={s.v} /></p>;
     case "note":
       return (
-        <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.8, background: "#F7F8FA", borderRadius: 10, padding: "10px 12px", margin: "0 0 10px" }}>
+        <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.8, background: "#F7F8FA", borderRadius: 10, padding: "10px 12px", margin: "0 0 10px", whiteSpace: "pre-line" }}>
           <RichText v={s.v} />
         </div>
       );
@@ -592,6 +592,39 @@ function Section({ s }) {
           ))}
         </div>
       );
+    case "bullets": {
+      // 見出し＋リード＋箇条書き（sub で1段ネスト）
+      const tone = s.tone === "primer" ? { bg: "#FBF3EF", bd: C.brand } : { bg: "#fff", bd: C.hair };
+      return (
+        <div style={{ background: tone.bg, border: `0.5px solid ${tone.bd === C.brand ? "#F0DAD0" : C.hair}`, borderRadius: 14, padding: "14px 16px", margin: "0 0 12px" }}>
+          {s.title && <div style={{ fontSize: 14, fontWeight: 700, color: s.tone === "primer" ? C.brand : C.ink, marginBottom: 7 }}>{s.title}</div>}
+          {s.lead && <p style={{ margin: "0 0 9px", fontSize: 13.5, color: C.ink2, lineHeight: 1.8 }}><RichText v={s.lead} /></p>}
+          <ul style={{ margin: 0, paddingLeft: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 7 }}>
+            {s.items.map((it, i) => {
+              const text = typeof it === "string" ? it : it.t;
+              const sub = typeof it === "string" ? null : it.sub;
+              return (
+                <li key={i} style={{ fontSize: 13, color: C.ink2, lineHeight: 1.78, paddingLeft: 15, position: "relative" }}>
+                  <span style={{ position: "absolute", left: 2, top: "0.66em", width: 5, height: 5, borderRadius: "50%", background: C.brand }} />
+                  <RichText v={text} />
+                  {sub && (
+                    <ul style={{ margin: "4px 0 0", paddingLeft: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 3 }}>
+                      {sub.map((x, j) => (
+                        <li key={j} style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.7, paddingLeft: 13, position: "relative" }}>
+                          <span style={{ position: "absolute", left: 2, top: "0.72em", width: 6, height: 1.5, background: C.hair }} />
+                          <RichText v={x} />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+          {s.tail && <p style={{ margin: "9px 0 0", fontSize: 12.5, color: C.muted, lineHeight: 1.75 }}><RichText v={s.tail} /></p>}
+        </div>
+      );
+    }
     case "glossary":
       // 用語集。group ごとに 語→説明 を並べる
       return (
