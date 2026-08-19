@@ -716,7 +716,7 @@ function Section({ s }) {
                     style={{ fontSize: 13, color: C.brand, textDecoration: "none", lineHeight: 1.6, overflowWrap: "anywhere" }}>▶ {it.title}</a>
                   {(it.ch || it.len) && (
                     <div style={{ fontSize: 11, color: "#bbb", margin: "1px 0 2px" }}>
-                      {it.ch}{it.ch && it.len ? " · " : ""}{it.len && `${it.len}`}
+                      {[it.ch, it.len, it.views].filter(Boolean).join(" · ")}
                     </div>
                   )}
                   {/* at は「見どころの時間」。手で埋めたら ?t= 付きリンクになる（自動では特定できない） */}

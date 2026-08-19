@@ -12,7 +12,7 @@ site = json.dumps(d, ensure_ascii=False)
 ng = []
 
 print("=== ① 古い表現・撤回した記述の残存 ===")
-BAD = ["残量ゲージ", "ちょうど倍", "2.39", "面積の大小に意味はない", "はじめての人へ", "評価のものさし",
+BAD = ["残量ゲージ", "ちょうど倍", "評価点2.39", "2.39/5", "2.39・", "面積の大小に意味はない", "はじめての人へ", "評価のものさし",
        "5点評価に頼らない4つの軸", "図4", "核心：", "の解剖", "の正体を3層", "13週か20週",
        "設置9週なのに貢献8週", "ALfheim", "999G", "CZスルー6回目濃厚", "死に台1週", "駆け抜けと呼ばれる"]
 for b in BAD:
@@ -73,6 +73,22 @@ for v in ["201%", "91.2%", "4.0→4.2", "2.38", "7,374,367", "84", "98", "22週"
     print("  %-12s サイト%2d / Artifact%2d %s" % (v, a, h, flag))
     if not (a and h):
         ng.append("数値の片寄り: %s" % v)
+
+print()
+print("=== ⑦ 参考動画 ===")
+vs = next((s for s in S if s.get("t") == "videos"), None)
+if vs:
+    items = [it for g in vs["v"] for it in g["items"]]
+    urls = [it["url"] for it in items]
+    print("  %d本 / %dグループ" % (len(items), len(vs["v"])))
+    dup = len(urls) - len(set(urls))
+    lack = [it["title"][:30] for it in items if not it.get("len") or not it.get("views") or not it.get("note")]
+    print("  重複URL:", dup, "／ 尺・再生数・説明の欠け:", lack or "なし")
+    inart = sum(1 for u in set(urls) if u in html)
+    print("  Artifact版に載っている本数:", inart, "/", len(set(urls)))
+    if dup: ng.append("動画URLの重複 %d件" % dup)
+    if lack: ng.append("動画メタの欠け %d件" % len(lack))
+    if inart != len(set(urls)): ng.append("動画がArtifact版に未反映 %d本" % (len(set(urls)) - inart))
 
 print()
 print("=== 結果 ===")
