@@ -88,7 +88,7 @@ function FigBulletCircle() {
         </defs>
       </svg>
       <figcaption style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.7, marginTop: 6 }}>
-        図1：的は毎回どこかに置かれ、弾は必ず飛んでくる＝<b>射的の構造</b>。だから打ち手は「的の出方」に一喜一憂する。
+        図1：的は毎回どこかに置かれ、弾は必ず飛んでくる。だから打ち手は「的の出方」に一喜一憂する。<b>この仕掛けは下の図2・図3の◎印の場面で毎回使われる</b>——通常時から特化ゾーンまで、この台のほぼ全場面が同じ射的でできている。
       </figcaption>
     </figure>
   );
@@ -168,13 +168,20 @@ function FigGauge() {
 }
 
 /* ---------------- フロー図の部品 ---------------- */
-function Box({ x, y, w, h, title, lines, tone = "ink", strong }) {
+function Box({ x, y, w, h, title, lines, tone = "ink", strong, mark }) {
   const col = { ink: C.ink2, brand: C.brand, blue: C.blue, tier: C.tier, muted: C.muted }[tone];
   return (
     <g>
       <rect x={x} y={y} width={w} height={h} rx="8" fill="#fff" stroke={col}
         strokeWidth={strong ? 2.2 : 1.3} opacity={tone === "muted" ? 0.8 : 1} />
-      <text x={x + w / 2} y={y + 19} textAnchor="middle"
+      {/* mark=バレットサークルが出る場面。図1の仕掛けがどこで使われるかを示す */}
+      {mark && (
+        <g>
+          <circle cx={x + 12} cy={y + 15} r="7" fill={C.brand} fillOpacity="0.14" stroke={C.brand} strokeWidth="1.4" />
+          <circle cx={x + 12} cy={y + 15} r="2.4" fill={C.brand} />
+        </g>
+      )}
+      <text x={x + w / 2 + (mark ? 8 : 0)} y={y + 19} textAnchor="middle"
         style={{ fontSize: 12.5, fill: col, fontWeight: 700 }}>{title}</text>
       {(lines || []).map((l, i) => (
         <text key={i} x={x + w / 2} y={y + 36 + i * 14} textAnchor="middle"
@@ -215,7 +222,7 @@ function FigFlowNormal() {
 
         <Box x={14} y={150} w={176} h={96} title="通常時" tone="ink"
           lines={["内部モードで規定G数が変わる", "通常A/B/C 250〜650G", "通常D 350G以内・天国 100G以内"]} />
-        <Box x={14} y={286} w={176} h={64} title="シューティングチャージ" tone="muted"
+        <Box x={14} y={286} w={176} h={64} title="シューティングチャージ" tone="muted" mark
           lines={["弱チェリー・弱チャンス目など", "→ 液晶G数を大幅に加算"]} />
         <Arrow x1={102} y1={286} x2={102} y2={250} tone="muted" />
 
@@ -229,7 +236,7 @@ function FigFlowNormal() {
         <Arrow x1={190} y1={198} x2={212} y2={198} />
         <Arrow x1={396} y1={198} x2={438} y2={198} />
 
-        <Box x={442} y={150} w={168} h={96} title="CZ スコードロンバトル" tone="blue" strong
+        <Box x={442} y={150} w={168} h={96} title="CZ スコードロンバトル" tone="blue" strong mark
           lines={["勝利期待度 約55%", "前半パート＋ジャッジパート", "サークルに弾を止めて弾痕を貯める"]} />
         <Arrow x1={610} y1={198} x2={654} y2={198} label="勝利" tone="brand" />
         <Box x={658} y={150} w={168} h={96} title="AT バレットオブバレッツ" tone="brand" strong
@@ -244,6 +251,11 @@ function FigFlowNormal() {
           lines={["1/16384（全設定共通）→ AT直撃／ロングフリーズ"]} />
         <path d="M 424 82 C 560 82 600 110 700 146" fill="none" stroke={C.tier} strokeWidth="1.8" markerEnd="url(#fAr)" />
         <text x={566} y={100} style={{ fontSize: 10.5, fill: C.tier, fontWeight: 700 }}>CZを飛ばして直撃</text>
+        <circle cx="24" cy="378" r="7" fill={C.brand} fillOpacity="0.14" stroke={C.brand} strokeWidth="1.4" />
+        <circle cx="24" cy="378" r="2.4" fill={C.brand} />
+        <text x={40} y={382} style={{ fontSize: 11, fill: C.ink }}>
+          ＝ 図1の<tspan fill={C.brand} fontWeight="700">バレットサークル（的と弾）</tspan>が出る場面。ここでは「弾痕を貯める」「液晶G数を伸ばす」役を担う。
+        </text>
       </svg>
       <figcaption style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.7, marginTop: 6 }}>
         図2：ATへの入口は<b>3本</b>あり、実際の当選は<b>液晶G数の規定数到達が約66%で主役</b>。シューティングチャージはその液晶G数を伸ばすゾーン。CZに負けても示唆（EXアイコン・曠野の決闘）が残るので、失敗も情報になる。
@@ -256,7 +268,7 @@ function FigFlowNormal() {
 function FigFlowLoop() {
   return (
     <figure style={{ margin: 0 }}>
-      <svg viewBox="0 0 840 424" role="img" style={{ width: "100%", height: "auto" }}
+      <svg viewBox="0 0 840 412" role="img" style={{ width: "100%", height: "auto" }}
         aria-label="ATから上位ATへのループ図。AT中はスナイパーチャンス（約50%）に勝つと差枚上乗せや特化ゾーン、3回勝利で上位CZデス・ガンバトル（約50%、ウルティマ状態なら大幅アップ）の権利。勝利の一部でウルティマナイトバトルや絶剣を経て上位ATフルダイブ（純増7.2枚）へ。上位ATは消化後必ず上位CZへ戻りループする。">
         {ARROW_DEF}
         <text x="14" y="20" style={{ fontSize: 12, fill: C.brand, fontWeight: 700 }}>図3　AT → 上位AT（ループの本体）</text>
@@ -264,7 +276,7 @@ function FigFlowLoop() {
         <Box x={14} y={176} w={162} h={92} title="AT バレットオブバレッツ" tone="brand" strong
           lines={["純増約3.6枚・差枚数管理", "差枚が尽きたら終了"]} />
         <Arrow x1={176} y1={222} x2={218} y2={222} />
-        <Box x={222} y={176} w={172} h={92} title="スナイパーチャンス" tone="blue" strong
+        <Box x={222} y={176} w={172} h={92} title="スナイパーチャンス" tone="blue" strong mark
           lines={["AT中のCZ・勝利期待度約50%", "レア役／規定液晶G数から", "エピソード4G＋ジャッジ1G"]} />
 
         {/* 勝利の3つの恩恵 */}
@@ -272,13 +284,13 @@ function FigFlowLoop() {
           lines={["① 差枚 +100〜300枚", "② 特化ゾーン（下位）", "③ 3回勝利で上位CZの権利"]} />
         <Arrow x1={308} y1={268} x2={308} y2={294} tone="brand" />
         <Arrow x1={222} y1={332} x2={100} y2={270} dash label="①はATへ" tone="muted" />
-        <Box x={14} y={296} w={162} h={72} title="下位の特化ゾーン" tone="tier"
+        <Box x={14} y={296} w={162} h={72} title="下位の特化ゾーン" tone="tier" mark
           lines={["ナイトバトル 約250枚", "すくーるばんばん 約600枚", "シノンアタック 50〜3000枚"]} />
 
         <Arrow x1={394} y1={222} x2={440} y2={222} label="③権利" tone="brand" />
         <Box x={444} y={176} w={168} h={92} title="上位CZ デス・ガンバトル" tone="blue" strong
           lines={["勝利期待度 約50%", "ウルティマ状態なら大幅アップ", "レア役が勝利のカギ"]} />
-        <Box x={444} y={296} w={168} h={72} title="上位の特化ゾーン" tone="tier" strong
+        <Box x={444} y={296} w={168} h={72} title="上位の特化ゾーン" tone="tier" strong mark
           lines={["ウルティマナイトバトル 約850枚", "絶剣 2200枚＋ループ毎1100枚", "→ 上位ATの初期枚数が決まる"]} />
         <Arrow x1={528} y1={268} x2={528} y2={294} label="勝利の一部" tone="brand" />
         <Arrow x1={612} y1={332} x2={700} y2={272} tone="brand" />
@@ -297,7 +309,12 @@ function FigFlowLoop() {
 
         {/* 敗北 */}
         <Arrow x1={444} y1={250} x2={396} y2={250} dash tone="muted" label="敗北→ATへ" />
-        <text x={14} y={404} style={{ fontSize: 11, fill: C.ink, fontWeight: 700 }}>
+        <circle cx="24" cy="392" r="7" fill={C.brand} fillOpacity="0.14" stroke={C.brand} strokeWidth="1.4" />
+        <circle cx="24" cy="392" r="2.4" fill={C.brand} />
+        <text x={40} y={396} style={{ fontSize: 11, fill: C.ink }}>
+          ＝ バレットサークルが出る場面。特化ゾーンでは<tspan fill={C.brand} fontWeight="700">サークルの数がもらえる枚数そのものを決める</tspan>（赤4個以上で平均約850枚）。
+        </text>
+        <text x={14} y={374} style={{ fontSize: 11, fill: C.ink, fontWeight: 700 }}>
           要点：この台の出玉は<tspan fill={C.brand}>「上位CZに何回挑めたか」</tspan>でほぼ決まる。ATはそこへ行くための通過点である。
         </text>
       </svg>
@@ -500,6 +517,25 @@ function Section({ s }) {
                   </div>
                 ))}
               </div>
+            </div>
+          ))}
+        </div>
+      );
+    case "glossary":
+      // 用語集。group ごとに 語→説明 を並べる
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, margin: "2px 0 12px" }}>
+          {s.v.map(g => (
+            <div key={g.group} style={{ background: "#fff", border: `0.5px solid ${C.hair}`, borderRadius: 12, padding: "12px 13px" }}>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: C.brand, marginBottom: 8 }}>{g.group}</div>
+              <dl style={{ margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+                {g.items.map(([term, desc]) => (
+                  <div key={term} style={{ display: "grid", gridTemplateColumns: "minmax(88px,132px) 1fr", gap: 10, alignItems: "start" }}>
+                    <dt style={{ fontSize: 12.5, fontWeight: 700, color: C.ink, lineHeight: 1.6 }}>{term}</dt>
+                    <dd style={{ margin: 0, fontSize: 12.5, color: C.ink2, lineHeight: 1.72 }}><RichText v={desc} /></dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           ))}
         </div>
