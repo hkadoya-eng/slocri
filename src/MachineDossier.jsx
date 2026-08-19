@@ -94,7 +94,7 @@ function FigBulletCircle() {
   );
 }
 
-/* ---------------- 図2: 出玉の階段 ---------------- */
+/* ---------------- 参考図: 純増の階段（現在SAO2では未使用・他機種で再利用可） ---------------- */
 function FigLadder() {
   const stp = { fontSize: 11.5, fill: C.ink, fontWeight: 700 };
   const lbl = { fontSize: 10.5, fill: C.muted };
@@ -132,13 +132,13 @@ function FigLadder() {
         </defs>
       </svg>
       <figcaption style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.7, marginTop: 6 }}>
-        図2：棒の高さ＝1ゲームで増える枚数。<b>AT 3.6枚と上位AT 7.2枚でちょうど倍</b>。昇れなければ駆け抜けで終わる。
+        棒の高さ＝1ゲームで増える枚数。<b>AT 3.6枚と上位AT 7.2枚でちょうど倍</b>。昇れなければ駆け抜けで終わる。
       </figcaption>
     </figure>
   );
 }
 
-/* ---------------- 図3: 差枚数管理ゲージ ---------------- */
+/* ---------------- 図4: 差枚数管理ゲージ ---------------- */
 function FigGauge() {
   const lbl = { fontSize: 10.5, fill: C.muted };
   const note = { fontSize: 11.5, fill: C.ink, fontWeight: 700 };
@@ -161,13 +161,157 @@ function FigGauge() {
         ))}
       </svg>
       <figcaption style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.7, marginTop: 6 }}>
-        図3：差枚数管理＝<b>残量ゲージ</b>。1ゲームの出入りが直接ゲージに反映されるので1Gすべてに意味がある。
+        図4：差枚数管理＝<b>残量ゲージ</b>。1ゲームの出入りが直接ゲージに反映されるので1Gすべてに意味がある。
       </figcaption>
     </figure>
   );
 }
 
-const FIGURES = { bulletCircle: FigBulletCircle, ladder: FigLadder, gauge: FigGauge };
+/* ---------------- フロー図の部品 ---------------- */
+function Box({ x, y, w, h, title, lines, tone = "ink", strong }) {
+  const col = { ink: C.ink2, brand: C.brand, blue: C.blue, tier: C.tier, muted: C.muted }[tone];
+  return (
+    <g>
+      <rect x={x} y={y} width={w} height={h} rx="8" fill="#fff" stroke={col}
+        strokeWidth={strong ? 2.2 : 1.3} opacity={tone === "muted" ? 0.8 : 1} />
+      <text x={x + w / 2} y={y + 19} textAnchor="middle"
+        style={{ fontSize: 12.5, fill: col, fontWeight: 700 }}>{title}</text>
+      {(lines || []).map((l, i) => (
+        <text key={i} x={x + w / 2} y={y + 36 + i * 14} textAnchor="middle"
+          style={{ fontSize: 10.5, fill: C.muted }}>{l}</text>
+      ))}
+    </g>
+  );
+}
+function Arrow({ x1, y1, x2, y2, label, dash, tone = "ink", up }) {
+  const col = { ink: C.ink2, brand: C.brand, muted: C.muted }[tone];
+  return (
+    <g>
+      <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={col} strokeWidth={dash ? 1.4 : 1.8}
+        strokeDasharray={dash ? "5 4" : undefined} markerEnd="url(#fAr)" opacity={dash ? 0.75 : 1} />
+      {label && (
+        <text x={(x1 + x2) / 2} y={y1 === y2 ? y1 - 6 : (y1 + y2) / 2 + (up ? -6 : 14)} textAnchor="middle"
+          style={{ fontSize: 10.5, fill: col, fontWeight: 600 }}>{label}</text>
+      )}
+    </g>
+  );
+}
+const ARROW_DEF = (
+  <defs>
+    <marker id="fAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill={C.ink2} />
+    </marker>
+  </defs>
+);
+
+/* ---------------- 図2: 通常時 → AT ---------------- */
+function FigFlowNormal() {
+  return (
+    <figure style={{ margin: 0 }}>
+      <svg viewBox="0 0 840 396" role="img" style={{ width: "100%", height: "auto" }}
+        aria-label="通常時からATまでの流れ図。通常時はモードで規定ゲーム数が変わり、液晶ゲーム数の規定数到達66％・バレットカウンター7個19％・レア役15％の3つの契機からCZスコードロンバトル（勝利期待度約55％）へ。勝利でAT、失敗ならEXアイコンや曠野の決闘を経て通常時へ戻る。中段チェリーは1/16384でAT直撃。">
+        {ARROW_DEF}
+        <text x="14" y="20" style={{ fontSize: 12, fill: C.brand, fontWeight: 700 }}>図2　通常時 → AT（入口）</text>
+
+        <Box x={14} y={150} w={176} h={96} title="通常時" tone="ink"
+          lines={["内部モードで規定G数が変わる", "通常A/B/C 250〜650G", "通常D 350G以内・天国 100G以内"]} />
+        <Box x={14} y={286} w={176} h={64} title="シューティングチャージ" tone="muted"
+          lines={["弱チェリー・弱チャンス目など", "→ 液晶G数を大幅に加算"]} />
+        <Arrow x1={102} y1={286} x2={102} y2={250} tone="muted" />
+
+        <text x={214} y={148} style={{ fontSize: 11, fill: C.ink, fontWeight: 700 }}>CZ当選の内訳</text>
+        {[["液晶G数が規定数に到達", "66%", 170], ["バレットカウンター7個（斜めベル）", "19%", 198], ["レア役（強チェリー ほか）", "15%", 226]].map(([t, p, y]) => (
+          <g key={t}>
+            <text x={214} y={y} style={{ fontSize: 10.5, fill: C.muted }}>{t}</text>
+            <text x={392} y={y} textAnchor="end" style={{ fontSize: 11, fill: C.brand, fontWeight: 700 }}>{p}</text>
+          </g>
+        ))}
+        <Arrow x1={190} y1={198} x2={212} y2={198} />
+        <Arrow x1={396} y1={198} x2={438} y2={198} />
+
+        <Box x={442} y={150} w={168} h={96} title="CZ スコードロンバトル" tone="blue" strong
+          lines={["勝利期待度 約55%", "前半パート＋ジャッジパート", "サークルに弾を止めて弾痕を貯める"]} />
+        <Arrow x1={610} y1={198} x2={654} y2={198} label="勝利" tone="brand" />
+        <Box x={658} y={150} w={168} h={96} title="AT バレットオブバレッツ" tone="brand" strong
+          lines={["初期150枚＋α・純増約3.6枚", "差枚数管理（＝残量ゲージ）", "以降は図Bへ"]} />
+
+        <Box x={442} y={300} w={168} h={60} title="CZ失敗" tone="muted"
+          lines={["EXアイコン付与／曠野の決闘", "（設定差あり・示唆を残す）"]} />
+        <Arrow x1={526} y1={246} x2={526} y2={298} dash tone="muted" label="約45%" />
+        <Arrow x1={442} y1={330} x2={196} y2={330} dash tone="muted" label="通常時へ戻る" />
+
+        <Box x={214} y={54} w={210} h={56} title="ウルティマ・チェリー（中段チェリー）" tone="tier"
+          lines={["1/16384（全設定共通）→ AT直撃／ロングフリーズ"]} />
+        <path d="M 424 82 C 560 82 600 110 700 146" fill="none" stroke={C.tier} strokeWidth="1.8" markerEnd="url(#fAr)" />
+        <text x={566} y={100} style={{ fontSize: 10.5, fill: C.tier, fontWeight: 700 }}>CZを飛ばして直撃</text>
+      </svg>
+      <figcaption style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.7, marginTop: 6 }}>
+        図2：ATへの入口は<b>3本</b>あり、実際の当選は<b>液晶G数の規定数到達が約66%で主役</b>。シューティングチャージはその液晶G数を伸ばすゾーン。CZに負けても示唆（EXアイコン・曠野の決闘）が残るので、失敗も情報になる。
+      </figcaption>
+    </figure>
+  );
+}
+
+/* ---------------- 図3: AT → 上位ATのループ ---------------- */
+function FigFlowLoop() {
+  return (
+    <figure style={{ margin: 0 }}>
+      <svg viewBox="0 0 840 424" role="img" style={{ width: "100%", height: "auto" }}
+        aria-label="ATから上位ATへのループ図。AT中はスナイパーチャンス（約50%）に勝つと差枚上乗せや特化ゾーン、3回勝利で上位CZデス・ガンバトル（約50%、ウルティマ状態なら大幅アップ）の権利。勝利の一部でウルティマナイトバトルや絶剣を経て上位ATフルダイブ（純増7.2枚）へ。上位ATは消化後必ず上位CZへ戻りループする。">
+        {ARROW_DEF}
+        <text x="14" y="20" style={{ fontSize: 12, fill: C.brand, fontWeight: 700 }}>図3　AT → 上位AT（ループの本体）</text>
+
+        <Box x={14} y={176} w={162} h={92} title="AT バレットオブバレッツ" tone="brand" strong
+          lines={["純増約3.6枚・差枚数管理", "差枚が尽きたら終了"]} />
+        <Arrow x1={176} y1={222} x2={218} y2={222} />
+        <Box x={222} y={176} w={172} h={92} title="スナイパーチャンス" tone="blue" strong
+          lines={["AT中のCZ・勝利期待度約50%", "レア役／規定液晶G数から", "エピソード4G＋ジャッジ1G"]} />
+
+        {/* 勝利の3つの恩恵 */}
+        <Box x={222} y={296} w={172} h={72} title="勝利の恩恵" tone="ink"
+          lines={["① 差枚 +100〜300枚", "② 特化ゾーン（下位）", "③ 3回勝利で上位CZの権利"]} />
+        <Arrow x1={308} y1={268} x2={308} y2={294} tone="brand" />
+        <Arrow x1={222} y1={332} x2={100} y2={270} dash label="①はATへ" tone="muted" />
+        <Box x={14} y={296} w={162} h={72} title="下位の特化ゾーン" tone="tier"
+          lines={["ナイトバトル 約250枚", "すくーるばんばん 約600枚", "シノンアタック 50〜3000枚"]} />
+
+        <Arrow x1={394} y1={222} x2={440} y2={222} label="③権利" tone="brand" />
+        <Box x={444} y={176} w={168} h={92} title="上位CZ デス・ガンバトル" tone="blue" strong
+          lines={["勝利期待度 約50%", "ウルティマ状態なら大幅アップ", "レア役が勝利のカギ"]} />
+        <Box x={444} y={296} w={168} h={72} title="上位の特化ゾーン" tone="tier" strong
+          lines={["ウルティマナイトバトル 約850枚", "絶剣 2200枚＋ループ毎1100枚", "→ 上位ATの初期枚数が決まる"]} />
+        <Arrow x1={528} y1={268} x2={528} y2={294} label="勝利の一部" tone="brand" />
+        <Arrow x1={612} y1={332} x2={700} y2={272} tone="brand" />
+
+        <Box x={648} y={176} w={178} h={92} title="上位AT フルダイブ" tone="brand" strong
+          lines={["純増約7.2枚（ATの2倍）", "平均約3000枚（非ウルティマ）", "ウルティマ状態なら期待約7000枚"]} />
+
+        {/* ループ */}
+        <path d="M 826 200 C 838 120 560 120 528 172" fill="none" stroke={C.brand} strokeWidth="2.4" markerEnd="url(#fAr)" />
+        <text x={676} y={118} textAnchor="middle" style={{ fontSize: 11.5, fill: C.brand, fontWeight: 700 }}>
+          消化後は必ず上位CZへ戻る＝ループ
+        </text>
+        <text x={676} y={136} textAnchor="middle" style={{ fontSize: 10.5, fill: C.muted }}>
+          勝ち続ける限り 7.2枚 × 上乗せが続く
+        </text>
+
+        {/* 敗北 */}
+        <Arrow x1={444} y1={250} x2={396} y2={250} dash tone="muted" label="敗北→ATへ" />
+        <text x={14} y={404} style={{ fontSize: 11, fill: C.ink, fontWeight: 700 }}>
+          要点：この台の出玉は<tspan fill={C.brand}>「上位CZに何回挑めたか」</tspan>でほぼ決まる。ATはそこへ行くための通過点である。
+        </text>
+      </svg>
+      <figcaption style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.7, marginTop: 6 }}>
+        図3：AT（3.6枚）と上位AT（7.2枚）で<b>出玉速度がちょうど倍</b>。しかも上位ATは<b>消化後に必ず上位CZへ戻る</b>ので、勝ち続ければ雪だるま式に伸びる。逆に上位CZに届かなければ3.6枚のまま差枚が尽きて終わる＝「駆け抜け」。
+      </figcaption>
+    </figure>
+  );
+}
+
+const FIGURES = {
+  bulletCircle: FigBulletCircle, ladder: FigLadder, gauge: FigGauge,
+  flowNormal: FigFlowNormal, flowLoop: FigFlowLoop,
+};
 
 /* ---------------- 稼働推移グラフ（DBから毎回計算） ---------------- */
 function KatsudoChart({ spec }) {
