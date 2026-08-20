@@ -9,6 +9,7 @@ import ProposeTab from "./ProposeTab";
 import ChatTab from "./ChatTab";
 import GameDesignTab, { PresentationTab } from "./GameDesignTab";
 import MachineDossierTab from "./MachineDossier";
+import MachineReviewTab from "./MachineReview";
 import ColumnFeedback from "./ColumnFeedback";
 import AdminChat from "./AdminChat";
 
@@ -266,7 +267,7 @@ function MachineListTab({ posts, onGoToFeed, favMachines = [], toggleFavMachine 
                   {selAnalysis.spec && (
                     <div style={{fontSize:11,color:"#888",marginBottom:10,lineHeight:1.5,borderBottom:"1px solid #F0F0F0",paddingBottom:8}}>{selAnalysis.spec}</div>
                   )}
-                  {/* SIS稼働の実績。新台診断は直近26週しか出さないため、窓を出た機種の
+                  {/* SIS稼働の実績。機種評価の2週診断は直近26週しか出さないため、窓を出た機種の
                       「◯週で終了」がどこにも残らなかった。機種側に永続記録として持たせる。 */}
                   {selAnalysis.sisRecord && (() => {
                     const r = selAnalysis.sisRecord;
@@ -427,7 +428,12 @@ function SisTab({ adminUser }) {
   const [provMachines, setProvMachines] = useState(new Set());
   const [lastWeekStart, setLastWeekStart] = useState(null);
   const [weeklyData, setWeeklyData] = useState([]);
-  const [sisView, _setSisView] = useState(() => sessionStorage.getItem("slokey_sisView") || "daily");
+  // 診断は分析タブへ移したので、sessionStorageに残った古い "shindai" は daily に読み替える
+  // （そのまま渡すとどのビューにも一致せず画面が空になる）
+  const [sisView, _setSisView] = useState(() => {
+    const v = sessionStorage.getItem("slokey_sisView");
+    return ["daily", "weekly", "contrib"].includes(v) ? v : "daily";
+  });
   const setSisView = (v) => { sessionStorage.setItem("slokey_sisView", v); _setSisView(v); };
   const [selMachine, setSelMachine] = useState(null); // 機種名タップで開く分析シート
   const selMachineAnalysis = useMemo(() => selMachine ? lookupAnalysis(selMachine) : null, [selMachine]);
@@ -627,62 +633,8 @@ function SisTab({ adminUser }) {
     return out;
   }, [weeklyData, nationalDaily]);
 
-  // 新台診断: 各機種の「初月持続率(4週÷初週アウト)×台数推移」を週次から算出。
-  // 台数/IPは入口、初月持続率が生死を決める(長寿平均66% vs 短命47%)という分析に基づく早期診断。直近約26週導入の新台のみ。
-  const machineDiagnosis = useMemo(() => {
-    if (!weeklyData.length) return [];
-    const byM = {};
-    let latest = "";
-    weeklyData.forEach(r => {
-      (byM[r.machine] = byM[r.machine] || []).push(r);
-      if (r.week_start > latest) latest = r.week_start;
-    });
-    const wkMed = weekMarketBase; // 稼働値の分母＝全国実値の市場平均アウト（上の weekMarketBase 参照）
-    const latestD = new Date(latest + "T00:00:00");
-    const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-    const cutoff = new Date(latestD); cutoff.setDate(latestD.getDate() - 182);
-    const recent = new Date(latestD); recent.setDate(latestD.getDate() - 21);
-    const cutoffS = fmt(cutoff), recentS = fmt(recent);
-    const rows = [];
-    Object.entries(byM).forEach(([machine, arr]) => {
-      arr.sort((a, b) => a.week_start.localeCompare(b.week_start));
-      const first = arr[0];
-      if (first.week_start < cutoffS) return; // 新台(直近約26週)のみ
-      const w1 = first.out_coins, w2 = arr[1] && arr[1].out_coins, w4 = arr[3] && arr[3].out_coins, w8 = arr[7] && arr[7].out_coins;
-      const c1 = first.avg_machine_count, cLast = arr[arr.length - 1].avg_machine_count;
-      const peakC = arr.reduce((m, r) => Math.max(m, r.avg_machine_count || 0), 0);
-      const base1 = wkMed[first.week_start], base2 = arr[1] && wkMed[arr[1].week_start];
-      const lastR = arr[arr.length - 1];
-      const baseLast = wkMed[lastR.week_start];
-      rows.push({
-        machine,
-        firstWeek: first.week_start,
-        weeksCount: arr.length,
-        katsudo1: (w1 && base1) ? Math.round(w1 / base1 * 100) : null,
-        katsudo2: (w2 && base2) ? Math.round(w2 / base2 * 100) : null,
-        // 直近週の絶対稼働値。答え合わせに必須（持続率だけで採点すると、初週が高すぎた台が
-        // 健全でも「外れ」になる。例: ミリオンゴッドは8週持続53%だが直近稼働値201%で貢献継続中）
-        katsudoLast: (lastR.out_coins && baseLast) ? Math.round(lastR.out_coins / baseLast * 100) : null,
-        ret2: (w1 && w2) ? Math.round(w2 / w1 * 100) : null,
-        ret4: (w1 && w4) ? Math.round(w4 / w1 * 100) : null,
-        ret8: (w1 && w8) ? Math.round(w8 / w1 * 100) : null,
-        c1, cLast, peakC,
-        cgrow: (c1 && cLast) ? Math.round((cLast / c1 - 1) * 100) : null,
-        active: arr[arr.length - 1].week_start >= recentS,
-        contrib: machineStats[machine.replace(/\s/g, "")] ?? null, // SIS公式の稼働貢献週(設置週数=arr.lengthとは別)
-        // 貢献週はもう増えないか？ 貢献週=市場平均超えの週数の累計なので、直近4週すべて稼働値100%以下
-        // なら以後は増えない＝確定。データが途切れている(撤去)場合も確定。設置終了だけを条件にすると
-        // 死に台が数十週放置されるため誤判定になる。
-        contribDone: (() => {
-          if (arr[arr.length - 1].week_start < recentS) return true; // 直近にデータが無い=撤去
-          const tail = arr.slice(-4).map(r => (r.out_coins && wkMed[r.week_start]) ? r.out_coins / wkMed[r.week_start] * 100 : null).filter(v => v != null);
-          return tail.length > 0 && !tail.some(v => v > 100);
-        })(),
-      });
-    });
-    rows.sort((a, b) => b.firstWeek.localeCompare(a.firstWeek));
-    return rows;
-  }, [weeklyData, machineStats, weekMarketBase]);
+  // 新台診断（2週で仕分け）は 2026-08-20 に分析タブの「機種評価」へ移した。
+  // 実装は src/MachineReview.jsx。稼働タブは生データ（日次・週次・貢献週）に専念する。
 
   // 稼働貢献週ランキング。新台診断は直近26週の新台だけなので、全機種を貢献週順に並べたビューを別に持つ。
   // 週次データ(sis_weekly_data)と sis_machine_stats が更新されれば自動で最新化される＝毎週更新。
@@ -942,27 +894,27 @@ function SisTab({ adminUser }) {
           )}
         </>;
       })()}
-      {/* 日次/週次/新台診断 サブタブ + 期間フィルター */}
+      {/* 日次/週次/貢献週 サブタブ + 期間フィルター */}
       <div style={{position:"sticky",top:52,zIndex:15,background:"#E8ECF0",paddingBottom:6}}>
         <div style={{display:"flex",gap:6,alignItems:"center"}}>
           {/* ラベルは「デイリー/ウィークリー」から日次/週次へ短縮。3分割でも余裕が出るため文字サイズを14pxまで戻せる。
               nowrap + minWidth:0 で将来ラベルが伸びても2行折返しにならないようにしている。
-              fontSizeは clamp で可変: 最長「新台診断」は14pxで66.3px必要だが320px端末の取り分は66.7pxしかなく、
+              fontSizeは clamp で可変: 最長「貢献週」でも狭い端末では取り分が足りなくなるため、
               selectの実幅がブラウザ差で数px増えると破綻するため、狭い端末では自動的に12pxまで縮める。 */}
-          {[{k:"daily",l:"日次"},{k:"weekly",l:"週次"},{k:"shindai",l:"診断"},{k:"contrib",l:"貢献週"}].map(({k,l}) => {
+          {[{k:"daily",l:"日次"},{k:"weekly",l:"週次"},{k:"contrib",l:"貢献週"}].map(({k,l}) => {
             const on = sisView === k;
             return <button key={k} onClick={() => setSisView(k)} style={{flex:1,minWidth:0,whiteSpace:"nowrap",padding:"8px 2px",border:"none",borderRadius:10,fontSize:"clamp(12px,3.6vw,14px)",fontWeight:on?700:500,background:on?"#D85A30":"#E8ECF0",color:on?"#fff":"#888",cursor:"pointer",boxShadow:on?"inset 2px 2px 5px rgba(0,0,0,0.2)":"2px 2px 5px #C5C9D4,-2px -2px 5px #fff"}}>{l}</button>;
           })}
           {/* 期間フィルター(dateRange)は sis_data=日次のみを絞る変数。週次は weeklyData 由来(weeks:548行)で、
-              新台診断は各機種の「初週」を必要とする(machineDiagnosis:582行)ため全履歴が必須＝どちらも絞れない。
+              貢献週ランキングも全機種の全履歴を使うため絞れない。
               ただし日次以外で消すとレイアウトが動いて「表示が消えた」ように見えるので、常に出したまま
               淡色の無効状態にする（消えないが、効くように見せる嘘もつかない）。
-              4ボタンのままだと約259px占有してビューボタンが潰れて折り返すため、selectへ集約している。 */}
+              3ボタンでもselectを並べると窮屈になるため、期間はselectへ集約している。 */}
           {(() => {
             const active = sisView === "daily";
             return (
               <select value={dateRange} onChange={e => setDateRange(e.target.value)} disabled={!active}
-                title={active ? "日次の集計期間" : "期間の絞り込みは日次のみ（週次・新台診断は全期間の週次データを使用）"}
+                title={active ? "日次の集計期間" : "期間の絞り込みは日次のみ（週次・貢献週は全期間の週次データを使用）"}
                 style={{flexShrink:0,fontSize:12,fontWeight:600,padding:"7px 4px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:"#666",cursor:active?"pointer":"default",opacity:active?1:0.4}}>
                 <option value="1m">1ヶ月</option>
                 <option value="3m">3ヶ月</option>
@@ -1127,108 +1079,6 @@ function SisTab({ adminUser }) {
               })}
             </div>
           </div>
-        </div>
-      </>}
-
-      {sisView === "shindai" && <>
-        <div style={{fontSize:11,color:"#888",background:"#fff",borderRadius:10,padding:"8px 10px",marginBottom:8,boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff",lineHeight:1.5}}>
-          <b style={{color:"#D85A30"}}>新台診断</b>：<b>2週時点だけで仕分けを確定</b>する。8週まで待てば誰でも分かる＝情報価値が無いため、早く言い切ることを優先。直近約26週に導入・導入日順。<br/>
-          ・<b>稼働値</b>（アウト÷<b>その週の全国平均アウト＝実値</b>）＝人気・絶対需要。<b>2週</b>の値を使う（r=+0.55。初週はr=+0.36）。<b>100%超＝全国平均超え＝稼働貢献週が増える状態</b>。<br/>
-          ・<b>持続率</b>（◯週目÷初週アウト）＝定着・減衰。2週持続率（r=+0.46）。<br/>
-          ・<b>傾き</b>＝2週稼働値−初週稼働値（r=+0.23）。超優良の条件にのみ使う。<br/>
-          <b>仕分け基準（2週で確定）</b>：<b>超優良</b>=持続率≥92% かつ 稼働値≥200% かつ 傾き≥−40／<b>優良</b>=持続率≥89% かつ 稼働値≥200%／<b>優良(定着型)</b>=持続率≥100% かつ 稼働値≥140%（<b>需要</b>下限の免除）／<b>優秀(需要型)</b>=持続率≥83% かつ 稼働値≥220%（<b>持続率</b>下限の免除）／<b>危険</b>=持続率&lt;73% または 稼働値&lt;170%／残りが<b>注意</b>。<br/>
-          ・<b>2つの拾い上げ枠</b>：<b>定着型</b>＝需要は小さいが客が離れない台（持続率100%超＝2週目のアウトが初週以上＝客が増えた）。<b>需要型</b>＝持続率は平凡でも需要が突出して強い台。どちらも「片方の軸だけで上位に届く台」を落とさないための枠で、稼働値140%/220%の下限はリノヘブン型（稼働値25%→2週）の混入を防ぐために置いている。<br/>
-          <b>実測精度</b>（貢献週が確定した<b>178機種</b>でバックテスト。進行中の台は伸び続けるため除外。導入日で古い124件＝学習／新しい54件＝検証に分け、学習で閾値を決めて検証で評価）：<b>学習 的中79%・捕獲84% / 検証 的中79%・捕獲79% / 短命混入(貢献6週以下)は両方0%</b>。階層別の当たり率は 超優良19件<b>100%</b>（貢献週 平均37.7）・優良18件67%・定着型3件67%・需要型8件62%・注意64件12%・<b>危険66件0%</b>。<br/>
-          ・<b>採点定義（探索前に固定）</b>：母集団=貢献週が確定した機種／当たり台=貢献週&gt;13／短命=貢献週≤6／的中率=上位判定のうち当たり台の割合／捕獲率=当たり台のうち上位判定の割合。<b>短命混入0%を必須条件にし、その中で的中と捕獲のF1が最大の組を採用</b>（閾値を後から都合よく選ばないため、定義と目的関数を先に決めてから20刻みの粗い格子で探索）。<br/>
-          ・<b>✓/…/✗マーク</b>＝2週予測の答え合わせ。<b>成果変数である稼働貢献週で採点する</b>（持続率は予測の"入力"なので採点には使わない）。貢献週が成功ライン13週を超えたら<b>✓的中</b>／まだ稼働値100%超で貢献週が増える余地があれば<b>…判定保留</b>／平均を割ったまま13週以下で終わったら<b>✗外れ</b>。<br/>
-          ・<b>状態バッジ</b>＝各カードに2つ表示。<b>稼働貢献</b>は「継続中（直近も市場平均超え＝貢献週がまだ増える）」か「終了（直近4週すべて平均以下、または撤去＝貢献週が確定）」。<b>予測</b>は「期間中（リリース前〜1週目。まだ変更可・変更時は理由を残す）」か「確定済（2週到達。以降は変更しない）」。導入日と経過週数も併記してあるので、どの段階の台かが分かる。<br/>
-          ・<b>⚠供給過剰</b>＝大量導入(ピーク≥6台)なのに振るわない。割数(出玉率)・コイン単価・台数初動は寿命と無関係のため<b>非採用</b>（出玉率は上位帯で検証しても締めた側が有利にならず r=+0.26と逆方向）。
-        </div>
-        <div style={{display:"flex",flexDirection:"column",gap:6}}>
-          {machineDiagnosis.length === 0 && <div style={{textAlign:"center",color:"#aaa",padding:"2rem"}}>データなし</div>}
-          {machineDiagnosis.map(d => {
-            // 仕分けは【2週時点の情報だけ】で確定させる。8週まで待つと誰の目にも明らかで情報価値が無いため、
-            // 早期に言い切れることを優先した。
-            // 【2026-08-18 稼働値の分母を実値化して全面再フィット】
-            //   分母を「L機種アウトの中央値(自前計算)」→「その週の全国平均アウト(実値)」に変更した。
-            //   旧分母は実値より約38%低く、稼働値が約1.6倍に膨らみ「100%超=市場平均超え」が
-            //   成立していなかった(実際の平均超えは稼働値≈161%相当)。実値化で相関が改善:
-            //   2週稼働値 r=+0.24→+0.55 / 2週持続率 +0.41→+0.46 / 傾き +0.32→+0.23。
-            //   貢献週が確定した母数も 129→178件に増えた(終了判定が正しくなったため)。
-            //   閾値は「採点定義を先に固定 → 短命混入0%を必須制約 → F1最大」で再探索し、
-            //   導入日の古い124件で選定・新しい54件で検証: 学習 的中79%/捕獲84%、検証 的中79%/捕獲79%。
-            //   階層別の当たり率(全178件): 超優良19件100% / 優良18件67% / 定着型3件67% /
-            //   需要型8件62% / 注意64件12% / 危険66件0%。
-            const k1 = d.katsudo1, k2 = d.katsudo2;
-            const slope = (k1 != null && k2 != null) ? k2 - k1 : null;
-            // 【拾い上げ枠は2つ】どちらも「片方の軸だけで上位に届く台」を落とさないための枠。
-            //  定着型: 需要は小さいが客が離れない(持続率100%超=2週目のアウトが初週以上=客が増えた)。
-            //          HEY!エリートサラリーマン鏡のような台を需要下限で切り捨てないため。
-            //  需要型: 持続率は平凡でも需要が突出して強い。持続率下限を緩めるかわり需要下限を上げる。
-            //  下限(140%/220%)はリノヘブン型(稼働値25%→2週)の混入を防ぐために必要。
-            const viaRetention = d.ret2 != null && k2 != null && d.ret2 >= 100 && k2 >= 140;
-            const g = (d.ret2 == null || k2 == null)
-              ? {l:"計測中",c:"#999",bg:"#ECECEC"}
-              : (d.ret2 >= 92 && k2 >= 200 && (slope == null || slope >= -40)) ? {l:"超優良",c:"#7B1FA2",bg:"#F5E9FA",top:true}
-              : (d.ret2 >= 89 && k2 >= 200) ? {l:"優良",c:"#1f9d4d",bg:"#E3F5E9",top:true}
-              : viaRetention ? {l:"優良(定着型)",c:"#1f9d4d",bg:"#E3F5E9",top:true,retention:true}
-              : (d.ret2 >= 83 && k2 >= 220) ? {l:"優秀(需要型)",c:"#5B9E6F",bg:"#EFF7F1",top:true,demand:true}
-              : (d.ret2 < 73 || k2 < 170) ? {l:"危険",c:"#D03030",bg:"#FCE4E4"}
-              : {l:"注意",c:"#C77B00",bg:"#FFF3DC"};
-            // 【答え合わせは"成果変数"=稼働貢献週で採点する】
-            // 旧実装は8週持続率55%割れを「外れ」としていたが、持続率は予測の"入力"であって成果ではない。
-            // 初週が異常に高かった台は健全でも持続率を割るため判定が逆転していた
-            // (ミリオンゴッド: 8週持続53%で「外れ」表示だが直近稼働値201%・貢献週13で貢献継続中。
-            //  一方「維持」表示の炎炎ノ消防隊2は直近156%で、外れ側より稼働が低いという矛盾)。
-            // → 貢献週が成功ライン(13週=確定台の上位25%相当)を超えたら的中、
-            //   まだ市場平均超え(稼働値>100%)なら貢献週が増える余地があるので判定保留、
-            //   平均を割ったまま13週以下で終わったら外れ。
-            const SUCCESS_WEEKS = 13;
-            const verdict = !g.top || d.contrib == null ? null
-              : d.contrib > SUCCESS_WEEKS ? "hit"
-              : (d.katsudoLast != null && d.katsudoLast > 100) ? "pending"
-              : "miss";
-            const oversupply = d.peakC >= 6 && (g.l.indexOf("危険") >= 0 || g.l.indexOf("注意") >= 0);
-            return (
-              <div key={d.machine} style={{background:"#fff",borderRadius:12,padding:"10px 12px",boxShadow:"2px 2px 6px #C5C9D4,-2px -2px 6px #fff"}}>
-                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                  <div onClick={() => setSelMachine(d.machine)} style={{flex:1,minWidth:0,fontSize:13,fontWeight:700,color:"#1A56B0",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:"pointer",textDecoration:"underline",textDecorationColor:"rgba(26,86,176,0.3)",textUnderlineOffset:2}}>{d.machine}</div>
-                  <span style={{flexShrink:0,fontSize:10,fontWeight:700,color:g.c,background:g.bg,borderRadius:6,padding:"2px 8px"}}>{g.l}</span>
-                </div>
-                {/* 上段2つ(色付き)＝仕分けを決めた2週時点の軸。下段2つ(灰)＝後から届く答え合わせ用。 */}
-                <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"2px 8px"}}>
-                  <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>稼働値 初週→2週</div><div style={{fontWeight:700,color:g.c,fontSize:12,whiteSpace:"nowrap"}}>{k1 != null ? k1 : "—"}<span style={{color:"#ccc"}}>→</span>{k2 != null ? k2+"%" : "—"}</div></div>
-                  <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>2週持続率</div><div style={{fontWeight:700,color:g.c,fontSize:12}}>{d.ret2 != null ? d.ret2+"%" : "—"}</div></div>
-                  <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>初月(4週)</div><div style={{fontWeight:600,color:"#888",fontSize:12}}>{d.ret4 != null ? d.ret4+"%" : "—"}</div></div>
-                  <div><div style={{color:"#bbb",fontSize:9,marginBottom:1}}>8週持続</div><div style={{fontWeight:600,color:"#888",fontSize:12}}>{d.ret8 != null ? d.ret8+"%" : "—"}</div></div>
-                </div>
-                <div style={{marginTop:5,fontSize:10,color:"#999"}}>
-                  <span>台数 {d.c1 != null ? d.c1.toFixed(1) : "—"}→{d.cLast != null ? d.cLast.toFixed(1) : "—"}{d.cgrow != null ? ` (${d.cgrow>0?"+":""}${d.cgrow}%)` : ""}</span>
-                  <span style={{color:"#ccc"}}> ・ </span>
-                  <span style={{fontWeight:700,color:"#2a7ae8"}}>稼働貢献{d.contrib != null ? d.contrib+"週" : "—"}</span>
-                  <span style={{color:"#ccc"}}> ・ </span>
-                  <span><b style={{color:"#666"}}>{d.firstWeek}</b> 導入 → <b style={{color:"#666"}}>{d.weeksCount}週目</b></span>
-                </div>
-                {/* 「何が終わって何がまだ動いているか」を一目で分かるようにする2つの状態バッジ。
-                    ①稼働貢献: まだ増えるのか確定したのか ②予測: 2週で確定したのかまだ変更可能な期間か */}
-                <div style={{marginTop:5,display:"flex",gap:5,flexWrap:"wrap"}}>
-                  {d.contribDone
-                    ? <span style={{fontSize:9,fontWeight:700,color:"#777",background:"#ECECEC",borderRadius:5,padding:"2px 7px"}}>■ 稼働貢献 終了（{d.contrib != null ? d.contrib+"週で確定" : "確定"}）</span>
-                    : <span style={{fontSize:9,fontWeight:700,color:"#1f7a4d",background:"#E6F5EC",borderRadius:5,padding:"2px 7px"}}>▶ 稼働貢献 継続中{d.katsudoLast != null ? `（稼働値${d.katsudoLast}%）` : ""}</span>}
-                  {d.weeksCount >= 2
-                    ? <span style={{fontSize:9,fontWeight:700,color:"#7B1FA2",background:"#F5E9FA",borderRadius:5,padding:"2px 7px"}}>■ 予測 確定済（2週到達・以降変更なし）</span>
-                    : <span style={{fontSize:9,fontWeight:700,color:"#C77B00",background:"#FFF3DC",borderRadius:5,padding:"2px 7px"}}>▶ 予測 期間中（あと{2 - d.weeksCount}週で確定）</span>}
-                </div>
-                {oversupply && <div style={{marginTop:6,fontSize:10,color:"#C77B00",background:"#FFF8EC",borderRadius:6,padding:"3px 8px"}}>⚠ 大量導入(ピーク{d.peakC.toFixed(1)}台)なのに振るわない＝供給過剰の疑い</div>}
-                {/* 2週予測の答え合わせ。成果=貢献週で採点し、当たり外れを隠さず出す。 */}
-                {g.retention && <div style={{marginTop:6,fontSize:10,color:"#1f7a4d",background:"#F0FAF3",borderRadius:6,padding:"3px 8px"}}>▲ 定着型で拾い上げ: 稼働値{k2}%は需要下限(200%)未満だが2週持続率{d.ret2}%（＝2週目に客が増えた）ため上位判定</div>}
-                {g.demand && <div style={{marginTop:6,fontSize:10,color:"#3d7a5c",background:"#F0FAF3",borderRadius:6,padding:"3px 8px"}}>▲ 需要型で拾い上げ: 2週持続率{d.ret2}%は優良の下限(89%)未満だが稼働値{k2}%（＝全国平均の{Math.round(k2/100*10)/10}倍の需要）のため上位判定</div>}
-                {verdict === "hit" && <div style={{marginTop:6,fontSize:10,color:"#1f9d4d",background:"#F0FAF3",borderRadius:6,padding:"3px 8px"}}>✓ 2週予測が的中: 稼働貢献{d.contrib}週で成功ライン(13週)超え</div>}
-                {verdict === "pending" && <div style={{marginTop:6,fontSize:10,color:"#2a7ae8",background:"#EEF4FD",borderRadius:6,padding:"3px 8px"}}>… 判定保留: 貢献{d.contrib}週だが直近稼働値{d.katsudoLast}%で market平均超え＝まだ伸びる</div>}
-                {verdict === "miss" && <div style={{marginTop:6,fontSize:10,color:"#D03030",background:"#FDF0F0",borderRadius:6,padding:"3px 8px"}}>✗ 2週予測が外れ: 貢献{d.contrib}週で終了(稼働値{d.katsudoLast != null ? d.katsudoLast+"%" : "—"}＝平均割れ)</div>}
-              </div>
-            );
-          })}
         </div>
       </>}
 
@@ -3567,99 +3417,11 @@ ${policyText}
       )}
 
       {mode==="machine_review" && (
-        <div>
-          <div style={{fontSize:13,color:"#888",marginBottom:14,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <span>スロキー編集部の機種評価</span>
-            <span style={{fontSize:12,color:"#bbb"}}>更新: {COLUMN_DATA.updatedAt}</span>
-          </div>
-          {COLUMN_DATA.columns.map(col => {
-            const liveWeeks = getContribWeeks(col);
-            return (
-            <div key={col.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:14,marginBottom:12,overflow:"hidden"}}>
-              <div style={{padding:"10px 14px",borderBottom:"0.5px solid #f0f0f0",display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8}}>
-                <div style={{minWidth:0,flex:1}}>
-                  <div style={{fontSize:15,fontWeight:600,color:"#333",marginBottom:4,overflowWrap:"anywhere"}}>{col.name}</div>
-                  <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
-                    <span style={{fontSize:12,fontWeight:600,color:col.tagColor,background:col.tagBg,borderRadius:6,padding:"2px 8px",whiteSpace:"nowrap"}}>{col.tag}</span>
-                    <span style={{fontSize:12,color:"#aaa"}}>投稿{col.postCount}件</span>
-                    {col.releaseDate && <span style={{fontSize:12,color:"#aaa"}}>{col.releaseDate.slice(0,7)}導入</span>}
-                    {col.sisPrevWeeks && (
-                      <span style={{fontSize:12,color:"#558B2F",fontWeight:600,background:"#F1F8E9",borderRadius:6,padding:"2px 8px",whiteSpace:"nowrap"}}>
-                        前作SIS実績 {col.sisPrevTitle?.replace("Lパチスロ","")?.replace("Lスマスロ","")} {col.sisPrevWeeks}週
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div style={{flexShrink:0,display:"flex",flexDirection:"column",gap:4,alignItems:"flex-end"}}>
-                  {col.longevityMin && (
-                    <div style={{textAlign:"center",background:"#F1F8E9",borderRadius:10,padding:"6px 10px",minWidth:70}}>
-                      <div style={{fontSize:10,color:"#1565C0",fontWeight:600,marginBottom:2}}>稼働予測</div>
-                      <div style={{fontSize:14,fontWeight:700,color:"#1565C0",lineHeight:1}}>
-                        {col.longevityMin === col.longevityMax
-                          ? <>{col.longevityMin}<span style={{fontSize:10}}>週</span></>
-                          : <>{col.longevityMin}〜{col.longevityMax}<span style={{fontSize:10}}>週</span></>}
-                      </div>
-                    </div>
-                  )}
-                  {/* 終了した機種は「予測◯週 → 実績◯週」を並べて答え合わせを成立させる。
-                      予測を消すと比較ができずFBが不能になる（当初その設計にして失敗した）。 */}
-                  {col.sisOutcome?.status === "終了" && (
-                    <div style={{textAlign:"center",background: col.sisOutcome.verdict === "hit" ? "#E8F5E9" : "#FDECEA",borderRadius:10,padding:"6px 10px",minWidth:70}}>
-                      <div style={{fontSize:10,color: col.sisOutcome.verdict === "hit" ? "#1f7a4d" : "#C62828",fontWeight:600,marginBottom:2}}>
-                        {col.sisOutcome.verdict === "hit" ? "✓ 的中" : "✗ 外れ"}
-                      </div>
-                      <div style={{fontSize:14,fontWeight:700,color: col.sisOutcome.verdict === "hit" ? "#1f7a4d" : "#C62828",lineHeight:1}}>
-                        {col.sisOutcome.contribWeeks}<span style={{fontSize:10}}>週で終了</span>
-                      </div>
-                      {col.sisOutcome.diff != null && (
-                        <div style={{fontSize:9,color:"#888",marginTop:2}}>
-                          予測差 {col.sisOutcome.contribWeeks - col.sisOutcome.predicted > 0 ? "+" : ""}{col.sisOutcome.contribWeeks - col.sisOutcome.predicted}週
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {/* 貢献週の表示はここ1箇所だけ。終了機種は上の答え合わせバッジが最終週数を出すので
-                      重複させない（「現在の貢献週」と「継続中◯週」で同じ数字を2つ出していたのを統合）。
-                      数値は sisOutcome(ビルド時点の値)ではなく liveWeeks(Supabaseから毎回取得)を使う。 */}
-                  {liveWeeks != null && col.sisOutcome?.status !== "終了" && (
-                    <div style={{textAlign:"center",background:"#FFF8E1",borderRadius:8,padding:"4px 8px",minWidth:70}}>
-                      <div style={{fontSize:9,color:"#F57F17",fontWeight:600,marginBottom:1}}>
-                        貢献週{col.sisOutcome?.status === "継続中" ? "（継続中）" : ""}
-                      </div>
-                      <div style={{fontSize:14,fontWeight:700,color:"#E65100",lineHeight:1}}>{liveWeeks}<span style={{fontSize:10}}>週</span></div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div style={{padding:"12px 14px"}}>
-                <div style={{fontSize:14,color:"#444",lineHeight:1.75,overflowWrap:"anywhere"}}>{col.column}</div>
-                {col.longevityNote && (
-                  <div style={{marginTop:10,fontSize:12,color:"#aaa",borderTop:"0.5px solid #f5f5f5",paddingTop:8}}>📊 {col.longevityNote}</div>
-                )}
-                {/* 予測の根拠と変更理由を開示する。旧予測(デイリー全国ランキング起点)からの
-                    引き直しを隠さず出すことで、新台診断の判定と突き合わせられるようにする。 */}
-                {col.longevityReason && (
-                  <div style={{marginTop:8,fontSize:11,color:"#888",background:"#FAFAFA",borderRadius:8,padding:"7px 9px",lineHeight:1.6}}>
-                    <b style={{color:"#1565C0"}}>予測の根拠</b>
-                    {col.longevityTier && <span style={{marginLeft:6,fontWeight:700,color:"#555"}}>2週判定: {col.longevityTier}</span>}
-                    <br/>{col.longevityReason}
-                    {col.sisOutcome?.verdictNote && (
-                      <div style={{marginTop:4,fontWeight:600,color: col.sisOutcome.verdict === "hit" ? "#1f7a4d" : "#C62828"}}>
-                        答え合わせ: {col.sisOutcome.verdictNote}
-                      </div>
-                    )}
-                    {col.longevityPrev && (
-                      <div style={{marginTop:4,color:"#bbb"}}>
-                        旧予測 {col.longevityPrev.min}〜{col.longevityPrev.max}週（{col.longevityPrev.method}）から変更
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-          })}
-        </div>
+        /* 2026-08-20 統合: 旧「稼働タブ＞診断」と旧「分析タブ＞機種評価」を1つにまとめた。
+           同じ「この台は何週生きるか」の予測と答え合わせが2箇所にあり、編集部評価12件のうち
+           10件は診断の対象機種と重複していた。実装は src/MachineReview.jsx。
+           機種名をタップすると同じ分析タブの「機種分析」へ飛ぶ（旧実装はSisTab内のシートを開いていた）。 */
+        <MachineReviewTab onOpenMachine={m => { setAnalyzeM(m); setMode("analyze"); }} />
       )}
 
       {mode==="analyze" && (
