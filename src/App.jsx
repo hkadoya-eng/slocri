@@ -2753,9 +2753,15 @@ function OverviewTab({ posts, updatePost }) {
       )}
       <div style={{position:"sticky",top:52,zIndex:10,background:"#E8ECF0",paddingBottom:8,marginBottom:"1.25rem"}}>
         <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-          {[["rank","ランキング"],["machine","機種別"],["cat","カテゴリ分布"],["author","投稿者"],["browse","絞り込み"],["gap","ギャップ表"],["calendar","新台カレンダー"]].map(([k,l]) => {
+          {/* 新台カレンダーは「投稿の内訳」ではなく「これから出る台の予定」＝性質が違うので、
+              先頭に置いて色も分ける（青系）。他は投稿データの切り口なので従来のブランド色。 */}
+          {[["calendar","新台カレンダー"],["rank","ランキング"],["machine","機種別"],["cat","カテゴリ分布"],["author","投稿者"],["browse","絞り込み"],["gap","ギャップ表"]].map(([k,l]) => {
             const on = view===k;
-            return <button key={k} onClick={() => { setView(k); setSelM(null); }} style={{padding:"5px 10px",border:`0.5px solid ${on?"#D85A30":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":"#fff",color:on?"#993C1D":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap"}}>{l}</button>;
+            const cal = k==="calendar";
+            const c = cal
+              ? {bd:on?"#1565C0":"#BBD3EC", bg:on?"#E9F1FB":"#F7FAFE", fg:on?"#0D47A1":"#4A7AB0"}
+              : {bd:on?"#D85A30":"#ddd",   bg:on?"#FAECE7":"#fff",   fg:on?"#993C1D":"#888"};
+            return <button key={k} onClick={() => { setView(k); setSelM(null); }} style={{padding:"5px 10px",border:`0.5px solid ${c.bd}`,borderRadius:8,fontSize:13,background:c.bg,color:c.fg,cursor:"pointer",fontWeight:on?600:cal?500:400,whiteSpace:"nowrap"}}>{cal?"🗓 "+l:l}</button>;
           })}
         </div>
       </div>
@@ -3169,6 +3175,29 @@ function ResearchTab({ posts, aiEnabled, updatePost, adminUser }) {
     });
   }, [analyzeMachines]);
 
+  /* 機種分析の一覧。2026-08-20、プルダウンで機種を探す形をやめて
+     「新しい台から並ぶ一覧」に変えた（ユーザー指摘）。導入日の降順、導入日が無い機種は末尾。
+     投稿数の状態（未分析・追加あり）はカードのバッジで出すので、探すためのUIは持たない。 */
+  const analyzeList = useMemo(() => {
+    const statusBy = {};
+    analyzeMachineStatuses.forEach(s => { statusBy[s.name] = s; });
+    const rows = Object.entries(MACHINE_ANALYSIS).map(([name, d]) => ({
+      name,
+      data: d,
+      release: d.releaseDate || "",
+      posts: d.postCount ?? 0,
+      status: statusBy[name]?.status || null,
+      liveCount: statusBy[name]?.count ?? null,
+    }));
+    rows.sort((a, b) => (b.release || "0").localeCompare(a.release || "0") || a.name.localeCompare(b.name));
+    return rows;
+  }, [analyzeMachineStatuses]);
+
+  // 投稿が3件以上あるのに分析が無い機種。一覧の末尾に別枠で出す
+  const analyzeUnanalyzed = useMemo(
+    () => analyzeMachineStatuses.filter(s => s.status === "unanalyzed"),
+    [analyzeMachineStatuses]);
+
   function lookupAnalysis(machineName) {
     if (MACHINE_ANALYSIS[machineName]) return MACHINE_ANALYSIS[machineName];
     return Object.values(MACHINE_ANALYSIS).find(v => (v.aliases||[]).includes(machineName)) || null;
@@ -3426,40 +3455,50 @@ ${policyText}
 
       {mode==="analyze" && (
         <div>
-          <div style={{fontSize:13,color:"#aaa",marginBottom:10}}>投稿データをもとに手動分析した結果です。「〇〇を分析して」と声をかけると追加できます。</div>
-          <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center"}}>
-            <select value={analyzeM} onChange={e => { setAnalyzeM(e.target.value); setAnalyzeResult(null); }}
-              style={{flex:1,fontSize:15,padding:"8px 10px",border:"none",borderRadius:10,background:"#E8ECF0",boxShadow:"inset 3px 3px 6px #C5C9D4, inset -3px -3px 6px #FFFFFF",color:analyzeM?"#333":"#aaa",minWidth:0}}>
-              <option value="">機種を選択</option>
-              {analyzeMachineStatuses.map(({name,count,status,stored}) => {
-                const prefix = status==="unanalyzed" ? `📊 未分析（${count}件）` : status==="stale" ? `⚠️ +${count-stored}件` : `✓`;
-                return <option key={name} value={name}>{prefix} {name}</option>;
-              })}
-            </select>
-            <button onClick={analyze} disabled={!analyzeM}
-              style={{padding:"8px 16px",border:"none",borderRadius:10,background:!analyzeM?"#ccc":"#D85A30",color:"#fff",fontSize:15,fontWeight:500,cursor:!analyzeM?"not-allowed":"pointer",whiteSpace:"nowrap",flexShrink:0}}>
-              分析する
-            </button>
-          </div>
-          {(() => {
-            const needsAttn = analyzeMachineStatuses.filter(s => s.status!=="ok");
-            if (!needsAttn.length) return null;
-            return (
-              <div style={{marginBottom:14,background:"#fff",border:"0.5px solid #eee",borderRadius:12,overflow:"hidden"}}>
-                <div style={{padding:"8px 14px",borderBottom:"0.5px solid #eee",fontSize:13,fontWeight:600,color:"#555"}}>要対応の機種</div>
-                {needsAttn.map(s => (
-                  <div key={s.name} onClick={() => { setAnalyzeM(s.name); setAnalyzeResult(null); }}
-                    style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 14px",borderBottom:"0.5px solid #f5f5f5",cursor:"pointer",background:analyzeM===s.name?"#FAECE7":"#fff"}}>
-                    <span style={{fontSize:14,color:"#333",flex:1,minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.name}</span>
-                    {s.status==="unanalyzed"
-                      ? <span style={{fontSize:12,color:"#777",background:"#F0F0F0",borderRadius:6,padding:"2px 8px",flexShrink:0,marginLeft:8}}>📊 未分析（{s.count}件）</span>
-                      : <span style={{fontSize:12,color:"#C55A00",background:"#FFF3E0",borderRadius:6,padding:"2px 8px",flexShrink:0,marginLeft:8}}>⚠️ +{s.count - s.stored}件追加あり</span>
-                    }
+          {!analyzeResult && <>
+            <div style={{fontSize:13,color:"#aaa",marginBottom:10}}>投稿データをもとにまとめた機種の分析です。導入が新しい順に並べてあります。「〇〇を分析して」と声をかけると追加できます。</div>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {analyzeList.map(row => (
+                <button key={row.name} onClick={() => { setAnalyzeM(row.name); setAnalyzeResult({ ...row.data, machine: row.name }); }}
+                  style={{display:"block",width:"100%",textAlign:"left",background:"#fff",border:"none",borderRadius:12,padding:"11px 13px",cursor:"pointer",boxShadow:"3px 3px 7px #C8CED8, -3px -3px 7px #FFFFFF"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
+                    <span style={{flex:1,minWidth:0,fontSize:14,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{row.name}</span>
+                    {row.status === "stale" && <span style={{flexShrink:0,fontSize:10,fontWeight:700,color:"#C55A00",background:"#FFF3E0",borderRadius:5,padding:"2px 7px"}}>⚠️ +{row.liveCount - row.posts}件</span>}
                   </div>
-                ))}
+                  <div style={{fontSize:10.5,color:"#aaa",marginBottom:row.data.summary?4:0}}>
+                    {row.release ? row.release + " 導入" : "導入日 未登録"}
+                    <span style={{color:"#ddd"}}> ・ </span>投稿{row.posts}件
+                    {row.data.sisRecord?.contribWeeks != null && <>
+                      <span style={{color:"#ddd"}}> ・ </span>
+                      <span style={{color:"#2a7ae8",fontWeight:700}}>稼働貢献{row.data.sisRecord.contribWeeks}週</span>
+                    </>}
+                  </div>
+                  {row.data.summary && (
+                    <div style={{fontSize:12,color:"#666",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{row.data.summary}</div>
+                  )}
+                </button>
+              ))}
+            </div>
+            {analyzeUnanalyzed.length > 0 && (
+              <div style={{marginTop:16}}>
+                <div style={{fontSize:12,color:"#888",marginBottom:6}}>未分析（投稿は3件以上あるが分析がまだ無い機種）</div>
+                <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                  {analyzeUnanalyzed.map(s => (
+                    <div key={s.name} style={{background:"#fff",borderRadius:10,padding:"9px 12px",boxShadow:"2px 2px 6px #C8CED8, -2px -2px 6px #FFFFFF",display:"flex",alignItems:"center",gap:8}}>
+                      <span style={{flex:1,minWidth:0,fontSize:13,color:"#555",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.name}</span>
+                      <span style={{flexShrink:0,fontSize:10,color:"#777",background:"#F0F0F0",borderRadius:5,padding:"2px 7px"}}>📊 投稿{s.count}件</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            );
-          })()}
+            )}
+          </>}
+          {analyzeResult && (
+            <button onClick={() => { setAnalyzeResult(null); setAnalyzeM(""); }}
+              style={{border:"none",background:"none",color:"#D85A30",fontSize:13,cursor:"pointer",padding:"0 0 10px"}}>
+              ← 一覧へ戻る
+            </button>
+          )}
           {analyzeResult && !analyzeResult.error && (
             <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:14,overflow:"hidden"}}>
               <div style={{padding:"12px 16px",borderBottom:"0.5px solid #eee",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
