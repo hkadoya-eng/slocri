@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-20",
+  "updatedAt": "2026-08-10",
   "columns": [
     {
       "id": "god_kiseki",
@@ -29,10 +29,11 @@
       "longevityTier": "優良",
       "longevityReason": "2週判定=優良（2週持続96%・2週稼働値374%・傾き-83）。確定126機種の優良×稼働値300%以上 (n=8) の実測中央値14週へ変更。旧予測22〜25週はデイリー全国ランキング起点で、初週稼働値(r=+0.23)という弱い信号に依存していたため廃止。",
       "sisOutcome": {
-        "contribWeeks": 13,
+        "contribWeeks": 16,
         "status": "継続中",
-        "katsudoLast": 201,
-        "asOf": "2026-07-20"
+        "katsudoLast": 115,
+        "asOf": "2026-08-10",
+        "reason": "直近稼働値114%で市場平均超え"
       }
     },
     {
@@ -64,9 +65,13 @@
       "longevityReason": "2週判定=注意（2週持続78%・2週稼働値298%・傾き-82）。基準は確定126機種の注意×稼働値300%未満 (n=25)＝5週だが、現時点の貢献5週が既に超えているため実績ベースで7週へ引き直し。",
       "sisOutcome": {
         "contribWeeks": 5,
-        "status": "継続中",
-        "katsudoLast": 93,
-        "asOf": "2026-07-20"
+        "status": "終了",
+        "katsudoLast": 56,
+        "asOf": "2026-08-10",
+        "reason": "直近4週すべて市場平均以下",
+        "verdict": "miss",
+        "predicted": 7,
+        "diff": -2
       }
     },
     {
@@ -97,13 +102,12 @@
       "sisOutcome": {
         "contribWeeks": 6,
         "status": "終了",
-        "installedWeeks": 16,
-        "deadWeeks": 10,
-        "asOf": "2026-07-20",
-        "predicted": 6,
-        "diff": 0,
+        "katsudoLast": 40,
+        "asOf": "2026-08-10",
+        "reason": "直近4週すべて市場平均以下",
         "verdict": "hit",
-        "verdictNote": "予測6週に対し実績6週。差+0週で的中(±2週以内)。"
+        "predicted": 6,
+        "diff": 0
       },
       "longevityMin": 6,
       "longevityMax": 6
@@ -136,10 +140,11 @@
       "longevityTier": "超優良",
       "longevityReason": "2週判定=超優良（2週持続93%・2週稼働値383%・傾き-22）。確定126機種の超優良全体 (n=4) の実測中央値18週へ変更。旧予測18〜20週はデイリー全国ランキング起点で、初週稼働値(r=+0.23)という弱い信号に依存していたため廃止。",
       "sisOutcome": {
-        "contribWeeks": 15,
+        "contribWeeks": 18,
         "status": "継続中",
-        "katsudoLast": 215,
-        "asOf": "2026-07-20"
+        "katsudoLast": 122,
+        "asOf": "2026-08-10",
+        "reason": "直近稼働値121%で市場平均超え"
       }
     },
     {
@@ -171,9 +176,13 @@
       "longevityReason": "2週判定=優秀（2週持続89%・2週稼働値368%・傾き-40）。基準は確定126機種の優秀×稼働値300%以上 (n=15)＝8週だが、現時点の貢献10週が既に超えているため実績ベースで12週へ引き直し。",
       "sisOutcome": {
         "contribWeeks": 10,
-        "status": "継続中",
-        "katsudoLast": 136,
-        "asOf": "2026-07-20"
+        "status": "終了",
+        "katsudoLast": 76,
+        "asOf": "2026-08-10",
+        "reason": "直近4週すべて市場平均以下",
+        "verdict": "miss",
+        "predicted": 12,
+        "diff": -2
       }
     },
     {
@@ -203,10 +212,11 @@
       "longevityTier": "注意",
       "longevityReason": "2週判定=注意（2週持続81%・2週稼働値334%・傾き-25）。確定126機種の注意×稼働値300%以上 (n=12) の実測中央値6週へ変更。旧予測60〜69週はデイリー全国ランキング起点で、初週稼働値(r=+0.23)という弱い信号に依存していたため廃止。",
       "sisOutcome": {
-        "contribWeeks": 2,
+        "contribWeeks": 5,
         "status": "継続中",
-        "katsudoLast": 259,
-        "asOf": "2026-07-20"
+        "katsudoLast": 98,
+        "asOf": "2026-08-10",
+        "reason": "直近は98%だが直近4週に市場平均超えの週あり"
       }
     },
     {
@@ -237,13 +247,12 @@
       "sisOutcome": {
         "contribWeeks": 4,
         "status": "終了",
-        "installedWeeks": 14,
-        "deadWeeks": 10,
-        "asOf": "2026-07-20",
+        "katsudoLast": 28,
+        "asOf": "2026-08-10",
+        "reason": "直近4週すべて市場平均以下",
+        "verdict": "miss",
         "predicted": 5,
-        "diff": 1,
-        "verdict": "hit",
-        "verdictNote": "予測5週に対し実績4週。差-1週で的中(±2週以内)。"
+        "diff": -1
       },
       "longevityMin": 5,
       "longevityMax": 5
@@ -304,9 +313,13 @@
       "longevityReason": "2週判定=優秀（2週持続85%・2週稼働値297%・傾き-47）。基準は確定126機種の優秀×稼働値300%未満 (n=23)＝8週だが、現時点の貢献10週が既に超えているため実績ベースで12週へ引き直し。",
       "sisOutcome": {
         "contribWeeks": 10,
-        "status": "継続中",
-        "katsudoLast": 128,
-        "asOf": "2026-07-20"
+        "status": "終了",
+        "katsudoLast": 69,
+        "asOf": "2026-08-10",
+        "reason": "直近4週すべて市場平均以下",
+        "verdict": "miss",
+        "predicted": 12,
+        "diff": -2
       }
     },
     {
@@ -337,13 +350,12 @@
       "sisOutcome": {
         "contribWeeks": 5,
         "status": "終了",
-        "installedWeeks": 11,
-        "deadWeeks": 6,
-        "asOf": "2026-07-20",
-        "predicted": 5,
-        "diff": 0,
+        "katsudoLast": 36,
+        "asOf": "2026-08-10",
+        "reason": "直近4週すべて市場平均以下",
         "verdict": "hit",
-        "verdictNote": "予測5週に対し実績5週。差+0週で的中(±2週以内)。"
+        "predicted": 5,
+        "diff": 0
       },
       "longevityMin": 5,
       "longevityMax": 5
@@ -376,13 +388,12 @@
       "sisOutcome": {
         "contribWeeks": 6,
         "status": "終了",
-        "installedWeeks": 16,
-        "deadWeeks": 10,
-        "asOf": "2026-07-20",
-        "predicted": 5,
-        "diff": -1,
+        "katsudoLast": 49,
+        "asOf": "2026-08-10",
+        "reason": "直近4週すべて市場平均以下",
         "verdict": "hit",
-        "verdictNote": "予測5週に対し実績6週。差+1週で的中(±2週以内)。"
+        "predicted": 6,
+        "diff": 0
       },
       "longevityMin": 5,
       "longevityMax": 10
@@ -416,10 +427,11 @@
       "longevityTier": "超優良",
       "longevityReason": "2週判定=超優良（2週持続95%・2週稼働値479%・傾き+17）。基準は確定126機種の超優良全体 (n=4)＝18週だが、現時点の貢献20週が既に超えているため実績ベースで22週へ引き直し。",
       "sisOutcome": {
-        "contribWeeks": 20,
+        "contribWeeks": 23,
         "status": "継続中",
-        "katsudoLast": 213,
-        "asOf": "2026-07-20"
+        "katsudoLast": 118,
+        "asOf": "2026-08-10",
+        "reason": "直近稼働値118%で市場平均超え"
       }
     }
   ],

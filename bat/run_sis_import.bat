@@ -40,6 +40,9 @@ if "%NEED_PUSH%"=="0" (
 echo [%date% %time%] machine_review prediction update... >> %LOG% 2>&1
 python scripts\misc\update_machine_review_predictions.py >> %LOG% 2>&1
 
+echo [%date% %time%] machine_review outcome update... >> %LOG% 2>&1
+python scripts\misc\update_review_outcome.py >> %LOG% 2>&1
+
 git diff --quiet src\sisLibrary.json src\columnData.json
 if errorlevel 1 (
     echo [%date% %time%] data updated, pushing... >> %LOG% 2>&1
