@@ -39,12 +39,7 @@ def swap(start_marker, end_marker, new, label, after=0):
 
 done = []
 
-# 1. リード文
-lede = S[2]["v"]
-i = t.index('<p class="prose">ダイトー')
-j = t.index("</p>", i) + 4
-t = t[:i] + '<p class="prose">%s</p>' % rich(lede) + t[j:]
-print("  置換: リード文")
+# 1. Ⅰ章の冒頭段落は sync_dossier_verdict.py が担当（ここでは触らない）
 
 # 2. h1 と chips（9週すべて → 10週すべて）
 t = t.replace("<h1>9週すべて全国平均超え。", "<h1>10週すべて全国平均超え。")
