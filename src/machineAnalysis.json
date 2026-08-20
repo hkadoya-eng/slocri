@@ -37,16 +37,16 @@
     "updatedAt": "2026-07-06",
     "sisRecord": {
       "sisName": "Lミリオンゴッド－神々の軌跡－",
-      "contribWeeks": 15,
+      "contribWeeks": 16,
       "status": "継続中",
-      "statusReason": "直近稼働値112%で市場平均超え",
-      "installedWeeks": 16,
+      "statusReason": "直近稼働値115%で市場平均超え",
+      "installedWeeks": 17,
       "firstWeek": "2026-04-20",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 112,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 115,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-03"
+      "asOf": "2026-08-10"
     }
   },
   "Lヨルムンガンド": {
@@ -89,13 +89,13 @@
       "contribWeeks": 6,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 18,
+      "installedWeeks": 19,
       "firstWeek": "2026-04-06",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 38,
-      "deadWeeks": 12,
-      "weeksBelowAvg": 14,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 40,
+      "deadWeeks": 13,
+      "weeksBelowAvg": 15,
+      "asOf": "2026-08-10"
     }
   },
   "L虚構推理": {
@@ -138,13 +138,13 @@
       "contribWeeks": 10,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 18,
+      "installedWeeks": 19,
       "firstWeek": "2026-04-06",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 74,
-      "deadWeeks": 8,
-      "weeksBelowAvg": 9,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 76,
+      "deadWeeks": 9,
+      "weeksBelowAvg": 10,
+      "asOf": "2026-08-10"
     }
   },
   "Lアクダマドライブ": {
@@ -183,13 +183,13 @@
       "contribWeeks": 6,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 18,
+      "installedWeeks": 19,
       "firstWeek": "2026-04-06",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 46,
-      "deadWeeks": 12,
-      "weeksBelowAvg": 14,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 49,
+      "deadWeeks": 13,
+      "weeksBelowAvg": 15,
+      "asOf": "2026-08-10"
     }
   },
   "L真打吉宗": {
@@ -227,16 +227,16 @@
     "updatedAt": "2026-07-06",
     "sisRecord": {
       "sisName": "L真打吉宗",
-      "contribWeeks": 17,
+      "contribWeeks": 18,
       "status": "継続中",
-      "statusReason": "直近稼働値120%で市場平均超え",
-      "installedWeeks": 18,
+      "statusReason": "直近稼働値122%で市場平均超え",
+      "installedWeeks": 19,
       "firstWeek": "2026-04-06",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 120,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 122,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-03"
+      "asOf": "2026-08-10"
     }
   },
   "L甲鉄城のカバネリ海門決戦": {
@@ -275,16 +275,16 @@
     "updatedAt": "2026-06-16",
     "sisRecord": {
       "sisName": "L甲鉄城のカバネリ海門決戦",
-      "contribWeeks": 22,
+      "contribWeeks": 23,
       "status": "継続中",
-      "statusReason": "直近稼働値127%で市場平均超え",
-      "installedWeeks": 23,
+      "statusReason": "直近稼働値118%で市場平均超え",
+      "installedWeeks": 24,
       "firstWeek": "2026-03-02",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 127,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 118,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-03"
+      "asOf": "2026-08-10"
     }
   },
   "異世界かるてっと BT": {
@@ -329,13 +329,13 @@
       "contribWeeks": 10,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 18,
+      "installedWeeks": 19,
       "firstWeek": "2026-04-06",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 75,
-      "deadWeeks": 8,
-      "weeksBelowAvg": 10,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 69,
+      "deadWeeks": 9,
+      "weeksBelowAvg": 11,
+      "asOf": "2026-08-10"
     }
   },
   "Lガンダムユニコーン覚醒DRIVE": {
@@ -379,13 +379,13 @@
       "contribWeeks": 4,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 16,
+      "installedWeeks": 17,
       "firstWeek": "2026-04-20",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 26,
-      "deadWeeks": 12,
-      "weeksBelowAvg": 14,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 28,
+      "deadWeeks": 13,
+      "weeksBelowAvg": 15,
+      "asOf": "2026-08-10"
     }
   },
   "eリコリス・リコイル": {
@@ -460,13 +460,13 @@
       "contribWeeks": 23,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 31,
+      "installedWeeks": 32,
       "firstWeek": "2026-01-05",
-      "lastWeek": "2026-08-03",
+      "lastWeek": "2026-08-10",
       "katsudoLast": 83,
-      "deadWeeks": 8,
-      "weeksBelowAvg": 9,
-      "asOf": "2026-08-03"
+      "deadWeeks": 9,
+      "weeksBelowAvg": 10,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ新鬼武者3": {
@@ -508,13 +508,13 @@
       "contribWeeks": 15,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 44,
+      "installedWeeks": 45,
       "firstWeek": "2025-10-06",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 55,
-      "deadWeeks": 29,
-      "weeksBelowAvg": 31,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 61,
+      "deadWeeks": 30,
+      "weeksBelowAvg": 32,
+      "asOf": "2026-08-10"
     }
   },
   "Lからくりサーカス2": {
@@ -556,16 +556,16 @@
     "updatedAt": "2026-07-06",
     "sisRecord": {
       "sisName": "Lからくりサーカス2",
-      "contribWeeks": 4,
+      "contribWeeks": 5,
       "status": "継続中",
-      "statusReason": "直近稼働値108%で市場平均超え",
-      "installedWeeks": 5,
+      "statusReason": "直近稼働値98%で市場平均超え",
+      "installedWeeks": 6,
       "firstWeek": "2026-07-06",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 108,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 98,
       "deadWeeks": 0,
-      "weeksBelowAvg": 0,
-      "asOf": "2026-08-03"
+      "weeksBelowAvg": 1,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ バイオハザードRE:3": {
@@ -598,13 +598,13 @@
       "contribWeeks": 5,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 13,
+      "installedWeeks": 14,
       "firstWeek": "2026-05-11",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 50,
-      "deadWeeks": 8,
-      "weeksBelowAvg": 9,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 56,
+      "deadWeeks": 9,
+      "weeksBelowAvg": 10,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ ソードアート・オンラインⅡ": {
@@ -647,16 +647,16 @@
     "updatedAt": "2026-07-30",
     "sisRecord": {
       "sisName": "Lソードアート・オンラインII",
-      "contribWeeks": 8,
+      "contribWeeks": 9,
       "status": "継続中",
-      "statusReason": "直近稼働値201%で市場平均超え",
-      "installedWeeks": 9,
+      "statusReason": "直近稼働値185%で市場平均超え",
+      "installedWeeks": 10,
       "firstWeek": "2026-06-08",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 201,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 185,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-03"
+      "asOf": "2026-08-10"
     }
   },
   "e転生したらスライムだった件2": {
@@ -782,13 +782,13 @@
       "contribWeeks": 7,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 13,
+      "installedWeeks": 14,
       "firstWeek": "2026-05-11",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 64,
-      "deadWeeks": 6,
-      "weeksBelowAvg": 7,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 65,
+      "deadWeeks": 7,
+      "weeksBelowAvg": 8,
+      "asOf": "2026-08-10"
     }
   },
   "L東京喰種": {
@@ -829,16 +829,16 @@
     "updatedAt": "2026-08-11",
     "sisRecord": {
       "sisName": "L東京喰種",
-      "contribWeeks": 78,
+      "contribWeeks": 79,
       "status": "継続中",
       "statusReason": "直近稼働値118%で市場平均超え",
-      "installedWeeks": 79,
+      "installedWeeks": 80,
       "firstWeek": "2025-02-03",
-      "lastWeek": "2026-08-03",
+      "lastWeek": "2026-08-10",
       "katsudoLast": 118,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-03"
+      "asOf": "2026-08-10"
     }
   },
   "北斗の拳（4号機）": {
@@ -907,13 +907,13 @@
       "contribWeeks": 5,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 13,
+      "installedWeeks": 14,
       "firstWeek": "2026-05-11",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 35,
-      "deadWeeks": 8,
-      "weeksBelowAvg": 9,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 36,
+      "deadWeeks": 9,
+      "weeksBelowAvg": 10,
+      "asOf": "2026-08-10"
     }
   },
   "Lタクトオーパス デスティニー": {
@@ -956,13 +956,13 @@
       "contribWeeks": 6,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 13,
+      "installedWeeks": 14,
       "firstWeek": "2026-05-11",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 61,
-      "deadWeeks": 7,
-      "weeksBelowAvg": 8,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 63,
+      "deadWeeks": 8,
+      "weeksBelowAvg": 9,
+      "asOf": "2026-08-10"
     }
   },
   "LBスロット GALFY": {
@@ -1006,7 +1006,7 @@
       "katsudoLast": 63,
       "deadWeeks": 5,
       "weeksBelowAvg": 6,
-      "asOf": "2026-08-03"
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ モンキーターンV": {
@@ -1045,13 +1045,13 @@
       "contribWeeks": 111,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 140,
+      "installedWeeks": 141,
       "firstWeek": "2023-12-04",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 93,
-      "deadWeeks": 29,
-      "weeksBelowAvg": 26,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 90,
+      "deadWeeks": 30,
+      "weeksBelowAvg": 27,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ とんでもスキルで異世界放浪メシ": {
@@ -1132,16 +1132,16 @@
     "updatedAt": "2026-08-08",
     "sisRecord": {
       "sisName": "Lストリートファイター6",
-      "contribWeeks": 0,
+      "contribWeeks": 1,
       "status": "継続中",
-      "statusReason": "直近稼働値162%で市場平均超え",
-      "installedWeeks": 1,
+      "statusReason": "直近稼働値120%で市場平均超え",
+      "installedWeeks": 2,
       "firstWeek": "2026-08-03",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 162,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 120,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-03"
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ サンダーV": {
@@ -1176,16 +1176,16 @@
     "updatedAt": "2026-07-29",
     "sisRecord": {
       "sisName": "LBサンダーV",
-      "contribWeeks": 22,
+      "contribWeeks": 23,
       "status": "継続中",
-      "statusReason": "直近稼働値100%で市場平均超え",
-      "installedWeeks": 23,
+      "statusReason": "直近稼働値95%で市場平均超え",
+      "installedWeeks": 24,
       "firstWeek": "2026-03-02",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 100,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 95,
       "deadWeeks": 0,
-      "weeksBelowAvg": 2,
-      "asOf": "2026-08-03"
+      "weeksBelowAvg": 3,
+      "asOf": "2026-08-10"
     }
   },
   "スマート沖スロ ダークハイビ": {
@@ -1222,13 +1222,13 @@
       "contribWeeks": 4,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 7,
+      "installedWeeks": 8,
       "firstWeek": "2026-06-22",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 74,
-      "deadWeeks": 3,
-      "weeksBelowAvg": 4,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 73,
+      "deadWeeks": 4,
+      "weeksBelowAvg": 5,
+      "asOf": "2026-08-10"
     }
   },
   "L ダーリン・イン・ザ・フランキス": {
@@ -1315,16 +1315,16 @@
     "updatedAt": "2026-07-26",
     "sisRecord": {
       "sisName": "L戦国乙女5業火を穿つ宿焔の双刃",
-      "contribWeeks": 8,
+      "contribWeeks": 9,
       "status": "継続中",
-      "statusReason": "直近稼働値152%で市場平均超え",
-      "installedWeeks": 9,
+      "statusReason": "直近稼働値151%で市場平均超え",
+      "installedWeeks": 10,
       "firstWeek": "2026-06-08",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 152,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 151,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-03"
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ BIRDIE WING -Golf Girls' Story-": {
@@ -1430,16 +1430,16 @@
     "updatedAt": "2026-08-17",
     "sisRecord": {
       "sisName": "Lワールドダイスター",
-      "contribWeeks": 0,
+      "contribWeeks": 1,
       "status": "継続中",
-      "statusReason": "直近稼働値181%で市場平均超え",
-      "installedWeeks": 1,
+      "statusReason": "直近稼働値154%で市場平均超え",
+      "installedWeeks": 2,
       "firstWeek": "2026-08-03",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 181,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 154,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-03"
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ鉄拳6": {
@@ -1477,13 +1477,13 @@
       "contribWeeks": 10,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 31,
+      "installedWeeks": 32,
       "firstWeek": "2026-01-05",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 53,
-      "deadWeeks": 21,
-      "weeksBelowAvg": 22,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 56,
+      "deadWeeks": 22,
+      "weeksBelowAvg": 23,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ秘宝伝": {
@@ -1523,13 +1523,13 @@
       "contribWeeks": 7,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 33,
+      "installedWeeks": 34,
       "firstWeek": "2025-12-22",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 39,
-      "deadWeeks": 26,
-      "weeksBelowAvg": 27,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 42,
+      "deadWeeks": 27,
+      "weeksBelowAvg": 28,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ攻殻機動隊": {
@@ -1565,16 +1565,16 @@
     "updatedAt": "2026-07-29",
     "sisRecord": {
       "sisName": "L攻殻機動隊",
-      "contribWeeks": 26,
+      "contribWeeks": 27,
       "status": "継続中",
-      "statusReason": "直近稼働値96%で市場平均超え",
-      "installedWeeks": 27,
+      "statusReason": "直近稼働値101%で市場平均超え",
+      "installedWeeks": 28,
       "firstWeek": "2026-02-01",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 96,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 101,
       "deadWeeks": 0,
       "weeksBelowAvg": 1,
-      "asOf": "2026-08-03"
+      "asOf": "2026-08-10"
     }
   },
   "Lパチスロ喰霊-零-Re": {
@@ -1589,13 +1589,14 @@
     "releaseDate": "2026-08-17",
     "spec": "オーイズミ / 2026年8月17日導入予定・導入予定44店舗 / A+ARTタイプ / ART純増約1.0枚・ベース36.1G(50枚あたり)・コイン単価約2.55円 / メインRUSH約1/99.6 / 上位ロング810G・2000枚OVER率49% / 天井 通常時999G→喰霊CHANCE夢幻 / ART初当り1/468.6(設1)〜1/279.8(設6) / 機械割97.8〜110.0%",
     "summary": "初代継承のA+ART・設定3で初めて100%を超える設定狙い専用機",
-    "highlight": "ヒットタイトル「喰霊-零-」の正統後継機で、初代のゲーム性を強く受け継いだA+ARTタイプとして2026年8月17日にオーイズミから導入予定。メインRUSHは約1/99.6で、エクストリーム150G・ロング205G・エクストリームロング810Gと段階があり、上位ロング到達時は2000枚OVER率約49%と一撃性も備える。ART純増は約1.0枚・ベース36.1G(50枚あたり)・コイン単価約2.55円と、荒波AT機の半分以下の単価でじっくり遊べる設計。（2026-08 追記）解析が出揃い、機械割が設定1=97.8%・設定2=98.9%と2段階でマイナスに置かれ、設定3で初めて100%を超えて設定6が110.0%という構成であることが判明。ボーナスにはほとんど設定差がなく、判別の主軸はART初当りで設定1の1/468.6に対し設定6が1/279.8と約1.67倍差が付く。天井は通常時999Gで喰霊CHANCE夢幻へ移行する形で、ボーナス間ではなく通常時のゲーム数管理である点が数え方の注意点。導入予定は44店舗と小規模で、打つ前に設置店を確保できるかが実務上の課題になる。（2026-08-17 追記）予定どおり8月17日から全国導入が始まり、オーイズミが公式に完売を発表した。ただし完売はメーカーの生産計画分の受注が埋まったという意味で、予定台数は約3000台。同時期発表のスマスロ リコリス・リコイル(9月7日・全国20000台)と比べると1桁小さく、完売という言葉から受ける印象と実際に打てる店の数は一致しない。1店あたり数台の設置が中心になるため、設定の入り方も島の小ささに引きずられる点は打つ前に織り込んでおきたい。",
+    "highlight": "ヒットタイトル「喰霊-零-」の正統後継機で、初代のゲーム性を強く受け継いだA+ARTタイプとして2026年8月17日にオーイズミから導入予定。メインRUSHは約1/99.6で、エクストリーム150G・ロング205G・エクストリームロング810Gと段階があり、上位ロング到達時は2000枚OVER率約49%と一撃性も備える。ART純増は約1.0枚・ベース36.1G(50枚あたり)・コイン単価約2.55円と、荒波AT機の半分以下の単価でじっくり遊べる設計。（2026-08 追記）解析が出揃い、機械割が設定1=97.8%・設定2=98.9%と2段階でマイナスに置かれ、設定3で初めて100%を超えて設定6が110.0%という構成であることが判明。ボーナスにはほとんど設定差がなく、判別の主軸はART初当りで設定1の1/468.6に対し設定6が1/279.8と約1.67倍差が付く。天井は通常時999Gで喰霊CHANCE夢幻へ移行する形で、ボーナス間ではなく通常時のゲーム数管理である点が数え方の注意点。導入予定は44店舗と小規模で、打つ前に設置店を確保できるかが実務上の課題になる。（2026-08-17 追記）予定どおり8月17日から全国導入が始まり、オーイズミが公式に完売を発表した。ただし完売はメーカーの生産計画分の受注が埋まったという意味で、予定台数は約3000台。同時期発表のスマスロ リコリス・リコイル(9月7日・全国20000台)と比べると1桁小さく、完売という言葉から受ける印象と実際に打てる店の数は一致しない。1店あたり数台の設置が中心になるため、設定の入り方も島の小ささに引きずられる点は打つ前に織り込んでおきたい。（2026-08-20 追記）導入から3日で実戦評価が出始めた。DMMぱちタウンの評価は2.70点/35件で、1点評価の理由がほぼ一点に集まっているのが特徴。「ART準備中が無抽選でメダルがゴリゴリ削られる」「ART中にまともにリプレイが来ない」「純増がボーナス込みで約2枚」と、当たりの重さではなく消化区間の減り方への不満が並ぶ。実戦報告の「ART中2000G回して1800枚」は毎ゲーム約0.9枚で、解析値の純増約1.0枚/G(ボーナス込み約1.4枚/G)どおりの数字なので、これは仕様がそのまま体感になっている状態。一方で4.67点を付けた層は999G+αの無限ARTと新規フリーズフラグを理由に期待値台として評価しており、割れているのは台の出来ではなく座る目的のほう。あわせてCZの突破期待度が公開され、超自然災害モードが約37%・解放の刻が約50%と、どちらを引いてもART非突入のほうが多い。CZ1回スルー後の判断で2種を同じ期待度として計算すると狙い目がずれる。ART1セットは50G。",
     "pros": [
       "初代の打感を継承したA+ARTで、ベース36.1G・コイン単価約2.55円と現行の高単価機の半分以下でじっくり遊べる設計",
       "メインRUSHはエクストリームロング810G到達で2000枚OVER率約49%と上位の一撃性がある",
       "ART初当りが設定1の1/468.6に対し設定6が1/279.8と約1.67倍差で、判別の軸が初当り回数ひとつに絞れる分かりやすさ",
       "天井が通常時999Gで喰霊CHANCE夢幻へ移行。コイン持ちが良いため999Gまで回しても投資が高純増AT機の天井狙いより軽い",
-      "ヒット作の正統後継機でIPファンの期待値が高く、8月の集客台として注目"
+      "ヒット作の正統後継機でIPファンの期待値が高く、8月の集客台として注目",
+      "CZの突破期待度が公開済み(超自然災害モード約37%・解放の刻約50%)で、CZ後に粘るか立つかを数字で切り分けられる"
     ],
     "cons": [
       "ART純増約1.0枚と現行スマスロ比では出玉スピードが遅く、爆発力は上位ロード次第",
@@ -1603,7 +1604,9 @@
       "ボーナスを何回引いても設定が見えず、判別サンプルがART初当りに一本化されるため確信を得るまで時間がかかる",
       "導入予定44店舗と小規模で、そもそも打てる店を探す段階でハードルがある",
       "8月17日から導入開始。完売報道はあるが予定台数は約3000台と1機種としては小規模で、打てる店の絶対数が増えるわけではない",
-      "リメイク追加要素への賛否は残っており、実戦データはこれから積み上がる段階"
+      "リメイク追加要素への賛否は残っており、実戦データはこれから積み上がる段階",
+      "導入後の評価は2.70点/35件と低め。1点評価は「ART準備中が無抽選でメダルが削られる」「ART中にリプレイが来ない」と消化区間の減り方に集中しており、純増約1.0枚の仕様がそのまま不満として出ている",
+      "CZは2種とも突破期待度が約37%・約50%で、引いてもART非突入のほうが多い。CZ当選=当たりと考えると期待値を過大評価する"
     ],
     "scores": {
       "jiriki": 5,
@@ -1613,8 +1616,8 @@
       "jiriki": "A+ARTでレア役・ボーナスを絡めた展開はあるが確率制御主体",
       "yamenikusa": "ART・ボーナス終了で区切りが明確でやめどきは判断しやすい"
     },
-    "postCount": 14,
-    "updatedAt": "2026-08-17"
+    "postCount": 17,
+    "updatedAt": "2026-08-20"
   },
   "Lヤバチバ": {
     "aliases": [
@@ -1643,15 +1646,15 @@
     "sisRecord": {
       "sisName": "Lヤバチバ",
       "contribWeeks": 3,
-      "status": "継続中",
-      "statusReason": "直近稼働値72%で市場平均超え",
-      "installedWeeks": 5,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 6,
       "firstWeek": "2026-07-06",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 72,
-      "deadWeeks": 1,
-      "weeksBelowAvg": 3,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 70,
+      "deadWeeks": 3,
+      "weeksBelowAvg": 4,
+      "asOf": "2026-08-10"
     }
   },
   "L南国育ちSPECIAL": {
@@ -1681,16 +1684,16 @@
     "updatedAt": "2026-07-29",
     "sisRecord": {
       "sisName": "L南国育ちSPECIAL",
-      "contribWeeks": 4,
+      "contribWeeks": 5,
       "status": "継続中",
-      "statusReason": "直近稼働値102%で市場平均超え",
-      "installedWeeks": 5,
+      "statusReason": "直近稼働値94%で市場平均超え",
+      "installedWeeks": 6,
       "firstWeek": "2026-07-06",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 102,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 94,
       "deadWeeks": 0,
-      "weeksBelowAvg": 0,
-      "asOf": "2026-08-03"
+      "weeksBelowAvg": 1,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ リコリス・リコイル": {
@@ -1759,13 +1762,13 @@
       "contribWeeks": 9,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 35,
+      "installedWeeks": 36,
       "firstWeek": "2025-12-08",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 61,
-      "deadWeeks": 26,
-      "weeksBelowAvg": 27,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 65,
+      "deadWeeks": 27,
+      "weeksBelowAvg": 28,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ デビルメイクライ5": {
@@ -1807,13 +1810,13 @@
       "contribWeeks": 8,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 62,
+      "installedWeeks": 63,
       "firstWeek": "2025-06-02",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 46,
-      "deadWeeks": 54,
-      "weeksBelowAvg": 54,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 52,
+      "deadWeeks": 55,
+      "weeksBelowAvg": 55,
+      "asOf": "2026-08-10"
     }
   },
   "マイジャグラーV": {
@@ -1947,13 +1950,13 @@
       "contribWeeks": 26,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 90,
+      "installedWeeks": 91,
       "firstWeek": "2024-11-18",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 78,
-      "deadWeeks": 64,
-      "weeksBelowAvg": 58,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 82,
+      "deadWeeks": 65,
+      "weeksBelowAvg": 59,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ 押忍!番長4": {
@@ -1984,13 +1987,13 @@
       "contribWeeks": 14,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 120,
+      "installedWeeks": 121,
       "firstWeek": "2024-04-22",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 41,
-      "deadWeeks": 106,
-      "weeksBelowAvg": 106,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 46,
+      "deadWeeks": 107,
+      "weeksBelowAvg": 107,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ ゴッドイーター リザレクション": {
@@ -2023,13 +2026,13 @@
       "contribWeeks": 43,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 107,
+      "installedWeeks": 108,
       "firstWeek": "2024-07-22",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 64,
-      "deadWeeks": 64,
-      "weeksBelowAvg": 58,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 61,
+      "deadWeeks": 65,
+      "weeksBelowAvg": 59,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ リゼロ2": {
@@ -2067,7 +2070,7 @@
       "katsudoLast": 43,
       "deadWeeks": 78,
       "weeksBelowAvg": 79,
-      "asOf": "2026-08-03"
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ銀河英雄伝説": {
@@ -2097,13 +2100,13 @@
       "contribWeeks": 6,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 35,
+      "installedWeeks": 36,
       "firstWeek": "2025-12-08",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 39,
-      "deadWeeks": 29,
-      "weeksBelowAvg": 31,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 40,
+      "deadWeeks": 30,
+      "weeksBelowAvg": 32,
+      "asOf": "2026-08-10"
     }
   },
   "L ULTRAMAN最終決戦": {
@@ -2142,15 +2145,15 @@
     "sisRecord": {
       "sisName": "LULTRAMAN最終決戦",
       "contribWeeks": 3,
-      "status": "継続中",
-      "statusReason": "直近稼働値61%で市場平均超え",
-      "installedWeeks": 5,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 6,
       "firstWeek": "2026-07-06",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 61,
-      "deadWeeks": 1,
-      "weeksBelowAvg": 3,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 56,
+      "deadWeeks": 3,
+      "weeksBelowAvg": 4,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ無職転生": {
@@ -2221,13 +2224,13 @@
       "contribWeeks": 2,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 5,
+      "installedWeeks": 6,
       "firstWeek": "2026-07-06",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 66,
-      "deadWeeks": 3,
-      "weeksBelowAvg": 4,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 64,
+      "deadWeeks": 4,
+      "weeksBelowAvg": 5,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ やじきた道中記参る！": {
@@ -2370,16 +2373,16 @@
     "updatedAt": "2026-08-15",
     "sisRecord": {
       "sisName": "LBケロット5",
-      "contribWeeks": 4,
+      "contribWeeks": 5,
       "status": "継続中",
-      "statusReason": "直近稼働値102%で市場平均超え",
-      "installedWeeks": 5,
+      "statusReason": "直近稼働値90%で市場平均超え",
+      "installedWeeks": 6,
       "firstWeek": "2026-07-06",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 102,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 90,
       "deadWeeks": 0,
-      "weeksBelowAvg": 0,
-      "asOf": "2026-08-03"
+      "weeksBelowAvg": 1,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ タコスロ": {
@@ -2498,13 +2501,13 @@
       "contribWeeks": 57,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 101,
+      "installedWeeks": 102,
       "firstWeek": "2024-09-02",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 58,
-      "deadWeeks": 44,
-      "weeksBelowAvg": 44,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 62,
+      "deadWeeks": 45,
+      "weeksBelowAvg": 45,
+      "asOf": "2026-08-10"
     }
   },
   "SLOT魔法少女まどか☆マギカ": {
@@ -2800,13 +2803,13 @@
       "contribWeeks": 17,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 81,
+      "installedWeeks": 82,
       "firstWeek": "2025-01-20",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 54,
-      "deadWeeks": 64,
-      "weeksBelowAvg": 60,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 56,
+      "deadWeeks": 65,
+      "weeksBelowAvg": 61,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ コードギアス 復活のルルーシュ": {
@@ -2882,16 +2885,16 @@
     "updatedAt": "2026-08-18",
     "sisRecord": {
       "sisName": "Lとある魔術の禁書目録2",
-      "contribWeeks": 0,
+      "contribWeeks": 1,
       "status": "継続中",
-      "statusReason": "直近稼働値230%で市場平均超え",
-      "installedWeeks": 1,
+      "statusReason": "直近稼働値189%で市場平均超え",
+      "installedWeeks": 2,
       "firstWeek": "2026-08-03",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 230,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 189,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-03"
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ 炎炎ノ消防隊2": {
@@ -2933,13 +2936,13 @@
       "contribWeeks": 24,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 27,
+      "installedWeeks": 28,
       "firstWeek": "2026-02-01",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 87,
-      "deadWeeks": 3,
-      "weeksBelowAvg": 4,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 85,
+      "deadWeeks": 4,
+      "weeksBelowAvg": 5,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ 緑ドン VIVA!情熱南米編 REVIVAL": {
@@ -2979,13 +2982,13 @@
       "contribWeeks": 6,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 66,
+      "installedWeeks": 67,
       "firstWeek": "2025-05-05",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 28,
-      "deadWeeks": 60,
-      "weeksBelowAvg": 61,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 33,
+      "deadWeeks": 61,
+      "weeksBelowAvg": 62,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ 咲-Saki- 頂上決戦": {
@@ -3029,13 +3032,13 @@
       "contribWeeks": 6,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 53,
+      "installedWeeks": 54,
       "firstWeek": "2025-08-04",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 40,
-      "deadWeeks": 47,
-      "weeksBelowAvg": 48,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 46,
+      "deadWeeks": 48,
+      "weeksBelowAvg": 49,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ ネオプラネット": {
@@ -3071,13 +3074,13 @@
       "contribWeeks": 8,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 38,
+      "installedWeeks": 39,
       "firstWeek": "2025-11-17",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 41,
-      "deadWeeks": 30,
-      "weeksBelowAvg": 33,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 42,
+      "deadWeeks": 31,
+      "weeksBelowAvg": 34,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ 沖ドキ！DUO アンコール": {
@@ -3118,13 +3121,13 @@
       "contribWeeks": 5,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 33,
+      "installedWeeks": 34,
       "firstWeek": "2025-12-22",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 70,
-      "deadWeeks": 28,
-      "weeksBelowAvg": 29,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 77,
+      "deadWeeks": 29,
+      "weeksBelowAvg": 30,
+      "asOf": "2026-08-10"
     }
   },
   "e学園黙示録ハイスクール・オブ・ザ・デッド3": {
@@ -3223,16 +3226,16 @@
     "updatedAt": "2026-07-29",
     "sisRecord": {
       "sisName": "L戦国コレクション6",
-      "contribWeeks": 4,
+      "contribWeeks": 5,
       "status": "継続中",
-      "statusReason": "直近稼働値130%で市場平均超え",
-      "installedWeeks": 5,
+      "statusReason": "直近稼働値120%で市場平均超え",
+      "installedWeeks": 6,
       "firstWeek": "2026-07-06",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 130,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 120,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-03"
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ 獣王": {
@@ -3296,16 +3299,16 @@
     "updatedAt": "2026-08-09",
     "sisRecord": {
       "sisName": "Lすーぱぁびん娘",
-      "contribWeeks": 0,
+      "contribWeeks": 1,
       "status": "継続中",
-      "statusReason": "直近稼働値142%で市場平均超え",
-      "installedWeeks": 1,
+      "statusReason": "直近稼働値107%で市場平均超え",
+      "installedWeeks": 2,
       "firstWeek": "2026-08-03",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 142,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 107,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-03"
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ主役は銭形5": {
@@ -3334,13 +3337,13 @@
       "contribWeeks": 14,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 44,
+      "installedWeeks": 45,
       "firstWeek": "2025-10-06",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 47,
-      "deadWeeks": 30,
-      "weeksBelowAvg": 33,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 50,
+      "deadWeeks": 31,
+      "weeksBelowAvg": 34,
+      "asOf": "2026-08-10"
     }
   },
   "L邪神ちゃんドロップキック": {
@@ -3378,16 +3381,16 @@
     "updatedAt": "2026-08-20",
     "sisRecord": {
       "sisName": "L邪神ちゃんドロップキック",
-      "contribWeeks": 0,
+      "contribWeeks": 1,
       "status": "継続中",
-      "statusReason": "直近稼働値202%で市場平均超え",
-      "installedWeeks": 1,
+      "statusReason": "直近稼働値169%で市場平均超え",
+      "installedWeeks": 2,
       "firstWeek": "2026-08-03",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 202,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 169,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-03"
+      "asOf": "2026-08-10"
     }
   },
   "e結城友奈は勇者である～極限7500～": {
@@ -3444,13 +3447,13 @@
       "contribWeeks": 29,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 70,
+      "installedWeeks": 71,
       "firstWeek": "2025-04-07",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 77,
-      "deadWeeks": 41,
-      "weeksBelowAvg": 40,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 82,
+      "deadWeeks": 42,
+      "weeksBelowAvg": 41,
+      "asOf": "2026-08-10"
     }
   },
   "L範馬刃牙": {
@@ -3489,13 +3492,13 @@
       "contribWeeks": 5,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 27,
+      "installedWeeks": 28,
       "firstWeek": "2026-02-01",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 29,
-      "deadWeeks": 22,
-      "weeksBelowAvg": 23,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 31,
+      "deadWeeks": 23,
+      "weeksBelowAvg": 24,
+      "asOf": "2026-08-10"
     }
   },
   "大花火(4号機)": {
@@ -3676,13 +3679,13 @@
       "contribWeeks": 26,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 131,
+      "installedWeeks": 132,
       "firstWeek": "2024-02-05",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 44,
-      "deadWeeks": 105,
-      "weeksBelowAvg": 106,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 48,
+      "deadWeeks": 106,
+      "weeksBelowAvg": 107,
+      "asOf": "2026-08-10"
     }
   },
   "マイジャグラーVI": {
@@ -3736,13 +3739,13 @@
       "contribWeeks": 8,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 16,
+      "installedWeeks": 17,
       "firstWeek": "2026-04-20",
-      "lastWeek": "2026-08-03",
+      "lastWeek": "2026-08-10",
       "katsudoLast": 69,
-      "deadWeeks": 8,
-      "weeksBelowAvg": 8,
-      "asOf": "2026-08-03"
+      "deadWeeks": 9,
+      "weeksBelowAvg": 9,
+      "asOf": "2026-08-10"
     }
   },
   "L アズールレーン THE ANIMATION": {
@@ -3774,13 +3777,13 @@
       "contribWeeks": 31,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 53,
+      "installedWeeks": 54,
       "firstWeek": "2025-08-04",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 68,
-      "deadWeeks": 22,
-      "weeksBelowAvg": 26,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 73,
+      "deadWeeks": 23,
+      "weeksBelowAvg": 27,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ バーニングエクスプレス": {
@@ -3808,13 +3811,13 @@
       "contribWeeks": 5,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 36,
+      "installedWeeks": 37,
       "firstWeek": "2025-12-01",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 18,
-      "deadWeeks": 31,
-      "weeksBelowAvg": 32,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 19,
+      "deadWeeks": 32,
+      "weeksBelowAvg": 33,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ HEY!エリートサラリーマン鏡": {
@@ -3845,13 +3848,13 @@
       "contribWeeks": 19,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 189,
+      "installedWeeks": 190,
       "firstWeek": "2022-12-26",
-      "lastWeek": "2026-08-03",
+      "lastWeek": "2026-08-10",
       "katsudoLast": 58,
-      "deadWeeks": 170,
-      "weeksBelowAvg": 172,
-      "asOf": "2026-08-03"
+      "deadWeeks": 171,
+      "weeksBelowAvg": 173,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ からくりサーカス": {
@@ -3881,13 +3884,13 @@
       "contribWeeks": 89,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 162,
+      "installedWeeks": 163,
       "firstWeek": "2023-07-03",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 42,
-      "deadWeeks": 73,
-      "weeksBelowAvg": 66,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 41,
+      "deadWeeks": 74,
+      "weeksBelowAvg": 67,
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ ギルティクラウン2": {
@@ -3917,13 +3920,13 @@
       "contribWeeks": 5,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 62,
+      "installedWeeks": 63,
       "firstWeek": "2025-06-02",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 44,
-      "deadWeeks": 57,
-      "weeksBelowAvg": 58,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 45,
+      "deadWeeks": 58,
+      "weeksBelowAvg": 59,
+      "asOf": "2026-08-10"
     }
   },
   "ぱちんこ 必殺仕事人VI": {
@@ -4106,14 +4109,14 @@
       "sisName": "LBニューキングハナハナV",
       "contribWeeks": 10,
       "status": "継続中",
-      "statusReason": "直近稼働値120%で市場平均超え",
-      "installedWeeks": 31,
+      "statusReason": "直近稼働値106%で市場平均超え",
+      "installedWeeks": 32,
       "firstWeek": "2026-01-05",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 120,
-      "deadWeeks": 20,
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 106,
+      "deadWeeks": 21,
       "weeksBelowAvg": 3,
-      "asOf": "2026-08-03"
+      "asOf": "2026-08-10"
     }
   },
   "スマスロ いざ！番長": {
@@ -4759,13 +4762,13 @@
       "contribWeeks": 9,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 79,
+      "installedWeeks": 80,
       "firstWeek": "2025-02-03",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 66,
-      "deadWeeks": 70,
-      "weeksBelowAvg": 71,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 72,
+      "deadWeeks": 71,
+      "weeksBelowAvg": 72,
+      "asOf": "2026-08-10"
     }
   },
   "e冥妃転生": {
@@ -4840,13 +4843,13 @@
       "contribWeeks": 11,
       "status": "終了",
       "statusReason": "直近4週すべて市場平均以下",
-      "installedWeeks": 40,
+      "installedWeeks": 41,
       "firstWeek": "2025-11-03",
-      "lastWeek": "2026-08-03",
-      "katsudoLast": 54,
-      "deadWeeks": 29,
-      "weeksBelowAvg": 31,
-      "asOf": "2026-08-03"
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 61,
+      "deadWeeks": 30,
+      "weeksBelowAvg": 32,
+      "asOf": "2026-08-10"
     }
   },
   "eライザのアトリエ 常闇の女王と秘密の隠れ家": {
