@@ -18,6 +18,12 @@ const C = {
   ink: "#333", ink2: "#444", muted: "#999", hair: "#e6e6e6",
   brand: "#D85A30", brandDim: "#993C1D", tier: "#7B1FA2",
   good: "#1F7A4D", bad: "#D03030", blue: "#2A6FA8", green: "#5E8C3A",
+  // 白いカードを浮かせる影。スロキー本体（App.jsx）と同じ値を使うので、
+  // ドシエだけ浮いて見えない。ヘアライン＋影なしだと背景#E8ECF0に沈んで枠が見えなかった
+  shadow: "5px 5px 11px #C5C9D4, -5px -5px 11px #FFFFFF",
+  shadowSm: "3px 3px 7px #C8CED8, -3px -3px 7px #FFFFFF",
+  inset: "inset 3px 3px 6px #C8CED8, inset -3px -3px 6px #FFFFFF",
+  sunk: "#DDE2E9",
 };
 
 /* ---------------- 太字だけの軽量パーサ（**...**） ---------------- */
@@ -542,7 +548,7 @@ function Section({ s }) {
       return (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(104px,1fr))", gap: 8, margin: "4px 0 14px" }}>
           {s.v.map(k => (
-            <div key={k.k} style={{ background: "#fff", border: `0.5px solid ${C.hair}`, borderRadius: 10, padding: "9px 10px" }}>
+            <div key={k.k} style={{ background: "#fff", boxShadow: C.shadowSm, borderRadius: 10, padding: "9px 10px" }}>
               <div style={{ fontSize: 10, color: C.muted }}>{k.k}</div>
               <div style={{ fontSize: 19, fontWeight: 700, color: C.ink, lineHeight: 1.35 }}>{k.v}</div>
               <div style={{ fontSize: 10, color: C.muted, lineHeight: 1.5 }}>{k.n}</div>
@@ -604,7 +610,7 @@ function Section({ s }) {
       return (
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 10, margin: "2px 0 12px" }}>
           {[["◎ 評価されている点", s.pos, C.good], ["× 不満が集まっている点", s.neg, C.bad]].map(([title, items, col]) => (
-            <div key={title} style={{ background: "#fff", border: `0.5px solid ${C.hair}`, borderRadius: 12, padding: "12px 13px" }}>
+            <div key={title} style={{ background: "#fff", boxShadow: C.shadow, borderRadius: 12, padding: "12px 13px" }}>
               <div style={{ fontSize: 12.5, fontWeight: 700, color: col, marginBottom: 7 }}>{title}</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
                 {items.map((q, i) => (
@@ -620,9 +626,9 @@ function Section({ s }) {
       );
     case "bullets": {
       // 見出し＋リード＋箇条書き（sub で1段ネスト）
-      const tone = s.tone === "primer" ? { bg: "#FBF3EF", bd: C.brand } : { bg: "#fff", bd: C.hair };
+      const tone = s.tone === "primer" ? { bg: "#FBF3EF", sh: C.shadowSm } : { bg: "#fff", sh: C.shadow };
       return (
-        <div style={{ background: tone.bg, border: `0.5px solid ${tone.bd === C.brand ? "#F0DAD0" : C.hair}`, borderRadius: 14, padding: "14px 16px", margin: "0 0 12px" }}>
+        <div style={{ background: tone.bg, boxShadow: tone.sh, borderRadius: 14, padding: "14px 16px", margin: "0 0 12px" }}>
           {s.title && <div style={{ fontSize: 14, fontWeight: 700, color: s.tone === "primer" ? C.brand : C.ink, marginBottom: 7 }}>{s.title}</div>}
           {s.lead && <p style={{ margin: "0 0 9px", fontSize: 13.5, color: C.ink2, lineHeight: 1.8 }}><RichText v={s.lead} /></p>}
           <ul style={{ margin: 0, paddingLeft: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 7 }}>
@@ -662,7 +668,7 @@ function Section({ s }) {
       return (
         <div style={{ display: "flex", flexDirection: "column", gap: 12, margin: "2px 0 12px" }}>
           {gs.map(g => (
-            <div key={g.group} style={{ background: "#fff", border: `0.5px solid ${C.hair}`, borderRadius: 12, padding: "12px 13px" }}>
+            <div key={g.group} style={{ background: "#fff", boxShadow: C.shadow, borderRadius: 12, padding: "12px 13px" }}>
               <div style={{ fontSize: 12.5, fontWeight: 700, color: C.brand, marginBottom: 8 }}>{g.group}</div>
               <dl style={{ margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>
                 {g.items.map(([term, desc]) => (
@@ -685,7 +691,7 @@ function Section({ s }) {
             const col = th.tone === "pos" ? C.good : th.tone === "neg" ? C.bad : C.brand;
             const bg = th.tone === "pos" ? "#F1FAF4" : th.tone === "neg" ? "#FDF3F3" : "#FBF3EF";
             return (
-              <div key={i} style={{ background: "#fff", border: `0.5px solid ${C.hair}`, borderRadius: 12, overflow: "hidden" }}>
+              <div key={i} style={{ background: "#fff", boxShadow: C.shadow, borderRadius: 12, overflow: "hidden" }}>
                 <div style={{ background: bg, padding: "8px 12px", display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{ fontSize: 11, fontWeight: 700, color: col }}>
                     {th.tone === "pos" ? "◎" : th.tone === "neg" ? "×" : "△"}
@@ -712,7 +718,7 @@ function Section({ s }) {
       return (
         <div style={{ margin: "2px 0 12px", display: "flex", flexDirection: "column", gap: 12 }}>
           {s.v.map(g => (
-            <div key={g.group} style={{ background: "#fff", border: `0.5px solid ${C.hair}`, borderRadius: 12, padding: "12px 13px" }}>
+            <div key={g.group} style={{ background: "#fff", boxShadow: C.shadow, borderRadius: 12, padding: "12px 13px" }}>
               <div style={{ fontSize: 12.5, fontWeight: 700, color: C.ink, marginBottom: 8 }}>{g.group}</div>
               {g.items.map(it => (
                 <div key={it.url} style={{ marginBottom: 11 }}>
@@ -764,7 +770,7 @@ function Section({ s }) {
           gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", alignItems: "start" }}>
           {s.v.score && (
             <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap",
-              background: "#fff", border: `0.5px solid ${C.hair}`, borderRadius: 12, padding: "12px 15px" }}>
+              background: "#fff", boxShadow: C.shadow, borderRadius: 12, padding: "12px 15px" }}>
               <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
                 <span style={{ fontSize: 11.5, color: C.muted }}>総合スコア</span>
                 <span style={{ fontSize: 40, fontWeight: 700, color: C.brand, lineHeight: 1 }}>{s.v.score.total}</span>
@@ -784,7 +790,7 @@ function Section({ s }) {
             </div>
           )}
           {tb && (
-            <div style={{ background: "#fff", border: `0.5px solid ${C.hair}`, borderRadius: 12, padding: "12px 13px" }}>
+            <div style={{ background: "#fff", boxShadow: C.shadow, borderRadius: 12, padding: "12px 13px" }}>
               <div style={{ overflowX: "auto" }}>
                 <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 12 }}>
                   <thead><tr>{tb.head.map((h, i) => (
@@ -842,8 +848,8 @@ function PartGroups({ sections }) {
     <div>
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
         <button onClick={() => setOpenIdx(groups.map(() => !allOpen))}
-          style={{ border: `0.5px solid ${C.hair}`, background: "#fff", color: C.brand, fontSize: 11.5,
-            borderRadius: 8, padding: "5px 11px", cursor: "pointer" }}>
+          style={{ border: "none", background: "#fff", boxShadow: C.shadowSm, color: C.brand, fontSize: 11.5,
+            borderRadius: 8, padding: "6px 12px", cursor: "pointer" }}>
           {allOpen ? "すべて閉じる" : "すべて開く"}
         </button>
       </div>
@@ -854,8 +860,9 @@ function PartGroups({ sections }) {
           <div key={i} style={{ marginBottom: 14 }}>
             <button onClick={() => setOpenIdx(p => p.map((v, k) => (k === i ? !v : v)))} aria-expanded={on}
               style={{ width: "100%", textAlign: "left", display: "flex", alignItems: "center", gap: 10,
-                background: on ? "#FBF3EF" : "#fff", border: `0.5px solid ${on ? "#F0DAD0" : C.hair}`,
-                borderLeft: `4px solid ${C.brand}`, borderRadius: 12, padding: "11px 13px", cursor: "pointer" }}>
+                background: on ? C.sunk : "#fff", boxShadow: on ? C.inset : C.shadowSm,
+                border: "none", borderLeft: `4px solid ${C.brand}`, borderRadius: 12,
+                padding: "11px 13px", cursor: "pointer" }}>
               <span style={{ fontSize: 14, fontWeight: 700, color: C.brand, minWidth: 22 }}>{g.part.num}</span>
               <span style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
                 <span style={{ fontSize: 16.5, fontWeight: 700, color: C.ink, lineHeight: 1.4 }}>{g.part.v}</span>
@@ -884,7 +891,7 @@ export default function MachineDossierTab() {
           style={{ border: "none", background: "none", color: C.brand, fontSize: 13, cursor: "pointer", padding: "0 0 10px" }}>
           ← 一覧へ戻る
         </button>
-        <div style={{ background: "#fff", border: `0.5px solid ${C.hair}`, borderRadius: 14, padding: "16px 15px", marginBottom: 16 }}>
+        <div style={{ background: "#fff", boxShadow: C.shadow, borderRadius: 14, padding: "16px 15px", marginBottom: 16 }}>
           <div style={{ fontSize: 11.5, color: C.brand, fontWeight: 700, marginBottom: 4 }}>{open.machine}</div>
           <div style={{ fontSize: 17, fontWeight: 700, color: C.ink, lineHeight: 1.45, marginBottom: 6 }}>{open.title}</div>
           <div style={{ fontSize: 13, color: C.ink2, lineHeight: 1.8, marginBottom: 10 }}><RichText v={open.lede} /></div>
@@ -918,7 +925,7 @@ export default function MachineDossierTab() {
       {list.length === 0 && <div style={{ fontSize: 13, color: C.muted, padding: "24px 0", textAlign: "center" }}>まだありません</div>}
       {list.map(d => (
         <button key={d.id} onClick={() => setOpenId(d.id)}
-          style={{ display: "block", width: "100%", textAlign: "left", background: "#fff", border: `0.5px solid ${C.hair}`, borderRadius: 14, padding: "13px 14px", marginBottom: 12, cursor: "pointer" }}>
+          style={{ display: "block", width: "100%", textAlign: "left", background: "#fff", boxShadow: C.shadow, borderRadius: 14, padding: "13px 14px", marginBottom: 12, cursor: "pointer" }}>
           <div style={{ fontSize: 11.5, color: C.brand, fontWeight: 700, marginBottom: 3 }}>{d.machine}</div>
           <div style={{ fontSize: 14.5, fontWeight: 700, color: C.ink, lineHeight: 1.45, marginBottom: 5 }}>{d.title}</div>
           <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.7, marginBottom: 7, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>

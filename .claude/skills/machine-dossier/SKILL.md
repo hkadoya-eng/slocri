@@ -163,6 +163,7 @@ python scripts/misc/fetch_youtube_clips.py "%TEMP%/clips.json" "機種名 特化
 - 本文パーサは `**強調**` と改行だけ。HTMLは書かない。
 - `chart` は **DBから毎回その場で計算**するので、週次データが更新されれば本文を触らず数字が最新になる。
   `machine` 名がDBにヒットするかを push 前に curl で確認する。
+- **カードは白＋neumorphicの影**（`C.shadow` / `C.shadowSm`・App.jsxと同じ値）。ヘアラインだけだと背景 `#E8ECF0` に沈んで枠が見えない。章見出しは閉＝白＋影／開＝`C.sunk`＋内側の影
 - 評価は `ColumnFeedback` を `columnId="dossier_<id>"` で流用（コラムと同じGOOD/BADが `column_feedback` に入る）。
 
 ### ⑦ 文体（ここで格が決まる）
