@@ -3144,7 +3144,7 @@ const MODE_DESC = {
 };
 
 function ResearchTab({ posts, aiEnabled, updatePost, adminUser }) {
-  const [mode, _setMode] = useState(() => sessionStorage.getItem("slokey_researchMode") || "column");
+  const [mode, _setMode] = useState(() => sessionStorage.getItem("slokey_researchMode") || "machine_review");
   const setMode = (m) => { sessionStorage.setItem("slokey_researchMode", m); _setMode(m); };
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -3422,13 +3422,14 @@ ${policyText}
         {/* 2026-08-21 名前と並びを整理。「評価＝点をつける／分析＝中身を説明する」で使い分けていたが、
             深堀り分析がスコアを持ち、機種評価と機種分析が名前で区別できなくなっていた。
             役割がそのまま伝わる名前に変え、新しい台の話から深い話・設計の話へ降りる順に並べた。
+            コラムは読み物なので参照系のあとに置く（2026-08-21 移動）。
               新台診断  = 2週で仕分けて答え合わせする（旧 機種評価）
               深堀り分析 = 8週超えの台を1本ずつ徹底的に
               機種データ = 投稿から作ったスペックと特徴のまとめ（旧 機種分析。予測はしない）
               ゲーム性分析  = CZ/ATの型と機種別のルール
               演出・表現分析 = 演出と表現の作りを型で分類（旧 表現評価。介入度は物差しにしない）
             モードのキーは変えていない（sessionStorageに残った選択がそのまま効く）。 */}
-        {[["column","コラム"],["machine_review","新台診断"],["dossier","機種レポート"],["analyze","機種データ"],["gamedesign","ゲーム性分析"],["hyogen","演出・表現分析"],["ai_chat","💬 チャット"],["ai_propose","✏️ 企画提案"]].map(([k,l]) => {
+        {[["machine_review","新台診断"],["dossier","機種レポート"],["analyze","機種データ"],["gamedesign","ゲーム性分析"],["hyogen","演出・表現分析"],["column","コラム"],["ai_chat","💬 チャット"],["ai_propose","✏️ 企画提案"]].map(([k,l]) => {
           const on = mode===k;
           const isInteractive = k==="ai_chat" || k==="ai_propose";
           const sep = isInteractive && k==="ai_chat"
