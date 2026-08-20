@@ -3130,6 +3130,19 @@ function OverviewTab({ posts, updatePost }) {
   );
 }
 
+/* 各タブの概要。名前だけでは「新台診断／機種レポート／機種データ」の違いが伝わらないので、
+   何を対象に何を出すタブなのかを1文で添える。ホバー（PC）とフォーカスで出る。 */
+const MODE_DESC = {
+  column:         "編集部が書いた読み物。稼働データや市場の動きを題材に週3本ペースで追加している",
+  machine_review: "導入から2週の数字だけで生死を仕分け、あとから来た稼働貢献週で答え合わせする。直近26週の新台が対象",
+  dossier:        "8週以上生き残った台を1本ずつ7章で掘る。稼働データ・5軸スコア・ゲーム性・市場の声・参考動画まで入れる",
+  analyze:        "投稿から作った機種ごとのスペックと特徴のまとめ。予測はしない。導入が新しい順に並ぶ",
+  gamedesign:     "CZ/ATの型を分類し、どの機種がどの型かを並べたライブラリ。設計を比べるための引き出し",
+  hyogen:         "演出と表現の作りを型で分類する。示唆の出し方・音・筐体・打ち手の関わり方",
+  ai_chat:        "投稿データと解析を踏まえてAIが答える。機種名を出すとDBを参照して回答する",
+  ai_propose:     "ゲーム性の企画を作る。市場のすき間から自動生成したものと、依頼して作らせたものが並ぶ",
+};
+
 function ResearchTab({ posts, aiEnabled, updatePost, adminUser }) {
   const [mode, _setMode] = useState(() => sessionStorage.getItem("slokey_researchMode") || "column");
   const setMode = (m) => { sessionStorage.setItem("slokey_researchMode", m); _setMode(m); };
@@ -3137,7 +3150,15 @@ function ResearchTab({ posts, aiEnabled, updatePost, adminUser }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
+  // ホバー中のタブ。概要ポップアップの表示に使う
+  const [hoverMode, setHoverMode] = useState(null);
+  // コラムの開閉。32本の全文を縦に並べると長すぎるので既定は全部閉じる
+  const [openCols, setOpenCols] = useState({});
   const [analyzeM, setAnalyzeM] = useState("");
+  // 機種データ一覧の絞り込み。1機種を探すためではなく大分類の切替（スロット/パチンコ/4号機）
+  const [analyzeKind, setAnalyzeKind] = useState("slot");
+  // 状態グループの開閉。実績なしは件数が多く用途も薄いので既定で閉じる
+  const [analyzeOpenG, setAnalyzeOpenG] = useState({ nodata: false });
   const [analyzeResult, setAnalyzeResult] = useState(null);
   const [analyzeLoading, setAnalyzeLoading] = useState(false);
   const [proposePolicy, setProposePolicy] = useState({ targets:[], coinUnit:"standard", patterns:[], avoids:[], reference:"", extra:"" });
@@ -3186,6 +3207,18 @@ function ResearchTab({ posts, aiEnabled, updatePost, adminUser }) {
   const analyzeList = useMemo(() => {
     const statusBy = {};
     analyzeMachineStatuses.forEach(s => { statusBy[s.name] = s; });
+    const today = new Date().toISOString().slice(0, 10);
+    // 種別は名前の接頭辞で判定する。パチンコとスロットを混ぜると同じIPの別機種が並んで紛らわしい
+    const kindOf = n => /^(e|E|P|PA|Pフィーバー|ぱちんこ|パチンコ)/.test(n.trim()) ? "pachinko"
+      : /（4号機）/.test(n) ? "old" : "slot";
+    // 状態は「今どう扱えばいい台か」で分ける。導入前・稼働中・終了・実績なしの4つ
+    const stateOf = (d) => {
+      const rel = d.releaseDate;
+      if (rel && rel > today) return "upcoming";
+      const r = d.sisRecord;
+      if (r) return r.status === "終了" ? "ended" : "live";
+      return "nodata";
+    };
     const rows = Object.entries(MACHINE_ANALYSIS).map(([name, d]) => ({
       name,
       data: d,
@@ -3193,6 +3226,9 @@ function ResearchTab({ posts, aiEnabled, updatePost, adminUser }) {
       posts: d.postCount ?? 0,
       status: statusBy[name]?.status || null,
       liveCount: statusBy[name]?.count ?? null,
+      kind: kindOf(name),
+      state: stateOf(d),
+      specParts: (d.spec || "").split(" / ").map(s => s.trim()).filter(Boolean),
     }));
     rows.sort((a, b) => (b.release || "0").localeCompare(a.release || "0") || a.name.localeCompare(b.name));
     return rows;
@@ -3389,18 +3425,32 @@ ${policyText}
               新台診断  = 2週で仕分けて答え合わせする（旧 機種評価）
               深堀り分析 = 8週超えの台を1本ずつ徹底的に
               機種データ = 投稿から作ったスペックと特徴のまとめ（旧 機種分析。予測はしない）
-              ゲーム性  = CZ/ATの型と機種別のルール（旧 ゲーム性分析）
-              演出・表現 = 介入度や示唆の作り。介入度は説明軸で予測に使わないので「評価」を外した
+              ゲーム性分析  = CZ/ATの型と機種別のルール
+              演出・表現分析 = 演出と表現の作りを型で分類（旧 表現評価。介入度は物差しにしない）
             モードのキーは変えていない（sessionStorageに残った選択がそのまま効く）。 */}
-        {[["column","コラム"],["machine_review","新台診断"],["dossier","深堀り分析"],["analyze","機種データ"],["gamedesign","ゲーム性"],["hyogen","演出・表現"],["ai_chat","💬 チャット"],["ai_propose","✏️ 企画提案"]].map(([k,l]) => {
+        {[["column","コラム"],["machine_review","新台診断"],["dossier","機種レポート"],["analyze","機種データ"],["gamedesign","ゲーム性分析"],["hyogen","演出・表現分析"],["ai_chat","💬 チャット"],["ai_propose","✏️ 企画提案"]].map(([k,l]) => {
           const on = mode===k;
           const isInteractive = k==="ai_chat" || k==="ai_propose";
           const sep = isInteractive && k==="ai_chat"
             ? <span key="sep" style={{display:"inline-block",width:1,height:22,background:"#ddd",margin:"0 2px",alignSelf:"center",flexShrink:0}} />
             : null;
-          const btn = <button key={k} onClick={() => setMode(k)} style={{padding:"5px 12px",border:`0.5px solid ${on?"#D85A30":isInteractive?"#C5BFF5":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":isInteractive?"#F5F3FF":"#fff",color:on?"#993C1D":isInteractive?"#6C60C0":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0,minWidth:56,textAlign:"center"}}>{l}</button>;
+          const btn = <button key={k} onClick={() => setMode(k)}
+            title={MODE_DESC[k] || ""}
+            onMouseEnter={() => setHoverMode(k)} onMouseLeave={() => setHoverMode(m => m===k ? null : m)}
+            onFocus={() => setHoverMode(k)} onBlur={() => setHoverMode(m => m===k ? null : m)}
+            style={{padding:"5px 12px",border:`0.5px solid ${on?"#D85A30":isInteractive?"#C5BFF5":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":isInteractive?"#F5F3FF":"#fff",color:on?"#993C1D":isInteractive?"#6C60C0":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0,minWidth:56,textAlign:"center"}}>{l}</button>;
           return sep ? [sep, btn] : btn;
         })}
+        {/* 概要ポップアップ。タブ列の下に固定で出す。position:absolute で個々のボタンに
+            ぶら下げると端のタブで画面外へはみ出すため、列の下に1枚だけ出す形にした。 */}
+        {hoverMode && MODE_DESC[hoverMode] && (
+          <div style={{flexBasis:"100%",marginTop:2}}>
+            <div style={{background:"#fff",borderRadius:9,padding:"7px 11px",fontSize:11.5,color:"#666",lineHeight:1.6,
+              boxShadow:"3px 3px 8px #C8CED8, -3px -3px 8px #FFFFFF",borderLeft:"3px solid #D85A30"}}>
+              {MODE_DESC[hoverMode]}
+            </div>
+          </div>
+        )}
       </div>
 
 
@@ -3441,21 +3491,47 @@ ${policyText}
             <span>スロキー編集部コラム</span>
             <span style={{fontSize:12,color:"#bbb"}}>更新: {EDITORIAL_DATA.updatedAt}</span>
           </div>
-          {EDITORIAL_DATA.columns.map(col => (
-            <div key={col.id} style={{background:"#fff",border:"0.5px solid #eee",borderRadius:14,marginBottom:16,overflow:"hidden"}}>
-              <div style={{padding:"12px 14px",borderBottom:"0.5px solid #f0f0f0"}}>
-                <div style={{fontSize:15,fontWeight:700,color:"#333",marginBottom:6,lineHeight:1.4}}>{col.title}</div>
-                <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
-                  <span style={{fontSize:12,fontWeight:600,color:col.tagColor,background:col.tagBg,borderRadius:6,padding:"2px 8px",whiteSpace:"nowrap"}}>{col.tag}</span>
-                  <span style={{fontSize:12,color:"#bbb"}}>{col.author} · {col.date}</span>
+          {/* 2026-08-21 全文を縦に32本並べていたのを畳んだ。見出し＋日付＋冒頭1行で一覧でき、
+              タップで本文が開く。既定は全部閉じる（最新から探せるように新しい順のまま）。 */}
+          <div style={{display:"flex",justifyContent:"flex-end",marginBottom:8}}>
+            <button onClick={() => setOpenCols(o => Object.keys(o).length ? {} : Object.fromEntries(EDITORIAL_DATA.columns.map(c => [c.id, true])))}
+              style={{border:"none",background:"#fff",boxShadow:"2px 2px 5px #C8CED8,-2px -2px 5px #fff",color:"#D85A30",fontSize:11.5,borderRadius:8,padding:"5px 11px",cursor:"pointer"}}>
+              {Object.keys(openCols).length ? "すべて閉じる" : "すべて開く"}
+            </button>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {EDITORIAL_DATA.columns.map(col => {
+            const on = !!openCols[col.id];
+            return (
+            <div key={col.id} style={{background:"#fff",borderRadius:12,overflow:"hidden",boxShadow:"3px 3px 7px #C8CED8, -3px -3px 7px #FFFFFF"}}>
+              <button onClick={() => setOpenCols(o => ({...o, [col.id]: !on}))}
+                style={{width:"100%",textAlign:"left",border:"none",background:on?"#FBF3EF":"#fff",cursor:"pointer",padding:"11px 13px",display:"block"}}>
+                <div style={{display:"flex",alignItems:"flex-start",gap:8}}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:14.5,fontWeight:700,color:"#333",lineHeight:1.45,marginBottom:5}}>{col.title}</div>
+                    <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+                      <span style={{fontSize:11,fontWeight:600,color:col.tagColor,background:col.tagBg,borderRadius:5,padding:"2px 7px",whiteSpace:"nowrap"}}>{col.tag}</span>
+                      <span style={{fontSize:11,color:"#bbb"}}>{col.author} · {col.date}</span>
+                    </div>
+                  </div>
+                  <span style={{flexShrink:0,fontSize:15,color:"#D85A30",fontWeight:700,lineHeight:1.2}}>{on ? "−" : "＋"}</span>
                 </div>
-              </div>
-              <div style={{padding:"14px 14px"}}>
-                <div style={{fontSize:14,color:"#444",lineHeight:1.85,overflowWrap:"anywhere",whiteSpace:"pre-wrap"}}>{col.body}</div>
-              </div>
-              <ColumnFeedback columnId={col.id} columnTitle={col.title} />
+                {!on && (
+                  <div style={{marginTop:6,fontSize:12,color:"#888",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>
+                    {(col.body || "").replace(/\s+/g, " ").slice(0, 140)}
+                  </div>
+                )}
+              </button>
+              {on && <>
+                <div style={{padding:"12px 14px"}}>
+                  <div style={{fontSize:14,color:"#444",lineHeight:1.85,overflowWrap:"anywhere",whiteSpace:"pre-wrap"}}>{col.body}</div>
+                </div>
+                <ColumnFeedback columnId={col.id} columnTitle={col.title} />
+              </>}
             </div>
-          ))}
+            );
+          })}
+          </div>
         </div>
       )}
 
@@ -3469,44 +3545,96 @@ ${policyText}
 
       {mode==="analyze" && (
         <div>
-          {!analyzeResult && <>
-            <div style={{fontSize:13,color:"#aaa",marginBottom:10}}>投稿データをもとにまとめた機種の分析です。導入が新しい順に並べてあります。「〇〇を分析して」と声をかけると追加できます。</div>
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              {analyzeList.map(row => (
-                <button key={row.name} onClick={() => { setAnalyzeM(row.name); setAnalyzeResult({ ...row.data, machine: row.name }); }}
-                  style={{display:"block",width:"100%",textAlign:"left",background:"#fff",border:"none",borderRadius:12,padding:"11px 13px",cursor:"pointer",boxShadow:"3px 3px 7px #C8CED8, -3px -3px 7px #FFFFFF"}}>
-                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
-                    <span style={{flex:1,minWidth:0,fontSize:14,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{row.name}</span>
-                    {row.status === "stale" && <span style={{flexShrink:0,fontSize:10,fontWeight:700,color:"#C55A00",background:"#FFF3E0",borderRadius:5,padding:"2px 7px"}}>⚠️ +{row.liveCount - row.posts}件</span>}
-                  </div>
-                  <div style={{fontSize:10.5,color:"#aaa",marginBottom:row.data.summary?4:0}}>
-                    {row.release ? row.release + " 導入" : "導入日 未登録"}
-                    <span style={{color:"#ddd"}}> ・ </span>投稿{row.posts}件
-                    {row.data.sisRecord?.contribWeeks != null && <>
-                      <span style={{color:"#ddd"}}> ・ </span>
-                      <span style={{color:"#2a7ae8",fontWeight:700}}>稼働貢献{row.data.sisRecord.contribWeeks}週</span>
-                    </>}
-                  </div>
-                  {row.data.summary && (
-                    <div style={{fontSize:12,color:"#666",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{row.data.summary}</div>
-                  )}
-                </button>
-              ))}
-            </div>
-            {analyzeUnanalyzed.length > 0 && (
-              <div style={{marginTop:16}}>
-                <div style={{fontSize:12,color:"#888",marginBottom:6}}>未分析（投稿は3件以上あるが分析がまだ無い機種）</div>
-                <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                  {analyzeUnanalyzed.map(s => (
-                    <div key={s.name} style={{background:"#fff",borderRadius:10,padding:"9px 12px",boxShadow:"2px 2px 6px #C8CED8, -2px -2px 6px #FFFFFF",display:"flex",alignItems:"center",gap:8}}>
-                      <span style={{flex:1,minWidth:0,fontSize:13,color:"#555",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.name}</span>
-                      <span style={{flexShrink:0,fontSize:10,color:"#777",background:"#F0F0F0",borderRadius:5,padding:"2px 7px"}}>📊 投稿{s.count}件</span>
-                    </div>
-                  ))}
-                </div>
+          {!analyzeResult && (() => {
+            const KINDS = [["slot","スロット"],["pachinko","パチンコ"],["old","4号機"]];
+            const GROUPS = [
+              ["live",     "稼働中",        "直近も市場平均を超えている台"],
+              ["upcoming", "これから出る台",  "導入予定。実績はまだ無い"],
+              ["ended",    "稼働終了",       "貢献週が確定した台"],
+              ["nodata",   "実績なし",       "SIS実績が紐付いていない台（旧機種・パチンコなど）"],
+            ];
+            const inKind = analyzeList.filter(r => r.kind === analyzeKind);
+            const chip = (txt, i) => (
+              <span key={i} style={{fontSize:10.5,color:i===0?"#993C1D":"#666",background:i===0?"#FAECE7":"#F2F4F7",borderRadius:5,padding:"2px 7px",whiteSpace:"nowrap"}}>{txt}</span>
+            );
+            return <>
+              <div style={{fontSize:13,color:"#aaa",marginBottom:8}}>投稿データをもとにまとめた機種のスペックと特徴です。「〇〇を分析して」と声をかけると追加できます。</div>
+              <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}}>
+                {KINDS.map(([k,l]) => {
+                  const n = analyzeList.filter(r => r.kind === k).length;
+                  const on = analyzeKind === k;
+                  return <button key={k} onClick={() => setAnalyzeKind(k)}
+                    style={{border:"none",borderRadius:9,padding:"5px 12px",fontSize:12.5,fontWeight:on?700:500,
+                      background:on?"#D85A30":"#fff",color:on?"#fff":"#888",cursor:"pointer",
+                      boxShadow:on?"inset 2px 2px 5px rgba(0,0,0,0.2)":"2px 2px 5px #C8CED8,-2px -2px 5px #fff"}}>{l} {n}</button>;
+                })}
               </div>
-            )}
-          </>}
+              {GROUPS.map(([g, label, desc]) => {
+                const rows = inKind.filter(r => r.state === g);
+                if (!rows.length) return null;
+                const open = analyzeOpenG[g] !== false;
+                return (
+                  <div key={g} style={{marginBottom:14}}>
+                    <button onClick={() => setAnalyzeOpenG(p => ({...p, [g]: !open}))}
+                      style={{width:"100%",textAlign:"left",border:"none",background:"none",cursor:"pointer",padding:"0 0 6px",display:"flex",alignItems:"baseline",gap:8}}>
+                      <span style={{fontSize:13.5,fontWeight:700,color:"#555"}}>{label}</span>
+                      <span style={{fontSize:11.5,color:"#aaa"}}>{rows.length}件・{desc}</span>
+                      <span style={{marginLeft:"auto",fontSize:13,color:"#D85A30",fontWeight:700}}>{open ? "−" : "＋"}</span>
+                    </button>
+                    {open && <div style={{display:"flex",flexDirection:"column",gap:7}}>
+                      {rows.map(row => {
+                        const r = row.data.sisRecord;
+                        const sc = row.data.scores;
+                        return (
+                          <button key={row.name} onClick={() => { setAnalyzeM(row.name); setAnalyzeResult({ ...row.data, machine: row.name }); }}
+                            style={{display:"block",width:"100%",textAlign:"left",background:"#fff",border:"none",borderRadius:12,padding:"11px 13px",cursor:"pointer",boxShadow:"3px 3px 7px #C8CED8, -3px -3px 7px #FFFFFF"}}>
+                            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:5}}>
+                              <span style={{flex:1,minWidth:0,fontSize:14,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{row.name}</span>
+                              {row.status === "stale" && <span style={{flexShrink:0,fontSize:10,fontWeight:700,color:"#C55A00",background:"#FFF3E0",borderRadius:5,padding:"2px 7px"}}>⚠️ +{row.liveCount - row.posts}件</span>}
+                              {r && <span style={{flexShrink:0,fontSize:10,fontWeight:700,color:r.status==="終了"?"#777":"#1f7a4d",background:r.status==="終了"?"#ECECEC":"#E6F5EC",borderRadius:5,padding:"2px 7px",whiteSpace:"nowrap"}}>
+                                貢献{r.contribWeeks}週{r.status!=="終了" && r.katsudoLast!=null ? `・${r.katsudoLast}%` : ""}
+                              </span>}
+                            </div>
+                            {/* specは機種ごとに書式が違うので解析せず、" / " で割ってそのまま並べる。
+                                先頭はメーカーなので色を分ける。多い機種は4つまでにして残りは件数で示す */}
+                            {row.specParts.length > 0 && (
+                              <div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:5}}>
+                                {row.specParts.slice(0,4).map((s,i) => chip(s.length>26 ? s.slice(0,26)+"…" : s, i))}
+                                {row.specParts.length > 4 && <span style={{fontSize:10.5,color:"#bbb"}}>＋{row.specParts.length-4}</span>}
+                              </div>
+                            )}
+                            {row.data.summary && (
+                              <div style={{fontSize:12,color:"#666",lineHeight:1.55,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden",marginBottom:4}}>{row.data.summary}</div>
+                            )}
+                            <div style={{fontSize:10,color:"#bbb",display:"flex",gap:8,flexWrap:"wrap"}}>
+                              <span>投稿{row.posts}件</span>
+                              {sc?.jiriki != null && <span>自力感 {sc.jiriki}/10</span>}
+                              {sc?.yamenikusa != null && <span>やめにくさ {sc.yamenikusa}/10</span>}
+                              {r?.deadWeeks ? <span>死に台{r.deadWeeks}週</span> : null}
+                              <span style={{marginLeft:"auto"}}>更新 {row.data.updatedAt}</span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>}
+                  </div>
+                );
+              })}
+              {analyzeUnanalyzed.length > 0 && (
+                <div style={{marginTop:6}}>
+                  <div style={{fontSize:12,color:"#888",marginBottom:6}}>未分析（投稿は3件以上あるが分析がまだ無い機種）</div>
+                  <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                    {analyzeUnanalyzed.map(s => (
+                      <div key={s.name} style={{background:"#fff",borderRadius:10,padding:"9px 12px",boxShadow:"2px 2px 6px #C8CED8, -2px -2px 6px #FFFFFF",display:"flex",alignItems:"center",gap:8}}>
+                        <span style={{flex:1,minWidth:0,fontSize:13,color:"#555",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.name}</span>
+                        <span style={{flexShrink:0,fontSize:10,color:"#777",background:"#F0F0F0",borderRadius:5,padding:"2px 7px"}}>📊 投稿{s.count}件</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>;
+          })()}
           {analyzeResult && (
             <button onClick={() => { setAnalyzeResult(null); setAnalyzeM(""); }}
               style={{border:"none",background:"none",color:"#D85A30",fontSize:13,cursor:"pointer",padding:"0 0 10px"}}>
