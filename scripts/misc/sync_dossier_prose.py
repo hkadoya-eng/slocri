@@ -56,7 +56,7 @@ for old, new in (('<span class="chip good">9週すべて全国平均超え</span
 
 # 3. 週次表のキャプション
 t18 = next(x for x in S if x.get("t") == "table" and x["head"][0] == "週")
-i = t.index('<p class="cap">出玉率は')
+i = next(t.index(m) for m in ('<p class="cap">出玉率は',) if m in t)
 j = t.index("</p>", i) + 4
 t = t[:i] + '<p class="cap">%s</p>' % rich(t18["note"]) + t[j:]
 print("  置換: 週次表のキャプション")
@@ -65,7 +65,7 @@ print("  置換: 週次表のキャプション")
 t = t.replace(
     "aria-label=\"経過週ごとの稼働値推移。SAO2は9週目で201%、戦国乙女5は152%、からくりサーカス2は5週で108%、前作初代SAOは9週で124%。\"",
     "aria-label=\"経過週ごとの稼働値推移。SAO2は10週目で185%、戦国乙女5は151%、からくりサーカス2は5週で108%、前作初代SAOは9週で124%。\"")
-i = t.index('<figcaption class="cap">全数値は下の表と同じ。')
+i = t.index('<figcaption class="cap">全数値は下の表と同じ。')  # 冪等（同じ書き出しを維持）
 j = t.index("</figcaption>", i) + len("</figcaption>")
 t = t[:i] + ('<figcaption class="cap">全数値は下の表と同じ。横軸は<b>各機種の導入からの経過週</b>'
              '（からくりサーカス2は7/6導入、前作は2023年導入なので暦日は揃わない）。ホバー（タップ）で各週の値を表示。<br>'
@@ -76,7 +76,8 @@ print("  置換: グラフのキャプション（前作との対比を含む）
 
 # 5. 最新週の全国順位（見出し文＋表）
 t21 = next(x for x in S if x.get("t") == "table" and x["head"][0] == "順位")
-i = t.index("<p class=\"prose\">2026年8月3日週・週次SIS")
+i = next(t.index(m) for m in ('<p class="prose">2026年8月3日週・週次SIS',
+                             '<p class="prose">2026年8月10日週') if m in t)
 j = t.index("</p>", i) + 4
 t = t[:i] + ('<p class="prose">2026年8月10日週（お盆）・週次SISのL機種（スロット）全125機種でパチンコは含まない。'
              '<b>上位8台のうち6台が導入2週目の新台</b>で、10週以上経った台はSAO2と戦国乙女5、'
@@ -118,7 +119,7 @@ print("  置換: 同日デビュー3台")
 
 # 7. 予測の答え合わせ
 n84 = next(x for x in S if x.get("t") == "note" and "22週" in str(x.get("v", "")) and "予測" in str(x.get("v", "")))
-i = t.index("<b>次の2〜3週の分岐点</b>") if "<b>次の2〜3週の分岐点</b>" in t else t.index("次の2〜3週の分岐点")
+i = next(t.index(m) for m in ("次の2〜3週の分岐点", "当編集部は8月3日のコラムでSAO2の稼働貢献週") if m in t)
 s = t.rindex('<p class="note"', 0, i)
 e = t.index("</p>", i) + 4
 t = t[:s] + '<p class="note" style="margin-bottom:0">%s</p>' % rich(n84["v"]) + t[e:]

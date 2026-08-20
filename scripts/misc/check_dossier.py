@@ -67,7 +67,7 @@ print("  Artifact側の open 属性:", html.count("part\" id=\"p-") - html.count
 
 print()
 print("=== ⑥ 数値の一貫性（主要値がサイト/Artifactの両方に同数あるか）===")
-for v in ["185%", "88.2%", "4.0→4.3", "2.38", "9.5台分", "7,374,367", "84", "98", "22週", "1/16384", "2,200枚"]:
+for v in ["185%", "93%", "4.0→4.3", "2.38", "9.5台分", "7,374,367", "84", "98", "22週", "1/16384", "2,200枚"]:
     a, h = site.count(v), html.count(v)
     flag = "" if (a and h) else "← 片方にしかない"
     print("  %-12s サイト%2d / Artifact%2d %s" % (v, a, h, flag))
