@@ -3442,16 +3442,19 @@ ${policyText}
             style={{padding:"5px 12px",border:`0.5px solid ${on?"#D85A30":isInteractive?"#C5BFF5":"#ddd"}`,borderRadius:8,fontSize:13,background:on?"#FAECE7":isInteractive?"#F5F3FF":"#fff",color:on?"#993C1D":isInteractive?"#6C60C0":"#888",cursor:"pointer",fontWeight:on?500:400,whiteSpace:"nowrap",flexShrink:0,minWidth:56,textAlign:"center"}}>{l}</button>;
           return sep ? [sep, btn] : btn;
         })}
-        {/* 概要ポップアップ。タブ列の下に固定で出す。position:absolute で個々のボタンに
-            ぶら下げると端のタブで画面外へはみ出すため、列の下に1枚だけ出す形にした。 */}
-        {hoverMode && MODE_DESC[hoverMode] && (
-          <div style={{flexBasis:"100%",marginTop:2}}>
-            <div style={{background:"#fff",borderRadius:9,padding:"7px 11px",fontSize:11.5,color:"#666",lineHeight:1.6,
-              boxShadow:"3px 3px 8px #C8CED8, -3px -3px 8px #FFFFFF",borderLeft:"3px solid #D85A30"}}>
-              {MODE_DESC[hoverMode]}
-            </div>
-          </div>
-        )}
+      </div>
+      {/* タブの概要。出入りさせるとレイアウトが動いてカーソル移動でガタつくため、
+          常に2行ぶんの高さを確保して中身だけ差し替える。既定は選択中のタブの説明で、
+          ホバー（またはフォーカス）中はそのタブの説明に切り替わる。 */}
+      <div style={{margin:"6px 0 10px",minHeight:36,display:"flex",alignItems:"center"}}>
+        <div style={{width:"100%",background:"#fff",borderRadius:9,padding:"6px 11px",fontSize:11.5,
+          color:hoverMode&&hoverMode!==mode?"#555":"#9aa0a8",lineHeight:1.5,
+          boxShadow:"2px 2px 6px #C8CED8, -2px -2px 6px #FFFFFF",
+          borderLeft:`3px solid ${hoverMode&&hoverMode!==mode?"#D85A30":"#DFE3E8"}`,
+          display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden",
+          transition:"color 0.12s"}}>
+          {MODE_DESC[hoverMode || mode] || ""}
+        </div>
       </div>
 
 
