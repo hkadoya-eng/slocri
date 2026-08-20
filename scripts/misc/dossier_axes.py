@@ -7,12 +7,12 @@
 取れないときは「測定不能」として残りの軸で再配分する。
 
   ① 需要      N週目の稼働値               = out_coins ÷ その週の全国平均アウト × 100
-  ② 持続      4週目アウト ÷ 初週アウト
+  ② 持続      4週目の稼働値 ÷ 初週の稼働値   ← 生のアウト比だと季節性が乗る
   ③ ホール評価  N週目の平均設置台数 ÷ 初週の平均設置台数   ← 「直近÷初週」にすると長い台が有利になる
   ④ 関心度     YouTube上位20本の再生計（累積・経過週を併記）      ※--interest / --interest-pct
   ⑤ 納得感     DMM評価点                              ※--dmm で渡す。省略＝測定不能
 
-ウェイト: ①30 ②30 ③15 ④15 ⑤10。測定不能の軸は分母から外して残りへ再配分。
+ウェイト: ①35 ②30 ③10 ④15 ⑤10（実測で決定・下記参照）。測定不能の軸は分母から外して残りへ再配分。
 重みは固定する。機種ごとに動かすと都合のよい点が作れるため。
 
 使い方:
@@ -28,10 +28,13 @@ ANON = ("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6In
         "qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA")
 BASE = "https://vpzbtuucopucablwyqeq.supabase.co/rest/v1"
 CACHE = os.path.join(os.environ.get("TEMP", "."), "dossier_axes_cache.json")
-# ウェイトは信頼度の順。経過週を揃えられて母数185・連続値の①②が最も強く、
-# 8週目では4分の1が1.00倍で並ぶ③は解像度が低い。④は母集団の経過週が揃わず、
-# ⑤は母集団の切り方だけで33〜54まで動く（スロットのみ12機種=33／全31機種=48／100件以上13機種=54）。
-WEIGHTS = {"demand": 30, "retention": 30, "hall": 15, "interest": 15, "satisfaction": 10}
+# ウェイトは実測で決めた（2026-08-20）。貢献週を目的変数にした重回帰で、
+# ①②だけで R²=0.443。ここに③候補を足した増分は 台数比+0.021／初週台数+0.018／
+# 相対粗利の維持+0.005／相対粗利(8週目)+0.002／出玉率±0.000 でしかない。
+# 相対粗利は単独r=+0.47と高いが①との重複0.66で、需要を測り直しているだけだった。
+# → ③は「8週目に減らされていないか」の下限チェックとして残し、ウェイトは10%に下げる。
+# ④⑤は生存の予測軸ではなく受け取られ方を描く軸なので、予測力では比べない。
+WEIGHTS = {"demand": 35, "retention": 30, "hall": 10, "interest": 15, "satisfaction": 10}
 
 
 def get(path):
@@ -110,8 +113,10 @@ def axes_at(ser, n):
         a["demand"] = ser[n - 1]["k"]
         if ser[0]["u"] and ser[n - 1]["u"]:
             a["hall"] = ser[n - 1]["u"] / ser[0]["u"]
-    if len(ser) >= 4 and ser[0]["out"]:
-        a["retention"] = ser[3]["out"] / ser[0]["out"] * 100
+    # 生のアウト比ではなく稼働値比。アウトはお盆・年末に全機種いっせいに上がるので、
+    # 導入時期がそこに当たった機種の持続率が実力以上に見える
+    if len(ser) >= 4 and ser[0]["k"]:
+        a["retention"] = ser[3]["k"] / ser[0]["k"] * 100
     return a
 
 
@@ -175,7 +180,7 @@ def main():
     # 累計のまま扱う。週あたりに直すと経過1週の機種が最上位に来て逆のバイアスになる
     a["interest"] = interest
     a["satisfaction"] = dmm
-    LABEL = {"demand": "① 需要（%d週目の稼働値）" % n, "retention": "② 持続（4週目÷初週アウト）",
+    LABEL = {"demand": "① 需要（%d週目の稼働値）" % n, "retention": "② 持続（4週目÷初週の稼働値）",
              "hall": "③ ホール評価（%d週目÷初週の台数）" % n,
              "interest": "④ 関心度（YouTube上位20本の累計）", "satisfaction": "⑤ 納得感（DMM評価点）"}
     UNIT = {"demand": "%.0f%%", "retention": "%.1f%%", "hall": "%.2f倍",
