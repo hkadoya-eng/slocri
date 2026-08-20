@@ -3,7 +3,7 @@ import { supabase } from "./supabase";
 import COLUMN_DATA from "./columnData.json";
 
 /* ===================================================================
-   機種評価（旧「稼働タブ＞診断」＋「分析タブ＞機種評価」を統合）
+   新台診断（旧「稼働タブ＞診断」＋「分析タブ＞機種評価」を統合）
 
    2026-08-20、同じ「この台は何週生きるか」の予測と答え合わせが2箇所にあり、
    12件の編集部評価のうち10件は診断の対象機種と重複していたため1つにまとめた。
@@ -140,7 +140,9 @@ export default function MachineReviewTab({ onOpenMachine }) {
         const d = new Date(mon); d.setDate(mon.getDate() + i);
         const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
         const v = nationalDaily[key]?.avg_in;
-        if (v != null) vals.push(v);
+        // SIS側の欠測日（全国平均アウトが3,000未満・全期間で23日）は除く。
+        // 残すと週平均が下がり、その週の全機種の稼働値が過大になる
+        if (v != null && v >= 3000) vals.push(v);
       }
       if (vals.length) out[w] = vals.reduce((s, v) => s + v, 0) / vals.length;
     });
@@ -261,7 +263,7 @@ export default function MachineReviewTab({ onOpenMachine }) {
   return (
     <div>
       <div style={{ ...card, fontSize: 11, color: "#888", marginBottom: 8, lineHeight: 1.6 }}>
-        <b style={{ color: "#D85A30" }}>機種評価</b>：<b>2週時点だけで仕分けを確定</b>する。8週まで待てば誰でも分かる＝情報価値が無いため、早く言い切ることを優先。直近約26週に導入・導入日順。<b>編集部予測がある機種はカード内に併記</b>する。
+        <b style={{ color: "#D85A30" }}>新台診断</b>：<b>2週時点だけで仕分けを確定</b>する。8週まで待てば誰でも分かる＝情報価値が無いため、早く言い切ることを優先。直近約26週に導入・導入日順。<b>編集部予測がある機種はカード内に併記</b>する。
         <button onClick={() => setShowHelp(v => !v)}
           style={{ marginLeft: 6, border: "none", background: "#fff", boxShadow: "2px 2px 5px #C8CED8,-2px -2px 5px #fff", color: "#D85A30", fontSize: 10.5, borderRadius: 7, padding: "3px 9px", cursor: "pointer" }}>
           {showHelp ? "基準を閉じる" : "仕分け基準と精度"}

@@ -39,6 +39,13 @@ ANON = ("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6In
         "qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA")
 BASE = "https://vpzbtuucopucablwyqeq.supabase.co/rest/v1"
 
+# SIS側の欠測日を除く。全国平均アウトが3,000未満の日が23日あり（1,121〜2,105枚）、
+# 原典Excelにも同じ値が入っている＝取り込みバグではなくSIS側のデータ。
+# 正常な最小値は4,042枚で約1,900枚の断絶があるため3,000で切れる。
+# 除かないと週平均（稼働値の分母）が下がり、その週の全機種の稼働値が過大になる。
+MIN_VALID_AVG_IN = 3000
+
+
 # 名前が機械的に一致しない機種の対応表。部分一致に頼ると別機種を掴むので手で持つ
 ALIAS = {
     "異世界かるてっと BT": "LB異世界かるてっと",
@@ -81,7 +88,8 @@ def norm(s):
 
 def main():
     nat_rows = page("/sis_national_daily?select=date,avg_in&order=date.asc&limit=1000&offset=%d")
-    nat = {r["date"]: r["avg_in"] for r in nat_rows if r.get("avg_in")}
+    nat = {r["date"]: r["avg_in"] for r in nat_rows
+           if r.get("avg_in") and r["avg_in"] >= MIN_VALID_AVG_IN}
 
     def natweek(w):
         d0 = date.fromisoformat(w)

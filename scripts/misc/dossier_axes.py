@@ -29,6 +29,13 @@ ANON = ("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6In
         "Y2FibHd5cWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjk2MzEsImV4cCI6MjA5MTIwNTYzMX0."
         "qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA")
 BASE = "https://vpzbtuucopucablwyqeq.supabase.co/rest/v1"
+
+# SIS側の欠測日を除く。全国平均アウトが3,000未満の日が23日あり（1,121〜2,105枚）、
+# 原典Excelにも同じ値が入っている＝取り込みバグではなくSIS側のデータ。
+# 正常な最小値は4,042枚で約1,900枚の断絶があるため3,000で切れる。
+# 除かないと週平均（稼働値の分母）が下がり、その週の全機種の稼働値が過大になる。
+MIN_VALID_AVG_IN = 3000
+
 CACHE = os.path.join(os.environ.get("TEMP", "."), "dossier_axes_cache.json")
 # ウェイトは実測で決めた（2026-08-20）。貢献週を目的変数にした重回帰（185機種）:
 #   ① 単独 R²=0.441 ／ ①+③ 0.469 ／ ①+②+③ 0.487
@@ -72,7 +79,8 @@ def load(refresh=False):
         if age < 6 * 3600:
             return json.load(io.open(CACHE, encoding="utf-8"))
     nat_rows = page("/sis_national_daily?select=date,avg_in&order=date.asc&limit=1000&offset=%d")
-    nat = {r["date"]: r["avg_in"] for r in nat_rows if r.get("avg_in")}
+    nat = {r["date"]: r["avg_in"] for r in nat_rows
+           if r.get("avg_in") and r["avg_in"] >= MIN_VALID_AVG_IN}
     # order は一意キーにする。不安定なORDER BYでlimit/offsetすると行が重複する
     wk = page("/sis_weekly_data?select=machine,week_start,out_coins,avg_machine_count"
               "&order=week_start.asc,machine.asc&limit=1000&offset=%d")

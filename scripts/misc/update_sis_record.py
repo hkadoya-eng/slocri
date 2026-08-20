@@ -39,6 +39,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 MA_PATH = os.path.normpath(os.path.join(HERE, "..", "..", "src", "machineAnalysis.json"))
 DRY = "--dry" in sys.argv
 
+# SIS側の欠測日を除く。全国平均アウトが3,000未満の日が23日あり（1,121〜2,105枚）、
+# 原典Excelにも同じ値が入っている＝取り込みバグではなくSIS側のデータ。
+# 正常な最小値は4,042枚で約1,900枚の断絶があるため3,000で切れる。
+# 除かないと週平均（稼働値の分母）が下がり、その週の全機種の稼働値が過大になる。
+MIN_VALID_AVG_IN = 3000
+
+
 
 def get_all(path):
     """PostgRESTは1リクエスト1000件で頭打ちなのでページングする"""
@@ -79,7 +86,9 @@ def main():
         return 1
     latest = weeks[-1]
     # 稼働値の分母＝その週の全国平均アウト(実値)。sis_national_daily の月〜日平均。
-    national = {r["date"]: r.get("avg_in") for r in get_all("/sis_national_daily?select=date,avg_in")}
+    national = {r["date"]: r.get("avg_in")
+                for r in get_all("/sis_national_daily?select=date,avg_in")
+                if r.get("avg_in") and r["avg_in"] >= MIN_VALID_AVG_IN}
     med = {}
     for w in weeks:
         d0 = date.fromisoformat(w)

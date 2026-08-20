@@ -690,7 +690,8 @@
   },
   "スマスロ化物語": {
     "aliases": [
-      "スマスロ 化物語"
+      "スマスロ 化物語",
+      "L化物語"
     ],
     "releaseDate": "2025-10-06",
     "spec": "バンナム / スマスロ / AT / CZ公称成功率43%",
@@ -715,10 +716,25 @@
       "yamenikusa": "AT終了後は通常帰還でやめ時は発生しやすい"
     },
     "postCount": 24,
-    "updatedAt": "2026-07-14"
+    "updatedAt": "2026-07-14",
+    "sisRecord": {
+      "sisName": "L化物語",
+      "contribWeeks": 14,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 36,
+      "firstWeek": "2025-12-08",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 67,
+      "deadWeeks": 22,
+      "weeksBelowAvg": 18,
+      "asOf": "2026-08-10"
+    }
   },
   "スマスロ 北斗の拳": {
-    "aliases": [],
+    "aliases": [
+      "Lスマスロ北斗の拳"
+    ],
     "releaseDate": "2022-11-14",
     "spec": "サミー / 2022年11月14日 / スマスロ第1弾 / AT純増4.0枚 / 差枚2400枚管理型",
     "summary": "最高89%ループの爆裂連で一撃万枚も狙えるスマスロ北斗",
@@ -745,7 +761,20 @@
       "yamenikusa": "AT終了後は通常帰還でやめ時は発生するが冷遇区間の存在でやめにくい心理が生まれやすい"
     },
     "postCount": 15,
-    "updatedAt": "2026-08-03"
+    "updatedAt": "2026-08-03",
+    "sisRecord": {
+      "sisName": "Lスマスロ北斗の拳",
+      "contribWeeks": 88,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 176,
+      "firstWeek": "2023-04-03",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 71,
+      "deadWeeks": 88,
+      "weeksBelowAvg": 84,
+      "asOf": "2026-08-10"
+    }
   },
   "スマスロスーパーリオエース2": {
     "aliases": [
@@ -1058,7 +1087,8 @@
     "aliases": [
       "スマスロとんでもスキル",
       "Lとんでもスキル",
-      "スマスロとんでもスキルで異世界放浪メシ"
+      "スマスロとんでもスキルで異世界放浪メシ",
+      "Lとんでもスキルで異世界放浪メシ"
     ],
     "releaseDate": "2026-08-03",
     "spec": "コナミ / 2026年8月3日 / AT(疑似ボ)純増約5.0枚 / 天井最大1000G+α / メインST「異世界ハンティングタイム」25G+α・継続約70% / AT初当り設定1_1/349.3〜設定6_1/247.3 / 機械割97.9〜112.1% / 5000台導入",
@@ -1091,7 +1121,20 @@
       "yamenikusa": "継続率93%のループ系ST滞在中はやめにくく、ハマり中も天井に向かう仕様"
     },
     "postCount": 26,
-    "updatedAt": "2026-08-10"
+    "updatedAt": "2026-08-10",
+    "sisRecord": {
+      "sisName": "Lとんでもスキルで異世界放浪メシ",
+      "contribWeeks": 1,
+      "status": "継続中",
+      "statusReason": "直近稼働値165%で市場平均超え",
+      "installedWeeks": 2,
+      "firstWeek": "2026-08-03",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 165,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
+      "asOf": "2026-08-10"
+    }
   },
   "Lストリートファイター6": {
     "aliases": [
@@ -1234,7 +1277,8 @@
   "L ダーリン・イン・ザ・フランキス": {
     "aliases": [
       "ダリフラ",
-      "L ダリフラ"
+      "L ダリフラ",
+      "Lダーリン・イン・ザ・フランキス"
     ],
     "releaseDate": "2025-11-04",
     "spec": "大都技研 / 純増約2.5枚AT / 比翼BEATS約94%ループ / フランキス図柄停止で即CZ突入",
@@ -1260,7 +1304,20 @@
       "yamenikusa": "CZ即突入の判別が明確でヤメ時は分かりやすい"
     },
     "postCount": 6,
-    "updatedAt": "2026-05-25"
+    "updatedAt": "2026-05-25",
+    "sisRecord": {
+      "sisName": "Lダーリン・イン・ザ・フランキス",
+      "contribWeeks": 6,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 54,
+      "firstWeek": "2025-08-04",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 45,
+      "deadWeeks": 48,
+      "weeksBelowAvg": 49,
+      "asOf": "2026-08-10"
+    }
   },
   "Pフィーバーからくりサーカス2": {
     "aliases": [
@@ -1334,7 +1391,8 @@
       "スマスロ BIRDIE WING",
       "スマスロ バーディーウイング",
       "バーディーウイング",
-      "スマスロバーディーウイング"
+      "スマスロバーディーウイング",
+      "LBIRDIEWING-GolfGirlsStory-"
     ],
     "releaseDate": "2026-06-08",
     "spec": "ユニバーサルブロス / 2026年6月8日導入・667店舗 / AT機 / 通常時ボーナス3種(ウイング20G純増2.6枚・バーディー20G純増5.0枚・エピソード40G純増5.0枚) / ST3日間大会で賞金プール獲得 / 機械割設定1_97.5%〜設定6_112.4%",
@@ -1361,7 +1419,20 @@
       "yamenikusa": "周期・ST終了で区切りが付き前兆確認でやめどきは比較的明確"
     },
     "postCount": 19,
-    "updatedAt": "2026-07-29"
+    "updatedAt": "2026-07-29",
+    "sisRecord": {
+      "sisName": "LBIRDIEWING-GolfGirlsStory-",
+      "contribWeeks": 3,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 10,
+      "firstWeek": "2026-06-08",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 55,
+      "deadWeeks": 7,
+      "weeksBelowAvg": 8,
+      "asOf": "2026-08-10"
+    }
   },
   "スマスロ 革命機ヴァルヴレイヴ2": {
     "aliases": [
@@ -1371,7 +1442,8 @@
       "Lパチスロ 革命機ヴァルヴレイヴ2",
       "Lパチスロ革命機ヴァルヴレイヴ2",
       "スマスロ ヴァルヴレイヴ2",
-      "革命機ヴァルヴレイヴ2"
+      "革命機ヴァルヴレイヴ2",
+      "L革命機ヴァルヴレイヴ2"
     ],
     "releaseDate": "2026-04-13",
     "spec": "SANKYO / スマスロ / ハラキリチャレンジ・ハラキリドライブ搭載 / 共闘Vチャレンジ・革命ボーナス初当り設定差 / マリエ覚醒・マギウス印複合判別",
@@ -1391,7 +1463,20 @@
     "scores": null,
     "scoreReason": null,
     "postCount": 16,
-    "updatedAt": "2026-07-30"
+    "updatedAt": "2026-07-30",
+    "sisRecord": {
+      "sisName": "L革命機ヴァルヴレイヴ2",
+      "contribWeeks": 18,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 41,
+      "firstWeek": "2025-11-03",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 80,
+      "deadWeeks": 23,
+      "weeksBelowAvg": 24,
+      "asOf": "2026-08-10"
+    }
   },
   "Lワールドダイスター": {
     "aliases": [
@@ -2157,7 +2242,9 @@
     }
   },
   "スマスロ無職転生": {
-    "aliases": [],
+    "aliases": [
+      "L無職転生－異世界行ったら本気だす－"
+    ],
     "spec": "ニューギン / 2025年12月 / セット数上乗せAT / メインAT純増約2.8枚・上位AT純増約4.5枚 / 1セット30G / 期待約3600枚 / 天井=ステージチェンジ回数管理(ボーナス間19回・AT間40回/設変13回・17回) / 次世代筐体MIRAI-H(レバー非搭載・MAXBETで回す)",
     "summary": "ステチェン回数管理の二重天井＋オルステッド後の上位AT4.5枚。設定判別は終了画面の枠色（オルステッド金枠=設定6濃厚）とAT初当り約1/300が軸で、MIRAI-Hレバーレスの新打感も話題",
     "highlight": "ニューギンが2025年12月に導入したスマスロ無職転生は、次世代筐体MIRAI-H採用でレバー非搭載・MAXBETで回す新感覚機。メインAT「転生RUSH（異世界行ったら本気だす）」はセット数上乗せタイプで純増約2.8枚、最強特化ゾーン「七大列強龍神オルステッド」を抜けると1セット30G・純増約4.5枚の上位ATへ突入し期待約3600枚と爆発力十分。天井はゲーム数ではなくステージチェンジ回数管理という独特仕様で、ボーナス間最大19回・AT間最大40回、設定変更後は13回・17回に短縮されるため朝一リセ台が狙い目。設定判別は分かりやすく整理されてきており、無職転生ボーナス・魔術ボーナス失敗時・AT失敗時の終了画面が枠付きなら設定示唆で、オルステッドの金枠が出れば設定6濃厚。数値ではAT初当り約1/300前後・ボーナス約1/150前後が設定5以上を意識するラインで、設定差がかなり大きいタイプ。打感面ではレバーレスのMIRAI-Hが手を置いてゆったり回せる新感覚で長時間でも疲れにくいと好評な一方、叩く瞬間の高揚感がないという声もある。やめ時はボーナスAT非当選なら基本即やめだが、ステージチェンジ3回目までのボーナス期待度が約60%あり出玉に余裕があれば続行もアリ。直近1週で稼働+18.5%と二段ロケットで伸び、固定客が付き始めた中堅機として再評価が進む段階。（2026-07にはパチンコe無職転生も姉妹機として展開予定）",
@@ -2181,7 +2268,20 @@
       "yamenikusa": "ステチェン回数管理の独特な天井でゲーム数が見えず、やめどき判断にクセがある"
     },
     "postCount": 6,
-    "updatedAt": "2026-07-15"
+    "updatedAt": "2026-07-15",
+    "sisRecord": {
+      "sisName": "L無職転生－異世界行ったら本気だす－",
+      "contribWeeks": 11,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 34,
+      "firstWeek": "2025-12-22",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 63,
+      "deadWeeks": 23,
+      "weeksBelowAvg": 24,
+      "asOf": "2026-08-10"
+    }
   },
   "スマスロ ローティス": {
     "aliases": [
@@ -2236,7 +2336,8 @@
   "スマスロ やじきた道中記参る！": {
     "aliases": [
       "スマスロやじきた道中記参る",
-      "スマスロ やじきた道中記参る!"
+      "スマスロ やじきた道中記参る!",
+      "Lやじきた道中記参る！"
     ],
     "releaseDate": "2026-08-03",
     "spec": "ユニバーサル / スマスロ / AT / ゲーム数管理型",
@@ -2266,7 +2367,20 @@
       "yamenikusa": "上位ATループ中はやめづらいが通常移行で区切りやすい"
     },
     "postCount": 15,
-    "updatedAt": "2026-08-08"
+    "updatedAt": "2026-08-08",
+    "sisRecord": {
+      "sisName": "Lやじきた道中記参る！",
+      "contribWeeks": 1,
+      "status": "継続中",
+      "statusReason": "直近稼働値163%で市場平均超え",
+      "installedWeeks": 2,
+      "firstWeek": "2026-08-03",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 163,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
+      "asOf": "2026-08-10"
+    }
   },
   "e無職転生": {
     "aliases": [
@@ -2624,7 +2738,8 @@
     "aliases": [
       "主役は銭形4",
       "スマスロ主役は銭形4",
-      "銭形4"
+      "銭形4",
+      "L主役は銭形４"
     ],
     "releaseDate": "2024-04-15",
     "spec": "オリンピア / スマスロ / AT純増2.7枚 / 天井999G(変更時899) / 設定6機械割114.1% / AT終了画面セリフ設定示唆",
@@ -2649,7 +2764,20 @@
       "yamenikusa": "天井999Gと浅くAT後は通常へ戻るため区切りはつけやすい"
     },
     "postCount": 4,
-    "updatedAt": "2026-06-25"
+    "updatedAt": "2026-06-25",
+    "sisRecord": {
+      "sisName": "L主役は銭形４",
+      "contribWeeks": 36,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 171,
+      "firstWeek": "2023-05-08",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 52,
+      "deadWeeks": 135,
+      "weeksBelowAvg": 136,
+      "asOf": "2026-08-10"
+    }
   },
   "スマスロ ゴブリンスレイヤーⅡ": {
     "aliases": [
@@ -2657,7 +2785,8 @@
       "ゴブリンスレイヤーⅡ",
       "ゴブスレ2",
       "スマスロゴブリンスレイヤー2",
-      "スマスロゴブリンスレイヤーⅡ"
+      "スマスロゴブリンスレイヤーⅡ",
+      "LゴブリンスレイヤーII"
     ],
     "releaseDate": "2026-06-08",
     "spec": "フジ / 2026年6月 / メインAT純増2.8枚・上位ULTIMATE_LOOP純増6.0枚 / 天井600/1000/1500G / CZ1/239.3〜1/181.9・AT1/541.6〜1/402.4 / 機械割97.6〜113.2% / 上位期待約3500枚over",
@@ -2682,7 +2811,20 @@
       "yamenikusa": "AT後は引き戻し区間確認後にやめられ区切りはつけやすい"
     },
     "postCount": 9,
-    "updatedAt": "2026-07-10"
+    "updatedAt": "2026-07-10",
+    "sisRecord": {
+      "sisName": "LゴブリンスレイヤーII",
+      "contribWeeks": 5,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 28,
+      "firstWeek": "2026-02-01",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 22,
+      "deadWeeks": 23,
+      "weeksBelowAvg": 24,
+      "asOf": "2026-08-10"
+    }
   },
   "ミリオンゴッド（4号機）": {
     "aliases": [
@@ -2818,7 +2960,8 @@
       "スマスロコードギアス 復活のルルーシュ",
       "コードギアス復活のルルーシュ",
       "スマスロ コードギアス",
-      "コードギアス"
+      "コードギアス",
+      "Lコードギアス反逆のルルーシュ復活のルルーシュ"
     ],
     "releaseDate": "",
     "spec": "Sammy / スマスロ / AT / 純増約2.8枚/G / 天井AT間1000G+α(設定変更時700G+α) / AT「ルルーシュオブザリザレクション」1セット30G / 機械割設定1_97.9%〜",
@@ -2842,7 +2985,20 @@
       "yamenikusa": "天井AT間1000G・終了画面示唆が明快でヤメ時判断はしやすい部類"
     },
     "postCount": 3,
-    "updatedAt": "2026-06-28"
+    "updatedAt": "2026-06-28",
+    "sisRecord": {
+      "sisName": "Lコードギアス反逆のルルーシュ復活のルルーシュ",
+      "contribWeeks": 6,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 132,
+      "firstWeek": "2024-02-05",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 57,
+      "deadWeeks": 126,
+      "weeksBelowAvg": 127,
+      "asOf": "2026-08-10"
+    }
   },
   "スマスロ とある魔術の禁書目録2": {
     "aliases": [
@@ -3853,7 +4009,7 @@
       "lastWeek": "2026-08-10",
       "katsudoLast": 58,
       "deadWeeks": 171,
-      "weeksBelowAvg": 173,
+      "weeksBelowAvg": 174,
       "asOf": "2026-08-10"
     }
   },
@@ -4124,7 +4280,8 @@
       "スマスロいざ番長",
       "いざ！番長",
       "いざ番長",
-      "L いざ！番長"
+      "L いざ！番長",
+      "Lいざ！番長"
     ],
     "releaseDate": "2026-06-01",
     "spec": "大都技研 / 2026年6月導入 / メインAT『頂ZBASH』純増約2.8枚(差枚数管理型) / 上位AT『青頂ZBASH』純増約5.0枚 / 特化ゾーン『絶頂決戦』 / 天井999G+α(設定変更後・上位AT後は600G+αに短縮)",
@@ -4150,7 +4307,20 @@
       "yamenikusa": "AT後・上位AT後に天井が600G+αへ短縮されるため、やめるか続けるかの判断が毎回発生する"
     },
     "postCount": 3,
-    "updatedAt": "2026-07-28"
+    "updatedAt": "2026-07-28",
+    "sisRecord": {
+      "sisName": "Lいざ！番長",
+      "contribWeeks": 24,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 63,
+      "firstWeek": "2025-06-02",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 67,
+      "deadWeeks": 39,
+      "weeksBelowAvg": 38,
+      "asOf": "2026-08-10"
+    }
   },
   "押忍!番長（4号機）": {
     "aliases": [
@@ -4296,7 +4466,8 @@
     "aliases": [
       "不二子BT",
       "Lルパン三世 不二子BT",
-      "L不二子 BT"
+      "L不二子 BT",
+      "LB不二子"
     ],
     "releaseDate": "2025-12-22",
     "spec": "アムテックス（平和販売） / 2025年12月22日 / A+BTタイプ / ボーナス1/141.2〜1/98.1 / 天井・有利区間ともに非搭載",
@@ -4323,7 +4494,20 @@
       "yamenikusa": "天井も有利区間も無くBT終了で明確に区切れるためやめ時に迷わない"
     },
     "postCount": 3,
-    "updatedAt": "2026-08-06"
+    "updatedAt": "2026-08-06",
+    "sisRecord": {
+      "sisName": "LB不二子",
+      "contribWeeks": 14,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 34,
+      "firstWeek": "2025-12-22",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 75,
+      "deadWeeks": 20,
+      "weeksBelowAvg": 19,
+      "asOf": "2026-08-10"
+    }
   },
   "eフィーバー機動戦士ガンダムSEED クライマックス": {
     "aliases": [
@@ -4628,7 +4812,8 @@
       "Lパチスロガールズ&パンツァー 最終章",
       "Lガルパン最終章",
       "ガールズ&パンツァー最終章",
-      "ガルパン最終章"
+      "ガルパン最終章",
+      "Lパチスロガールズ＆パンツァー最終章"
     ],
     "releaseDate": "2024-02-05",
     "spec": "平和/オリンピア / 2024年2月5日 / スマスロ / AT / AT純増約4.7枚/G / 50枚あたり30.3G・コイン単価約3.2円 / 天井1111G+α(リセット時65%で500G短縮) / CZ約1/134(設定1) / 機械割 設定6_112.1% / 下位AT「戦車道」継続約76%ループ・上位AT「無限軌道」約88%",
@@ -4655,14 +4840,28 @@
       "yamenikusa": "AT後にベル7回のフォローが要り、CZスルー回数も絡むためやめ判断が一手間かかる"
     },
     "postCount": 3,
-    "updatedAt": "2026-08-14"
+    "updatedAt": "2026-08-14",
+    "sisRecord": {
+      "sisName": "Lパチスロガールズ＆パンツァー最終章",
+      "contribWeeks": 8,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 132,
+      "firstWeek": "2024-02-05",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 67,
+      "deadWeeks": 124,
+      "weeksBelowAvg": 126,
+      "asOf": "2026-08-10"
+    }
   },
   "スマスロ SHAKE BONUS TRIGGER": {
     "aliases": [
       "SHAKE BONUS TRIGGER",
       "スマスロSHAKE BONUS TRIGGER",
       "シェイクBT",
-      "スマスロ シェイクBT"
+      "スマスロ シェイクBT",
+      "LBSHAKEBONUSTRIGGER"
     ],
     "releaseDate": "2025-10-20",
     "spec": "2025年10月20日 / スマスロ / ボーナストリガー(Aタイプライク・技術介入要素あり) / BB必ず300枚以上獲得・平均獲得約400枚 / ボーナス合算1/192〜 / 設定傾向 偶数=初当り重視・奇数=BTループ率重視 / 機械割は調査中",
@@ -4689,13 +4888,27 @@
       "yamenikusa": "ボーナス主体で区切りが明確なため、やめ判断は付けやすい部類"
     },
     "postCount": 3,
-    "updatedAt": "2026-08-14"
+    "updatedAt": "2026-08-14",
+    "sisRecord": {
+      "sisName": "LBSHAKEBONUSTRIGGER",
+      "contribWeeks": 21,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 43,
+      "firstWeek": "2025-10-20",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 85,
+      "deadWeeks": 22,
+      "weeksBelowAvg": 16,
+      "asOf": "2026-08-10"
+    }
   },
   "スマスロ ニューパルサーBT": {
     "aliases": [
       "ニューパルサーBT",
       "スマスロニューパルサーBT",
-      "スマスロニューパルサーBT(ボーナストリガー)"
+      "スマスロニューパルサーBT(ボーナストリガー)",
+      "LBニューパルサー"
     ],
     "releaseDate": "2025-06-02",
     "spec": "山佐 / 2025年6月2日 / スマスロ / ボーナストリガー / BIG終了後は必ずBT(ボーナス高確率ゾーン)へ / BT中はほぼ1G消化でボーナス当選・ただしボーナスの約8割はREG / REG最大107枚・REG消化後は通常時へ戻りBT非突入 / BIGを射止めれば次回もBTが続き一撃500枚超 / 設定差はバックフラッシュが大きい",
@@ -4722,7 +4935,20 @@
       "yamenikusa": "REG後は通常時へ戻る区切りが明確で、やめ判断は付けやすい"
     },
     "postCount": 3,
-    "updatedAt": "2026-08-14"
+    "updatedAt": "2026-08-14",
+    "sisRecord": {
+      "sisName": "LBニューパルサー",
+      "contribWeeks": 4,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 63,
+      "firstWeek": "2025-06-02",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 20,
+      "deadWeeks": 59,
+      "weeksBelowAvg": 60,
+      "asOf": "2026-08-10"
+    }
   },
   "スマスロ シャーマンキング": {
     "aliases": [
@@ -4924,7 +5150,8 @@
       "L少女歌劇レヴュースタァライト",
       "スマスロ レヴュースタァライト",
       "スマスロレヴュースタァライト",
-      "レヴュースタァライト"
+      "レヴュースタァライト",
+      "L少女☆歌劇レヴュースタァライト-TheSLOT-"
     ],
     "releaseDate": "2025-03-03",
     "spec": "オーイズミ / 2025年3月3日導入 / リアルボーナス搭載のA+AT機(BB約111枚・RB約44枚) / 業界初の「貫通型AT」=引いたボーナスの種類でAT性能が強化される / AT「レヴュースタァライト」純増約2.2枚/G or 約3.4枚/G / ボーナス合算1/184.8(設定1)〜1/160.6(設定6) / AT初当り1/359.6(設定1)〜1/232.5(設定6) / 出玉率 設定1 97.8%・設定2 98.8%・設定4 104.6%・設定5 106.9%・設定6 110.0% / 天井最大900G+α・設定変更時600G+α",
@@ -4954,6 +5181,19 @@
       "yamenikusa": "天井900G+α(設定変更時600G+α)に加え上位AT2系統と裏モードの残存を確認する必要があり、区切りが単純でない"
     },
     "postCount": 3,
-    "updatedAt": "2026-08-19"
+    "updatedAt": "2026-08-19",
+    "sisRecord": {
+      "sisName": "L少女☆歌劇レヴュースタァライト-TheSLOT-",
+      "contribWeeks": 25,
+      "status": "終了",
+      "statusReason": "直近4週すべて市場平均以下",
+      "installedWeeks": 76,
+      "firstWeek": "2025-03-03",
+      "lastWeek": "2026-08-10",
+      "katsudoLast": 69,
+      "deadWeeks": 51,
+      "weeksBelowAvg": 50,
+      "asOf": "2026-08-10"
+    }
   }
 }

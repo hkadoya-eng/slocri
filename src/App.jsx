@@ -556,20 +556,23 @@ function SisTab({ adminUser }) {
 
   useEffect(() => {
     if (!adminUser) return;
+    /* 週次は全期間ぶん必要（貢献週ランキングは設置週数と死に台＝全履歴を使う）ので絞れない。
+       ただし1,000件ずつ順番に13回待つ形だったのを並列に変えた。ページ数は行数÷1,000で
+       決まるので、先に件数だけ取ってから必要なページを一度に投げる。 */
     async function fetchWeeklyData() {
-      let all = [], page = 0;
       const PAGE = 1000;
-      while (true) {
-        const { data } = await supabase
-          .from("sis_weekly_data")
-          .select("machine,week_start,out_coins,gross_profit,payout_rate,coin_price,avg_machine_count")
+      const COLS = "machine,week_start,out_coins,gross_profit,payout_rate,coin_price,avg_machine_count";
+      const { count } = await supabase.from("sis_weekly_data")
+        .select("week_start", { count: "exact", head: true });
+      const pages = Math.max(1, Math.ceil((count || 20000) / PAGE));
+      const res = await Promise.all(
+        Array.from({ length: pages }, (_, p) => supabase.from("sis_weekly_data")
+          .select(COLS)
           .order("week_start", { ascending: false })
-          .range(page * PAGE, (page + 1) * PAGE - 1);
-        if (!data || data.length === 0) break;
-        all = all.concat(data);
-        if (data.length < PAGE) break;
-        page++;
-      }
+          .range(p * PAGE, (p + 1) * PAGE - 1))
+      );
+      let all = [];
+      res.forEach(r => { if (r.data) all = all.concat(r.data); });
       setWeeklyData(all);
     }
     fetchWeeklyData();
@@ -625,7 +628,9 @@ function SisTab({ adminUser }) {
         const d = new Date(mon); d.setDate(mon.getDate() + i);
         const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
         const v = nationalDaily[key]?.avg_in;
-        if (v != null) vals.push(v);
+        // SIS側の欠測日（全国平均アウトが3,000未満・全期間で23日）は除く。
+        // 残すと週平均が下がり、その週の全機種の稼働値が過大になる
+        if (v != null && v >= 3000) vals.push(v);
       }
       // 全国実値が取れない週は載せない（自前計算で代替しない＝稼働値は「—」になる）
       if (vals.length) out[w] = vals.reduce((s, v) => s + v, 0) / vals.length;
@@ -3378,7 +3383,16 @@ ${policyText}
   return (
     <div style={{minWidth:0}}>
       <div style={{display:"flex",gap:6,marginBottom:"1.25rem",flexWrap:"wrap"}}>
-        {[["column","コラム"],["dossier","深堀り分析"],["machine_review","機種評価"],["analyze","機種分析"],["gamedesign","ゲーム性分析"],["hyogen","表現評価"],["ai_chat","💬 チャット"],["ai_propose","✏️ 企画提案"]].map(([k,l]) => {
+        {/* 2026-08-21 名前と並びを整理。「評価＝点をつける／分析＝中身を説明する」で使い分けていたが、
+            深堀り分析がスコアを持ち、機種評価と機種分析が名前で区別できなくなっていた。
+            役割がそのまま伝わる名前に変え、新しい台の話から深い話・設計の話へ降りる順に並べた。
+              新台診断  = 2週で仕分けて答え合わせする（旧 機種評価）
+              深堀り分析 = 8週超えの台を1本ずつ徹底的に
+              機種データ = 投稿から作ったスペックと特徴のまとめ（旧 機種分析。予測はしない）
+              ゲーム性  = CZ/ATの型と機種別のルール（旧 ゲーム性分析）
+              演出・表現 = 介入度や示唆の作り。介入度は説明軸で予測に使わないので「評価」を外した
+            モードのキーは変えていない（sessionStorageに残った選択がそのまま効く）。 */}
+        {[["column","コラム"],["machine_review","新台診断"],["dossier","深堀り分析"],["analyze","機種データ"],["gamedesign","ゲーム性"],["hyogen","演出・表現"],["ai_chat","💬 チャット"],["ai_propose","✏️ 企画提案"]].map(([k,l]) => {
           const on = mode===k;
           const isInteractive = k==="ai_chat" || k==="ai_propose";
           const sep = isInteractive && k==="ai_chat"

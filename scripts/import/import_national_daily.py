@@ -117,6 +117,15 @@ def extract_records(path):
             records.append(current)
             current = {}
 
+    # SIS側の欠測日を検出して数を出す（値は書き換えない＝原典のまま入れる）。
+    # 全国平均アウトが3,000未満の日は物理的にありえない水準で、原典Excelにも同じ値がある。
+    # 集計側（稼働値の分母）では除外しているので、ここでは件数が急に増えたら気づけるようにする。
+    low = [r for r in records if r.get("avg_in") is not None and r["avg_in"] < 3000]
+    if low:
+        print(f"⚠ 全国平均アウトが3,000未満の日: {len(low)}件（SIS側の欠測。集計では除外される）")
+        for r in low[-5:]:
+            print(f"    {r['date']} avg_in={r['avg_in']:.0f}")
+
     # 健全性チェック: パース失敗・全体件数・最終日付の警告を出す
     if skipped_count > 0:
         print(f"⚠️ 日付parseに失敗してスキップした行: {skipped_count} 件（仕様変更の可能性あり）", file=sys.stderr)
