@@ -155,7 +155,7 @@ for tb, head0 in ((C15, "軸"), (W, "軸")):
 
 miss = []
 # 5軸表（head: 軸 / SAO2の値 / 他機種と比べた位置 / 何を測っているか）
-old_start = t.index("<thead><tr><th>軸</th><th>SAO2の値</th>")
+old_start = t.index("<thead><tr><th>軸</th><th>SAO2の値")
 s = t.rindex("<table>", 0, old_start)
 e = t.index("</table>", old_start) + 8
 body = table_html(C15)
@@ -178,15 +178,15 @@ cap_e = t.index("</p>", cap_i)
 t = t[:cap_i] + '<p class="cap">%s' % rich(W["note"]) + t[cap_e:]
 
 # ③のnote
-n_hall = next(x for x in C if x.get("t") == "note" and "③に「台数」" in str(x.get("v", "")))
-hs = t.index("<strong>③の定義を")
+n_hall = next(x for x in C if x.get("t") == "note" and str(x.get("v", "")).startswith("**③"))
+hs = next(t.index(m) for m in ("<b>③に台数比を", "<b>③に「台数」", "<strong>③の定義を") if m in t)
 s3 = t.rindex('<p class="note"', 0, hs)
 e3 = t.index("</p>", hs) + 4
 t = t[:s3] + '<p class="note" style="margin:0">%s</p>' % rich(n_hall["v"]) + t[e3:]
 
 # 持続率の表
 t4 = next(x for x in S if x.get("t") == "table" and x["head"][0].startswith("指標"))
-ts = t.index("<thead><tr><th>指標</th>")
+ts = t.index("<thead><tr><th>指標")
 s4 = t.rindex("<table>", 0, ts)
 e4 = t.index("</table>", ts) + 8
 body = table_html(t4)
