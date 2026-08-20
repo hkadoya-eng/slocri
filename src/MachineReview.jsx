@@ -15,6 +15,11 @@ import COLUMN_DATA from "./columnData.json";
 
 const SUCCESS_WEEKS = 13; // 2週予測の合格ライン。確定台の上位25%相当
 
+/* タブを離れるとコンポーネントが外れるため、そのままだと戻るたびに取り直して待たされる。
+   週次データは1日1回しか変わらないので、モジュール変数に持って同じセッション内では再利用する
+   （リロードすれば消える＝古いまま貼りつくことはない）。 */
+let CACHE = null;
+
 /* 機種名の正規化。編集部評価(columnData)とSISの機種名は表記が違うので突合に使う。
    部分一致だけに頼ると別機種を掴むため、候補が1件に絞れたときしか採用しない。 */
 function normName(s) {
@@ -30,39 +35,94 @@ export default function MachineReviewTab({ onOpenMachine }) {
   const [nationalDaily, setNationalDaily] = useState({});
   const [machineStats, setMachineStats] = useState({});
   const [loading, setLoading] = useState(true);
+  const [oldMachines, setOldMachines] = useState(new Set());
   const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
     let alive = true;
+    if (CACHE) { // 2回目以降は即表示
+      setMachineStats(CACHE.stats);
+      setNationalDaily(CACHE.nat);
+      setOldMachines(CACHE.old);
+      setWeeklyData(CACHE.rows);
+      setLoading(false);
+      return () => { alive = false; };
+    }
     (async () => {
-      const [statsRes, natRes] = await Promise.all([
-        supabase.from("sis_machine_stats").select("machine,contrib_weeks"),
-        supabase.from("sis_national_daily").select("date,avg_in").gte("date", "2024-01-01"),
-      ]);
+      /* 【取得を直近26週に絞る理由】
+         2週診断は「直近約26週に導入された機種」しか対象にしないので、全期間（約12,600行を
+         1,000件ずつ13回）を取る必要がない。全期間取得だと読み込みが体感で長すぎたため、
+         次の形に変えた（実データで検証: 対象33機種は全期間取得と完全に一致・13回→5回）。
+           ① 最新週を1行だけ取る（カットオフの起点）
+           ② 以下を並列で取る
+              ・直近26週の週次データ（約3,200行＝4ページ）… 診断の計算に使う本体
+              ・カットオフ直前8週に存在した機種名だけ（約900行＝1ページ）… 旧台を除くため
+              ・全国平均アウト（カットオフ以降のみ）… 稼働値の分母
+              ・公式の稼働貢献週
+         「カットオフ以降にしか行が無い機種＝新台」なので、旧台を除くには
+         カットオフより前に行があるかを知れば足りる。全履歴を見る代わりに直前8週の帯で判定する
+         （8週まるごと欠けて後から復活する機種は実データでは1件も無かった）。 */
+      const PAGE = 1000, RECENT_PAGES = 6; // 現在4ページ。増えても拾えるよう余裕を持たせる
+      const lastRes = await supabase.from("sis_weekly_data")
+        .select("week_start").order("week_start", { ascending: false }).limit(1);
       if (!alive) return;
+      const latest = lastRes.data?.[0]?.week_start;
+      if (!latest) { setLoading(false); return; }
+      const fmt = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      const ld = new Date(latest + "T00:00:00");
+      const cutD = new Date(ld); cutD.setDate(ld.getDate() - 182);
+      const bandD = new Date(cutD); bandD.setDate(cutD.getDate() - 56);
+      const natD = new Date(cutD); natD.setDate(cutD.getDate() - 7);
+      const cutoff = fmt(cutD), band = fmt(bandD), natFrom = fmt(natD);
+
+      const jobs = [
+        supabase.from("sis_machine_stats").select("machine,contrib_weeks"),
+        supabase.from("sis_national_daily").select("date,avg_in").gte("date", natFrom),
+        // 帯は現在約900行で1ページに収まるが、1,000行上限に当たると旧台を取りこぼして
+        // 新台と誤判定するため2ページ分取り、それでも埋まっていたら下で追加取得する
+        supabase.from("sis_weekly_data").select("machine")
+          .gte("week_start", band).lt("week_start", cutoff)
+          .order("week_start", { ascending: true }).range(0, PAGE - 1),
+        supabase.from("sis_weekly_data").select("machine")
+          .gte("week_start", band).lt("week_start", cutoff)
+          .order("week_start", { ascending: true }).range(PAGE, PAGE * 2 - 1),
+      ];
+      for (let p = 0; p < RECENT_PAGES; p++) {
+        jobs.push(supabase.from("sis_weekly_data")
+          .select("machine,week_start,out_coins,avg_machine_count")
+          .gte("week_start", cutoff)
+          .order("week_start", { ascending: true })
+          .range(p * PAGE, (p + 1) * PAGE - 1));
+      }
+      const res = await Promise.all(jobs);
+      if (!alive) return;
+
       const m = {};
-      (statsRes.data || []).forEach(r => { m[r.machine.replace(/\s/g, "")] = r.contrib_weeks; });
+      (res[0].data || []).forEach(r => { m[r.machine.replace(/\s/g, "")] = r.contrib_weeks; });
       setMachineStats(m);
       const nd = {};
-      (natRes.data || []).forEach(r => { nd[r.date] = r; });
+      (res[1].data || []).forEach(r => { nd[r.date] = r; });
       setNationalDaily(nd);
-
-      // 1000件上限があるのでページングで全件取る（PostgRESTの既定上限）
-      let all = [], page = 0;
-      const PAGE = 1000;
-      while (true) {
-        const { data } = await supabase
-          .from("sis_weekly_data")
-          .select("machine,week_start,out_coins,avg_machine_count")
-          .order("week_start", { ascending: false })
-          .range(page * PAGE, (page + 1) * PAGE - 1);
-        if (!data || data.length === 0) break;
-        all = all.concat(data);
-        if (data.length < PAGE) break;
-        page++;
+      // カットオフ前に存在した機種＝旧台。診断から除く
+      let bandRows = (res[2].data || []).concat(res[3].data || []);
+      if ((res[3].data || []).length === PAGE) {
+        // 2ページ目まで埋まっている＝まだ続きがある。取りこぼすと誤判定になるので追う
+        for (let p = 2; p < 12; p++) {
+          const { data } = await supabase.from("sis_weekly_data").select("machine")
+            .gte("week_start", band).lt("week_start", cutoff)
+            .order("week_start", { ascending: true }).range(p * PAGE, (p + 1) * PAGE - 1);
+          if (!data || !data.length) break;
+          bandRows = bandRows.concat(data);
+          if (data.length < PAGE) break;
+        }
+        if (!alive) return;
       }
-      if (!alive) return;
-      setWeeklyData(all);
+      const oldSet = new Set(bandRows.map(r => r.machine));
+      setOldMachines(oldSet);
+      let rows = [];
+      for (let i = 4; i < res.length; i++) rows = rows.concat(res[i].data || []);
+      setWeeklyData(rows);
+      CACHE = { stats: m, nat: nd, old: oldSet, rows };
       setLoading(false);
     })();
     return () => { alive = false; };
@@ -100,14 +160,14 @@ export default function MachineReviewTab({ onOpenMachine }) {
     const wkMed = weekMarketBase;
     const latestD = new Date(latest + "T00:00:00");
     const fmt = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-    const cutoff = new Date(latestD); cutoff.setDate(latestD.getDate() - 182);
     const recent = new Date(latestD); recent.setDate(latestD.getDate() - 21);
-    const cutoffS = fmt(cutoff), recentS = fmt(recent);
+    const recentS = fmt(recent);
     const rows = [];
     Object.entries(byM).forEach(([machine, arr]) => {
       arr.sort((a, b) => a.week_start.localeCompare(b.week_start));
       const first = arr[0];
-      if (first.week_start < cutoffS) return; // 新台(直近約26週)のみ
+      // 取得を直近26週に絞ってあるので、ここでは「カットオフ前にも行があった機種＝旧台」を除く
+      if (oldMachines.has(machine)) return;
       const w1 = first.out_coins, w2 = arr[1] && arr[1].out_coins, w4 = arr[3] && arr[3].out_coins, w8 = arr[7] && arr[7].out_coins;
       const c1 = first.avg_machine_count, cLast = arr[arr.length - 1].avg_machine_count;
       const peakC = arr.reduce((m, r) => Math.max(m, r.avg_machine_count || 0), 0);
@@ -142,7 +202,7 @@ export default function MachineReviewTab({ onOpenMachine }) {
     });
     rows.sort((a, b) => b.firstWeek.localeCompare(a.firstWeek));
     return rows;
-  }, [weeklyData, machineStats, weekMarketBase]);
+  }, [weeklyData, machineStats, weekMarketBase, oldMachines]);
 
   /* 編集部評価(columnData)を機種名で診断に紐付ける。候補が1件に絞れたときだけ採用する */
   const editorialBy = useMemo(() => {
