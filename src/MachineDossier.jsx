@@ -175,7 +175,9 @@ function FigRadar({ spec }) {
   const axes = spec.axes, n = axes.length;
   const ang = i => (-90 + i * (360 / n)) * Math.PI / 180;
   const pt = (i, v) => [cx + R * (v / 100) * Math.cos(ang(i)), cy + R * (v / 100) * Math.sin(ang(i))];
-  const poly = vals => vals.map((v, i) => pt(i, v).map(x => Math.round(x * 10) / 10).join(",")).join(" ");
+  // 測定不能（null）の軸は頂点を作らない。その軸だけ形が欠けるので「測れていない」が図から分かる
+  const poly = vals => vals.map((v, i) => (v == null ? null : pt(i, v).map(x => Math.round(x * 10) / 10).join(",")))
+    .filter(Boolean).join(" ");
   const grid = [25, 50, 75, 100];
   return (
     <figure style={{ margin: 0 }}>
@@ -188,7 +190,7 @@ function FigRadar({ spec }) {
         ))}
       </div>
       <svg viewBox="0 0 570 470" role="img" style={{ width: "100%", height: "auto", maxWidth: 520, margin: "0 auto", display: "block" }}
-        aria-label={`評価5軸の5角形チャート。${spec.series.map(s => `${s.label}は${axes.map((a, i) => `${a.name}が上位${100 - s.values[i]}%（percentile ${s.values[i]}）`).join("、")}`).join("。")}`}>
+        aria-label={`評価5軸の5角形チャート。${spec.series.map(s => `${s.label}は${axes.map((a, i) => s.values[i] == null ? `${a.name}が測定不能` : `${a.name}が上位${100 - s.values[i]}%`).join("、")}`).join("。")}`}>
         {grid.map(g => (
           <polygon key={g} points={poly(axes.map(() => g))} fill="none"
             stroke={C.hair} strokeWidth={g === 100 ? 1.4 : 1} />
@@ -208,6 +210,7 @@ function FigRadar({ spec }) {
               <polygon points={poly(s.values)} fill={col} fillOpacity={s.color === "blue" ? 0.06 : 0.16}
                 stroke={col} strokeWidth="2.2" strokeDasharray={s.color === "blue" ? "5 4" : undefined} />
               {s.values.map((v, i) => {
+                if (v == null) return null;
                 const [x, y] = pt(i, v);
                 return <circle key={i} cx={x} cy={y} r="4" fill={col} />;
               })}
@@ -225,8 +228,9 @@ function FigRadar({ spec }) {
               <text x={lx} y={ly} textAnchor={anchor} style={{ fontSize: 12.5, fill: C.ink, fontWeight: 700 }}>
                 {a.name}{a.small ? "※" : ""}
               </text>
-              <text x={lx} y={ly + 15} textAnchor={anchor} style={{ fontSize: 11, fill: C.brand, fontWeight: 700 }}>
-                上位{100 - v}%
+              <text x={lx} y={ly + 15} textAnchor={anchor}
+                style={{ fontSize: 11, fill: v == null ? C.muted : C.brand, fontWeight: 700 }}>
+                {v == null ? "測定不能" : `上位${100 - v}%`}
               </text>
             </g>
           );
