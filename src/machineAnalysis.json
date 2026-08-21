@@ -55,7 +55,16 @@
       "verdict": "hit",
       "peakUnits": 9.0,
       "units1": 8.4,
-      "unitsLast": 9.0
+      "unitsLast": 9.0,
+      "forecast": {
+        "weeks": 26,
+        "lo": 24,
+        "hi": 57,
+        "sample": 12,
+        "basis": "同じ仕分け（超優良）で16週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 16
+      }
     }
   },
   "Lヨルムンガンド": {
@@ -281,7 +290,16 @@
       "verdict": "hit",
       "peakUnits": 3.9,
       "units1": 3.7,
-      "unitsLast": 3.9
+      "unitsLast": 3.9,
+      "forecast": {
+        "weeks": 26,
+        "lo": 24,
+        "hi": 57,
+        "sample": 11,
+        "basis": "同じ仕分け（超優良）で18週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 18
+      }
     }
   },
   "L甲鉄城のカバネリ海門決戦": {
@@ -338,7 +356,16 @@
       "verdict": "hit",
       "peakUnits": 10.6,
       "units1": 8.8,
-      "unitsLast": 10.6
+      "unitsLast": 10.6,
+      "forecast": {
+        "weeks": 27,
+        "lo": 25,
+        "hi": 57,
+        "sample": 10,
+        "basis": "同じ仕分け（超優良）で23週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 23
+      }
     }
   },
   "異世界かるてっと BT": {
@@ -664,7 +691,16 @@
       "verdict": null,
       "peakUnits": 7.4,
       "units1": 7.3,
-      "unitsLast": 7.4
+      "unitsLast": 7.4,
+      "forecast": {
+        "weeks": 7,
+        "lo": 6,
+        "hi": 9,
+        "sample": 22,
+        "basis": "同じ仕分け（注意）で5週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 5
+      }
     }
   },
   "スマスロ バイオハザードRE:3": {
@@ -773,7 +809,16 @@
       "verdict": "pending",
       "peakUnits": 4.3,
       "units1": 4.0,
-      "unitsLast": 4.3
+      "unitsLast": 4.3,
+      "forecast": {
+        "weeks": 26,
+        "lo": 24,
+        "hi": 43,
+        "sample": 13,
+        "basis": "同じ仕分け（超優良）で9週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 9
+      }
     }
   },
   "e転生したらスライムだった件2": {
@@ -1020,7 +1065,8 @@
       "verdict": "hit",
       "peakUnits": 12.0,
       "units1": 4.6,
-      "unitsLast": 12.0
+      "unitsLast": 12.0,
+      "forecastNote": "予測なし：79週以上まで到達した終了台が3件しかなく、母数が足りない"
     }
   },
   "北斗の拳（4号機）": {
@@ -1331,7 +1377,16 @@
       "verdict": null,
       "peakUnits": 1.6,
       "units1": 1.6,
-      "unitsLast": 1.6
+      "unitsLast": 1.6,
+      "forecast": {
+        "weeks": 4,
+        "lo": 3,
+        "hi": 5,
+        "sample": 14,
+        "basis": "同じ仕分け（危険）で1週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 1
+      }
     }
   },
   "Lストリートファイター6": {
@@ -1393,7 +1448,16 @@
       "verdict": null,
       "peakUnits": 3.0,
       "units1": 3.0,
-      "unitsLast": 3.0
+      "unitsLast": 3.0,
+      "forecast": {
+        "weeks": 4,
+        "lo": 3,
+        "hi": 5,
+        "sample": 14,
+        "basis": "同じ仕分け（危険）で1週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 1
+      }
     }
   },
   "スマスロ サンダーV": {
@@ -1446,7 +1510,16 @@
       "verdict": null,
       "peakUnits": 2.1,
       "units1": 2.1,
-      "unitsLast": 1.9
+      "unitsLast": 1.9,
+      "forecast": {
+        "weeks": 30,
+        "lo": 25,
+        "hi": 57,
+        "sample": 14,
+        "basis": "全機種で23週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 23
+      }
     }
   },
   "スマート沖スロ ダークハイビ": {
@@ -1626,7 +1699,16 @@
       "verdict": "pending",
       "peakUnits": 6.8,
       "units1": 6.5,
-      "unitsLast": 6.7
+      "unitsLast": 6.7,
+      "forecast": {
+        "weeks": 26,
+        "lo": 24,
+        "hi": 43,
+        "sample": 13,
+        "basis": "同じ仕分け（超優良）で9週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 9
+      }
     }
   },
   "スマスロ BIRDIE WING -Golf Girls' Story-": {
@@ -1796,7 +1878,16 @@
       "verdict": "pending",
       "peakUnits": 2.2,
       "units1": 2.2,
-      "unitsLast": 2.2
+      "unitsLast": 2.2,
+      "forecast": {
+        "weeks": 24,
+        "lo": 15,
+        "hi": 36,
+        "sample": 24,
+        "basis": "上位判定の台で1週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 1
+      }
     }
   },
   "スマスロ鉄拳6": {
@@ -1958,7 +2049,16 @@
       "verdict": "hit",
       "peakUnits": 2.7,
       "units1": 2.7,
-      "unitsLast": 2.6
+      "unitsLast": 2.6,
+      "forecast": {
+        "weeks": 57,
+        "lo": 43,
+        "hi": 88,
+        "sample": 5,
+        "basis": "同じ仕分け（超優良）で27週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 27
+      }
     }
   },
   "Lパチスロ喰霊-零-Re": {
@@ -2095,7 +2195,16 @@
       "verdict": null,
       "peakUnits": 2.4,
       "units1": 2.4,
-      "unitsLast": 2.4
+      "unitsLast": 2.4,
+      "forecast": {
+        "weeks": 5,
+        "lo": 5,
+        "hi": 6,
+        "sample": 6,
+        "basis": "同じ仕分け（危険）で5週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 5
+      }
     }
   },
   "スマスロ リコリス・リコイル": {
@@ -2795,7 +2904,16 @@
       "verdict": null,
       "peakUnits": 3.0,
       "units1": 3.0,
-      "unitsLast": 3.0
+      "unitsLast": 3.0,
+      "forecast": {
+        "weeks": 4,
+        "lo": 3,
+        "hi": 5,
+        "sample": 14,
+        "basis": "同じ仕分け（危険）で1週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 1
+      }
     }
   },
   "e無職転生": {
@@ -2921,7 +3039,16 @@
       "verdict": null,
       "peakUnits": 1.7,
       "units1": 1.7,
-      "unitsLast": 1.7
+      "unitsLast": 1.7,
+      "forecast": {
+        "weeks": 5,
+        "lo": 5,
+        "hi": 6,
+        "sample": 6,
+        "basis": "同じ仕分け（危険）で5週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 5
+      }
     }
   },
   "スマスロ タコスロ": {
@@ -3529,7 +3656,16 @@
       "verdict": "pending",
       "peakUnits": 4.1,
       "units1": 4.1,
-      "unitsLast": 4.1
+      "unitsLast": 4.1,
+      "forecast": {
+        "weeks": 24,
+        "lo": 15,
+        "hi": 36,
+        "sample": 24,
+        "basis": "上位判定の台で1週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 1
+      }
     }
   },
   "スマスロ 炎炎ノ消防隊2": {
@@ -3928,7 +4064,16 @@
       "verdict": null,
       "peakUnits": 2.9,
       "units1": 2.9,
-      "unitsLast": 2.8
+      "unitsLast": 2.8,
+      "forecast": {
+        "weeks": 7,
+        "lo": 6,
+        "hi": 9,
+        "sample": 22,
+        "basis": "同じ仕分け（注意）で5週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 5
+      }
     }
   },
   "スマスロ 獣王": {
@@ -4010,7 +4155,16 @@
       "verdict": null,
       "peakUnits": 1.3,
       "units1": 1.3,
-      "unitsLast": 1.3
+      "unitsLast": 1.3,
+      "forecast": {
+        "weeks": 4,
+        "lo": 3,
+        "hi": 5,
+        "sample": 14,
+        "basis": "同じ仕分け（危険）で1週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 1
+      }
     }
   },
   "スマスロ主役は銭形5": {
@@ -4110,7 +4264,16 @@
       "verdict": "pending",
       "peakUnits": 1.7,
       "units1": 1.7,
-      "unitsLast": 1.7
+      "unitsLast": 1.7,
+      "forecast": {
+        "weeks": 24,
+        "lo": 15,
+        "hi": 36,
+        "sample": 24,
+        "basis": "上位判定の台で1週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 1
+      }
     }
   },
   "e結城友奈は勇者である～極限7500～": {
@@ -4928,7 +5091,16 @@
       "verdict": null,
       "peakUnits": 5.9,
       "units1": 5.8,
-      "unitsLast": 5.9
+      "unitsLast": 5.9,
+      "forecast": {
+        "weeks": 11,
+        "lo": 10,
+        "hi": 14,
+        "sample": 5,
+        "basis": "下位判定の台で10週以上まで到達した終了台",
+        "madeAt": "2026-08-10",
+        "atWeeks": 10
+      }
     }
   },
   "スマスロ いざ！番長": {

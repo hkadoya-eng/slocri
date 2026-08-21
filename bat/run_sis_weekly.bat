@@ -24,6 +24,12 @@ python scripts\misc\update_machine_review_predictions.py >> logs\sis_import.log 
 echo [%date% %time%] machine_review outcome update... >> logs\sis_import.log 2>&1
 python scripts\misc\update_review_outcome.py >> logs\sis_import.log 2>&1
 
+echo [%date% %time%] sisRecord update... >> logs\sis_import.log 2>&1
+python scripts\misc\update_sis_record.py >> logs\sis_import.log 2>&1
+
+echo [%date% %time%] contribution forecast update... >> logs\sis_import.log 2>&1
+python scripts\misc\update_forecast.py >> logs\sis_import.log 2>&1
+
 git diff --quiet src\columnData.json
 if errorlevel 1 (
     echo [%date% %time%] columnData.json updated, pushing... >> logs\sis_import.log 2>&1

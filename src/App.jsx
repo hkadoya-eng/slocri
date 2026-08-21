@@ -3675,13 +3675,30 @@ ${policyText}
                             {/* 2週診断の中身。仕分けを決めた2週時点の数字と、あとから来た答え合わせ */}
                             {r?.tier && r.tier !== "計測中" && (
                               <div style={{marginTop:5,paddingTop:5,borderTop:"1px dashed #eee",display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",fontSize:10.5,color:"#888"}}>
-                                <span>2週診断</span>
+                                <span>{r.status === "終了" ? "2週診断（結果確定）" : "2週診断"}</span>
                                 <span style={{color:"#555"}}>稼働値 {r.katsudo1 ?? "—"}<span style={{color:"#ccc"}}>→</span>{r.katsudo2 != null ? r.katsudo2+"%" : "—"}</span>
                                 <span style={{color:"#555"}}>2週持続 {r.ret2 != null ? r.ret2+"%" : "—"}</span>
                                 {r.tierVia && <span style={{color:"#3d7a5c"}}>▲ {r.tierVia}で拾い上げ</span>}
                                 {r.verdict && VERDICT[r.verdict] && (
                                   <span style={{fontWeight:700,color:VERDICT[r.verdict].c,background:VERDICT[r.verdict].bg,borderRadius:5,padding:"2px 7px"}}>{VERDICT[r.verdict].t}</span>
                                 )}
+                              </div>
+                            )}
+                            {/* 稼働貢献週の予測。同じ仕分けで同じ週数まで到達した終了台の実績分布から出す。
+                                終了した台には予測を書かない（後付けになり答え合わせが成立しない）ので、
+                                継続中の台だけに出る。根拠と母数を併記して、どの母集団から出た数字か分かるようにする。 */}
+                            {r?.forecast && (
+                              <div style={{marginTop:5,paddingTop:5,borderTop:"1px dashed #eee",display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",fontSize:10.5}}>
+                                <span style={{fontWeight:700,color:"#7B1FA2",background:"#F5E9FA",borderRadius:5,padding:"2px 7px"}}>
+                                  貢献週の予測 {r.forecast.lo === r.forecast.hi ? `${r.forecast.weeks}週` : `${r.forecast.weeks}週（${r.forecast.lo}〜${r.forecast.hi}）`}
+                                </span>
+                                <span style={{color:"#999"}}>{r.forecast.basis}・n={r.forecast.sample}</span>
+                                <span style={{color:"#bbb"}}>{r.forecast.madeAt}時点</span>
+                              </div>
+                            )}
+                            {r?.forecastNote && (
+                              <div style={{marginTop:5,paddingTop:5,borderTop:"1px dashed #eee",fontSize:10.5,color:"#aaa"}}>
+                                {r.forecastNote}
                               </div>
                             )}
                             {/* 編集部が先に出した「何週生きるか」の予測と、その答え合わせ */}
