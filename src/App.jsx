@@ -4054,9 +4054,9 @@ ${policyText}
                                 <span style={{fontWeight:700,color:"#7B1FA2",background:"#F5E9FA",borderRadius:5,padding:"2px 7px"}}>
                                   モデル予測 {r.forecast.lo === r.forecast.hi ? `${r.forecast.weeks}週` : `${r.forecast.weeks}週（${r.forecast.lo}〜${r.forecast.hi}）`}
                                 </span>
-                                <span style={{color:"#999"}}>過去の似た台の実績から機械的に算出／{r.forecast.basis}・n={r.forecast.sample}
-                                  {r.forecast.expectedError != null && <>・実測誤差±{r.forecast.expectedError}週</>}</span>
-                                <span style={{color:"#bbb"}}>{r.forecast.madeAt}時点</span>
+                                {r.forecast.expectedError != null && (
+                                  <span style={{color:"#999"}}>実測誤差±{r.forecast.expectedError}週</span>
+                                )}
                               </div>
                             )}
                             {r?.forecastNote && (
@@ -4070,27 +4070,13 @@ ${policyText}
                                 <span style={{fontWeight:700,color:"#1565C0",background:"#E9F1FB",borderRadius:5,padding:"2px 7px"}}>
                                   稼働予測 {row.pred.longevityMin === row.pred.longevityMax ? `${row.pred.longevityMin}週` : `${row.pred.longevityMin}〜${row.pred.longevityMax}週`}
                                 </span>
-                                {/* いつ立てた予測かを事実として出す。経過週によって当てやすさが違うため */}
-                                {row.pred.predictedAtWeeks && (
-                                  <span style={{fontWeight:700,color:"#555",background:"#F0F2F5",borderRadius:5,padding:"2px 7px"}}>
-                                    {row.pred.predictedAtWeeks <= 3 ? "導入直後" : row.pred.predictedAtWeeks <= 8 ? "序盤" : "経過後"}
-                                    （{row.pred.predictedAtWeeks}週目時点）
-                                  </span>
-                                )}
-                                {row.pred.difficulty && (
-                                  <span style={{color:"#999"}}>
-                                    {{settled:"立てた時点で平均割れ＝ほぼ確定", near:"あと数週で決まる状況", open:"まだ平均を大きく超えていた"}[row.pred.difficulty]}
-                                  </span>
-                                )}
-                                {row.pred.predictedAt && <span style={{color:"#bbb"}}>{row.pred.predictedAt}
-                                  {row.pred.predictedAtSource && "（記録なしのためgit履歴から復元）"}</span>}
                                 {(() => {
                                   const o = row.pred.sisOutcome || {};
                                   if (o.verdict === "hit") return <span style={{fontWeight:700,color:"#1f7a4d",background:"#E8F5E9",borderRadius:5,padding:"2px 7px"}}>✓ 的中（実績{o.contribWeeks}週）</span>;
                                   if (o.verdict === "miss") return <span style={{fontWeight:700,color:"#C62828",background:"#FDECEA",borderRadius:5,padding:"2px 7px"}}>✗ 外れ（実績{o.contribWeeks}週・{o.diff > 0 ? "+" : ""}{o.diff}週）</span>;
                                   return <span style={{color:"#999"}}>継続中のため採点待ち</span>;
                                 })()}
-                                {row.pred.tag && <span style={{color:"#999"}}>{row.pred.tag}</span>}
+
                               </div>
                             )}
                           </button>
