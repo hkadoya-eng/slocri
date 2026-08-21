@@ -3826,7 +3826,7 @@ ${policyText}
                     <button onClick={() => setShowPred(v => !v)} aria-expanded={showPred}
                       style={{width:"100%",textAlign:"left",border:"none",background:showPred?"#FBF3EF":"#fff",cursor:"pointer",padding:"10px 12px"}}>
                       <div style={{display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>
-                        <span style={{fontSize:13,fontWeight:700,color:"#333"}}>編集部の稼働予測</span>
+                        <span style={{fontSize:13,fontWeight:700,color:"#333"}}>編集部の見立て（稼働貢献週）</span>
                         <span style={{fontSize:11,color:"#888"}}>{predScore.total}件</span>
                         <span style={{fontSize:10.5,fontWeight:700,color:"#1f7a4d",background:"#E8F5E9",borderRadius:5,padding:"2px 7px"}}>✓ {predScore.hit}</span>
                         <span style={{fontSize:10.5,fontWeight:700,color:"#C62828",background:"#FDECEA",borderRadius:5,padding:"2px 7px"}}>✗ {predScore.miss}</span>
@@ -3835,10 +3835,14 @@ ${policyText}
                         <span style={{marginLeft:"auto",fontSize:15,color:"#D85A30",fontWeight:700}}>{showPred ? "−" : "＋"}</span>
                       </div>
                       <div style={{fontSize:11,color:"#888",marginTop:4}}>
-                        各機種には予測が2つ並ぶ。<b style={{color:"#7B1FA2"}}>モデル予測</b>は
-                        「同じ仕分けで同じ週数まで走った終了台の実績」から機械的に出す数字で、直近の推移は見ていない。
-                        <b style={{color:"#1565C0"}}>編集部予測</b>は直近の稼働値の動き・台数の増減・設置の厚さを見て人が決める。
-                        ここで採点しているのは編集部予測。<br/>
+                        各機種には予測が2つ並ぶ。どちらもAIが出した数字で、違うのは<b>作り方</b>。<br/>
+                        <b style={{color:"#7B1FA2"}}>モデル予測</b>＝固定した式で自動計算する。
+                        「同じ仕分けで同じ週数まで走った終了台の中央値」だけを使い、同じデータなら必ず同じ数字が出る。
+                        そのぶん直近の失速や増台は織り込めない。<br/>
+                        <b style={{color:"#1565C0"}}>編集部の見立て</b>＝式を持たず、その台の直近の稼働値の動き・台数の増減・
+                        設置の厚さを見て1件ずつ決めた数字。式がないので再現できないぶん、モデルが見ていない情報を入れられる。
+                        だから<b>立てた日と根拠を必ず残し、後から書き換えられないようにしている</b>。
+                        ここで採点しているのは見立てのほう。<br/>
                         終了した{predScore.done}件のうち{predScore.hit}件が的中（{rate}%）。
                         うち{predScore.exact}件は予測レンジの中、{predScore.near}件は許容差の中。
                         開くと1件ずつの結果と振り返りが読める。
@@ -3939,11 +3943,11 @@ ${policyText}
                             </div>
                             <div style={{marginBottom:8}}>
                               <b style={{color:"#555"}}>モデルと食い違うのは長期帯。</b>
-                              モデルは仕分けと現在の週数だけで決まるので、直近の失速を織り込めない。
+                              モデルは式が仕分けと現在の週数だけを使うので、直近の失速を織り込めない。
                               攻殻機動隊はモデル57週に対し編集部30〜32週（直近5週が106→108→109→96→101%で
                               境界に来ており台数も減り始めている）。東京喰種はモデルが母数不足で出せず、編集部のみ90〜100週。
-                              逆に編集部には長く見積もる癖（外れ4件すべて下振れ）があるので、
-                              両方を残して同じ物差しで採点し、どちらが当たるかを見る。
+                              逆に見立てには長く見積もる癖（外れ4件すべて下振れ）があった。
+                              式のない数字は癖が出るので、両方を残して同じ物差しで採点し、どちらが当たるかを見る。
                             </div>
                             <div>
                               <b style={{color:"#555"}}>次に試されるのは長期側。</b>
@@ -4045,7 +4049,7 @@ ${policyText}
                             {row.pred && (
                               <div style={{marginTop:5,paddingTop:5,borderTop:"1px dashed #eee",display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",fontSize:10.5}}>
                                 <span style={{fontWeight:700,color:"#1565C0",background:"#E9F1FB",borderRadius:5,padding:"2px 7px"}}>
-                                  編集部予測 {row.pred.longevityMin === row.pred.longevityMax ? `${row.pred.longevityMin}週` : `${row.pred.longevityMin}〜${row.pred.longevityMax}週`}
+                                  編集部の見立て {row.pred.longevityMin === row.pred.longevityMax ? `${row.pred.longevityMin}週` : `${row.pred.longevityMin}〜${row.pred.longevityMax}週`}
                                 </span>
                                 {row.pred.difficulty && (
                                   <span style={{color:"#999"}}>
