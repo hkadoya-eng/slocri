@@ -15,6 +15,17 @@
   ③ 全機種 × N週以上                        （n>=5 で採用）
   ④ どれも足りない → 予測なし（理由を残す）
 
+expectedError … 同じ仕分けの終了台の実測誤差（±週）。予測の確からしさを示す。
+                危険±1.1 / 注意±2.2 / 優良±3.5 / 超優良±17.8 のように長い台ほど大きい
+
+**要因分析でわかったこと（採用しなかったものも残す）**
+  ・競合圧（導入から8週の新台数）と市場水準は誤差と-0.20/-0.24の相関が出るが、
+    **導入年の交絡**だった。導入年 vs 貢献週が r=-0.64（2023年導入は平均81週・2026年は7.3週）で、
+    年内に限ると相関は消える（2025年 r=-0.09）。要因として採用しない
+  ・初動（初週の稼働値）と設置規模は誤差と+0.31/+0.30。①〜③と重複する可能性があるため保留
+  ・母集団は「N週以上まで到達した終了台」で条件付ける現行方式を維持する。全期間だと古い長寿台に
+    引っ張られて上振れ、直近に絞ると「まだ終わっていない長寿台」が抜けて下振れするため
+
 使い方: python scripts/misc/update_forecast.py [--dry]
 """
 import io
@@ -47,6 +58,17 @@ def main():
         return sorted(r["contribWeeks"] for _, r in ended
                       if pred(r) and r["contribWeeks"] >= n)
 
+    # 仕分けごとの実測誤差＝その仕分けの終了台が「仕分けの中央値」からどれだけずれたかの平均。
+    # 予測の数字だけ出すと確からしさが伝わらないため、これを添える。
+    # 分析では 危険±1.1週 → 注意±2.2週 → 優良±3.5週 → 超優良±17.8週 と、
+    # 長い台ほど誤差が爆発することが確認できている（確定60機種）。
+    tier_err = {}
+    for tr in {r["tier"] for _, r in ended if r.get("tier")}:
+        v = [r["contribWeeks"] for _, r in ended if r.get("tier") == tr]
+        if len(v) >= 2:
+            med = st.median(v)
+            tier_err[tr] = round(sum(abs(x - med) for x in v) / len(v), 1)
+
     changed, skipped = [], []
     for name, r in live:
         tier, cw = r["tier"], r["contribWeeks"]
@@ -57,10 +79,10 @@ def main():
             ("全機種で%d週以上まで到達した終了台" % cw, lambda x: True),
         ]
         got = None
-        for basis, pred in levels:
+        for li, (basis, pred) in enumerate(levels):
             v = pool(pred, cw)
             if len(v) >= MIN_SAMPLE:
-                got = (basis, v)
+                got = (basis, v, li)
                 break
         if not got:
             # 比較できる終了台が5件未満。無理に数字を出さず理由を残す
@@ -70,11 +92,18 @@ def main():
                                  % (cw, len(v_all)))
             skipped.append((name, tier, cw, len(v_all)))
             continue
-        basis, v = got
+        basis, v, level = got
         q = lambda p: v[min(len(v) - 1, int(len(v) * p))]
         fc = {"weeks": int(st.median(v)), "lo": int(q(.25)), "hi": int(q(.75)),
               "sample": len(v), "basis": basis, "madeAt": as_of, "atWeeks": cw}
         fc["tolerance"] = int(fc["weeks"] // TOLERANCE_STEP)
+        # 実測誤差は「同じ仕分けの母集団で予測できたとき」だけ添える。
+        # 仕分け外の母集団（上位/下位や全機種）に落ちた台にその仕分けの誤差を出すと、
+        # 別の母集団から出した数字に別の誤差を貼ることになり噛み合わない
+        if level == 0 and tier in tier_err:
+            fc["expectedError"] = tier_err[tier]
+        else:
+            fc["errorNote"] = "同じ仕分けの母集団で予測できていないため、実測誤差は出せない"
         # 予測が現在の貢献週を下回るのは筋が通らない（もう到達している）。下限は現在値に合わせる
         if fc["weeks"] < cw:
             fc["weeks"] = cw
@@ -97,7 +126,9 @@ def main():
     print("%-32s %-12s %6s %8s %s" % ("機種", "仕分け", "現在", "予測", "根拠"))
     for name, tier, cw, fc in sorted(changed, key=lambda x: -x[2]):
         rng = "%d週" % fc["weeks"] if fc["lo"] == fc["hi"] else "%d週（%d〜%d）" % (fc["weeks"], fc["lo"], fc["hi"])
-        print("%-32s %-12s %5d週 %10s n=%d・%s" % (name[:32], tier, cw, rng, fc["sample"], fc["basis"][:40]))
+        err = ("±%.1f" % fc["expectedError"]) if fc.get("expectedError") is not None else "測れず"
+        print("%-32s %-12s %5d週 %10s 実測誤差%6s n=%d・%s"
+              % (name[:32], tier, cw, rng, err, fc["sample"], fc["basis"][:34]))
     if skipped:
         print("\n予測を出さなかった機種:")
         for name, tier, cw, n in skipped:

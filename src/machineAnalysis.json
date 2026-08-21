@@ -64,7 +64,8 @@
         "basis": "同じ仕分け（超優良）で16週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 16,
-        "tolerance": 5
+        "tolerance": 5,
+        "expectedError": 17.8
       }
     }
   },
@@ -300,7 +301,8 @@
         "basis": "同じ仕分け（超優良）で18週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 18,
-        "tolerance": 5
+        "tolerance": 5,
+        "expectedError": 17.8
       }
     }
   },
@@ -367,7 +369,8 @@
         "basis": "同じ仕分け（超優良）で23週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 23,
-        "tolerance": 5
+        "tolerance": 5,
+        "expectedError": 17.8
       }
     }
   },
@@ -703,7 +706,8 @@
         "basis": "同じ仕分け（注意）で5週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 5,
-        "tolerance": 1
+        "tolerance": 1,
+        "expectedError": 2.2
       }
     }
   },
@@ -822,7 +826,8 @@
         "basis": "同じ仕分け（超優良）で9週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 9,
-        "tolerance": 5
+        "tolerance": 5,
+        "expectedError": 17.8
       }
     }
   },
@@ -1391,7 +1396,8 @@
         "basis": "同じ仕分け（危険）で1週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 1,
-        "tolerance": 1
+        "tolerance": 0,
+        "expectedError": 1.1
       }
     }
   },
@@ -1463,7 +1469,8 @@
         "basis": "同じ仕分け（危険）で1週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 1,
-        "tolerance": 1
+        "tolerance": 0,
+        "expectedError": 1.1
       }
     }
   },
@@ -1526,7 +1533,8 @@
         "basis": "全機種で23週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 23,
-        "tolerance": 6
+        "tolerance": 6,
+        "errorNote": "同じ仕分けの母集団で予測できていないため、実測誤差は出せない"
       }
     }
   },
@@ -1716,7 +1724,8 @@
         "basis": "同じ仕分け（超優良）で9週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 9,
-        "tolerance": 5
+        "tolerance": 5,
+        "expectedError": 17.8
       }
     }
   },
@@ -1896,7 +1905,8 @@
         "basis": "上位判定の台で1週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 1,
-        "tolerance": 5
+        "tolerance": 4,
+        "errorNote": "同じ仕分けの母集団で予測できていないため、実測誤差は出せない"
       }
     }
   },
@@ -2068,7 +2078,8 @@
         "basis": "同じ仕分け（超優良）で27週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 27,
-        "tolerance": 11
+        "tolerance": 11,
+        "expectedError": 17.8
       }
     }
   },
@@ -2215,7 +2226,8 @@
         "basis": "同じ仕分け（危険）で5週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 5,
-        "tolerance": 1
+        "tolerance": 1,
+        "expectedError": 1.1
       }
     }
   },
@@ -2925,7 +2937,8 @@
         "basis": "同じ仕分け（危険）で1週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 1,
-        "tolerance": 1
+        "tolerance": 0,
+        "expectedError": 1.1
       }
     }
   },
@@ -3061,7 +3074,8 @@
         "basis": "同じ仕分け（危険）で5週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 5,
-        "tolerance": 1
+        "tolerance": 1,
+        "expectedError": 1.1
       }
     }
   },
@@ -3679,7 +3693,8 @@
         "basis": "上位判定の台で1週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 1,
-        "tolerance": 5
+        "tolerance": 4,
+        "errorNote": "同じ仕分けの母集団で予測できていないため、実測誤差は出せない"
       }
     }
   },
@@ -4088,7 +4103,8 @@
         "basis": "同じ仕分け（注意）で5週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 5,
-        "tolerance": 1
+        "tolerance": 1,
+        "expectedError": 2.2
       }
     }
   },
@@ -4180,7 +4196,8 @@
         "basis": "同じ仕分け（危険）で1週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 1,
-        "tolerance": 1
+        "tolerance": 0,
+        "expectedError": 1.1
       }
     }
   },
@@ -4290,7 +4307,8 @@
         "basis": "上位判定の台で1週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 1,
-        "tolerance": 5
+        "tolerance": 4,
+        "errorNote": "同じ仕分けの母集団で予測できていないため、実測誤差は出せない"
       }
     }
   },
@@ -5118,7 +5136,8 @@
         "basis": "下位判定の台で10週以上まで到達した終了台",
         "madeAt": "2026-08-10",
         "atWeeks": 10,
-        "tolerance": 2
+        "tolerance": 2,
+        "errorNote": "同じ仕分けの母集団で予測できていないため、実測誤差は出せない"
       }
     }
   },

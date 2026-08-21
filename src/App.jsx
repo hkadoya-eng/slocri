@@ -3381,6 +3381,34 @@ function ResearchTab({ posts, aiEnabled, updatePost, adminUser }) {
              maxErr: errs.length ? Math.max(...errs).toFixed(1) : null };
   }, []);
 
+  /* 予測誤差の要因分析。確定した機種（終了＝貢献週が動かない台）だけを母集団にして、
+     仕分けの中央値を予測としたときの誤差を見る。編集部予測は終了7件で統計にならないため、
+     こちらの60件規模で「どこで外すのか」を測る。 */
+  const errorAnalysis = useMemo(() => {
+    const ended = Object.entries(MACHINE_ANALYSIS)
+      .map(([n, v]) => ({ n, r: v.sisRecord || {} }))
+      .filter(x => x.r.status === "終了" && x.r.contribWeeks != null && x.r.tier);
+    if (ended.length < 10) return null;
+    const median = a => { const s = [...a].sort((p, q) => p - q); const h = s.length >> 1;
+      return s.length % 2 ? s[h] : (s[h - 1] + s[h]) / 2; };
+    const tiers = [...new Set(ended.map(x => x.r.tier))];
+    const byTier = tiers.map(tier => {
+      const g = ended.filter(x => x.r.tier === tier);
+      const med = median(g.map(x => x.r.contribWeeks));
+      const tol = Math.floor(med / 5);
+      const absErr = g.reduce((s, x) => s + Math.abs(x.r.contribWeeks - med), 0) / g.length;
+      const hit = g.filter(x => Math.abs(x.r.contribWeeks - med) <= tol).length;
+      return { tier, n: g.length, med, tol, absErr, hit, rate: Math.round(hit / g.length * 100) };
+    }).sort((a, b) => b.med - a.med);
+    // 導入年ごとの貢献週。年で大きく違うなら、年をまたいだ母集団は扱いに注意が必要
+    const years = [...new Set(ended.map(x => (x.r.firstWeek || "").slice(0, 4)))].filter(Boolean).sort();
+    const byYear = years.map(y => {
+      const g = ended.filter(x => (x.r.firstWeek || "").startsWith(y));
+      return { y, n: g.length, med: median(g.map(x => x.r.contribWeeks)) };
+    }).filter(x => x.n >= 3);
+    return { total: ended.length, byTier, byYear };
+  }, []);
+
   const analyzeList = useMemo(() => {
     const statusBy = {};
     analyzeMachineStatuses.forEach(s => { statusBy[s.name] = s; });
@@ -3837,43 +3865,80 @@ ${policyText}
                             {predScore.avgErr != null && <> 近似の度合いは<b>誤差率</b>で持ち、平均<b>{predScore.avgErr}%</b>・最大{predScore.maxErr}%。</>}
                             採点は終了した台だけで、継続中は貢献週がまだ増えるので数に入れない。
                           </div>
-                          <div style={{fontSize:12,fontWeight:700,color:"#333",marginBottom:6}}>振り返り</div>
+                        </div>
+                        {/* 判定の決まりとは別の枠にする。ルールの説明と、結果から何が言えるかは性質が違う */}
+                        <div style={{marginTop:12,paddingTop:10,borderTop:"1px dashed #DDD"}}>
+                          <div style={{fontSize:12,fontWeight:700,color:"#333",marginBottom:6}}>振り返り（どこで外すのか）</div>
                           <div style={{fontSize:11.5,color:"#666",lineHeight:1.85}}>
                             {misses.length > 0 && (
-                              <div style={{marginBottom:7}}>
-                                <b style={{color:"#555"}}>外れは全部同じ方向。</b>
-                                {allShort
-                                  ? `外れた${misses.length}件はすべて実績が予測を下回っており、差は平均${avgDiff}週。長く見積もる癖が出ている。`
-                                  : `外れた${misses.length}件の差は平均${avgDiff}週。`}
+                              <div style={{marginBottom:8}}>
+                                <b style={{color:"#555"}}>外れの向き。</b>
+                                外れた{misses.length}件は{allShort ? "すべて" : ""}実績が予測を下回り、差は平均{avgDiff}週。
                                 {allShort && "「まだ続きそう」と見えている台が、思ったより早く平均を割っている。"}
                               </div>
                             )}
                             {exacts.length > 0 && exactMax != null && (
-                              <div style={{marginBottom:7}}>
+                              <div style={{marginBottom:8}}>
                                 <b style={{color:"#555"}}>ビタで当てられているのは短命台だけ。</b>
-                                週数まで正確に当たった{exacts.length}件は実績が最長{exactMax}週で、いずれも早く終わる台だった。
-                                {longs.length > 0 && <>10週以上を予測した{longs.length}件でビタ当ては{longExact}件にとどまり、残りは許容差に助けられている。</>}
-                                長い台ほど週数の言い切りは効かない。
+                                週数まで正確に当たった{exacts.length}件は実績が最長{exactMax}週。
+                                {longs.length > 0 && <>10週以上を予測した{longs.length}件でビタ当ては{longExact}件にとどまる。</>}
                               </div>
                             )}
-                            {nears.length > 0 && (
-                              <div style={{marginBottom:7}}>
-                                <b style={{color:"#555"}}>許容差がどれだけ効いたか。</b>
-                                的中{predScore.hit}件のうち{nears.length}件は許容差で救われている（
-                                {nears.map(c => `${c.name.replace(/^(スマスロ|L|e)\s?/, "")}${c.sisOutcome.diff > 0 ? "+" : ""}${c.sisOutcome.diff}`).join("・")}）。
-                                レンジ内で当てた{predScore.exact}件だけで見ると{predScore.done ? Math.round(predScore.exact / predScore.done * 100) : 0}%で、
-                                この差が今の実力の幅である。
+                            {errorAnalysis && (
+                              <div style={{marginBottom:8}}>
+                                <b style={{color:"#555"}}>誤差は「台の長さ」でほぼ決まる。</b>
+                                編集部予測は終了{predScore.done}件で統計にならないので、
+                                確定した{errorAnalysis.total}機種で2週診断の予測誤差を測った。
+                                仕分けの中央値を予測としたときの実測誤差は下のとおりで、
+                                <b>長い台ほど誤差が大きくなる</b>。予測の数字だけ出すと確からしさが伝わらないので、
+                                各機種の予測にはこの誤差幅を添えている。
+                                <div style={{marginTop:6,display:"flex",flexDirection:"column",gap:3}}>
+                                  {errorAnalysis.byTier.map(x => (
+                                    <div key={x.tier} style={{display:"flex",alignItems:"center",gap:6,fontSize:10.5}}>
+                                      <span style={{minWidth:78,color:"#555",fontWeight:700}}>{x.tier}</span>
+                                      <span style={{minWidth:44,color:"#888"}}>n={x.n}</span>
+                                      <span style={{minWidth:52,color:"#555"}}>予測{x.med}週</span>
+                                      <span style={{minWidth:66,color:"#333",fontWeight:700}}>実測±{x.absErr.toFixed(1)}週</span>
+                                      <span style={{color:"#888"}}>許容±{x.tol}で的中{x.rate}%</span>
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
                             )}
-                            <div style={{marginBottom:7}}>
-                              <b style={{color:"#555"}}>2週診断との使い分け。</b>
-                              自動の2週診断は「上位を漏らさず拾う」設計で、危険帯に的中判定を付けない（短命台を確実に切る側）。
-                              短命台の週数を当てるのは編集部予測の役目で、ビッグドリーム5週・ヨルムンガンド6週はどちらも言い切って当てている。
+                            {errorAnalysis && errorAnalysis.byYear.length >= 2 && (
+                              <div style={{marginBottom:8}}>
+                                <b style={{color:"#555"}}>競合の多さ・市場の稼働水準は要因にしなかった。</b>
+                                導入から8週の新台数（競合圧）は誤差と−0.20、市場水準は−0.24の相関が出たが、
+                                <b>導入年の交絡</b>だった。導入年と貢献週の相関は−0.64で、年内に限ると競合圧の効果は消える（2025年 −0.09）。
+                                終了台の貢献週の中央値は年でこれだけ違う。
+                                <div style={{marginTop:5,display:"flex",gap:5,flexWrap:"wrap"}}>
+                                  {errorAnalysis.byYear.map(x => (
+                                    <span key={x.y} style={{fontSize:10.5,color:"#555",background:"#F2F4F7",borderRadius:5,padding:"3px 8px"}}>
+                                      {x.y}年導入 n={x.n} <b style={{color:"#333"}}>{x.med}週</b>
+                                    </span>
+                                  ))}
+                                </div>
+                                <div style={{marginTop:5,fontSize:11,color:"#888"}}>
+                                  古い台が長いのは市場が良かったからではなく、観測できる期間が長いからでもある。
+                                  「競合が少ない窓は当たり」と読むのは筋が悪い。
+                                </div>
+                              </div>
+                            )}
+                            <div style={{marginBottom:8}}>
+                              <b style={{color:"#555"}}>母集団の選び方には両側のバイアスがある。</b>
+                              全期間を母集団にすると古い長寿台に引っ張られて上振れし、直近に絞ると
+                              「まだ終わっていない長寿台」が抜けるので下振れする
+                              {errorAnalysis && errorAnalysis.byYear.length && <>（2026年導入の終了台は中央値{
+                                (errorAnalysis.byYear.find(x => x.y === "2026") || {}).med ?? "—"}週）</>}。
+                              そのため予測は<b>「その台が到達した週数以上まで走った終了台」だけ</b>を母集団にしている。
+                              これなら早死にした台が母集団から自動的に外れる。
                             </div>
                             <div>
-                              <b style={{color:"#555"}}>いま試されているのは長期側。</b>
+                              <b style={{color:"#555"}}>次に試されるのは長期側。</b>
                               採点待ちの{live.length}件には20週超の予測（SAO2 22週・カバネリ22〜27週）が含まれる。
-                              下振れの癖が長期予測にも出るなら、ここで外れる。答えが出たらこの欄に反映する。
+                              上位帯の実測誤差は±
+                              {errorAnalysis ? (errorAnalysis.byTier.find(x => x.tier === "超優良")?.absErr ?? 0).toFixed(1) : "—"}
+                              週なので、この帯を当てられるかがいまの弱点。答えが出たらこの欄に反映する。
                             </div>
                           </div>
                         </div>
