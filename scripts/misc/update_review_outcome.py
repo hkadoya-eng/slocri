@@ -45,6 +45,16 @@ BASE = "https://vpzbtuucopucablwyqeq.supabase.co/rest/v1"
 # 除かないと週平均（稼働値の分母）が下がり、その週の全機種の稼働値が過大になる。
 MIN_VALID_AVG_IN = 3000
 
+# 許容差＝予測週数 ÷ 5 の切り捨て。5週ごとに1週ずつ緩む。
+#   〜4週 → 0（ビタ当て。短命台は週数が少ないので1週ズレても割合として大きい）
+#   5〜9週 → ±1 / 10〜14週 → ±2 / 15〜19週 → ±3 / 20〜24週 → ±4 / 25〜29週 → ±5
+# 週数が伸びれば当てにくくなるので一律の週数では持たない。境界ではちょうど20%になる。
+TOLERANCE_STEP = 5
+
+
+def tolerance(weeks):
+    return int(weeks // TOLERANCE_STEP)
+
 
 # 名前が機械的に一致しない機種の対応表。部分一致に頼ると別機種を掴むので手で持つ
 ALIAS = {
@@ -164,14 +174,23 @@ def main():
         # 予測レンジに実績が入れば的中。判定は終了した機種だけ
         lo, hi = col.get("longevityMin"), col.get("longevityMax")
         if done and cw is not None and lo is not None and hi is not None:
-            # レンジ内なら的中で差0。外れたときだけ、近い側の端との差を出す
+            # レンジ内なら差0。外れたときだけ、近い側の端との差を出す
             # （レンジ上限との差を常に出すと「的中なのに差−4週」という矛盾表示になる）
             if lo <= cw <= hi:
-                out["verdict"], out["predicted"], out["diff"] = "hit", cw, 0
+                base, diff = cw, 0
             elif cw < lo:
-                out["verdict"], out["predicted"], out["diff"] = "miss", lo, cw - lo
+                base, diff = lo, cw - lo
             else:
-                out["verdict"], out["predicted"], out["diff"] = "miss", hi, cw - hi
+                base, diff = hi, cw - hi
+            tol = tolerance(base)
+            out["predicted"], out["diff"], out["tolerance"] = base, diff, tol
+            out["errorRate"] = round(abs(diff) / base * 100, 1) if base else None
+            if diff == 0:
+                out["verdict"], out["precision"] = "hit", "exact"
+            elif abs(diff) <= tol:
+                out["verdict"], out["precision"] = "hit", "near"
+            else:
+                out["verdict"], out["precision"] = "miss", "off"
 
         old = col.get("sisOutcome") or {}
         if {k: old.get(k) for k in out} != out:
@@ -185,7 +204,9 @@ def main():
         col = next(c for c in d["columns"] if c["name"] == name)
         pred = "%s-%s週" % (col.get("longevityMin"), col.get("longevityMax"))
         v = new.get("verdict")
-        mark = {"hit": "✓的中", "miss": "✗外れ"}.get(v, "…継続中")
+        p = new.get("precision")
+        mark = {"exact": "✓的中(レンジ内)", "near": "✓的中(許容±%s週内)" % new.get("tolerance"),
+                "off": "✗外れ(許容±%s週超)" % new.get("tolerance")}.get(p, "…継続中")
         print("%-30s %8s %5s週/%s %5s週/%s  %s（%s）"
               % (name[:30], pred, old.get("contribWeeks", "—"), old.get("status", "—"),
                  new.get("contribWeeks", "—"), new["status"], mark, new["reason"]))

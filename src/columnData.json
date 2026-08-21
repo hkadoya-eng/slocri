@@ -109,9 +109,12 @@
         "katsudoLast": 56,
         "asOf": "2026-08-10",
         "reason": "直近4週すべて市場平均以下",
-        "verdict": "miss",
         "predicted": 7,
-        "diff": -2
+        "diff": -2,
+        "tolerance": 1,
+        "errorRate": 28.6,
+        "verdict": "miss",
+        "precision": "off"
       }
     },
     {
@@ -145,9 +148,12 @@
         "katsudoLast": 40,
         "asOf": "2026-08-10",
         "reason": "直近4週すべて市場平均以下",
-        "verdict": "hit",
         "predicted": 6,
-        "diff": 0
+        "diff": 0,
+        "tolerance": 1,
+        "errorRate": 0.0,
+        "verdict": "hit",
+        "precision": "exact"
       },
       "longevityMin": 6,
       "longevityMax": 6
@@ -220,9 +226,12 @@
         "katsudoLast": 76,
         "asOf": "2026-08-10",
         "reason": "直近4週すべて市場平均以下",
-        "verdict": "miss",
         "predicted": 12,
-        "diff": -2
+        "diff": -2,
+        "tolerance": 2,
+        "errorRate": 16.7,
+        "verdict": "hit",
+        "precision": "near"
       }
     },
     {
@@ -290,9 +299,12 @@
         "katsudoLast": 28,
         "asOf": "2026-08-10",
         "reason": "直近4週すべて市場平均以下",
-        "verdict": "miss",
         "predicted": 5,
-        "diff": -1
+        "diff": -1,
+        "tolerance": 1,
+        "errorRate": 20.0,
+        "verdict": "hit",
+        "precision": "near"
       },
       "longevityMin": 5,
       "longevityMax": 5
@@ -357,9 +369,12 @@
         "katsudoLast": 69,
         "asOf": "2026-08-10",
         "reason": "直近4週すべて市場平均以下",
-        "verdict": "miss",
         "predicted": 12,
-        "diff": -2
+        "diff": -2,
+        "tolerance": 2,
+        "errorRate": 16.7,
+        "verdict": "hit",
+        "precision": "near"
       }
     },
     {
@@ -393,9 +408,12 @@
         "katsudoLast": 36,
         "asOf": "2026-08-10",
         "reason": "直近4週すべて市場平均以下",
-        "verdict": "hit",
         "predicted": 5,
-        "diff": 0
+        "diff": 0,
+        "tolerance": 1,
+        "errorRate": 0.0,
+        "verdict": "hit",
+        "precision": "exact"
       },
       "longevityMin": 5,
       "longevityMax": 5
@@ -431,9 +449,12 @@
         "katsudoLast": 49,
         "asOf": "2026-08-10",
         "reason": "直近4週すべて市場平均以下",
-        "verdict": "hit",
         "predicted": 6,
-        "diff": 0
+        "diff": 0,
+        "tolerance": 1,
+        "errorRate": 0.0,
+        "verdict": "hit",
+        "precision": "exact"
       },
       "longevityMin": 5,
       "longevityMax": 10

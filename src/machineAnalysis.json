@@ -63,7 +63,8 @@
         "sample": 12,
         "basis": "同じ仕分け（超優良）で16週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 16
+        "atWeeks": 16,
+        "tolerance": 5
       }
     }
   },
@@ -298,7 +299,8 @@
         "sample": 11,
         "basis": "同じ仕分け（超優良）で18週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 18
+        "atWeeks": 18,
+        "tolerance": 5
       }
     }
   },
@@ -364,7 +366,8 @@
         "sample": 10,
         "basis": "同じ仕分け（超優良）で23週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 23
+        "atWeeks": 23,
+        "tolerance": 5
       }
     }
   },
@@ -699,7 +702,8 @@
         "sample": 22,
         "basis": "同じ仕分け（注意）で5週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 5
+        "atWeeks": 5,
+        "tolerance": 1
       }
     }
   },
@@ -817,7 +821,8 @@
         "sample": 13,
         "basis": "同じ仕分け（超優良）で9週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 9
+        "atWeeks": 9,
+        "tolerance": 5
       }
     }
   },
@@ -1385,7 +1390,8 @@
         "sample": 14,
         "basis": "同じ仕分け（危険）で1週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 1
+        "atWeeks": 1,
+        "tolerance": 1
       }
     }
   },
@@ -1456,7 +1462,8 @@
         "sample": 14,
         "basis": "同じ仕分け（危険）で1週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 1
+        "atWeeks": 1,
+        "tolerance": 1
       }
     }
   },
@@ -1518,7 +1525,8 @@
         "sample": 14,
         "basis": "全機種で23週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 23
+        "atWeeks": 23,
+        "tolerance": 6
       }
     }
   },
@@ -1707,7 +1715,8 @@
         "sample": 13,
         "basis": "同じ仕分け（超優良）で9週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 9
+        "atWeeks": 9,
+        "tolerance": 5
       }
     }
   },
@@ -1886,7 +1895,8 @@
         "sample": 24,
         "basis": "上位判定の台で1週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 1
+        "atWeeks": 1,
+        "tolerance": 5
       }
     }
   },
@@ -2057,7 +2067,8 @@
         "sample": 5,
         "basis": "同じ仕分け（超優良）で27週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 27
+        "atWeeks": 27,
+        "tolerance": 11
       }
     }
   },
@@ -2203,7 +2214,8 @@
         "sample": 6,
         "basis": "同じ仕分け（危険）で5週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 5
+        "atWeeks": 5,
+        "tolerance": 1
       }
     }
   },
@@ -2912,7 +2924,8 @@
         "sample": 14,
         "basis": "同じ仕分け（危険）で1週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 1
+        "atWeeks": 1,
+        "tolerance": 1
       }
     }
   },
@@ -3047,7 +3060,8 @@
         "sample": 6,
         "basis": "同じ仕分け（危険）で5週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 5
+        "atWeeks": 5,
+        "tolerance": 1
       }
     }
   },
@@ -3664,7 +3678,8 @@
         "sample": 24,
         "basis": "上位判定の台で1週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 1
+        "atWeeks": 1,
+        "tolerance": 5
       }
     }
   },
@@ -4072,7 +4087,8 @@
         "sample": 22,
         "basis": "同じ仕分け（注意）で5週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 5
+        "atWeeks": 5,
+        "tolerance": 1
       }
     }
   },
@@ -4163,7 +4179,8 @@
         "sample": 14,
         "basis": "同じ仕分け（危険）で1週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 1
+        "atWeeks": 1,
+        "tolerance": 1
       }
     }
   },
@@ -4272,7 +4289,8 @@
         "sample": 24,
         "basis": "上位判定の台で1週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 1
+        "atWeeks": 1,
+        "tolerance": 5
       }
     }
   },
@@ -5099,7 +5117,8 @@
         "sample": 5,
         "basis": "下位判定の台で10週以上まで到達した終了台",
         "madeAt": "2026-08-10",
-        "atWeeks": 10
+        "atWeeks": 10,
+        "tolerance": 2
       }
     }
   },

@@ -3364,12 +3364,21 @@ function ResearchTab({ posts, aiEnabled, updatePost, adminUser }) {
   }, []);
 
   /* 編集部予測の成績。終了した機種だけを採点する（継続中は貢献週がまだ増えるため） */
+  /* 編集部予測の成績。的中は「レンジ内(exact)」と「許容差以内(near)」を分けて数える。
+     許容差＝予測週数 ÷ 5 の切り捨て。4週以下は0（ビタ当て）／5〜9週±1／10〜14週±2／
+     15〜19週±3／20〜24週±4。週数が伸びれば当てにくくなるので一律の週数では持たない。
+     甘くした分を隠さないよう、レンジ内だけの率も併記する。 */
   const predScore = useMemo(() => {
     const all = COLUMN_DATA.columns || [];
     const done = all.filter(c => (c.sisOutcome || {}).status === "終了");
-    const hit = done.filter(c => c.sisOutcome.verdict === "hit").length;
-    return { total: all.length, done: done.length, hit, miss: done.length - hit,
-             live: all.filter(c => (c.sisOutcome || {}).status === "継続中").length };
+    const exact = done.filter(c => c.sisOutcome.precision === "exact").length;
+    const near = done.filter(c => c.sisOutcome.precision === "near").length;
+    const errs = done.map(c => c.sisOutcome.errorRate).filter(v => v != null);
+    return { total: all.length, done: done.length, exact, near, hit: exact + near,
+             miss: done.length - exact - near,
+             live: all.filter(c => (c.sisOutcome || {}).status === "継続中").length,
+             avgErr: errs.length ? (errs.reduce((s, v) => s + v, 0) / errs.length).toFixed(1) : null,
+             maxErr: errs.length ? Math.max(...errs).toFixed(1) : null };
   }, []);
 
   const analyzeList = useMemo(() => {
@@ -3748,7 +3757,7 @@ ${policyText}
                 const live = cols.filter(c => (c.sisOutcome || {}).status === "継続中");
                 const other = cols.filter(c => !done.includes(c) && !live.includes(c));
                 const rate = predScore.done ? Math.round(predScore.hit / predScore.done * 100) : 0;
-                const misses = done.filter(c => c.sisOutcome.verdict === "miss");
+                const misses = done.filter(c => c.sisOutcome.precision === "off");
                 const allShort = misses.length > 0 && misses.every(c => (c.sisOutcome.diff || 0) < 0);
                 const avgDiff = misses.length
                   ? (misses.reduce((s, c) => s + (c.sisOutcome.diff || 0), 0) / misses.length).toFixed(1) : null;
@@ -3759,8 +3768,9 @@ ${policyText}
                 const row = (c, kind) => {
                   const o = c.sisOutcome || {};
                   const pred = c.longevityMin === c.longevityMax ? `${c.longevityMin}週` : `${c.longevityMin}〜${c.longevityMax}週`;
-                  const mk = kind === "hit" ? {t:"✓ 的中", c:"#1f7a4d", bg:"#E8F5E9"}
-                    : kind === "miss" ? {t:`✗ 外れ ${o.diff > 0 ? "+" : ""}${o.diff}週`, c:"#C62828", bg:"#FDECEA"}
+                  const mk = o.precision === "exact" ? {t:"✓ 的中", c:"#1f7a4d", bg:"#E8F5E9"}
+                    : o.precision === "near" ? {t:`✓ 許容内 ${o.diff > 0 ? "+" : ""}${o.diff}週（±${o.tolerance}）`, c:"#2E7D32", bg:"#EFF7F1"}
+                    : o.precision === "off" ? {t:`✗ 外れ ${o.diff > 0 ? "+" : ""}${o.diff}週（許容±${o.tolerance}）`, c:"#C62828", bg:"#FDECEA"}
                     : {t:"採点待ち", c:"#1565C0", bg:"#E9F1FB"};
                   return (
                     <div key={c.id || c.name} style={{display:"flex",alignItems:"center",gap:7,padding:"6px 0",borderTop:"1px solid #F5F5F5",flexWrap:"wrap"}}>
@@ -3789,21 +3799,32 @@ ${policyText}
                         <span style={{fontSize:11,color:"#888"}}>{predScore.total}件</span>
                         <span style={{fontSize:10.5,fontWeight:700,color:"#1f7a4d",background:"#E8F5E9",borderRadius:5,padding:"2px 7px"}}>✓ {predScore.hit}</span>
                         <span style={{fontSize:10.5,fontWeight:700,color:"#C62828",background:"#FDECEA",borderRadius:5,padding:"2px 7px"}}>✗ {predScore.miss}</span>
+                        {predScore.avgErr != null && <span style={{fontSize:10.5,fontWeight:700,color:"#555",background:"#F0F2F5",borderRadius:5,padding:"2px 7px"}}>平均誤差 {predScore.avgErr}%</span>}
                         <span style={{fontSize:10.5,fontWeight:700,color:"#1565C0",background:"#E9F1FB",borderRadius:5,padding:"2px 7px"}}>採点待ち {predScore.live}</span>
                         <span style={{marginLeft:"auto",fontSize:15,color:"#D85A30",fontWeight:700}}>{showPred ? "−" : "＋"}</span>
                       </div>
                       <div style={{fontSize:11,color:"#888",marginTop:4}}>
-                        終了した{predScore.done}件のうち{predScore.hit}件が予測レンジに入った（{rate}%）。開くと1件ずつの結果と振り返りが読める。
+                        終了した{predScore.done}件のうち{predScore.hit}件が的中（{rate}%）。
+                        うち{predScore.exact}件は予測レンジの中、{predScore.near}件は許容差の中。
+                        開くと1件ずつの結果と振り返りが読める。
                       </div>
                     </button>
                     {showPred && (
                       <div style={{padding:"2px 12px 12px",borderTop:"1px solid #EEE"}}>
-                        {group("的中", done.filter(c => c.sisOutcome.verdict === "hit"), "hit")}
+                        {group("的中（予測レンジの中）", done.filter(c => c.sisOutcome.precision === "exact"), "hit")}
+                        {group("的中（許容差の中）", done.filter(c => c.sisOutcome.precision === "near"), "hit")}
                         {group("外れ", misses, "miss")}
                         {group("採点待ち（継続中）", live, "live")}
                         {group("SIS実績が紐付いていない", other, "live")}
                         <div style={{marginTop:12,paddingTop:10,borderTop:"1px dashed #DDD"}}>
-                          <div style={{fontSize:12,fontWeight:700,color:"#333",marginBottom:5}}>振り返り</div>
+                          <div style={{fontSize:12,fontWeight:700,color:"#333",marginBottom:5}}>判定の決まりと振り返り</div>
+                          <div style={{fontSize:11.5,color:"#666",lineHeight:1.85,marginBottom:8,paddingBottom:8,borderBottom:"1px dashed #EEE"}}>
+                            <b style={{color:"#555"}}>許容差＝予測週数 ÷ 5 の切り捨て。</b>
+                            4週以下は許容0でビタ当て、5〜9週は±1週、10〜14週は±2週、15〜19週は±3週、20〜24週は±4週。
+                            短命台は週数が少ないぶん1週のズレも割合として大きいのでビタ当てを求め、長い台は5週ごとに1週ずつ緩める。
+                            レンジ内で当てた{predScore.exact}件と、許容差に収まった{predScore.near}件は分けて数えている（甘くした分を隠さないため）。
+                            {predScore.avgErr != null && <> 実績が予測からどれだけずれたかの平均は<b>{predScore.avgErr}%</b>、最大{predScore.maxErr}%。</>}
+                          </div>
                           <div style={{fontSize:11.5,color:"#666",lineHeight:1.85}}>
                             {misses.length > 0 && (
                               <div style={{marginBottom:7}}>

@@ -28,6 +28,8 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 MA_PATH = os.path.join(ROOT, "src", "machineAnalysis.json")
 DRY = "--dry" in sys.argv
 MIN_SAMPLE = 5
+# 許容差は編集部予測と同じ規則（予測週数÷5の切り捨て）。物差しを2つ持たない
+TOLERANCE_STEP = 5
 TOP_TIERS = {"超優良", "優良", "優良(定着型)", "優秀(需要型)"}
 
 
@@ -72,6 +74,7 @@ def main():
         q = lambda p: v[min(len(v) - 1, int(len(v) * p))]
         fc = {"weeks": int(st.median(v)), "lo": int(q(.25)), "hi": int(q(.75)),
               "sample": len(v), "basis": basis, "madeAt": as_of, "atWeeks": cw}
+        fc["tolerance"] = int(fc["weeks"] // TOLERANCE_STEP)
         # 予測が現在の貢献週を下回るのは筋が通らない（もう到達している）。下限は現在値に合わせる
         if fc["weeks"] < cw:
             fc["weeks"] = cw
