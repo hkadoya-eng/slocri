@@ -878,71 +878,63 @@ function PartGroups({ sections }) {
   );
 }
 
-/* ---------------- 一覧＋詳細 ---------------- */
+/* ---------------- 一覧（その場で開閉） ----------------
+   2026-08-21、一覧を詳細に差し替える作りをやめた。戻るボタンを押さないと一覧に帰れず、
+   スクロール位置も失うため。カードをタップするとその下に本文が開き、もう一度押すと閉じる。
+   機種データ・コラムと同じ操作感。 */
 export default function MachineDossierTab() {
   const [openId, setOpenId] = useState(null);
   const list = DOSSIER_DATA.dossiers || [];
-  const open = useMemo(() => list.find(d => d.id === openId) || null, [list, openId]);
 
-  if (open) {
-    return (
-      <div style={{ minWidth: 0 }}>
-        <button onClick={() => setOpenId(null)}
-          style={{ border: "none", background: "none", color: C.brand, fontSize: 13, cursor: "pointer", padding: "0 0 10px" }}>
-          ← 一覧へ戻る
-        </button>
-        <div style={{ background: "#fff", boxShadow: C.shadow, borderRadius: 14, padding: "16px 15px", marginBottom: 16 }}>
-          <div style={{ fontSize: 11.5, color: C.brand, fontWeight: 700, marginBottom: 4 }}>{open.machine}</div>
-          <div style={{ fontSize: 17, fontWeight: 700, color: C.ink, lineHeight: 1.45, marginBottom: 6 }}>{open.title}</div>
-          <div style={{ fontSize: 13, color: C.ink2, lineHeight: 1.8, marginBottom: 10 }}><RichText v={open.lede} /></div>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
-            {(open.chips || []).map(c => (
-              <span key={c.v} style={{
-                fontSize: 11, fontWeight: 700, padding: "3px 9px", borderRadius: 999,
-                color: c.k === "tier" ? C.tier : c.k === "good" ? C.good : c.k === "warn" ? "#B57200" : C.ink2,
-                background: c.k === "tier" ? "#F5E9FA" : c.k === "good" ? "#E6F5EC" : c.k === "warn" ? "#FFF3DC" : "#F0F2F5",
-              }}>{c.v}</span>
-            ))}
-          </div>
-          <div style={{ fontSize: 11, color: C.muted }}>{open.author} · 更新 {open.date}</div>
-        </div>
-
-        <PartGroups sections={open.sections || []} />
-
-        <div style={{ marginTop: 18 }}>
-          <ColumnFeedback columnId={`dossier_${open.id}`} columnTitle={`【深堀り】${open.title}`} />
-        </div>
-      </div>
-    );
-  }
+  const chip = (c, small) => (
+    <span key={c.v} style={{
+      fontSize: small ? 10.5 : 11, fontWeight: 700, padding: small ? "2px 8px" : "3px 9px", borderRadius: 999,
+      color: c.k === "tier" ? C.tier : c.k === "good" ? C.good : c.k === "warn" ? "#B57200" : C.ink2,
+      background: c.k === "tier" ? "#F5E9FA" : c.k === "good" ? "#E6F5EC" : c.k === "warn" ? "#FFF3DC" : "#F0F2F5",
+    }}>{c.v}</span>
+  );
 
   return (
     <div style={{ minWidth: 0 }}>
       <div style={{ fontSize: 13, color: C.muted, marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span>機種深堀り分析</span>
+        <span>機種レポート</span>
         <span style={{ fontSize: 12, color: "#bbb" }}>更新: {DOSSIER_DATA.updatedAt}</span>
       </div>
       {list.length === 0 && <div style={{ fontSize: 13, color: C.muted, padding: "24px 0", textAlign: "center" }}>まだありません</div>}
-      {list.map(d => (
-        <button key={d.id} onClick={() => setOpenId(d.id)}
-          style={{ display: "block", width: "100%", textAlign: "left", background: "#fff", boxShadow: C.shadow, borderRadius: 14, padding: "13px 14px", marginBottom: 12, cursor: "pointer" }}>
-          <div style={{ fontSize: 11.5, color: C.brand, fontWeight: 700, marginBottom: 3 }}>{d.machine}</div>
-          <div style={{ fontSize: 14.5, fontWeight: 700, color: C.ink, lineHeight: 1.45, marginBottom: 5 }}>{d.title}</div>
-          <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.7, marginBottom: 7, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-            {String(d.lede).replace(/\*\*/g, "")}
+      {list.map(d => {
+        const on = openId === d.id;
+        return (
+          <div key={d.id} style={{ background: "#fff", boxShadow: C.shadow, borderRadius: 14, marginBottom: 12, overflow: "hidden" }}>
+            <button onClick={() => setOpenId(on ? null : d.id)} aria-expanded={on}
+              style={{ display: "block", width: "100%", textAlign: "left", background: on ? "#FBF3EF" : "#fff", border: "none", padding: "13px 14px", cursor: "pointer" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 11.5, color: C.brand, fontWeight: 700, marginBottom: 3 }}>{d.machine}</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: C.ink, lineHeight: 1.45, marginBottom: 5 }}>{d.title}</div>
+                </div>
+                <span style={{ flexShrink: 0, fontSize: 16, color: C.brand, fontWeight: 700, lineHeight: 1.2 }}>{on ? "−" : "＋"}</span>
+              </div>
+              <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.7, marginBottom: 7,
+                ...(on ? {} : { display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }) }}>
+                {on ? <RichText v={d.lede} /> : String(d.lede).replace(/\*\*/g, "")}
+              </div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                {(d.chips || []).slice(0, on ? 99 : 3).map(c => chip(c, !on))}
+                <span style={{ fontSize: 11, color: "#bbb", marginLeft: "auto" }}>{d.sections?.length || 0}節 · {d.date}</span>
+              </div>
+            </button>
+            {on && (
+              <div style={{ padding: "2px 14px 14px", borderTop: "1px solid #EEE" }}>
+                <div style={{ fontSize: 11, color: C.muted, margin: "8px 0 10px" }}>{d.author} · 更新 {d.date}</div>
+                <PartGroups sections={d.sections || []} />
+                <div style={{ marginTop: 18 }}>
+                  <ColumnFeedback columnId={`dossier_${d.id}`} columnTitle={`【機種レポート】${d.title}`} />
+                </div>
+              </div>
+            )}
           </div>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-            {(d.chips || []).slice(0, 3).map(c => (
-              <span key={c.v} style={{
-                fontSize: 10.5, fontWeight: 700, padding: "2px 8px", borderRadius: 999,
-                color: c.k === "tier" ? C.tier : c.k === "good" ? C.good : c.k === "warn" ? "#B57200" : C.ink2,
-                background: c.k === "tier" ? "#F5E9FA" : c.k === "good" ? "#E6F5EC" : c.k === "warn" ? "#FFF3DC" : "#F0F2F5",
-              }}>{c.v}</span>
-            ))}
-            <span style={{ fontSize: 11, color: "#bbb", marginLeft: "auto" }}>{d.sections?.length || 0}節 · {d.date}</span>
-          </div>
-        </button>
-      ))}
+        );
+      })}
     </div>
   );
 }

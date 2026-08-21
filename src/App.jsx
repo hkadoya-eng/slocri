@@ -3145,6 +3145,63 @@ const MODE_DESC = {
   ai_propose:     "ゲーム性の企画を作ります。自動生成したものと依頼したものが並びます",
 };
 
+/* 機種データの詳細。一覧のカードを開いたときに中へ差し込む（旧実装は一覧を置き換えていた）。 */
+function MachineDetail({ d }) {
+  const box = { padding: "11px 13px", borderTop: "1px solid #F0F0F0" };
+  return (
+    <div style={{ background: "#FCFCFD", borderTop: "1px solid #EEE" }}>
+      {d.summary && (
+        <div style={{ padding: "10px 13px", background: "#FAECE7", fontSize: 13.5, color: "#993C1D", fontWeight: 500, lineHeight: 1.65 }}>{d.summary}</div>
+      )}
+      {d.spec && (
+        <div style={box}>
+          <div style={{ fontSize: 11.5, fontWeight: 700, color: "#777", marginBottom: 4 }}>📋 スペック</div>
+          <div style={{ fontSize: 12.5, color: "#444", lineHeight: 1.8 }}>
+            {d.spec.split(" / ").map((s, i, arr) => <span key={i}>{s}{i < arr.length - 1 && <span style={{ color: "#ccc" }}> / </span>}</span>)}
+          </div>
+        </div>
+      )}
+      {d.highlight && (
+        <div style={box}>
+          <div style={{ fontSize: 11.5, fontWeight: 700, color: "#777", marginBottom: 4 }}>🎰 ゲーム性・特徴</div>
+          <div style={{ fontSize: 13, color: "#333", lineHeight: 1.8 }}>{d.highlight}</div>
+        </div>
+      )}
+      <div style={box}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#2E7D32", marginBottom: 6 }}>👍 良いところ</div>
+        {(d.pros || []).length
+          ? (d.pros || []).map((p, i) => <div key={i} style={{ display: "flex", gap: 7, marginBottom: 5 }}><span style={{ color: "#2E7D32", fontWeight: 700, flexShrink: 0 }}>・</span><span style={{ fontSize: 12.5, color: "#333", lineHeight: 1.7 }}>{p}</span></div>)
+          : <div style={{ fontSize: 12.5, color: "#aaa" }}>該当なし</div>}
+      </div>
+      <div style={box}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#C62828", marginBottom: 6 }}>👎 悪いところ</div>
+        {(d.cons || []).length
+          ? (d.cons || []).map((c, i) => <div key={i} style={{ display: "flex", gap: 7, marginBottom: 5 }}><span style={{ color: "#C62828", fontWeight: 700, flexShrink: 0 }}>・</span><span style={{ fontSize: 12.5, color: "#333", lineHeight: 1.7 }}>{c}</span></div>)
+          : <div style={{ fontSize: 12.5, color: "#aaa" }}>該当なし</div>}
+      </div>
+      {d.scoreReason && (
+        <div style={box}>
+          <div style={{ fontSize: 11.5, fontWeight: 700, color: "#777", marginBottom: 4 }}>採点の理由</div>
+          {Object.entries(d.scoreReason).map(([k, v]) => (
+            <div key={k} style={{ fontSize: 12, color: "#555", lineHeight: 1.7, marginBottom: 4 }}>
+              <b style={{ color: "#666" }}>{k === "jiriki" ? "自力感" : k === "yamenikusa" ? "やめにくさ" : k}</b>：{v}
+            </div>
+          ))}
+        </div>
+      )}
+      {d.sisRecord?.statusReason && (
+        <div style={box}>
+          <div style={{ fontSize: 11.5, fontWeight: 700, color: "#777", marginBottom: 4 }}>稼働の状態</div>
+          <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>
+            {d.sisRecord.statusReason}
+            {d.sisRecord.installedWeeks != null && <>（設置{d.sisRecord.installedWeeks}週・死に台{d.sisRecord.deadWeeks ?? "—"}週）</>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ResearchTab({ posts, aiEnabled, updatePost, adminUser }) {
   const [mode, _setMode] = useState(() => sessionStorage.getItem("slokey_researchMode") || "analyze");
   const setMode = (m) => { sessionStorage.setItem("slokey_researchMode", m); _setMode(m); };
@@ -3164,6 +3221,8 @@ function ResearchTab({ posts, aiEnabled, updatePost, adminUser }) {
   // 状態グループの開閉。実績なしは件数が多く用途も薄いので既定で閉じる
   const [analyzeOpenG, setAnalyzeOpenG] = useState({ nodata: false });
   const [analyzeResult, setAnalyzeResult] = useState(null);
+  // 機種データで開いている機種。一覧を保ったままその場で開閉する（旧実装は一覧を詳細に差し替えていた）
+  const [openM, setOpenM] = useState(null);
   const [analyzeLoading, setAnalyzeLoading] = useState(false);
   const [proposePolicy, setProposePolicy] = useState({ targets:[], coinUnit:"standard", patterns:[], avoids:[], reference:"", extra:"" });
   const [proposeResult, setProposeResult] = useState(null);
@@ -3572,7 +3631,7 @@ ${policyText}
 
       {mode==="analyze" && (
         <div>
-          {!analyzeResult && (() => {
+          {(() => {
             const KINDS = [["slot","スロット"],["pachinko","パチンコ"],["old","4号機"]];
             // 2週診断の仕分け。色は上位判定＝緑〜紫、下位＝橙〜赤で段階を作る
             const TIER = {
@@ -3644,12 +3703,15 @@ ${policyText}
                         const r = row.data.sisRecord;
                         const sc = row.data.scores;
                         return (
-                          <button key={row.name} onClick={() => { setAnalyzeM(row.name); setAnalyzeResult({ ...row.data, machine: row.name }); }}
-                            style={{display:"block",width:"100%",textAlign:"left",background:"#fff",border:"none",borderRadius:12,padding:"11px 13px",cursor:"pointer",boxShadow:"3px 3px 7px #C8CED8, -3px -3px 7px #FFFFFF"}}>
+                          <div key={row.name} style={{background:"#fff",borderRadius:12,boxShadow:"3px 3px 7px #C8CED8, -3px -3px 7px #FFFFFF",overflow:"hidden"}}>
+                          <button onClick={() => setOpenM(o => o === row.name ? null : row.name)}
+                            aria-expanded={openM === row.name}
+                            style={{display:"block",width:"100%",textAlign:"left",background:openM === row.name ? "#FBF3EF" : "#fff",border:"none",padding:"11px 13px",cursor:"pointer"}}>
                             <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:5}}>
                               <span style={{flex:1,minWidth:0,fontSize:14,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{row.name}</span>
                               {row.status === "stale" && <span style={{flexShrink:0,fontSize:10,fontWeight:700,color:"#C55A00",background:"#FFF3E0",borderRadius:5,padding:"2px 7px"}}>⚠️ +{row.liveCount - row.posts}件</span>}
                               {r?.tier && TIER[r.tier] && <span style={{flexShrink:0,fontSize:10,fontWeight:700,color:TIER[r.tier].c,background:TIER[r.tier].bg,borderRadius:5,padding:"2px 7px",whiteSpace:"nowrap"}}>{r.tier}</span>}
+                              <span style={{flexShrink:0,fontSize:14,color:"#D85A30",fontWeight:700,lineHeight:1}}>{openM === row.name ? "−" : "＋"}</span>
                               {r && <span style={{flexShrink:0,fontSize:10,fontWeight:700,color:r.status==="終了"?"#777":"#1f7a4d",background:r.status==="終了"?"#ECECEC":"#E6F5EC",borderRadius:5,padding:"2px 7px",whiteSpace:"nowrap"}}>
                                 貢献{r.contribWeeks}週{r.status!=="終了" && r.katsudoLast!=null ? `・${r.katsudoLast}%` : ""}
                               </span>}
@@ -3717,6 +3779,8 @@ ${policyText}
                               </div>
                             )}
                           </button>
+                          {openM === row.name && <MachineDetail d={row.data} />}
+                          </div>
                         );
                       })}
                     </div>}
@@ -3738,50 +3802,7 @@ ${policyText}
               )}
             </>;
           })()}
-          {analyzeResult && (
-            <button onClick={() => { setAnalyzeResult(null); setAnalyzeM(""); }}
-              style={{border:"none",background:"none",color:"#D85A30",fontSize:13,cursor:"pointer",padding:"0 0 10px"}}>
-              ← 一覧へ戻る
-            </button>
-          )}
-          {analyzeResult && !analyzeResult.error && (
-            <div style={{background:"#fff",border:"0.5px solid #eee",borderRadius:14,overflow:"hidden"}}>
-              <div style={{padding:"12px 16px",borderBottom:"0.5px solid #eee",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                <div style={{fontWeight:600,fontSize:16,color:"#333"}}>{analyzeResult.machine}</div>
-                <div style={{fontSize:13,color:"#aaa"}}>{analyzeResult.postCount}件の投稿から分析 · {analyzeResult.updatedAt}</div>
-              </div>
-              {analyzeResult.summary && (
-                <div style={{padding:"10px 16px",background:"#FAECE7",borderBottom:"0.5px solid #eee",fontSize:14,color:"#993C1D",fontWeight:500}}>{analyzeResult.summary}</div>
-              )}
-              {analyzeResult.spec && (
-                <div style={{padding:"10px 16px",borderBottom:"0.5px solid #eee",background:"#F8F9FA"}}>
-                  <div style={{fontSize:12,fontWeight:600,color:"#555",marginBottom:4}}>📋 スペック</div>
-                  <div style={{fontSize:13,color:"#444",lineHeight:1.7}}>{analyzeResult.spec.split(" / ").map((s,i,arr) => <span key={i}>{s}{i<arr.length-1 && <span style={{color:"#bbb"}}> / </span>}</span>)}</div>
-                </div>
-              )}
-              {analyzeResult.highlight && (
-                <div style={{padding:"12px 16px",borderBottom:"0.5px solid #eee",background:"#FAFAFA"}}>
-                  <div style={{fontSize:12,fontWeight:600,color:"#555",marginBottom:6}}>🎰 ゲーム性・特徴</div>
-                  <div style={{fontSize:14,color:"#333",lineHeight:1.7}}>{analyzeResult.highlight}</div>
-                </div>
-              )}
-              <div style={{padding:"12px 16px",borderBottom:"0.5px solid #eee"}}>
-                <div style={{fontSize:14,fontWeight:600,color:"#2E7D32",marginBottom:8}}>👍 良いところ</div>
-                {(analyzeResult.pros||[]).length > 0
-                  ? (analyzeResult.pros||[]).map((p,i) => <div key={i} style={{display:"flex",gap:8,marginBottom:6,alignItems:"flex-start"}}><span style={{color:"#2E7D32",fontWeight:700,flexShrink:0}}>・</span><span style={{fontSize:14,color:"#333",lineHeight:1.6}}>{p}</span></div>)
-                  : <div style={{fontSize:14,color:"#aaa"}}>該当なし</div>}
-              </div>
-              <div style={{padding:"12px 16px"}}>
-                <div style={{fontSize:14,fontWeight:600,color:"#C62828",marginBottom:8}}>👎 悪いところ</div>
-                {(analyzeResult.cons||[]).length > 0
-                  ? (analyzeResult.cons||[]).map((c,i) => <div key={i} style={{display:"flex",gap:8,marginBottom:6,alignItems:"flex-start"}}><span style={{color:"#C62828",fontWeight:700,flexShrink:0}}>・</span><span style={{fontSize:14,color:"#333",lineHeight:1.6}}>{c}</span></div>)
-                  : <div style={{fontSize:14,color:"#aaa"}}>該当なし</div>}
-              </div>
-            </div>
-          )}
-          {analyzeResult?.error && (
-            <div style={{fontSize:14,color:"#e57373",padding:"10px 14px",background:"#fff5f5",borderRadius:10,border:"0.5px solid #e57373"}}>エラー: {analyzeResult.error}</div>
-          )}
+
         </div>
       )}
 
