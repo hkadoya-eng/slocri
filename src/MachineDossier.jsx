@@ -409,9 +409,105 @@ function FigFlowLoop() {
   );
 }
 
+/* ---------------- 汎用の階段図（段の定義はJSON側） ----------------
+   機種ごとにSVGを書き足すのは続かないので、段をデータで受ける。
+   棒の高さは rate（1ゲームで増える枚数）に比例させて自動で決めるため、
+   座標を手で置かなくてよい。rate が無い段（通常時・CZ）は最小の高さにする。 */
+function FigLadderData({ spec }) {
+  const st = spec || {};
+  const bars = st.bars || [];
+  if (!bars.length) return null;
+  const stp = { fontSize: 11.5, fill: C.ink, fontWeight: 700 };
+  const lbl = { fontSize: 10.5, fill: C.muted };
+  const inb = { fontSize: 11, fill: "#fff", fontWeight: 700 };
+  const TONE = { hair: C.hair, blue: C.blue, brand: C.brand, tier: C.tier };
+  const BASE = 232, MINH = 18, MAXH = 208;
+  const top = Math.max(...bars.map(b => b.rate || 0), 1);
+  const gap = 12;
+  const w = Math.max(96, Math.floor((600 - gap * (bars.length - 1)) / bars.length));
+  const total = bars.length * w + gap * (bars.length - 1);
+  const x0 = Math.max(24, Math.floor((660 - total) / 2));
+  const laid = bars.map((b, i) => {
+    const h = b.rate ? Math.max(MINH, Math.round(MINH + (MAXH - MINH) * (b.rate / top))) : MINH;
+    return { ...b, x: x0 + i * (w + gap), w, h, y: BASE - h, c: TONE[b.tone] || C.blue };
+  });
+  return (
+    <figure style={{ margin: 0 }}>
+      <svg viewBox="0 -30 660 320" role="img" style={{ width: "100%", height: "auto" }}
+        aria-label={st.aria || "台の状態を1ゲームあたりの増加枚数の高さで並べた階段図"}>
+        <line x1={x0 - 8} y1={BASE} x2={x0 + total + 8} y2={BASE} stroke={C.hair} strokeWidth="1.5" />
+        {laid.map(b => (
+          <g key={b.name}>
+            <rect x={b.x} y={b.y} width={b.w} height={b.h} rx="4" fill={b.c}
+              opacity={b.tone === "hair" ? 1 : 0.9} />
+            <text x={b.x + b.w / 2} y={b.y - 7} textAnchor="middle" style={stp}>{b.name}</text>
+            {b.val && <text x={b.x + b.w / 2} y={b.y + b.h / 2 + 4} textAnchor="middle"
+              style={b.h >= 30 ? inb : { ...lbl, fill: C.ink }}>{b.val}</text>}
+            {b.foot && <text x={b.x + b.w / 2} y={BASE + 20} textAnchor="middle" style={lbl}>{b.foot}</text>}
+          </g>
+        ))}
+        {st.loop && (
+          <text x={x0 + total / 2} y="-10" textAnchor="middle"
+            style={{ fontSize: 11, fill: C.ink, fontWeight: 700 }}>{st.loop}</text>
+        )}
+      </svg>
+      <figcaption style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.7, marginTop: 6 }}>
+        {st.caption || "棒の高さ＝1ゲームで増える枚数。"}
+      </figcaption>
+    </figure>
+  );
+}
+
+/* ---------------- 汎用の縦フロー図（段の定義はJSON側） ----------------
+   通常時→CZ→AT→上位 の道筋を、機種ごとの契機と確率つきで縦に並べる。
+   分岐（失敗時の戻り先）は各段の out に書く。 */
+function FigStepsData({ spec }) {
+  const st = spec || {};
+  const rows = st.rows || [];
+  if (!rows.length) return null;
+  const H = 78, W = 620, PAD = 16;
+  const TONE = { hair: C.hair, blue: C.blue, brand: C.brand, tier: C.tier };
+  const h = rows.length * H + PAD * 2;
+  return (
+    <figure style={{ margin: 0 }}>
+      <svg viewBox={`0 0 660 ${h}`} role="img" style={{ width: "100%", height: "auto" }}
+        aria-label={st.aria || "通常時から上位状態までの道筋の図"}>
+        <defs>
+          <marker id="sAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
+            orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill={C.muted} /></marker>
+        </defs>
+        {rows.map((r, i) => {
+          const y = PAD + i * H;
+          const c = TONE[r.tone] || C.blue;
+          return (
+            <g key={r.name}>
+              <rect x="20" y={y} width={W} height={H - 16} rx="6" fill="#fff" stroke={c} strokeWidth="1.6" />
+              <rect x="20" y={y} width="5" height={H - 16} rx="2" fill={c} />
+              <text x="36" y={y + 20} style={{ fontSize: 12.5, fill: C.ink, fontWeight: 700 }}>{r.name}</text>
+              {r.meta && <text x="36" y={y + 38} style={{ fontSize: 11, fill: c, fontWeight: 700 }}>{r.meta}</text>}
+              {r.body && <text x="36" y={y + 55} style={{ fontSize: 11, fill: C.muted }}>{r.body}</text>}
+              {r.out && <text x={W + 8} y={y + 20} textAnchor="end"
+                style={{ fontSize: 10.5, fill: C.muted }}>{r.out}</text>}
+              {i < rows.length - 1 && (
+                <line x1="330" y1={y + H - 16} x2="330" y2={y + H} stroke={C.muted}
+                  strokeWidth="1.5" markerEnd="url(#sAr)" />
+              )}
+            </g>
+          );
+        })}
+      </svg>
+      <figcaption style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.7, marginTop: 6 }}>
+        {st.caption || "上から下へ辿る。右端は失敗したときの戻り先。"}
+      </figcaption>
+    </figure>
+  );
+}
+
 const FIGURES = {
   bulletCircle: FigBulletCircle, ladder: FigLadder, gauge: FigGauge,
   flowNormal: FigFlowNormal, flowLoop: FigFlowLoop,
+  // 機種ごとに中身を差し替えられる図。spec をJSON側から渡す
+  ladderData: FigLadderData, stepsData: FigStepsData,
 };
 
 /* ---------------- 稼働推移グラフ（DBから毎回計算） ---------------- */
@@ -818,7 +914,8 @@ function Section({ s }) {
     }
     case "fig": {
       const F = FIGURES[s.v];
-      return F ? <div style={{ margin: "6px 0 14px" }}><F /></div> : null;
+      // spec を持つ図（ladderData / stepsData）は機種ごとの中身をJSONから受ける
+      return F ? <div style={{ margin: "6px 0 14px" }}><F spec={s.spec} /></div> : null;
     }
     case "chart":
       return <div style={{ margin: "6px 0 14px" }}><KatsudoChart spec={s.v} /></div>;

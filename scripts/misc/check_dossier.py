@@ -1,15 +1,35 @@
 # -*- coding: utf-8 -*-
 """ドシエの通し点検。①古い表現の残存 ②サイト版とArtifact版の内容差 ③参照切れ ④共通ブロックの解決"""
-import io, json, re
+import io, json, os, re, sys
 
 J = r"C:\Users\h.kadoya\Desktop\slocri\src\machineDossiers.json"
-P = r"C:\Users\HCF92~1.KAD\AppData\Local\Temp\claude\C--Users-h-kadoya-Desktop-slocri\749754dd-562f-4a3c-9aeb-9eb666cc91d2\scratchpad\sao2-dossier.html"
+# ドシエIDごとのArtifact版HTML。登録が無い機種はArtifact依存の点検を飛ばす
+ART = {
+    "sao2": r"C:\Users\HCF92~1.KAD\AppData\Local\Temp\claude\C--Users-h-kadoya-Desktop-slocri\749754dd-562f-4a3c-9aeb-9eb666cc91d2\scratchpad\sao2-dossier.html",
+}
 d = json.loads(io.open(J, encoding="utf-8").read())
-D = d["dossiers"][0]
+ids = [x["id"] for x in d["dossiers"]]
+want = None
+for i, a in enumerate(sys.argv[1:]):
+    if a == "--id":
+        want = sys.argv[i + 2]
+    elif a.startswith("--id="):
+        want = a.split("=", 1)[1]
+if want is None:
+    want = ids[0]
+if want not in ids:
+    raise SystemExit("そのIDのドシエは無い: %s（あるのは %s）" % (want, ids))
+D = [x for x in d["dossiers"] if x["id"] == want][0]
 S = D["sections"]
-html = io.open(P, encoding="utf-8").read()
+ap = ART.get(want)
+SKIP_ART = not (ap and os.path.exists(ap))
+html = "" if SKIP_ART else io.open(ap, encoding="utf-8").read()
 site = json.dumps(d, ensure_ascii=False)
 ng = []
+print("■ 対象 %s（%s）／ Artifact版: %s" % (
+    want, D.get("machine", ""), "無し＝突合は飛ばす" if SKIP_ART else "あり"))
+print("   ドシエ %d本: %s" % (len(ids), ", ".join(ids)))
+print()
 
 print("=== ① 古い表現・撤回した記述の残存 ===")
 BAD = ["残量ゲージ", "ちょうど倍", "評価点2.39", "2.39/5", "2.39・", "面積の大小に意味はない", "はじめての人へ", "評価のものさし",
@@ -30,8 +50,9 @@ print("=== ② 見出しの一致（サイト版 vs Artifact版）===")
 site_h = [s["v"] for s in S if s.get("t") == "h"]
 site_h += [x["v"] for x in d["common"]["criteria"] if x.get("t") == "h"]
 art_h = re.findall(r"<h[23]>([^<]+)</h[23]>", html)
-only_site = [x for x in site_h if x not in art_h]
-only_art = [x for x in art_h if x not in site_h]
+only_site = [] if SKIP_ART else [x for x in site_h if x not in art_h]
+only_art = [] if SKIP_ART else [x for x in art_h if x not in site_h]
+if SKIP_ART: print("  Artifact版が無いので突合しない（サイト版の見出し %d件）" % len(site_h))
 print("  サイト版のみ:", only_site or "なし")
 print("  Artifact版のみ:", only_art or "なし")
 if only_site or only_art:
@@ -63,16 +84,29 @@ print("=== ⑤ 章構成と折りたたみ ===")
 for s in S:
     if s.get("t") == "part":
         print("  %s %s ── %s ／ 既定=%s" % (s["num"], s["v"], s["sub"], "閉" if s.get("closed") else "開"))
-print("  Artifact側の open 属性:", html.count("part\" id=\"p-") - html.count(" open>"), "章が閉、", html.count(" open>"), "章が開")
+if not SKIP_ART:
+    print("  Artifact側の open 属性:", html.count("part\" id=\"p-") - html.count(" open>"), "章が閉、", html.count(" open>"), "章が開")
 
 print()
 print("=== ⑥ 数値の一貫性（主要値がサイト/Artifactの両方に同数あるか）===")
-for v in ["185%", "93%", "4.0→4.3", "2.38", "9.5台分", "87", "7,374,367", "84", "98", "22週", "1/16384", "2,200枚"]:
-    a, h = site.count(v), html.count(v)
-    flag = "" if (a and h) else "← 片方にしかない"
-    print("  %-12s サイト%2d / Artifact%2d %s" % (v, a, h, flag))
-    if not (a and h):
-        ng.append("数値の片寄り: %s" % v)
+# 機種ごとに「本文に必ず出ているべき値」を持つ。Artifact突合はある機種だけ
+KEY = {
+    # 2026-08-21: ④の再測定でスコアが87→82に変わった。両版が揃っているかを見る値を入れ替えた
+    "sao2":  ["185%", "93%", "4.0→4.3", "2.38", "9.5台分", "457万", "13機種中 9位", "22週", "1/16384", "2,200枚"],
+    "ghoul": ["225%", "93%", "10.3台分", "2.21", "89", "1.27倍", "2.61倍", "600G", "1200G"],
+}
+for v in KEY.get(want, []):
+    a, h = json.dumps(D, ensure_ascii=False).count(v), html.count(v)
+    if SKIP_ART:
+        flag = "" if a else "← サイト版に無い"
+        print("  %-12s サイト%2d" % (v, a))
+        if not a:
+            ng.append("主要値がサイト版に無い: %s" % v)
+    else:
+        flag = "" if (a and h) else "← 片方にしかない"
+        print("  %-12s サイト%2d / Artifact%2d %s" % (v, a, h, flag))
+        if not (a and h):
+            ng.append("数値の片寄り: %s" % v)
 
 print()
 print("=== ⑦ 参考動画 ===")
@@ -85,10 +119,12 @@ if vs:
     lack = [it["title"][:30] for it in items if not it.get("len") or not it.get("views") or not it.get("note")]
     print("  重複URL:", dup, "／ 尺・再生数・説明の欠け:", lack or "なし")
     inart = sum(1 for u in set(urls) if u in html)
-    print("  Artifact版に載っている本数:", inart, "/", len(set(urls)))
+    if not SKIP_ART:
+        print("  Artifact版に載っている本数:", inart, "/", len(set(urls)))
     if dup: ng.append("動画URLの重複 %d件" % dup)
     if lack: ng.append("動画メタの欠け %d件" % len(lack))
-    if inart != len(set(urls)): ng.append("動画がArtifact版に未反映 %d本" % (len(set(urls)) - inart))
+    if not SKIP_ART and inart != len(set(urls)):
+        ng.append("動画がArtifact版に未反映 %d本" % (len(set(urls)) - inart))
 
 print()
 print("=== ⑧ 表の整合（見出し数と行の幅・貼り付け事故）===")
@@ -116,7 +152,9 @@ def norm(x):
     return re.sub(r"[,\s円%\*—〜~]", "", str(x))
 plain = norm(_h.unescape(re.sub(r"<[^>]+>", " ", html)) + " " + html)
 miss = []
-for w, s in tables:
+if SKIP_ART:
+    print("  Artifact版が無いので飛ばす")
+for w, s in ([] if SKIP_ART else tables):
     for r in s["rows"]:
         cells = [norm(c) for c in r if len(norm(c)) >= 3]
         if cells and not any(c in plain for c in cells):
