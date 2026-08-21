@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "./supabase";
 
 const SESSION_KEY = "slocri_chat_session";
+// 1セッションで画面に出す上限。新しい方から取るので、超えた分は古い側が落ちる
+const MAX_HISTORY = 500;
 
 function getOrCreateSession() {
   let s = localStorage.getItem(SESSION_KEY);
@@ -92,16 +94,19 @@ export default function ChatTab({ user, onClose }) {
   }
 
   async function load() {
+    // 新しい方から取る。昇順＋上限だと古い側だけが返り、
+    // 上限に達したセッションで新しい返答が画面に出なくなる
     const { data } = await supabase
       .from("chat_messages")
       .select("*")
       .eq("session_id", sessionId.current)
-      .order("created_at", { ascending: true })
-      .limit(100);
+      .order("created_at", { ascending: false })
+      .limit(MAX_HISTORY);
     if (data) {
-      setMessages(data);
+      const rows = [...data].reverse();  // 表示は古い順に戻す
+      setMessages(rows);
       const r = {};
-      data.forEach(m => { if (m.rating) r[m.id] = m.rating; });
+      rows.forEach(m => { if (m.rating) r[m.id] = m.rating; });
       setRatings(r);
     }
   }

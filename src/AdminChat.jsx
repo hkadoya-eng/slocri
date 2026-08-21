@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 
 const ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwemJ0dXVjb3B1Y2FibHd5cWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjk2MzEsImV4cCI6MjA5MTIwNTYzMX0.qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA";
 const BASE = "https://vpzbtuucopucablwyqeq.supabase.co/rest/v1";
+// 1セッションで画面に出す上限。limit を書かないと PostgREST 側の上限（1000件）で
+// 頭打ちになり、昇順で取っていると古い側だけが返る
+const MAX_HISTORY = 500;
 
 function getSessionId() {
   let sid = localStorage.getItem("admin_chat_sid");
@@ -24,12 +27,13 @@ export default function AdminChat() {
   const scrollSeenRef = useRef(0);
 
   async function load() {
+    // 新しい方から取り、表示直前に古い順へ戻す（昇順＋上限だと最新が落ちる）
     const res = await fetch(
-      `${BASE}/chat_messages?session_id=eq.${encodeURIComponent(sid)}&order=created_at.asc&select=role,content,created_at`,
+      `${BASE}/chat_messages?session_id=eq.${encodeURIComponent(sid)}&order=created_at.desc&limit=${MAX_HISTORY}&select=role,content,created_at`,
       { headers: { apikey: ANON, Authorization: `Bearer ${ANON}` } }
     );
     if (!res.ok) return;
-    const data = await res.json();
+    const data = (await res.json()).reverse();
     if (data.length > prevCountRef.current) {
       prevCountRef.current = data.length;
       setWaiting(false);
