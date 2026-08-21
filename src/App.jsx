@@ -3807,6 +3807,7 @@ ${policyText}
                     <div key={c.id || c.name} style={{display:"flex",alignItems:"center",gap:7,padding:"6px 0",borderTop:"1px solid #F5F5F5",flexWrap:"wrap"}}>
                       <span style={{flex:1,minWidth:120,fontSize:12.5,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.name}</span>
                       <span style={{flexShrink:0,fontSize:11.5,color:"#666"}}>予測 {pred}</span>
+                      {c.predictedAtWeeks && <span style={{flexShrink:0,fontSize:10.5,color:"#999"}}>{c.predictedAtWeeks}週目時点</span>}
                       <span style={{flexShrink:0,fontSize:11.5,color:"#ccc"}}>→</span>
                       <span style={{flexShrink:0,fontSize:11.5,fontWeight:700,color:"#333",minWidth:42}}>
                         {o.contribWeeks != null ? `${o.contribWeeks}週` : "—"}
@@ -3843,6 +3844,8 @@ ${policyText}
                         設置の厚さを見て1件ずつ決めた数字。式がないので再現できないぶん、モデルが見ていない情報を入れられる。
                         だから<b>立てた日と根拠を必ず残し、後から書き換えられないようにしている</b>。
                         ここで採点しているのは見立てのほう。<br/>
+                        見立ては<b>導入からの経過週がまちまち</b>（1週目〜81週目）なので、各件に「◯週目時点」を出している。
+                        導入直後の見立てと、20週以上走ってからの見立てでは当てやすさが違う。<br/>
                         終了した{predScore.done}件のうち{predScore.hit}件が的中（{rate}%）。
                         うち{predScore.exact}件は予測レンジの中、{predScore.near}件は許容差の中。
                         開くと1件ずつの結果と振り返りが読める。
@@ -4051,12 +4054,20 @@ ${policyText}
                                 <span style={{fontWeight:700,color:"#1565C0",background:"#E9F1FB",borderRadius:5,padding:"2px 7px"}}>
                                   編集部の見立て {row.pred.longevityMin === row.pred.longevityMax ? `${row.pred.longevityMin}週` : `${row.pred.longevityMin}〜${row.pred.longevityMax}週`}
                                 </span>
-                                {row.pred.difficulty && (
-                                  <span style={{color:"#999"}}>
-                                    {{settled:"直近が平均割れ＝ほぼ確定", near:"あと数週で決まる", open:"これからの推移で決まる"}[row.pred.difficulty]}
+                                {/* いつ立てた見立てかを事実として出す。経過週によって当てやすさが違うため */}
+                                {row.pred.predictedAtWeeks && (
+                                  <span style={{fontWeight:700,color:"#555",background:"#F0F2F5",borderRadius:5,padding:"2px 7px"}}>
+                                    {row.pred.predictedAtWeeks <= 3 ? "導入直後" : row.pred.predictedAtWeeks <= 8 ? "序盤" : "経過後"}
+                                    （{row.pred.predictedAtWeeks}週目時点）
                                   </span>
                                 )}
-                                {row.pred.predictedAt && <span style={{color:"#bbb"}}>{row.pred.predictedAt}時点</span>}
+                                {row.pred.difficulty && (
+                                  <span style={{color:"#999"}}>
+                                    {{settled:"立てた時点で平均割れ＝ほぼ確定", near:"あと数週で決まる状況", open:"まだ平均を大きく超えていた"}[row.pred.difficulty]}
+                                  </span>
+                                )}
+                                {row.pred.predictedAt && <span style={{color:"#bbb"}}>{row.pred.predictedAt}
+                                  {row.pred.predictedAtSource && "（記録なしのためgit履歴から復元）"}</span>}
                                 {(() => {
                                   const o = row.pred.sisOutcome || {};
                                   if (o.verdict === "hit") return <span style={{fontWeight:700,color:"#1f7a4d",background:"#E8F5E9",borderRadius:5,padding:"2px 7px"}}>✓ 的中（実績{o.contribWeeks}週）</span>;

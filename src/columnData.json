@@ -19,7 +19,8 @@
         "katsudoLast": 95,
         "asOf": "2026-08-10",
         "reason": "直近は94%だが直近4週に市場平均超えの週あり"
-      }
+      },
+      "predictedAtWeeks": 25
     },
     {
       "id": "l南国育ちspecial",
@@ -39,7 +40,8 @@
         "katsudoLast": 94,
         "asOf": "2026-08-10",
         "reason": "直近は94%だが直近4週に市場平均超えの週あり"
-      }
+      },
+      "predictedAtWeeks": 7
     },
     {
       "id": "スマスロ_ケロット5bt",
@@ -59,7 +61,8 @@
         "katsudoLast": 90,
         "asOf": "2026-08-10",
         "reason": "直近は90%だが直近4週に市場平均超えの週あり"
-      }
+      },
+      "predictedAtWeeks": 7
     },
     {
       "id": "スマスロ攻殻機動隊",
@@ -79,7 +82,8 @@
         "katsudoLast": 101,
         "asOf": "2026-08-10",
         "reason": "直近稼働値101%で市場平均超え"
-      }
+      },
+      "predictedAtWeeks": 29
     },
     {
       "id": "スマート沖スロ_ニューキングハナハナv",
@@ -99,7 +103,8 @@
         "katsudoLast": 106,
         "asOf": "2026-08-10",
         "reason": "直近稼働値106%で市場平均超え"
-      }
+      },
+      "predictedAtWeeks": 33
     },
     {
       "id": "l東京喰種",
@@ -119,7 +124,8 @@
         "katsudoLast": 118,
         "asOf": "2026-08-10",
         "reason": "直近稼働値118%で市場平均超え"
-      }
+      },
+      "predictedAtWeeks": 81
     },
     {
       "id": "戦国コレクション6",
@@ -139,7 +145,8 @@
         "katsudoLast": 120,
         "asOf": "2026-08-10",
         "reason": "直近稼働値120%で市場平均超え"
-      }
+      },
+      "predictedAtWeeks": 7
     },
     {
       "id": "スマスロ_とある魔術の禁書目録2",
@@ -159,7 +166,8 @@
         "katsudoLast": 189,
         "asOf": "2026-08-10",
         "reason": "直近稼働値189%で市場平均超え"
-      }
+      },
+      "predictedAtWeeks": 3
     },
     {
       "id": "lワールドダイスター",
@@ -179,7 +187,8 @@
         "katsudoLast": 154,
         "asOf": "2026-08-10",
         "reason": "直近稼働値153%で市場平均超え"
-      }
+      },
+      "predictedAtWeeks": 3
     },
     {
       "id": "l邪神ちゃんドロップキック",
@@ -199,7 +208,8 @@
         "katsudoLast": 169,
         "asOf": "2026-08-10",
         "reason": "直近稼働値168%で市場平均超え"
-      }
+      },
+      "predictedAtWeeks": 3
     },
     {
       "id": "スマスロ_とんでもスキルで異世界放浪メシ",
@@ -219,7 +229,8 @@
         "katsudoLast": 165,
         "asOf": "2026-08-10",
         "reason": "直近稼働値165%で市場平均超え"
-      }
+      },
+      "predictedAtWeeks": 3
     },
     {
       "id": "スマスロ_やじきた道中記参る！",
@@ -239,7 +250,8 @@
         "katsudoLast": 163,
         "asOf": "2026-08-10",
         "reason": "直近稼働値162%で市場平均超え"
-      }
+      },
+      "predictedAtWeeks": 3
     },
     {
       "id": "lストリートファイター6",
@@ -259,7 +271,8 @@
         "katsudoLast": 120,
         "asOf": "2026-08-10",
         "reason": "直近稼働値120%で市場平均超え"
-      }
+      },
+      "predictedAtWeeks": 3
     },
     {
       "id": "lすーぱぁびん娘",
@@ -279,7 +292,8 @@
         "katsudoLast": 107,
         "asOf": "2026-08-10",
         "reason": "直近稼働値106%で市場平均超え"
-      }
+      },
+      "predictedAtWeeks": 3
     },
     {
       "id": "sao2",
@@ -300,7 +314,8 @@
         "asOf": "2026-08-10",
         "reason": "直近稼働値184%で市場平均超え"
       },
-      "difficulty": "open"
+      "difficulty": "open",
+      "predictedAtWeeks": 11
     },
     {
       "id": "sengoku_otome5",
@@ -321,7 +336,8 @@
         "asOf": "2026-08-10",
         "reason": "直近稼働値151%で市場平均超え"
       },
-      "difficulty": "open"
+      "difficulty": "open",
+      "predictedAtWeeks": 11
     },
     {
       "id": "god_kiseki",
@@ -357,7 +373,10 @@
         "asOf": "2026-08-10",
         "reason": "直近稼働値114%で市場平均超え"
       },
-      "difficulty": "near"
+      "difficulty": "near",
+      "predictedAt": "2026-05-08",
+      "predictedAtSource": "git履歴から復元（columnDataに初めて載った日）",
+      "predictedAtWeeks": 3
     },
     {
       "id": "bio_re3",
@@ -398,7 +417,10 @@
         "errorRate": 28.6,
         "verdict": "miss",
         "precision": "off"
-      }
+      },
+      "predictedAt": "2026-05-08",
+      "predictedAtSource": "git履歴から復元（columnDataに初めて載った日）",
+      "predictedAtWeeks": 1
     },
     {
       "id": "yormungand",
@@ -439,7 +461,10 @@
         "precision": "exact"
       },
       "longevityMin": 6,
-      "longevityMax": 6
+      "longevityMax": 6,
+      "predictedAt": "2026-05-08",
+      "predictedAtSource": "git履歴から復元（columnDataに初めて載った日）",
+      "predictedAtWeeks": 5
     },
     {
       "id": "yoshimune",
@@ -475,7 +500,10 @@
         "asOf": "2026-08-10",
         "reason": "直近稼働値121%で市場平均超え"
       },
-      "difficulty": "open"
+      "difficulty": "open",
+      "predictedAt": "2026-05-08",
+      "predictedAtSource": "git履歴から復元（columnDataに初めて載った日）",
+      "predictedAtWeeks": 5
     },
     {
       "id": "kyokomeiri",
@@ -516,7 +544,10 @@
         "errorRate": 16.7,
         "verdict": "hit",
         "precision": "near"
-      }
+      },
+      "predictedAt": "2026-05-08",
+      "predictedAtSource": "git履歴から復元（columnDataに初めて載った日）",
+      "predictedAtWeeks": 5
     },
     {
       "id": "karakuri2",
@@ -551,7 +582,10 @@
         "asOf": "2026-08-10",
         "reason": "直近は98%だが直近4週に市場平均超えの週あり"
       },
-      "difficulty": "settled"
+      "difficulty": "settled",
+      "predictedAt": "2026-05-08",
+      "predictedAtSource": "git履歴から復元（columnDataに初めて載った日）",
+      "predictedAtWeeks": 1
     },
     {
       "id": "gundam_unicorn",
@@ -592,7 +626,10 @@
         "precision": "near"
       },
       "longevityMin": 5,
-      "longevityMax": 5
+      "longevityMax": 5,
+      "predictedAt": "2026-05-08",
+      "predictedAtSource": "git履歴から復元（columnDataに初めて載った日）",
+      "predictedAtWeeks": 3
     },
     {
       "id": "lycoris",
@@ -619,7 +656,9 @@
       },
       "longevityMethod": "新台診断(2週持続率×2週稼働値×傾き)",
       "longevityTier": null,
-      "longevityReason": "SIS紐付けできず（予測は据え置き）"
+      "longevityReason": "SIS紐付けできず（予測は据え置き）",
+      "predictedAt": "2026-05-08",
+      "predictedAtSource": "git履歴から復元（columnDataに初めて載った日）"
     },
     {
       "id": "isekai_quartet",
@@ -660,7 +699,10 @@
         "errorRate": 16.7,
         "verdict": "hit",
         "precision": "near"
-      }
+      },
+      "predictedAt": "2026-05-08",
+      "predictedAtSource": "git履歴から復元（columnDataに初めて載った日）",
+      "predictedAtWeeks": 5
     },
     {
       "id": "bigdream_gp",
@@ -701,7 +743,10 @@
         "precision": "exact"
       },
       "longevityMin": 5,
-      "longevityMax": 5
+      "longevityMax": 5,
+      "predictedAt": "2026-05-08",
+      "predictedAtSource": "git履歴から復元（columnDataに初めて載った日）",
+      "predictedAtWeeks": 1
     },
     {
       "id": "akudama",
@@ -742,7 +787,10 @@
         "precision": "exact"
       },
       "longevityMin": 5,
-      "longevityMax": 10
+      "longevityMax": 10,
+      "predictedAt": "2026-05-08",
+      "predictedAtSource": "git履歴から復元（columnDataに初めて載った日）",
+      "predictedAtWeeks": 5
     },
     {
       "id": "kabaneri",
@@ -779,7 +827,10 @@
         "asOf": "2026-08-10",
         "reason": "直近稼働値118%で市場平均超え"
       },
-      "difficulty": "open"
+      "difficulty": "open",
+      "predictedAt": "2026-05-08",
+      "predictedAtSource": "git履歴から復元（columnDataに初めて載った日）",
+      "predictedAtWeeks": 10
     }
   ],
   "longevityPolicy": "稼働予測は新台診断と同一の方法(2週持続率×2週稼働値×傾き)で出し、導入2週目までに確定させる。変更時は longevityReason に理由を残す。稼働貢献が終了した機種は予測を出さず実績(sisOutcome)を表示する。旧方式(デイリー全国ランキングで上方修正)は確定4機種すべてで過大評価だったため廃止。"
