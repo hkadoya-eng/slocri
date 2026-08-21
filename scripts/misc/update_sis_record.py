@@ -221,7 +221,13 @@ def main():
 
     changed = 0
     for canon, rec in recs.items():
-        if ma[canon].get("sisRecord") != rec:
+        old = ma[canon].get("sisRecord") or {}
+        # このスクリプトが作らないキー（forecast / forecastNote など別スクリプトの成果）は
+        # 引き継ぐ。丸ごと差し替えると他のインポータの書き込みを黙って消してしまう。
+        for k, v in old.items():
+            if k not in rec:
+                rec[k] = v
+        if old != rec:
             changed += 1
         ma[canon]["sisRecord"] = rec
     print("更新対象: %d件" % changed)
