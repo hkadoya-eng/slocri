@@ -3835,6 +3835,10 @@ ${policyText}
                         <span style={{marginLeft:"auto",fontSize:15,color:"#D85A30",fontWeight:700}}>{showPred ? "−" : "＋"}</span>
                       </div>
                       <div style={{fontSize:11,color:"#888",marginTop:4}}>
+                        各機種には予測が2つ並ぶ。<b style={{color:"#7B1FA2"}}>モデル予測</b>は
+                        「同じ仕分けで同じ週数まで走った終了台の実績」から機械的に出す数字で、直近の推移は見ていない。
+                        <b style={{color:"#1565C0"}}>編集部予測</b>は直近の稼働値の動き・台数の増減・設置の厚さを見て人が決める。
+                        ここで採点しているのは編集部予測。<br/>
                         終了した{predScore.done}件のうち{predScore.hit}件が的中（{rate}%）。
                         うち{predScore.exact}件は予測レンジの中、{predScore.near}件は許容差の中。
                         開くと1件ずつの結果と振り返りが読める。
@@ -3933,6 +3937,14 @@ ${policyText}
                               そのため予測は<b>「その台が到達した週数以上まで走った終了台」だけ</b>を母集団にしている。
                               これなら早死にした台が母集団から自動的に外れる。
                             </div>
+                            <div style={{marginBottom:8}}>
+                              <b style={{color:"#555"}}>モデルと食い違うのは長期帯。</b>
+                              モデルは仕分けと現在の週数だけで決まるので、直近の失速を織り込めない。
+                              攻殻機動隊はモデル57週に対し編集部30〜32週（直近5週が106→108→109→96→101%で
+                              境界に来ており台数も減り始めている）。東京喰種はモデルが母数不足で出せず、編集部のみ90〜100週。
+                              逆に編集部には長く見積もる癖（外れ4件すべて下振れ）があるので、
+                              両方を残して同じ物差しで採点し、どちらが当たるかを見る。
+                            </div>
                             <div>
                               <b style={{color:"#555"}}>次に試されるのは長期側。</b>
                               採点待ちの{live.length}件には20週超の予測（SAO2 22週・カバネリ22〜27週）が含まれる。
@@ -4017,9 +4029,10 @@ ${policyText}
                             {r?.forecast && (
                               <div style={{marginTop:5,paddingTop:5,borderTop:"1px dashed #eee",display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",fontSize:10.5}}>
                                 <span style={{fontWeight:700,color:"#7B1FA2",background:"#F5E9FA",borderRadius:5,padding:"2px 7px"}}>
-                                  貢献週の予測 {r.forecast.lo === r.forecast.hi ? `${r.forecast.weeks}週` : `${r.forecast.weeks}週（${r.forecast.lo}〜${r.forecast.hi}）`}
+                                  モデル予測 {r.forecast.lo === r.forecast.hi ? `${r.forecast.weeks}週` : `${r.forecast.weeks}週（${r.forecast.lo}〜${r.forecast.hi}）`}
                                 </span>
-                                <span style={{color:"#999"}}>{r.forecast.basis}・n={r.forecast.sample}</span>
+                                <span style={{color:"#999"}}>過去の似た台の実績から機械的に算出／{r.forecast.basis}・n={r.forecast.sample}
+                                  {r.forecast.expectedError != null && <>・実測誤差±{r.forecast.expectedError}週</>}</span>
                                 <span style={{color:"#bbb"}}>{r.forecast.madeAt}時点</span>
                               </div>
                             )}
@@ -4034,6 +4047,12 @@ ${policyText}
                                 <span style={{fontWeight:700,color:"#1565C0",background:"#E9F1FB",borderRadius:5,padding:"2px 7px"}}>
                                   編集部予測 {row.pred.longevityMin === row.pred.longevityMax ? `${row.pred.longevityMin}週` : `${row.pred.longevityMin}〜${row.pred.longevityMax}週`}
                                 </span>
+                                {row.pred.difficulty && (
+                                  <span style={{color:"#999"}}>
+                                    {{settled:"直近が平均割れ＝ほぼ確定", near:"あと数週で決まる", open:"これからの推移で決まる"}[row.pred.difficulty]}
+                                  </span>
+                                )}
+                                {row.pred.predictedAt && <span style={{color:"#bbb"}}>{row.pred.predictedAt}時点</span>}
                                 {(() => {
                                   const o = row.pred.sisOutcome || {};
                                   if (o.verdict === "hit") return <span style={{fontWeight:700,color:"#1f7a4d",background:"#E8F5E9",borderRadius:5,padding:"2px 7px"}}>✓ 的中（実績{o.contribWeeks}週）</span>;

@@ -2,6 +2,286 @@
   "updatedAt": "2026-08-10",
   "columns": [
     {
+      "id": "スマスロ_サンダーv",
+      "name": "スマスロ サンダーV",
+      "tag": "ほぼ確定（直近が平均割れ）",
+      "tagColor": "#777",
+      "tagBg": "#ECECEC",
+      "postCount": 0,
+      "longevityMin": 24,
+      "longevityMax": 24,
+      "predictedAt": "2026-08-21",
+      "difficulty": "settled",
+      "predictionBasis": "貢献23週。直近5週が104→101→104→100→95%と平均を割ったところで、台数も2.1→1.9へ削られている。あと1週積めるかどうか",
+      "sisOutcome": {
+        "contribWeeks": 23,
+        "status": "継続中",
+        "katsudoLast": 95,
+        "asOf": "2026-08-10",
+        "reason": "直近は94%だが直近4週に市場平均超えの週あり"
+      }
+    },
+    {
+      "id": "l南国育ちspecial",
+      "name": "L南国育ちSPECIAL",
+      "tag": "ほぼ確定（直近が平均割れ）",
+      "tagColor": "#777",
+      "tagBg": "#ECECEC",
+      "postCount": 0,
+      "longevityMin": 5,
+      "longevityMax": 5,
+      "predictedAt": "2026-08-21",
+      "difficulty": "settled",
+      "predictionBasis": "貢献5週。162→141→126→102→94%と一直線に落ちており、平均超えはもう戻らない見込み",
+      "sisOutcome": {
+        "contribWeeks": 5,
+        "status": "継続中",
+        "katsudoLast": 94,
+        "asOf": "2026-08-10",
+        "reason": "直近は94%だが直近4週に市場平均超えの週あり"
+      }
+    },
+    {
+      "id": "スマスロ_ケロット5bt",
+      "name": "スマスロ ケロット5BT",
+      "tag": "ほぼ確定（直近が平均割れ）",
+      "tagColor": "#777",
+      "tagBg": "#ECECEC",
+      "postCount": 0,
+      "longevityMin": 5,
+      "longevityMax": 5,
+      "predictedAt": "2026-08-21",
+      "difficulty": "settled",
+      "predictionBasis": "貢献5週。147→123→115→102→90%で南国育ちと同じ落ち方。設置1.7台と薄く、粘る材料がない",
+      "sisOutcome": {
+        "contribWeeks": 5,
+        "status": "継続中",
+        "katsudoLast": 90,
+        "asOf": "2026-08-10",
+        "reason": "直近は90%だが直近4週に市場平均超えの週あり"
+      }
+    },
+    {
+      "id": "スマスロ攻殻機動隊",
+      "name": "スマスロ攻殻機動隊",
+      "tag": "あと数週で決まる",
+      "tagColor": "#C77B00",
+      "tagBg": "#FFF3DC",
+      "postCount": 0,
+      "longevityMin": 30,
+      "longevityMax": 32,
+      "predictedAt": "2026-08-21",
+      "difficulty": "near",
+      "predictionBasis": "貢献27週。直近5週が106→108→109→96→101%と平均の境界を上下している。台数2.7→2.6で減り始めており、ここから大きく伸びる形ではない。モデル予測は57週（超優良帯の中央値）だが、この台は既に境界に来ているので採らない",
+      "sisOutcome": {
+        "contribWeeks": 27,
+        "status": "継続中",
+        "katsudoLast": 101,
+        "asOf": "2026-08-10",
+        "reason": "直近稼働値101%で市場平均超え"
+      }
+    },
+    {
+      "id": "スマート沖スロ_ニューキングハナハナv",
+      "name": "スマート沖スロ ニューキングハナハナV",
+      "tag": "あと数週で決まる",
+      "tagColor": "#C77B00",
+      "tagBg": "#FFF3DC",
+      "postCount": 0,
+      "longevityMin": 12,
+      "longevityMax": 14,
+      "predictedAt": "2026-08-21",
+      "difficulty": "near",
+      "predictionBasis": "貢献10週・設置32週・死に台21週。断続的に平均を超える沖スロ型で、直近は106%。設置が5.9台と厚いまま維持されているので、あと数週は積める",
+      "sisOutcome": {
+        "contribWeeks": 10,
+        "status": "継続中",
+        "katsudoLast": 106,
+        "asOf": "2026-08-10",
+        "reason": "直近稼働値106%で市場平均超え"
+      }
+    },
+    {
+      "id": "l東京喰種",
+      "name": "L東京喰種",
+      "tag": "あと数週で決まる",
+      "tagColor": "#C77B00",
+      "tagBg": "#FFF3DC",
+      "postCount": 0,
+      "longevityMin": 90,
+      "longevityMax": 100,
+      "predictedAt": "2026-08-21",
+      "difficulty": "near",
+      "predictionBasis": "貢献79週で死に台0。直近118%とまだ平均を18%上回り、台数は4.6→12.0台と2.6倍に増えている。直近5週は121→131→130→118→118%で緩やかな下降。この傾きなら100%到達まで1年弱。モデルは79週以上到達した終了台が3件しかなく予測を出せていない",
+      "sisOutcome": {
+        "contribWeeks": 79,
+        "status": "継続中",
+        "katsudoLast": 118,
+        "asOf": "2026-08-10",
+        "reason": "直近稼働値118%で市場平均超え"
+      }
+    },
+    {
+      "id": "戦国コレクション6",
+      "name": "戦国コレクション6",
+      "tag": "あと数週で決まる",
+      "tagColor": "#C77B00",
+      "tagBg": "#FFF3DC",
+      "postCount": 0,
+      "longevityMin": 7,
+      "longevityMax": 8,
+      "predictedAt": "2026-08-21",
+      "difficulty": "near",
+      "predictionBasis": "貢献5週。207→185→176→130→120%と落ちているが、まだ平均を20%上回っている。落ちの速さから2〜3週で境界に達する",
+      "sisOutcome": {
+        "contribWeeks": 5,
+        "status": "継続中",
+        "katsudoLast": 120,
+        "asOf": "2026-08-10",
+        "reason": "直近稼働値120%で市場平均超え"
+      }
+    },
+    {
+      "id": "スマスロ_とある魔術の禁書目録2",
+      "name": "スマスロ とある魔術の禁書目録2",
+      "tag": "推移で決まる（導入直後）",
+      "tagColor": "#1565C0",
+      "tagBg": "#E9F1FB",
+      "postCount": 0,
+      "longevityMin": 16,
+      "longevityMax": 18,
+      "predictedAt": "2026-08-21",
+      "difficulty": "open",
+      "predictionBasis": "2週目189%・2週持続100%で客が減っていない。設置4.1台と厚く、上位判定（定着型）。同じ枠のワールドダイスター・邪神ちゃんより需要が一段高い",
+      "sisOutcome": {
+        "contribWeeks": 1,
+        "status": "継続中",
+        "katsudoLast": 189,
+        "asOf": "2026-08-10",
+        "reason": "直近稼働値189%で市場平均超え"
+      }
+    },
+    {
+      "id": "lワールドダイスター",
+      "name": "Lワールドダイスター",
+      "tag": "推移で決まる（導入直後）",
+      "tagColor": "#1565C0",
+      "tagBg": "#E9F1FB",
+      "postCount": 0,
+      "longevityMin": 12,
+      "longevityMax": 14,
+      "predictedAt": "2026-08-21",
+      "difficulty": "open",
+      "predictionBasis": "2週目154%・2週持続103%で2週目に客が増えた定着型。ただし設置2.2台と薄く総量は伸びにくい",
+      "sisOutcome": {
+        "contribWeeks": 1,
+        "status": "継続中",
+        "katsudoLast": 154,
+        "asOf": "2026-08-10",
+        "reason": "直近稼働値153%で市場平均超え"
+      }
+    },
+    {
+      "id": "l邪神ちゃんドロップキック",
+      "name": "L邪神ちゃんドロップキック",
+      "tag": "推移で決まる（導入直後）",
+      "tagColor": "#1565C0",
+      "tagBg": "#E9F1FB",
+      "postCount": 0,
+      "longevityMin": 10,
+      "longevityMax": 12,
+      "predictedAt": "2026-08-21",
+      "difficulty": "open",
+      "predictionBasis": "2週目169%・2週持続101%の定着型。設置1.7台と薄いので、1台あたりは熱いが市場での量は小さい",
+      "sisOutcome": {
+        "contribWeeks": 1,
+        "status": "継続中",
+        "katsudoLast": 169,
+        "asOf": "2026-08-10",
+        "reason": "直近稼働値168%で市場平均超え"
+      }
+    },
+    {
+      "id": "スマスロ_とんでもスキルで異世界放浪メシ",
+      "name": "スマスロ とんでもスキルで異世界放浪メシ",
+      "tag": "推移で決まる（導入直後）",
+      "tagColor": "#1565C0",
+      "tagBg": "#E9F1FB",
+      "postCount": 0,
+      "longevityMin": 7,
+      "longevityMax": 9,
+      "predictedAt": "2026-08-21",
+      "difficulty": "open",
+      "predictionBasis": "2週目165%で危険判定に落ちたが、2週持続99%は客が減っていない数字。需要の下限（170%）をわずかに割っただけで、持続の良さを買う",
+      "sisOutcome": {
+        "contribWeeks": 1,
+        "status": "継続中",
+        "katsudoLast": 165,
+        "asOf": "2026-08-10",
+        "reason": "直近稼働値165%で市場平均超え"
+      }
+    },
+    {
+      "id": "スマスロ_やじきた道中記参る！",
+      "name": "スマスロ やじきた道中記参る！",
+      "tag": "推移で決まる（導入直後）",
+      "tagColor": "#1565C0",
+      "tagBg": "#E9F1FB",
+      "postCount": 0,
+      "longevityMin": 5,
+      "longevityMax": 6,
+      "predictedAt": "2026-08-21",
+      "difficulty": "open",
+      "predictionBasis": "2週目163%・2週持続92%。214→163%の落ちが速く、設置3.0台と厚いぶん1台あたりが薄まる",
+      "sisOutcome": {
+        "contribWeeks": 1,
+        "status": "継続中",
+        "katsudoLast": 163,
+        "asOf": "2026-08-10",
+        "reason": "直近稼働値162%で市場平均超え"
+      }
+    },
+    {
+      "id": "lストリートファイター6",
+      "name": "Lストリートファイター6",
+      "tag": "推移で決まる（導入直後）",
+      "tagColor": "#1565C0",
+      "tagBg": "#E9F1FB",
+      "postCount": 0,
+      "longevityMin": 4,
+      "longevityMax": 5,
+      "predictedAt": "2026-08-21",
+      "difficulty": "open",
+      "predictionBasis": "2週目120%・2週持続90%。162→120%と2週で4割落ちており、危険判定の中でも下振れが速い",
+      "sisOutcome": {
+        "contribWeeks": 1,
+        "status": "継続中",
+        "katsudoLast": 120,
+        "asOf": "2026-08-10",
+        "reason": "直近稼働値120%で市場平均超え"
+      }
+    },
+    {
+      "id": "lすーぱぁびん娘",
+      "name": "Lすーぱぁびん娘",
+      "tag": "推移で決まる（導入直後）",
+      "tagColor": "#1565C0",
+      "tagBg": "#E9F1FB",
+      "postCount": 0,
+      "longevityMin": 3,
+      "longevityMax": 4,
+      "predictedAt": "2026-08-21",
+      "difficulty": "open",
+      "predictionBasis": "2週目107%・2週持続91%で、すでに平均のすぐ上。設置1.3台と最も薄く、支える材料がない",
+      "sisOutcome": {
+        "contribWeeks": 1,
+        "status": "継続中",
+        "katsudoLast": 107,
+        "asOf": "2026-08-10",
+        "reason": "直近稼働値106%で市場平均超え"
+      }
+    },
+    {
       "id": "sao2",
       "name": "スマスロ ソードアート・オンラインⅡ",
       "tag": "8週目稼働値236%・185機種中2位",
@@ -19,7 +299,8 @@
         "katsudoLast": 185,
         "asOf": "2026-08-10",
         "reason": "直近稼働値184%で市場平均超え"
-      }
+      },
+      "difficulty": "open"
     },
     {
       "id": "sengoku_otome5",
@@ -39,7 +320,8 @@
         "katsudoLast": 151,
         "asOf": "2026-08-10",
         "reason": "直近稼働値151%で市場平均超え"
-      }
+      },
+      "difficulty": "open"
     },
     {
       "id": "god_kiseki",
@@ -74,7 +356,8 @@
         "katsudoLast": 115,
         "asOf": "2026-08-10",
         "reason": "直近稼働値114%で市場平均超え"
-      }
+      },
+      "difficulty": "near"
     },
     {
       "id": "bio_re3",
@@ -191,7 +474,8 @@
         "katsudoLast": 122,
         "asOf": "2026-08-10",
         "reason": "直近稼働値121%で市場平均超え"
-      }
+      },
+      "difficulty": "open"
     },
     {
       "id": "kyokomeiri",
@@ -266,7 +550,8 @@
         "katsudoLast": 98,
         "asOf": "2026-08-10",
         "reason": "直近は98%だが直近4週に市場平均超えの週あり"
-      }
+      },
+      "difficulty": "settled"
     },
     {
       "id": "gundam_unicorn",
@@ -493,7 +778,8 @@
         "katsudoLast": 118,
         "asOf": "2026-08-10",
         "reason": "直近稼働値118%で市場平均超え"
-      }
+      },
+      "difficulty": "open"
     }
   ],
   "longevityPolicy": "稼働予測は新台診断と同一の方法(2週持続率×2週稼働値×傾き)で出し、導入2週目までに確定させる。変更時は longevityReason に理由を残す。稼働貢献が終了した機種は予測を出さず実績(sisOutcome)を表示する。旧方式(デイリー全国ランキングで上方修正)は確定4機種すべてで過大評価だったため廃止。"
