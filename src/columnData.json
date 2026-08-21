@@ -2,6 +2,46 @@
   "updatedAt": "2026-08-10",
   "columns": [
     {
+      "id": "sao2",
+      "name": "スマスロ ソードアート・オンラインⅡ",
+      "tag": "8週目稼働値236%・185機種中2位",
+      "tagColor": "#7B1FA2",
+      "tagBg": "#F5E9FA",
+      "postCount": 40,
+      "releaseDate": "2026-06-08",
+      "longevityMin": 22,
+      "longevityMax": 22,
+      "predictedAt": "2026-08-19",
+      "predictionBasis": "機種レポートで提示。台数4.0を9週維持したうえで稼働値が平均の2倍以上で推移していたため。外れる条件として「台数4.0が崩れるとき」を先に置いた",
+      "sisOutcome": {
+        "contribWeeks": 9,
+        "status": "継続中",
+        "katsudoLast": 185,
+        "asOf": "2026-08-10",
+        "reason": "直近稼働値184%で市場平均超え"
+      }
+    },
+    {
+      "id": "sengoku_otome5",
+      "name": "L戦国乙女5 業火を穿つ宿焔の双刃",
+      "tag": "SAO2と同日導入・8週目186%",
+      "tagColor": "#1565C0",
+      "tagBg": "#E9F1FB",
+      "postCount": 27,
+      "releaseDate": "2026-06-08",
+      "longevityMin": 16,
+      "longevityMax": 16,
+      "predictedAt": "2026-08-19",
+      "predictionBasis": "SAO2の機種レポートで同日導入の比較対象として提示。初週283%から4週225%への落ち方がSAO2より速く、台数6.5台と厚い設置で1台あたりが薄まる構造だったため",
+      "sisOutcome": {
+        "contribWeeks": 9,
+        "status": "継続中",
+        "katsudoLast": 151,
+        "asOf": "2026-08-10",
+        "reason": "直近稼働値151%で市場平均超え"
+      }
+    },
+    {
       "id": "god_kiseki",
       "name": "スマスロ ミリオンゴッド-神々の軌跡-",
       "aliases": [
