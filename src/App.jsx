@@ -3145,13 +3145,86 @@ const MODE_DESC = {
   ai_propose:     "ゲーム性の企画を作ります。自動生成したものと依頼したものが並びます",
 };
 
+/* 長い日本語の本文に段落の切れ目を入れる。
+   ① `（2026-06 追記）` のような追記の印で必ず切り、日付をラベルにする（132機種中43件が該当）。
+      地の文と続けて書かれていると、どこからが後で足した記述か読み分けられない。
+   ② そのうえで句点で文に割り、120字を超えるまで足して1段落にする（文の途中では切らない）。
+      短い文が続くときは3文までまとめて、細かく分かれすぎないようにする。 */
+const ADDENDUM_RE = /[（(](\d{4}[-/]\d{1,2}(?:[-/]\d{1,2})?)\s*([^）)]{0,8}追記)[）)]/g;
+
+function toParagraphs(s) {
+  // 「。」で切る。後読み(?<=)は古いブラウザで例外になるので使わず、1文字ずつ組み立てる。
+  // 句点のあとに閉じ括弧が来る場合は前の文にくっつける（「〜だ。）」で切れないように）
+  const sentences = [];
+  let cur = "";
+  for (const ch of s) {
+    if (/[）」』】]/.test(ch) && !cur && sentences.length) { sentences[sentences.length - 1] += ch; continue; }
+    cur += ch;
+    if (ch === "。") { sentences.push(cur); cur = ""; }
+  }
+  if (cur.trim()) sentences.push(cur);
+  const blocks = [];
+  let buf = "";
+  let n = 0;
+  sentences.forEach(sent => {
+    buf += sent;
+    n += 1;
+    if (buf.length >= 120 || n >= 3) { blocks.push(buf); buf = ""; n = 0; }
+  });
+  if (buf) {
+    // 余りが短いときは前の段落にくっつける（1文だけの段落が末尾に浮かないように）
+    if (blocks.length && buf.length < 40) blocks[blocks.length - 1] += buf;
+    else blocks.push(buf);
+  }
+  return blocks;
+}
+
+function Para({ text, size = 13, color = "#333", gap = 9 }) {
+  if (!text) return null;
+  const s = String(text);
+  // 追記の印で区切る。[{label, body}] の並びにする（最初の塊はラベル無し＝導入時の記述）
+  const segs = [];
+  let last = 0;
+  let m;
+  ADDENDUM_RE.lastIndex = 0;
+  while ((m = ADDENDUM_RE.exec(s)) !== null) {
+    const before = s.slice(last, m.index).trim();
+    if (before) segs.push({ label: null, body: before });
+    segs.push({ label: `${m[1]} ${m[2]}`, body: "" });
+    last = m.index + m[0].length;
+  }
+  const tail = s.slice(last).trim();
+  if (tail) {
+    if (segs.length && segs[segs.length - 1].label && !segs[segs.length - 1].body) segs[segs.length - 1].body = tail;
+    else segs.push({ label: null, body: tail });
+  }
+  if (!segs.length) segs.push({ label: null, body: s });
+  return (
+    <>
+      {segs.map((seg, si) => (
+        <div key={si} style={{ marginTop: si && seg.label ? gap + 4 : 0 }}>
+          {seg.label && (
+            <div style={{ fontSize: 10.5, fontWeight: 700, color: "#9a7bb0", background: "#F6F0FA",
+              borderRadius: 5, padding: "2px 8px", display: "inline-block", marginBottom: 4 }}>{seg.label}</div>
+          )}
+          {toParagraphs(seg.body).map((b, i, arr) => (
+            <div key={i} style={{ fontSize: size, color, lineHeight: 1.85, marginBottom: i < arr.length - 1 ? gap : 0 }}>{b}</div>
+          ))}
+        </div>
+      ))}
+    </>
+  );
+}
+
 /* 機種データの詳細。一覧のカードを開いたときに中へ差し込む（旧実装は一覧を置き換えていた）。 */
 function MachineDetail({ d }) {
   const box = { padding: "11px 13px", borderTop: "1px solid #F0F0F0" };
   return (
     <div style={{ background: "#FCFCFD", borderTop: "1px solid #EEE" }}>
       {d.summary && (
-        <div style={{ padding: "10px 13px", background: "#FAECE7", fontSize: 13.5, color: "#993C1D", fontWeight: 500, lineHeight: 1.65 }}>{d.summary}</div>
+        <div style={{ padding: "10px 13px", background: "#FAECE7", fontWeight: 500 }}>
+          <Para text={d.summary} size={13.5} color="#993C1D" gap={7} />
+        </div>
       )}
       {d.spec && (
         <div style={box}>
@@ -3164,27 +3237,31 @@ function MachineDetail({ d }) {
       {d.highlight && (
         <div style={box}>
           <div style={{ fontSize: 11.5, fontWeight: 700, color: "#777", marginBottom: 4 }}>🎰 ゲーム性・特徴</div>
-          <div style={{ fontSize: 13, color: "#333", lineHeight: 1.8 }}>{d.highlight}</div>
+          <Para text={d.highlight} size={13} />
         </div>
       )}
       <div style={box}>
         <div style={{ fontSize: 12, fontWeight: 700, color: "#2E7D32", marginBottom: 6 }}>👍 良いところ</div>
         {(d.pros || []).length
-          ? (d.pros || []).map((p, i) => <div key={i} style={{ display: "flex", gap: 7, marginBottom: 5 }}><span style={{ color: "#2E7D32", fontWeight: 700, flexShrink: 0 }}>・</span><span style={{ fontSize: 12.5, color: "#333", lineHeight: 1.7 }}>{p}</span></div>)
+          ? (d.pros || []).map((p, i) => <div key={i} style={{ display: "flex", gap: 7, marginBottom: 7 }}><span style={{ color: "#2E7D32", fontWeight: 700, flexShrink: 0 }}>・</span><span style={{ flex: 1, minWidth: 0 }}><Para text={p} size={12.5} gap={5} /></span></div>)
           : <div style={{ fontSize: 12.5, color: "#aaa" }}>該当なし</div>}
       </div>
       <div style={box}>
         <div style={{ fontSize: 12, fontWeight: 700, color: "#C62828", marginBottom: 6 }}>👎 悪いところ</div>
         {(d.cons || []).length
-          ? (d.cons || []).map((c, i) => <div key={i} style={{ display: "flex", gap: 7, marginBottom: 5 }}><span style={{ color: "#C62828", fontWeight: 700, flexShrink: 0 }}>・</span><span style={{ fontSize: 12.5, color: "#333", lineHeight: 1.7 }}>{c}</span></div>)
+          ? (d.cons || []).map((c, i) => <div key={i} style={{ display: "flex", gap: 7, marginBottom: 7 }}><span style={{ color: "#C62828", fontWeight: 700, flexShrink: 0 }}>・</span><span style={{ flex: 1, minWidth: 0 }}><Para text={c} size={12.5} gap={5} /></span></div>)
           : <div style={{ fontSize: 12.5, color: "#aaa" }}>該当なし</div>}
       </div>
       {d.scoreReason && (
         <div style={box}>
           <div style={{ fontSize: 11.5, fontWeight: 700, color: "#777", marginBottom: 4 }}>採点の理由</div>
           {Object.entries(d.scoreReason).map(([k, v]) => (
-            <div key={k} style={{ fontSize: 12, color: "#555", lineHeight: 1.7, marginBottom: 4 }}>
-              <b style={{ color: "#666" }}>{k === "jiriki" ? "自力感" : k === "yamenikusa" ? "やめにくさ" : k}</b>：{v}
+            <div key={k} style={{ marginBottom: 7 }}>
+              <div style={{ fontSize: 11.5, fontWeight: 700, color: "#666", marginBottom: 2 }}>
+                {k === "jiriki" ? "自力感" : k === "yamenikusa" ? "やめにくさ" : k}
+                {d.scores?.[k] != null && <span style={{ color: "#999", fontWeight: 400 }}>（{d.scores[k]}/10）</span>}
+              </div>
+              <Para text={v} size={12} color="#555" gap={5} />
             </div>
           ))}
         </div>
@@ -3223,6 +3300,8 @@ function ResearchTab({ posts, aiEnabled, updatePost, adminUser }) {
   const [analyzeResult, setAnalyzeResult] = useState(null);
   // 機種データで開いている機種。一覧を保ったままその場で開閉する（旧実装は一覧を詳細に差し替えていた）
   const [openM, setOpenM] = useState(null);
+  // 編集部予測の成績パネルの開閉。既定は畳む（結果の一覧と振り返りが入って長いため）
+  const [showPred, setShowPred] = useState(false);
   const [analyzeLoading, setAnalyzeLoading] = useState(false);
   const [proposePolicy, setProposePolicy] = useState({ targets:[], coinUnit:"standard", patterns:[], avoids:[], reference:"", extra:"" });
   const [proposeResult, setProposeResult] = useState(null);
@@ -3660,32 +3739,109 @@ ${policyText}
             );
             return <>
               <div style={{fontSize:13,color:"#aaa",marginBottom:8}}>機種ごとのスペックと特徴、リリース2週時点の稼働予測をまとめています。「〇〇を分析して」と声をかけると追加できます。</div>
-              {/* 編集部の稼働予測の成績。各カードにも併記してあるが、132枚の中に埋もれるので先頭に出す */}
-              {predScore.total > 0 && (
-                <div style={{background:"#fff",borderRadius:12,boxShadow:"3px 3px 7px #C8CED8, -3px -3px 7px #FFFFFF",padding:"10px 12px",marginBottom:10}}>
-                  <div style={{display:"flex",alignItems:"center",gap:7,flexWrap:"wrap",marginBottom:4}}>
-                    <span style={{fontSize:13,fontWeight:700,color:"#333"}}>編集部の稼働予測</span>
-                    <span style={{fontSize:11,color:"#888"}}>{predScore.total}件</span>
-                    <span style={{fontSize:10.5,fontWeight:700,color:"#1f7a4d",background:"#E8F5E9",borderRadius:5,padding:"2px 7px"}}>✓ 的中 {predScore.hit}</span>
-                    <span style={{fontSize:10.5,fontWeight:700,color:"#C62828",background:"#FDECEA",borderRadius:5,padding:"2px 7px"}}>✗ 外れ {predScore.miss}</span>
-                    <span style={{fontSize:10.5,fontWeight:700,color:"#1565C0",background:"#E9F1FB",borderRadius:5,padding:"2px 7px"}}>継続中 {predScore.live}</span>
+              {/* 編集部の稼働予測。各カードにも併記してあるが132枚の中に埋もれるので先頭に置く。
+                  畳んでおいて、開くと「何が当たって何が外れたか」が一覧で読める。
+                  振り返りは長くなるので一覧の下にまとめる。 */}
+              {predScore.total > 0 && (() => {
+                const cols = COLUMN_DATA.columns || [];
+                const done = cols.filter(c => (c.sisOutcome || {}).status === "終了");
+                const live = cols.filter(c => (c.sisOutcome || {}).status === "継続中");
+                const other = cols.filter(c => !done.includes(c) && !live.includes(c));
+                const rate = predScore.done ? Math.round(predScore.hit / predScore.done * 100) : 0;
+                const misses = done.filter(c => c.sisOutcome.verdict === "miss");
+                const allShort = misses.length > 0 && misses.every(c => (c.sisOutcome.diff || 0) < 0);
+                const avgDiff = misses.length
+                  ? (misses.reduce((s, c) => s + (c.sisOutcome.diff || 0), 0) / misses.length).toFixed(1) : null;
+                const pin = done.filter(c => c.longevityMin === c.longevityMax);
+                const pinHit = pin.filter(c => c.sisOutcome.verdict === "hit").length;
+                const rng = done.filter(c => c.longevityMin !== c.longevityMax);
+                const rngHit = rng.filter(c => c.sisOutcome.verdict === "hit").length;
+                const row = (c, kind) => {
+                  const o = c.sisOutcome || {};
+                  const pred = c.longevityMin === c.longevityMax ? `${c.longevityMin}週` : `${c.longevityMin}〜${c.longevityMax}週`;
+                  const mk = kind === "hit" ? {t:"✓ 的中", c:"#1f7a4d", bg:"#E8F5E9"}
+                    : kind === "miss" ? {t:`✗ 外れ ${o.diff > 0 ? "+" : ""}${o.diff}週`, c:"#C62828", bg:"#FDECEA"}
+                    : {t:"採点待ち", c:"#1565C0", bg:"#E9F1FB"};
+                  return (
+                    <div key={c.id || c.name} style={{display:"flex",alignItems:"center",gap:7,padding:"6px 0",borderTop:"1px solid #F5F5F5",flexWrap:"wrap"}}>
+                      <span style={{flex:1,minWidth:120,fontSize:12.5,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.name}</span>
+                      <span style={{flexShrink:0,fontSize:11.5,color:"#666"}}>予測 {pred}</span>
+                      <span style={{flexShrink:0,fontSize:11.5,color:"#ccc"}}>→</span>
+                      <span style={{flexShrink:0,fontSize:11.5,fontWeight:700,color:"#333",minWidth:42}}>
+                        {o.contribWeeks != null ? `${o.contribWeeks}週` : "—"}
+                      </span>
+                      <span style={{flexShrink:0,fontSize:10.5,fontWeight:700,color:mk.c,background:mk.bg,borderRadius:5,padding:"2px 7px"}}>{mk.t}</span>
+                    </div>
+                  );
+                };
+                const group = (title, items, kind) => items.length ? (
+                  <div style={{marginTop:8}}>
+                    <div style={{fontSize:11.5,fontWeight:700,color:"#777",marginBottom:2}}>{title}（{items.length}）</div>
+                    {items.map(c => row(c, kind))}
                   </div>
-                  <div style={{fontSize:11,color:"#888",lineHeight:1.6}}>
-                    終了した{predScore.done}件のうち{predScore.hit}件が予測レンジに入った（{predScore.done ? Math.round(predScore.hit/predScore.done*100) : 0}%）。
-                    外れた{predScore.miss}件はいずれも実績が予測を下回っており、長く見積もる癖がある。各機種のカード下部に個別の答え合わせを載せている。
+                ) : null;
+                return (
+                  <div style={{background:"#fff",borderRadius:12,boxShadow:"3px 3px 7px #C8CED8, -3px -3px 7px #FFFFFF",marginBottom:10,overflow:"hidden"}}>
+                    <button onClick={() => setShowPred(v => !v)} aria-expanded={showPred}
+                      style={{width:"100%",textAlign:"left",border:"none",background:showPred?"#FBF3EF":"#fff",cursor:"pointer",padding:"10px 12px"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>
+                        <span style={{fontSize:13,fontWeight:700,color:"#333"}}>編集部の稼働予測</span>
+                        <span style={{fontSize:11,color:"#888"}}>{predScore.total}件</span>
+                        <span style={{fontSize:10.5,fontWeight:700,color:"#1f7a4d",background:"#E8F5E9",borderRadius:5,padding:"2px 7px"}}>✓ {predScore.hit}</span>
+                        <span style={{fontSize:10.5,fontWeight:700,color:"#C62828",background:"#FDECEA",borderRadius:5,padding:"2px 7px"}}>✗ {predScore.miss}</span>
+                        <span style={{fontSize:10.5,fontWeight:700,color:"#1565C0",background:"#E9F1FB",borderRadius:5,padding:"2px 7px"}}>採点待ち {predScore.live}</span>
+                        <span style={{marginLeft:"auto",fontSize:15,color:"#D85A30",fontWeight:700}}>{showPred ? "−" : "＋"}</span>
+                      </div>
+                      <div style={{fontSize:11,color:"#888",marginTop:4}}>
+                        終了した{predScore.done}件のうち{predScore.hit}件が予測レンジに入った（{rate}%）。開くと1件ずつの結果と振り返りが読める。
+                      </div>
+                    </button>
+                    {showPred && (
+                      <div style={{padding:"2px 12px 12px",borderTop:"1px solid #EEE"}}>
+                        {group("的中", done.filter(c => c.sisOutcome.verdict === "hit"), "hit")}
+                        {group("外れ", misses, "miss")}
+                        {group("採点待ち（継続中）", live, "live")}
+                        {group("SIS実績が紐付いていない", other, "live")}
+                        <div style={{marginTop:12,paddingTop:10,borderTop:"1px dashed #DDD"}}>
+                          <div style={{fontSize:12,fontWeight:700,color:"#333",marginBottom:5}}>振り返り</div>
+                          <div style={{fontSize:11.5,color:"#666",lineHeight:1.85}}>
+                            {misses.length > 0 && (
+                              <div style={{marginBottom:7}}>
+                                <b style={{color:"#555"}}>外れは全部同じ方向。</b>
+                                {allShort
+                                  ? `外れた${misses.length}件はすべて実績が予測を下回っており、差は平均${avgDiff}週。長く見積もる癖が出ている。`
+                                  : `外れた${misses.length}件の差は平均${avgDiff}週。`}
+                                {allShort && "「まだ続きそう」と見えている台が、思ったより早く平均を割っている。"}
+                              </div>
+                            )}
+                            {pin.length > 0 && rng.length > 0 && (
+                              <div style={{marginBottom:7}}>
+                                <b style={{color:"#555"}}>ピンポイントで当てるのは難しい。</b>
+                                1週で言い切った{pin.length}件は的中{pinHit}件、レンジで出した{rng.length}件は的中{rngHit}件。
+                                週数を1点で当てるより、幅を持たせたほうが素直に当たる。
+                              </div>
+                            )}
+                            <div style={{marginBottom:7}}>
+                              <b style={{color:"#555"}}>2週診断との使い分け。</b>
+                              自動の2週診断は「上位を漏らさず拾う」設計で、危険帯に的中判定を付けない（短命台を確実に切る側）。
+                              短命台の週数を当てるのは編集部予測の役目で、ビッグドリーム5週・ヨルムンガンド6週はどちらも言い切って当てている。
+                            </div>
+                            <div>
+                              <b style={{color:"#555"}}>いま試されているのは長期側。</b>
+                              採点待ちの{live.length}件には20週超の予測（SAO2 22週・カバネリ22〜27週）が含まれる。
+                              下振れの癖が長期予測にも出るなら、ここで外れる。答えが出たらこの欄に反映する。
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{marginTop:8,fontSize:10.5,color:"#aaa",lineHeight:1.7}}>
+                          実績＝SIS公式の稼働貢献週。週次データの更新で自動的に最新化される。
+                          予測は立てた日を残しているので、後から書き換えて当てたことにはできない。
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
-              <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}}>
-                {KINDS.map(([k,l]) => {
-                  const n = analyzeList.filter(r => r.kind === k).length;
-                  const on = analyzeKind === k;
-                  return <button key={k} onClick={() => setAnalyzeKind(k)}
-                    style={{border:"none",borderRadius:9,padding:"5px 12px",fontSize:12.5,fontWeight:on?700:500,
-                      background:on?"#D85A30":"#fff",color:on?"#fff":"#888",cursor:"pointer",
-                      boxShadow:on?"inset 2px 2px 5px rgba(0,0,0,0.2)":"2px 2px 5px #C8CED8,-2px -2px 5px #fff"}}>{l} {n}</button>;
-                })}
-              </div>
+                );
+              })()}
               {GROUPS.map(([g, label, desc]) => {
                 const rows = inKind.filter(r => r.state === g);
                 if (!rows.length) return null;
