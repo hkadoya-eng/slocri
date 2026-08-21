@@ -147,7 +147,7 @@ export function PresentationTab() {
         <div style={{ fontSize: 14, fontWeight: 700, color: "#333", marginBottom: 5 }}>🎬 演出・表現分析</div>
         {T["軸"]}
       </div>
-      <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+      <div style={{ display: "flex", gap: 6, marginBottom: 10, alignItems: "center", flexWrap: "wrap" }}>
         {AXES.map(a => {
           const on = axis === a;
           const n = Object.values(T[a] || {}).reduce((s, v) => s + v.count, 0);
@@ -158,10 +158,15 @@ export function PresentationTab() {
             {a}<span style={{ opacity: 0.75, marginLeft: 5 }}>{n}</span>
           </button>;
         })}
+        <button onClick={() => setOpen(o => Object.keys(o).length ? {} : Object.fromEntries(types.map(([n]) => [n, true])))}
+          style={{ marginLeft: "auto", border: "none", background: "#fff", boxShadow: "2px 2px 5px #C8CED8,-2px -2px 5px #fff",
+            color: "#D85A30", fontSize: 11.5, borderRadius: 8, padding: "5px 11px", cursor: "pointer" }}>
+          {Object.keys(open).length ? "すべて閉じる" : "すべて開く"}
+        </button>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {types.map(([name, v]) => {
-          const on = open[name] !== false; // 既定は開く（型の中身を見せるのが目的のタブ）
+          const on = !!open[name]; // 既定は畳む（型が一覧で見渡せることを優先する）
           const pct = total ? Math.round(v.count / total * 100) : 0;
           return (
             <div key={name} style={card}>
