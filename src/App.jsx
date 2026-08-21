@@ -3718,7 +3718,10 @@ ${policyText}
                 style={{width:"100%",textAlign:"left",border:"none",background:on?"#FBF3EF":"#fff",cursor:"pointer",padding:"11px 13px",display:"block"}}>
                 <div style={{display:"flex",alignItems:"flex-start",gap:8}}>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:14.5,fontWeight:700,color:"#333",lineHeight:1.45,marginBottom:5}}>{col.title}</div>
+                    <div style={{fontSize:14.5,fontWeight:700,color:"#333",lineHeight:1.45,marginBottom:col.subtitle?3:5}}>{col.title}</div>
+                    {col.subtitle && (
+                      <div style={{fontSize:12,color:"#888",lineHeight:1.6,marginBottom:6}}>{col.subtitle}</div>
+                    )}
                     <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
                       <span style={{fontSize:11,fontWeight:600,color:col.tagColor,background:col.tagBg,borderRadius:5,padding:"2px 7px",whiteSpace:"nowrap"}}>{col.tag}</span>
                       <span style={{fontSize:11,color:"#bbb"}}>{col.author} · {col.date}</span>
@@ -3734,7 +3737,12 @@ ${policyText}
               </button>
               {on && <>
                 <div style={{padding:"12px 14px"}}>
-                  <div style={{fontSize:14,color:"#444",lineHeight:1.85,overflowWrap:"anywhere",whiteSpace:"pre-wrap"}}>{col.body}</div>
+                  {(col.body || "").split(/\n\s*\n|\n/).map(s => s.trim()).filter(Boolean).map((para, i) => (
+                    <div key={i} style={{fontSize:i===0?14.5:14,color:i===0?"#333":"#444",
+                      fontWeight:i===0?500:400,lineHeight:1.9,overflowWrap:"anywhere",
+                      marginBottom:12,paddingLeft:i===0?10:0,
+                      borderLeft:i===0?"3px solid #E4D3CB":"none"}}>{para}</div>
+                  ))}
                 </div>
                 <ColumnFeedback columnId={col.id} columnTitle={col.title} />
               </>}
