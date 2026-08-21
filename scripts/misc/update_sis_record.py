@@ -63,6 +63,57 @@ def get_all(path):
             raise RuntimeError("runaway paging")
 
 
+SUCCESS_WEEKS = 13  # 2週予測の合格ライン。貢献週が確定した機種の上位25%相当
+
+
+def diagnose(arr, med, contrib_weeks, done, k_last):
+    """導入2週の数字だけで仕分ける。閾値は貢献週が確定した178機種のバックテストで決めたもので、
+       「採点定義を先に固定 → 短命混入0%を必須制約 → F1最大」で選定済み（後から動かさない）。
+       戻り値: tier(仕分け) / via(拾い上げ枠) / katsudo1 / katsudo2 / ret2 / verdict(答え合わせ)"""
+    def kat(i):
+        if i >= len(arr):
+            return None
+        r = arr[i]
+        base = med.get(r["week_start"])
+        return round(r["out_coins"] / base * 100) if (r["out_coins"] and base) else None
+
+    k1, k2 = kat(0), kat(1)
+    o1 = arr[0]["out_coins"] if arr else None
+    o2 = arr[1]["out_coins"] if len(arr) > 1 else None
+    ret2 = round(o2 / o1 * 100) if (o1 and o2) else None
+    slope = (k2 - k1) if (k1 is not None and k2 is not None) else None
+
+    tier, via = "計測中", None
+    if ret2 is not None and k2 is not None:
+        if ret2 >= 92 and k2 >= 200 and (slope is None or slope >= -40):
+            tier = "超優良"
+        elif ret2 >= 89 and k2 >= 200:
+            tier = "優良"
+        elif ret2 >= 100 and k2 >= 140:
+            tier, via = "優良(定着型)", "定着型"
+        elif ret2 >= 83 and k2 >= 220:
+            tier, via = "優秀(需要型)", "需要型"
+        elif ret2 < 73 or k2 < 170:
+            tier = "危険"
+        else:
+            tier = "注意"
+    top = tier in ("超優良", "優良", "優良(定着型)", "優秀(需要型)")
+
+    # 答え合わせは成果変数=稼働貢献週で行う（持続率は予測の"入力"なので採点に使わない）
+    verdict = None
+    if top and contrib_weeks is not None:
+        if contrib_weeks > SUCCESS_WEEKS:
+            verdict = "hit"
+        elif k_last is not None and k_last > 100:
+            verdict = "pending"
+        else:
+            verdict = "miss"
+    units = [r.get("avg_machine_count") for r in arr if r.get("avg_machine_count")]
+    return {"tier": tier, "tierVia": via, "katsudo1": k1, "katsudo2": k2, "ret2": ret2,
+            "verdict": verdict, "peakUnits": max(units) if units else None,
+            "units1": arr[0].get("avg_machine_count"), "unitsLast": arr[-1].get("avg_machine_count")}
+
+
 def main():
     ma = json.loads(io.open(MA_PATH, encoding="utf-8").read())
 
@@ -76,7 +127,7 @@ def main():
 
     # order は必ず一意になるキー(week_start+machine)で。week_start だけだと
     # limit/offset ページング間で並びが揺れ、行の重複取得/取りこぼしが起きる。
-    weekly = get_all("/sis_weekly_data?select=machine,week_start,out_coins&order=week_start.asc,machine.asc")
+    weekly = get_all("/sis_weekly_data?select=machine,week_start,out_coins,avg_machine_count&order=week_start.asc,machine.asc")
     stats = get_all("/sis_machine_stats?select=machine,contrib_weeks")
     contrib = {s["machine"].replace(" ", ""): s.get("contrib_weeks") for s in stats}
 
@@ -157,6 +208,8 @@ def main():
             "weeksBelowAvg": below,
             "asOf": latest,
         }
+        # 2週診断（仕分けと答え合わせ）も同じレコードに入れる。画面側で週次を取り直さないため
+        rec.update(diagnose(arr, med, cw, done, k_last))
         # 同一エントリに複数のSIS表記が当たる場合は貢献週が多い方を採用
         prev = recs.get(canon)
         if prev is None or (rec["contribWeeks"] or 0) > (prev["contribWeeks"] or 0):

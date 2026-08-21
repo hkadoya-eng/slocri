@@ -9,7 +9,6 @@ import ProposeTab from "./ProposeTab";
 import ChatTab from "./ChatTab";
 import GameDesignTab, { PresentationTab } from "./GameDesignTab";
 import MachineDossierTab from "./MachineDossier";
-import MachineReviewTab from "./MachineReview";
 import ColumnFeedback from "./ColumnFeedback";
 import AdminChat from "./AdminChat";
 
@@ -638,8 +637,9 @@ function SisTab({ adminUser }) {
     return out;
   }, [weeklyData, nationalDaily]);
 
-  // 新台診断（2週で仕分け）は 2026-08-20 に分析タブの「機種評価」へ移した。
-  // 実装は src/MachineReview.jsx。稼働タブは生データ（日次・週次・貢献週）に専念する。
+  // 新台診断（2週で仕分け）は分析タブの「機種データ」へ統合した（2026-08-21）。
+  // 仕分けと答え合わせは update_sis_record.py が machineAnalysis の sisRecord に書くので、
+  // 画面側で週次データを取り直す必要はない。稼働タブは生データ（日次・週次・貢献週）に専念する。
 
   // 稼働貢献週ランキング。新台診断は直近26週の新台だけなので、全機種を貢献週順に並べたビューを別に持つ。
   // 週次データ(sis_weekly_data)と sis_machine_stats が更新されれば自動で最新化される＝毎週更新。
@@ -3135,9 +3135,8 @@ function OverviewTab({ posts, updatePost }) {
    専門語や内部の指標名（貢献週・26週・5軸など）は出さず、一般的な言い方にそろえる。 */
 const MODE_DESC = {
   column:         "編集部が書いたコラムです。稼働データや市場の動きを題材にしています",
-  machine_review: "リリースから2週の状況から、新台の稼働予測と診断を行います",
   dossier:        "長く生き残った台を1機種ずつ詳しく掘り下げたレポートです",
-  analyze:        "機種ごとのスペックと特徴のまとめです。新しい順に並んでいます",
+  analyze:        "機種ごとのスペック・特徴と、リリース2週時点の稼働予測をまとめています",
   gamedesign:     "CZやATの仕組みを型で分類し、どの機種が当てはまるかをまとめています",
   hyogen:         "演出や表現の作りを型で分類し、どの機種が当てはまるかをまとめています",
   ai_chat:        "機種のことをAIに聞けます。投稿データと解析を踏まえて答えます",
@@ -3145,8 +3144,10 @@ const MODE_DESC = {
 };
 
 function ResearchTab({ posts, aiEnabled, updatePost, adminUser }) {
-  const [mode, _setMode] = useState(() => sessionStorage.getItem("slokey_researchMode") || "machine_review");
+  const [mode, _setMode] = useState(() => sessionStorage.getItem("slokey_researchMode") || "analyze");
   const setMode = (m) => { sessionStorage.setItem("slokey_researchMode", m); _setMode(m); };
+  // 新台診断は機種データへ統合したので、保存済みの選択が残っていたら読み替える
+  useEffect(() => { if (mode === "machine_review") setMode("analyze"); }, [mode]);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -3205,6 +3206,32 @@ function ResearchTab({ posts, aiEnabled, updatePost, adminUser }) {
   /* 機種分析の一覧。2026-08-20、プルダウンで機種を探す形をやめて
      「新しい台から並ぶ一覧」に変えた（ユーザー指摘）。導入日の降順、導入日が無い機種は末尾。
      投稿数の状態（未分析・追加あり）はカードのバッジで出すので、探すためのUIは持たない。 */
+  /* 編集部の稼働予測（columnData）を machineAnalysis のキーへ寄せる。
+     lookupAnalysis と同じ完全一致方式（正式名＋aliases）で12/12が結合することを確認済み。 */
+  const predBy = useMemo(() => {
+    const resolve = {};
+    Object.entries(MACHINE_ANALYSIS).forEach(([k, v]) => {
+      resolve[k] = k;
+      (v.aliases || []).forEach(a => { if (a) resolve[a] = k; });
+    });
+    const out = {};
+    (COLUMN_DATA.columns || []).forEach(c => {
+      const key = resolve[c.name] || resolve[c.name.replace(/\s/g, "")]
+        || (c.aliases || []).map(a => resolve[a]).find(Boolean);
+      if (key) out[key] = c;
+    });
+    return out;
+  }, []);
+
+  /* 編集部予測の成績。終了した機種だけを採点する（継続中は貢献週がまだ増えるため） */
+  const predScore = useMemo(() => {
+    const all = COLUMN_DATA.columns || [];
+    const done = all.filter(c => (c.sisOutcome || {}).status === "終了");
+    const hit = done.filter(c => c.sisOutcome.verdict === "hit").length;
+    return { total: all.length, done: done.length, hit, miss: done.length - hit,
+             live: all.filter(c => (c.sisOutcome || {}).status === "継続中").length };
+  }, []);
+
   const analyzeList = useMemo(() => {
     const statusBy = {};
     analyzeMachineStatuses.forEach(s => { statusBy[s.name] = s; });
@@ -3230,10 +3257,11 @@ function ResearchTab({ posts, aiEnabled, updatePost, adminUser }) {
       kind: kindOf(name),
       state: stateOf(d),
       specParts: (d.spec || "").split(" / ").map(s => s.trim()).filter(Boolean),
+      pred: predBy[name] || null,   // 編集部の稼働予測（columnData）
     }));
     rows.sort((a, b) => (b.release || "0").localeCompare(a.release || "0") || a.name.localeCompare(b.name));
     return rows;
-  }, [analyzeMachineStatuses]);
+  }, [analyzeMachineStatuses, predBy]);
 
   // 投稿が3件以上あるのに分析が無い機種。一覧の末尾に別枠で出す
   const analyzeUnanalyzed = useMemo(
@@ -3430,7 +3458,7 @@ ${policyText}
               ゲーム性分析  = CZ/ATの型と機種別のルール
               演出・表現分析 = 演出と表現の作りを型で分類（旧 表現評価。介入度は物差しにしない）
             モードのキーは変えていない（sessionStorageに残った選択がそのまま効く）。 */}
-        {[["machine_review","新台診断"],["dossier","機種レポート"],["analyze","機種データ"],["gamedesign","ゲーム性分析"],["hyogen","演出・表現分析"],["column","コラム"],["ai_chat","💬 チャット"],["ai_propose","✏️ 企画提案"]].map(([k,l]) => {
+        {[["analyze","機種データ"],["dossier","機種レポート"],["gamedesign","ゲーム性分析"],["hyogen","演出・表現分析"],["column","コラム"],["ai_chat","💬 チャット"],["ai_propose","✏️ 企画提案"]].map(([k,l]) => {
           const on = mode===k;
           const isInteractive = k==="ai_chat" || k==="ai_propose";
           const sep = isInteractive && k==="ai_chat"
@@ -3540,18 +3568,25 @@ ${policyText}
         </div>
       )}
 
-      {mode==="machine_review" && (
-        /* 2026-08-20 統合: 旧「稼働タブ＞診断」と旧「分析タブ＞機種評価」を1つにまとめた。
-           同じ「この台は何週生きるか」の予測と答え合わせが2箇所にあり、編集部評価12件のうち
-           10件は診断の対象機種と重複していた。実装は src/MachineReview.jsx。
-           機種名をタップすると同じ分析タブの「機種分析」へ飛ぶ（旧実装はSisTab内のシートを開いていた）。 */
-        <MachineReviewTab onOpenMachine={m => { setAnalyzeM(m); setMode("analyze"); }} />
-      )}
-
       {mode==="analyze" && (
         <div>
           {!analyzeResult && (() => {
             const KINDS = [["slot","スロット"],["pachinko","パチンコ"],["old","4号機"]];
+            // 2週診断の仕分け。色は上位判定＝緑〜紫、下位＝橙〜赤で段階を作る
+            const TIER = {
+              "超優良":       {c:"#7B1FA2", bg:"#F5E9FA"},
+              "優良":         {c:"#1f9d4d", bg:"#E3F5E9"},
+              "優良(定着型)":  {c:"#1f9d4d", bg:"#E3F5E9"},
+              "優秀(需要型)":  {c:"#5B9E6F", bg:"#EFF7F1"},
+              "注意":         {c:"#C77B00", bg:"#FFF3DC"},
+              "危険":         {c:"#D03030", bg:"#FCE4E4"},
+              "計測中":       {c:"#999",    bg:"#ECECEC"},
+            };
+            const VERDICT = {
+              hit:     {t:"✓ 予測的中", c:"#1f9d4d", bg:"#F0FAF3"},
+              pending: {t:"… 判定保留",  c:"#2a7ae8", bg:"#EEF4FD"},
+              miss:    {t:"✗ 予測外れ", c:"#D03030", bg:"#FDF0F0"},
+            };
             const GROUPS = [
               ["live",     "稼働中",        "直近も市場平均を超えている台"],
               ["upcoming", "これから出る台",  "導入予定。実績はまだ無い"],
@@ -3563,7 +3598,23 @@ ${policyText}
               <span key={i} style={{fontSize:10.5,color:i===0?"#993C1D":"#666",background:i===0?"#FAECE7":"#F2F4F7",borderRadius:5,padding:"2px 7px",whiteSpace:"nowrap"}}>{txt}</span>
             );
             return <>
-              <div style={{fontSize:13,color:"#aaa",marginBottom:8}}>投稿データをもとにまとめた機種のスペックと特徴です。「〇〇を分析して」と声をかけると追加できます。</div>
+              <div style={{fontSize:13,color:"#aaa",marginBottom:8}}>機種ごとのスペックと特徴、リリース2週時点の稼働予測をまとめています。「〇〇を分析して」と声をかけると追加できます。</div>
+              {/* 編集部の稼働予測の成績。各カードにも併記してあるが、132枚の中に埋もれるので先頭に出す */}
+              {predScore.total > 0 && (
+                <div style={{background:"#fff",borderRadius:12,boxShadow:"3px 3px 7px #C8CED8, -3px -3px 7px #FFFFFF",padding:"10px 12px",marginBottom:10}}>
+                  <div style={{display:"flex",alignItems:"center",gap:7,flexWrap:"wrap",marginBottom:4}}>
+                    <span style={{fontSize:13,fontWeight:700,color:"#333"}}>編集部の稼働予測</span>
+                    <span style={{fontSize:11,color:"#888"}}>{predScore.total}件</span>
+                    <span style={{fontSize:10.5,fontWeight:700,color:"#1f7a4d",background:"#E8F5E9",borderRadius:5,padding:"2px 7px"}}>✓ 的中 {predScore.hit}</span>
+                    <span style={{fontSize:10.5,fontWeight:700,color:"#C62828",background:"#FDECEA",borderRadius:5,padding:"2px 7px"}}>✗ 外れ {predScore.miss}</span>
+                    <span style={{fontSize:10.5,fontWeight:700,color:"#1565C0",background:"#E9F1FB",borderRadius:5,padding:"2px 7px"}}>継続中 {predScore.live}</span>
+                  </div>
+                  <div style={{fontSize:11,color:"#888",lineHeight:1.6}}>
+                    終了した{predScore.done}件のうち{predScore.hit}件が予測レンジに入った（{predScore.done ? Math.round(predScore.hit/predScore.done*100) : 0}%）。
+                    外れた{predScore.miss}件はいずれも実績が予測を下回っており、長く見積もる癖がある。各機種のカード下部に個別の答え合わせを載せている。
+                  </div>
+                </div>
+              )}
               <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}}>
                 {KINDS.map(([k,l]) => {
                   const n = analyzeList.filter(r => r.kind === k).length;
@@ -3596,6 +3647,7 @@ ${policyText}
                             <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:5}}>
                               <span style={{flex:1,minWidth:0,fontSize:14,fontWeight:700,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{row.name}</span>
                               {row.status === "stale" && <span style={{flexShrink:0,fontSize:10,fontWeight:700,color:"#C55A00",background:"#FFF3E0",borderRadius:5,padding:"2px 7px"}}>⚠️ +{row.liveCount - row.posts}件</span>}
+                              {r?.tier && TIER[r.tier] && <span style={{flexShrink:0,fontSize:10,fontWeight:700,color:TIER[r.tier].c,background:TIER[r.tier].bg,borderRadius:5,padding:"2px 7px",whiteSpace:"nowrap"}}>{r.tier}</span>}
                               {r && <span style={{flexShrink:0,fontSize:10,fontWeight:700,color:r.status==="終了"?"#777":"#1f7a4d",background:r.status==="終了"?"#ECECEC":"#E6F5EC",borderRadius:5,padding:"2px 7px",whiteSpace:"nowrap"}}>
                                 貢献{r.contribWeeks}週{r.status!=="終了" && r.katsudoLast!=null ? `・${r.katsudoLast}%` : ""}
                               </span>}
@@ -3618,6 +3670,33 @@ ${policyText}
                               {r?.deadWeeks ? <span>死に台{r.deadWeeks}週</span> : null}
                               <span style={{marginLeft:"auto"}}>更新 {row.data.updatedAt}</span>
                             </div>
+                            {/* 2週診断の中身。仕分けを決めた2週時点の数字と、あとから来た答え合わせ */}
+                            {r?.tier && r.tier !== "計測中" && (
+                              <div style={{marginTop:5,paddingTop:5,borderTop:"1px dashed #eee",display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",fontSize:10.5,color:"#888"}}>
+                                <span>2週診断</span>
+                                <span style={{color:"#555"}}>稼働値 {r.katsudo1 ?? "—"}<span style={{color:"#ccc"}}>→</span>{r.katsudo2 != null ? r.katsudo2+"%" : "—"}</span>
+                                <span style={{color:"#555"}}>2週持続 {r.ret2 != null ? r.ret2+"%" : "—"}</span>
+                                {r.tierVia && <span style={{color:"#3d7a5c"}}>▲ {r.tierVia}で拾い上げ</span>}
+                                {r.verdict && VERDICT[r.verdict] && (
+                                  <span style={{fontWeight:700,color:VERDICT[r.verdict].c,background:VERDICT[r.verdict].bg,borderRadius:5,padding:"2px 7px"}}>{VERDICT[r.verdict].t}</span>
+                                )}
+                              </div>
+                            )}
+                            {/* 編集部が先に出した「何週生きるか」の予測と、その答え合わせ */}
+                            {row.pred && (
+                              <div style={{marginTop:5,paddingTop:5,borderTop:"1px dashed #eee",display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",fontSize:10.5}}>
+                                <span style={{fontWeight:700,color:"#1565C0",background:"#E9F1FB",borderRadius:5,padding:"2px 7px"}}>
+                                  編集部予測 {row.pred.longevityMin === row.pred.longevityMax ? `${row.pred.longevityMin}週` : `${row.pred.longevityMin}〜${row.pred.longevityMax}週`}
+                                </span>
+                                {(() => {
+                                  const o = row.pred.sisOutcome || {};
+                                  if (o.verdict === "hit") return <span style={{fontWeight:700,color:"#1f7a4d",background:"#E8F5E9",borderRadius:5,padding:"2px 7px"}}>✓ 的中（実績{o.contribWeeks}週）</span>;
+                                  if (o.verdict === "miss") return <span style={{fontWeight:700,color:"#C62828",background:"#FDECEA",borderRadius:5,padding:"2px 7px"}}>✗ 外れ（実績{o.contribWeeks}週・{o.diff > 0 ? "+" : ""}{o.diff}週）</span>;
+                                  return <span style={{color:"#999"}}>継続中のため採点待ち</span>;
+                                })()}
+                                {row.pred.tag && <span style={{color:"#999"}}>{row.pred.tag}</span>}
+                              </div>
+                            )}
                           </button>
                         );
                       })}

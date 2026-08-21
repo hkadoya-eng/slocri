@@ -46,7 +46,16 @@
       "katsudoLast": 115,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 274,
+      "katsudo2": 236,
+      "ret2": 96,
+      "verdict": "hit",
+      "peakUnits": 9.0,
+      "units1": 8.4,
+      "unitsLast": 9.0
     }
   },
   "Lヨルムンガンド": {
@@ -95,7 +104,16 @@
       "katsudoLast": 40,
       "deadWeeks": 13,
       "weeksBelowAvg": 15,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 227,
+      "katsudo2": 180,
+      "ret2": 78,
+      "verdict": null,
+      "peakUnits": 2.4,
+      "units1": 2.4,
+      "unitsLast": 1.3
     }
   },
   "L虚構推理": {
@@ -144,7 +162,16 @@
       "katsudoLast": 76,
       "deadWeeks": 9,
       "weeksBelowAvg": 10,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "優良",
+      "tierVia": null,
+      "katsudo1": 244,
+      "katsudo2": 220,
+      "ret2": 89,
+      "verdict": "miss",
+      "peakUnits": 1.6,
+      "units1": 1.6,
+      "unitsLast": 1.4
     }
   },
   "Lアクダマドライブ": {
@@ -189,7 +216,16 @@
       "katsudoLast": 49,
       "deadWeeks": 13,
       "weeksBelowAvg": 15,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 215,
+      "katsudo2": 175,
+      "ret2": 80,
+      "verdict": null,
+      "peakUnits": 1.7,
+      "units1": 1.7,
+      "unitsLast": 1.1
     }
   },
   "L真打吉宗": {
@@ -236,7 +272,16 @@
       "katsudoLast": 122,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 242,
+      "katsudo2": 229,
+      "ret2": 93,
+      "verdict": "hit",
+      "peakUnits": 3.9,
+      "units1": 3.7,
+      "unitsLast": 3.9
     }
   },
   "L甲鉄城のカバネリ海門決戦": {
@@ -284,7 +329,16 @@
       "katsudoLast": 118,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 272,
+      "katsudo2": 276,
+      "ret2": 95,
+      "verdict": "hit",
+      "peakUnits": 10.6,
+      "units1": 8.8,
+      "unitsLast": 10.6
     }
   },
   "異世界かるてっと BT": {
@@ -335,7 +389,16 @@
       "katsudoLast": 69,
       "deadWeeks": 9,
       "weeksBelowAvg": 11,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 206,
+      "katsudo2": 178,
+      "ret2": 85,
+      "verdict": null,
+      "peakUnits": 1.5,
+      "units1": 1.5,
+      "unitsLast": 1.4
     }
   },
   "Lガンダムユニコーン覚醒DRIVE": {
@@ -385,7 +448,16 @@
       "katsudoLast": 28,
       "deadWeeks": 13,
       "weeksBelowAvg": 15,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 191,
+      "katsudo2": 131,
+      "ret2": 76,
+      "verdict": null,
+      "peakUnits": 3.3,
+      "units1": 3.3,
+      "unitsLast": 1.3
     }
   },
   "eリコリス・リコイル": {
@@ -466,7 +538,16 @@
       "katsudoLast": 83,
       "deadWeeks": 9,
       "weeksBelowAvg": 10,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "優良",
+      "tierVia": null,
+      "katsudo1": 236,
+      "katsudo2": 223,
+      "ret2": 89,
+      "verdict": "hit",
+      "peakUnits": 11.8,
+      "units1": 10.9,
+      "unitsLast": 7.8
     }
   },
   "スマスロ新鬼武者3": {
@@ -514,7 +595,16 @@
       "katsudoLast": 61,
       "deadWeeks": 30,
       "weeksBelowAvg": 32,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "優良",
+      "tierVia": null,
+      "katsudo1": 256,
+      "katsudo2": 227,
+      "ret2": 89,
+      "verdict": "hit",
+      "peakUnits": 6.1,
+      "units1": 6.1,
+      "unitsLast": 2.4
     }
   },
   "Lからくりサーカス2": {
@@ -565,7 +655,16 @@
       "katsudoLast": 98,
       "deadWeeks": 0,
       "weeksBelowAvg": 1,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 227,
+      "katsudo2": 201,
+      "ret2": 81,
+      "verdict": null,
+      "peakUnits": 7.4,
+      "units1": 7.3,
+      "unitsLast": 7.4
     }
   },
   "スマスロ バイオハザードRE:3": {
@@ -604,7 +703,16 @@
       "katsudoLast": 56,
       "deadWeeks": 9,
       "weeksBelowAvg": 10,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 218,
+      "katsudo2": 174,
+      "ret2": 78,
+      "verdict": null,
+      "peakUnits": 4.7,
+      "units1": 4.7,
+      "unitsLast": 2.8
     }
   },
   "スマスロ ソードアート・オンラインⅡ": {
@@ -656,7 +764,16 @@
       "katsudoLast": 185,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 274,
+      "katsudo2": 255,
+      "ret2": 94,
+      "verdict": "pending",
+      "peakUnits": 4.3,
+      "units1": 4.0,
+      "unitsLast": 4.3
     }
   },
   "e転生したらスライムだった件2": {
@@ -728,7 +845,16 @@
       "katsudoLast": 67,
       "deadWeeks": 22,
       "weeksBelowAvg": 18,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 297,
+      "katsudo2": 270,
+      "ret2": 94,
+      "verdict": "hit",
+      "peakUnits": 4.0,
+      "units1": 3.7,
+      "unitsLast": 2.9
     }
   },
   "スマスロ 北斗の拳": {
@@ -773,7 +899,16 @@
       "katsudoLast": 71,
       "deadWeeks": 88,
       "weeksBelowAvg": 84,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 324,
+      "katsudo2": 329,
+      "ret2": 99,
+      "verdict": "hit",
+      "peakUnits": 18.3,
+      "units1": 8.9,
+      "unitsLast": 6.9
     }
   },
   "スマスロスーパーリオエース2": {
@@ -817,7 +952,16 @@
       "katsudoLast": 65,
       "deadWeeks": 7,
       "weeksBelowAvg": 8,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 228,
+      "katsudo2": 193,
+      "ret2": 83,
+      "verdict": null,
+      "peakUnits": 3.1,
+      "units1": 3.1,
+      "unitsLast": 2.4
     }
   },
   "L東京喰種": {
@@ -867,7 +1011,16 @@
       "katsudoLast": 118,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 267,
+      "katsudo2": 248,
+      "ret2": 98,
+      "verdict": "hit",
+      "peakUnits": 12.0,
+      "units1": 4.6,
+      "unitsLast": 12.0
     }
   },
   "北斗の拳（4号機）": {
@@ -942,7 +1095,16 @@
       "katsudoLast": 36,
       "deadWeeks": 9,
       "weeksBelowAvg": 10,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 202,
+      "katsudo2": 166,
+      "ret2": 80,
+      "verdict": null,
+      "peakUnits": 4.2,
+      "units1": 4.1,
+      "unitsLast": 2.4
     }
   },
   "Lタクトオーパス デスティニー": {
@@ -991,7 +1153,16 @@
       "katsudoLast": 63,
       "deadWeeks": 8,
       "weeksBelowAvg": 9,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 222,
+      "katsudo2": 188,
+      "ret2": 83,
+      "verdict": null,
+      "peakUnits": 1.7,
+      "units1": 1.7,
+      "unitsLast": 1.4
     }
   },
   "LBスロット GALFY": {
@@ -1035,7 +1206,16 @@
       "katsudoLast": 63,
       "deadWeeks": 5,
       "weeksBelowAvg": 6,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 185,
+      "katsudo2": 142,
+      "ret2": 78,
+      "verdict": null,
+      "peakUnits": 1.2,
+      "units1": 1.2,
+      "unitsLast": 1.1
     }
   },
   "スマスロ モンキーターンV": {
@@ -1080,7 +1260,16 @@
       "katsudoLast": 90,
       "deadWeeks": 30,
       "weeksBelowAvg": 27,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 268,
+      "katsudo2": 253,
+      "ret2": 95,
+      "verdict": "hit",
+      "peakUnits": 9.3,
+      "units1": 4.2,
+      "unitsLast": 8.0
     }
   },
   "スマスロ とんでもスキルで異世界放浪メシ": {
@@ -1133,7 +1322,16 @@
       "katsudoLast": 165,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 203,
+      "katsudo2": 165,
+      "ret2": 99,
+      "verdict": null,
+      "peakUnits": 1.6,
+      "units1": 1.6,
+      "unitsLast": 1.6
     }
   },
   "Lストリートファイター6": {
@@ -1186,7 +1384,16 @@
       "katsudoLast": 120,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 162,
+      "katsudo2": 120,
+      "ret2": 90,
+      "verdict": null,
+      "peakUnits": 3.0,
+      "units1": 3.0,
+      "unitsLast": 3.0
     }
   },
   "スマスロ サンダーV": {
@@ -1230,7 +1437,16 @@
       "katsudoLast": 95,
       "deadWeeks": 0,
       "weeksBelowAvg": 3,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 185,
+      "katsudo2": 160,
+      "ret2": 81,
+      "verdict": null,
+      "peakUnits": 2.1,
+      "units1": 2.1,
+      "unitsLast": 1.9
     }
   },
   "スマート沖スロ ダークハイビ": {
@@ -1273,7 +1489,16 @@
       "katsudoLast": 73,
       "deadWeeks": 4,
       "weeksBelowAvg": 5,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 181,
+      "katsudo2": 146,
+      "ret2": 80,
+      "verdict": null,
+      "peakUnits": 4.0,
+      "units1": 3.9,
+      "unitsLast": 3.6
     }
   },
   "L ダーリン・イン・ザ・フランキス": {
@@ -1318,7 +1543,16 @@
       "katsudoLast": 45,
       "deadWeeks": 48,
       "weeksBelowAvg": 49,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 196,
+      "katsudo2": 147,
+      "ret2": 92,
+      "verdict": null,
+      "peakUnits": 3.8,
+      "units1": 3.8,
+      "unitsLast": 1.3
     }
   },
   "Pフィーバーからくりサーカス2": {
@@ -1383,7 +1617,16 @@
       "katsudoLast": 151,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 283,
+      "katsudo2": 259,
+      "ret2": 93,
+      "verdict": "pending",
+      "peakUnits": 6.8,
+      "units1": 6.5,
+      "unitsLast": 6.7
     }
   },
   "スマスロ BIRDIE WING -Golf Girls' Story-": {
@@ -1433,7 +1676,16 @@
       "katsudoLast": 55,
       "deadWeeks": 7,
       "weeksBelowAvg": 8,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 164,
+      "katsudo2": 116,
+      "ret2": 72,
+      "verdict": null,
+      "peakUnits": 2.0,
+      "units1": 2.0,
+      "unitsLast": 1.3
     }
   },
   "スマスロ 革命機ヴァルヴレイヴ2": {
@@ -1477,7 +1729,16 @@
       "katsudoLast": 80,
       "deadWeeks": 23,
       "weeksBelowAvg": 24,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 248,
+      "katsudo2": 219,
+      "ret2": 84,
+      "verdict": null,
+      "peakUnits": 9.5,
+      "units1": 9.2,
+      "unitsLast": 5.5
     }
   },
   "Lワールドダイスター": {
@@ -1526,7 +1787,16 @@
       "katsudoLast": 154,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "優良(定着型)",
+      "tierVia": "定着型",
+      "katsudo1": 181,
+      "katsudo2": 154,
+      "ret2": 103,
+      "verdict": "pending",
+      "peakUnits": 2.2,
+      "units1": 2.2,
+      "unitsLast": 2.2
     }
   },
   "スマスロ鉄拳6": {
@@ -1570,7 +1840,16 @@
       "katsudoLast": 56,
       "deadWeeks": 22,
       "weeksBelowAvg": 23,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 217,
+      "katsudo2": 199,
+      "ret2": 86,
+      "verdict": null,
+      "peakUnits": 4.9,
+      "units1": 4.9,
+      "unitsLast": 2.1
     }
   },
   "スマスロ秘宝伝": {
@@ -1616,7 +1895,16 @@
       "katsudoLast": 42,
       "deadWeeks": 27,
       "weeksBelowAvg": 28,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 224,
+      "katsudo2": 167,
+      "ret2": 88,
+      "verdict": null,
+      "peakUnits": 3.5,
+      "units1": 3.5,
+      "unitsLast": 1.5
     }
   },
   "スマスロ攻殻機動隊": {
@@ -1661,7 +1949,16 @@
       "katsudoLast": 101,
       "deadWeeks": 0,
       "weeksBelowAvg": 1,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 244,
+      "katsudo2": 221,
+      "ret2": 93,
+      "verdict": "hit",
+      "peakUnits": 2.7,
+      "units1": 2.7,
+      "unitsLast": 2.6
     }
   },
   "Lパチスロ喰霊-零-Re": {
@@ -1741,7 +2038,16 @@
       "katsudoLast": 70,
       "deadWeeks": 3,
       "weeksBelowAvg": 4,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 116,
+      "katsudo2": 103,
+      "ret2": 81,
+      "verdict": null,
+      "peakUnits": 4.6,
+      "units1": 4.6,
+      "unitsLast": 4.3
     }
   },
   "L南国育ちSPECIAL": {
@@ -1780,7 +2086,16 @@
       "katsudoLast": 94,
       "deadWeeks": 0,
       "weeksBelowAvg": 1,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 183,
+      "katsudo2": 162,
+      "ret2": 81,
+      "verdict": null,
+      "peakUnits": 2.4,
+      "units1": 2.4,
+      "unitsLast": 2.4
     }
   },
   "スマスロ リコリス・リコイル": {
@@ -1855,7 +2170,16 @@
       "katsudoLast": 65,
       "deadWeeks": 27,
       "weeksBelowAvg": 28,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 229,
+      "katsudo2": 192,
+      "ret2": 87,
+      "verdict": null,
+      "peakUnits": 2.0,
+      "units1": 2.0,
+      "unitsLast": 1.2
     }
   },
   "スマスロ デビルメイクライ5": {
@@ -1903,7 +2227,16 @@
       "katsudoLast": 52,
       "deadWeeks": 55,
       "weeksBelowAvg": 55,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 230,
+      "katsudo2": 190,
+      "ret2": 81,
+      "verdict": null,
+      "peakUnits": 3.3,
+      "units1": 3.3,
+      "unitsLast": 1.3
     }
   },
   "マイジャグラーV": {
@@ -2043,7 +2376,16 @@
       "katsudoLast": 82,
       "deadWeeks": 65,
       "weeksBelowAvg": 59,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 299,
+      "katsudo2": 280,
+      "ret2": 97,
+      "verdict": "hit",
+      "peakUnits": 6.0,
+      "units1": 5.1,
+      "unitsLast": 2.9
     }
   },
   "スマスロ 押忍!番長4": {
@@ -2080,7 +2422,16 @@
       "katsudoLast": 46,
       "deadWeeks": 107,
       "weeksBelowAvg": 107,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "優良",
+      "tierVia": null,
+      "katsudo1": 272,
+      "katsudo2": 218,
+      "ret2": 96,
+      "verdict": "hit",
+      "peakUnits": 7.0,
+      "units1": 6.0,
+      "unitsLast": 1.4
     }
   },
   "スマスロ ゴッドイーター リザレクション": {
@@ -2119,7 +2470,16 @@
       "katsudoLast": 61,
       "deadWeeks": 65,
       "weeksBelowAvg": 59,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 258,
+      "katsudo2": 254,
+      "ret2": 95,
+      "verdict": "hit",
+      "peakUnits": 5.9,
+      "units1": 4.3,
+      "unitsLast": 3.1
     }
   },
   "スマスロ リゼロ2": {
@@ -2157,7 +2517,16 @@
       "katsudoLast": 43,
       "deadWeeks": 78,
       "weeksBelowAvg": 79,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 251,
+      "katsudo2": 200,
+      "ret2": 79,
+      "verdict": null,
+      "peakUnits": 7.5,
+      "units1": 7.5,
+      "unitsLast": 1.3
     }
   },
   "スマスロ銀河英雄伝説": {
@@ -2193,7 +2562,16 @@
       "katsudoLast": 40,
       "deadWeeks": 30,
       "weeksBelowAvg": 32,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 234,
+      "katsudo2": 198,
+      "ret2": 87,
+      "verdict": null,
+      "peakUnits": 1.6,
+      "units1": 1.6,
+      "unitsLast": 1.0
     }
   },
   "L ULTRAMAN最終決戦": {
@@ -2240,7 +2618,16 @@
       "katsudoLast": 56,
       "deadWeeks": 3,
       "weeksBelowAvg": 4,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 146,
+      "katsudo2": 116,
+      "ret2": 73,
+      "verdict": null,
+      "peakUnits": 1.4,
+      "units1": 1.4,
+      "unitsLast": 1.2
     }
   },
   "スマスロ無職転生": {
@@ -2282,7 +2669,16 @@
       "katsudoLast": 63,
       "deadWeeks": 23,
       "weeksBelowAvg": 24,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 258,
+      "katsudo2": 195,
+      "ret2": 90,
+      "verdict": null,
+      "peakUnits": 2.2,
+      "units1": 2.0,
+      "unitsLast": 1.4
     }
   },
   "スマスロ ローティス": {
@@ -2332,7 +2728,16 @@
       "katsudoLast": 64,
       "deadWeeks": 4,
       "weeksBelowAvg": 5,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 102,
+      "katsudo2": 97,
+      "ret2": 87,
+      "verdict": null,
+      "peakUnits": 1.8,
+      "units1": 1.8,
+      "unitsLast": 1.6
     }
   },
   "スマスロ やじきた道中記参る！": {
@@ -2381,7 +2786,16 @@
       "katsudoLast": 163,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 214,
+      "katsudo2": 163,
+      "ret2": 92,
+      "verdict": null,
+      "peakUnits": 3.0,
+      "units1": 3.0,
+      "unitsLast": 3.0
     }
   },
   "e無職転生": {
@@ -2498,7 +2912,16 @@
       "katsudoLast": 90,
       "deadWeeks": 0,
       "weeksBelowAvg": 1,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 167,
+      "katsudo2": 147,
+      "ret2": 80,
+      "verdict": null,
+      "peakUnits": 1.7,
+      "units1": 1.7,
+      "unitsLast": 1.7
     }
   },
   "スマスロ タコスロ": {
@@ -2623,7 +3046,16 @@
       "katsudoLast": 62,
       "deadWeeks": 45,
       "weeksBelowAvg": 45,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 263,
+      "katsudo2": 244,
+      "ret2": 92,
+      "verdict": "hit",
+      "peakUnits": 6.7,
+      "units1": 6.7,
+      "unitsLast": 3.1
     }
   },
   "SLOT魔法少女まどか☆マギカ": {
@@ -2778,7 +3210,16 @@
       "katsudoLast": 52,
       "deadWeeks": 135,
       "weeksBelowAvg": 136,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "優秀(需要型)",
+      "tierVia": "需要型",
+      "katsudo1": 248,
+      "katsudo2": 220,
+      "ret2": 87,
+      "verdict": "hit",
+      "peakUnits": 4.1,
+      "units1": 4.0,
+      "unitsLast": 1.2
     }
   },
   "スマスロ ゴブリンスレイヤーⅡ": {
@@ -2825,7 +3266,16 @@
       "katsudoLast": 22,
       "deadWeeks": 23,
       "weeksBelowAvg": 24,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 202,
+      "katsudo2": 158,
+      "ret2": 80,
+      "verdict": null,
+      "peakUnits": 3.6,
+      "units1": 3.6,
+      "unitsLast": 1.3
     }
   },
   "ミリオンゴッド（4号機）": {
@@ -2953,7 +3403,16 @@
       "katsudoLast": 56,
       "deadWeeks": 65,
       "weeksBelowAvg": 61,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 265,
+      "katsudo2": 254,
+      "ret2": 94,
+      "verdict": "hit",
+      "peakUnits": 1.8,
+      "units1": 1.5,
+      "unitsLast": 1.1
     }
   },
   "スマスロ コードギアス 復活のルルーシュ": {
@@ -2999,7 +3458,16 @@
       "katsudoLast": 57,
       "deadWeeks": 126,
       "weeksBelowAvg": 127,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 226,
+      "katsudo2": 189,
+      "ret2": 83,
+      "verdict": null,
+      "peakUnits": 3.8,
+      "units1": 3.8,
+      "unitsLast": 1.2
     }
   },
   "スマスロ とある魔術の禁書目録2": {
@@ -3052,7 +3520,16 @@
       "katsudoLast": 189,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "優良(定着型)",
+      "tierVia": "定着型",
+      "katsudo1": 230,
+      "katsudo2": 189,
+      "ret2": 100,
+      "verdict": "pending",
+      "peakUnits": 4.1,
+      "units1": 4.1,
+      "unitsLast": 4.1
     }
   },
   "スマスロ 炎炎ノ消防隊2": {
@@ -3100,7 +3577,16 @@
       "katsudoLast": 85,
       "deadWeeks": 4,
       "weeksBelowAvg": 5,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 253,
+      "katsudo2": 231,
+      "ret2": 93,
+      "verdict": "hit",
+      "peakUnits": 4.2,
+      "units1": 4.2,
+      "unitsLast": 3.9
     }
   },
   "スマスロ 緑ドン VIVA!情熱南米編 REVIVAL": {
@@ -3146,7 +3632,16 @@
       "katsudoLast": 33,
       "deadWeeks": 61,
       "weeksBelowAvg": 62,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 201,
+      "katsudo2": 196,
+      "ret2": 80,
+      "verdict": null,
+      "peakUnits": 3.8,
+      "units1": 3.8,
+      "unitsLast": 1.2
     }
   },
   "スマスロ 咲-Saki- 頂上決戦": {
@@ -3196,7 +3691,16 @@
       "katsudoLast": 46,
       "deadWeeks": 48,
       "weeksBelowAvg": 49,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 207,
+      "katsudo2": 155,
+      "ret2": 91,
+      "verdict": null,
+      "peakUnits": 2.2,
+      "units1": 2.2,
+      "unitsLast": 1.1
     }
   },
   "スマスロ ネオプラネット": {
@@ -3238,7 +3742,16 @@
       "katsudoLast": 42,
       "deadWeeks": 31,
       "weeksBelowAvg": 34,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 233,
+      "katsudo2": 188,
+      "ret2": 86,
+      "verdict": null,
+      "peakUnits": 2.0,
+      "units1": 2.0,
+      "unitsLast": 1.2
     }
   },
   "スマスロ 沖ドキ！DUO アンコール": {
@@ -3285,7 +3798,16 @@
       "katsudoLast": 77,
       "deadWeeks": 29,
       "weeksBelowAvg": 30,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 144,
+      "katsudo2": 124,
+      "ret2": 102,
+      "verdict": null,
+      "peakUnits": 10.8,
+      "units1": 10.7,
+      "unitsLast": 5.0
     }
   },
   "e学園黙示録ハイスクール・オブ・ザ・デッド3": {
@@ -3397,7 +3919,16 @@
       "katsudoLast": 120,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 217,
+      "katsudo2": 207,
+      "ret2": 88,
+      "verdict": null,
+      "peakUnits": 2.9,
+      "units1": 2.9,
+      "unitsLast": 2.8
     }
   },
   "スマスロ 獣王": {
@@ -3470,7 +4001,16 @@
       "katsudoLast": 107,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 142,
+      "katsudo2": 107,
+      "ret2": 91,
+      "verdict": null,
+      "peakUnits": 1.3,
+      "units1": 1.3,
+      "unitsLast": 1.3
     }
   },
   "スマスロ主役は銭形5": {
@@ -3505,7 +4045,16 @@
       "katsudoLast": 50,
       "deadWeeks": 31,
       "weeksBelowAvg": 34,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "優良",
+      "tierVia": null,
+      "katsudo1": 231,
+      "katsudo2": 209,
+      "ret2": 91,
+      "verdict": "hit",
+      "peakUnits": 3.7,
+      "units1": 3.7,
+      "unitsLast": 1.5
     }
   },
   "L邪神ちゃんドロップキック": {
@@ -3552,7 +4101,16 @@
       "katsudoLast": 169,
       "deadWeeks": 0,
       "weeksBelowAvg": 0,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "優良(定着型)",
+      "tierVia": "定着型",
+      "katsudo1": 202,
+      "katsudo2": 169,
+      "ret2": 101,
+      "verdict": "pending",
+      "peakUnits": 1.7,
+      "units1": 1.7,
+      "unitsLast": 1.7
     }
   },
   "e結城友奈は勇者である～極限7500～": {
@@ -3615,7 +4173,16 @@
       "katsudoLast": 82,
       "deadWeeks": 42,
       "weeksBelowAvg": 41,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 283,
+      "katsudo2": 267,
+      "ret2": 95,
+      "verdict": "hit",
+      "peakUnits": 4.5,
+      "units1": 3.9,
+      "unitsLast": 3.4
     }
   },
   "L範馬刃牙": {
@@ -3660,7 +4227,16 @@
       "katsudoLast": 31,
       "deadWeeks": 23,
       "weeksBelowAvg": 24,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 205,
+      "katsudo2": 170,
+      "ret2": 85,
+      "verdict": null,
+      "peakUnits": 2.2,
+      "units1": 2.2,
+      "unitsLast": 1.2
     }
   },
   "大花火(4号機)": {
@@ -3847,7 +4423,16 @@
       "katsudoLast": 48,
       "deadWeeks": 106,
       "weeksBelowAvg": 107,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 220,
+      "katsudo2": 222,
+      "ret2": 100,
+      "verdict": "hit",
+      "peakUnits": 3.8,
+      "units1": 2.3,
+      "unitsLast": 1.4
     }
   },
   "マイジャグラーVI": {
@@ -3907,7 +4492,16 @@
       "katsudoLast": 69,
       "deadWeeks": 9,
       "weeksBelowAvg": 9,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "優良(定着型)",
+      "tierVia": "定着型",
+      "katsudo1": 167,
+      "katsudo2": 151,
+      "ret2": 101,
+      "verdict": "miss",
+      "peakUnits": 1.4,
+      "units1": 1.4,
+      "unitsLast": 1.2
     }
   },
   "L アズールレーン THE ANIMATION": {
@@ -3945,7 +4539,16 @@
       "katsudoLast": 73,
       "deadWeeks": 23,
       "weeksBelowAvg": 27,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "優良(定着型)",
+      "tierVia": "定着型",
+      "katsudo1": 223,
+      "katsudo2": 189,
+      "ret2": 104,
+      "verdict": "hit",
+      "peakUnits": 2.5,
+      "units1": 2.2,
+      "unitsLast": 1.7
     }
   },
   "スマスロ バーニングエクスプレス": {
@@ -3979,7 +4582,16 @@
       "katsudoLast": 19,
       "deadWeeks": 32,
       "weeksBelowAvg": 33,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 181,
+      "katsudo2": 171,
+      "ret2": 99,
+      "verdict": null,
+      "peakUnits": 1.4,
+      "units1": 1.4,
+      "unitsLast": 1.0
     }
   },
   "スマスロ HEY!エリートサラリーマン鏡": {
@@ -4016,7 +4628,16 @@
       "katsudoLast": 58,
       "deadWeeks": 171,
       "weeksBelowAvg": 174,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 226,
+      "katsudo2": 206,
+      "ret2": 103,
+      "verdict": "hit",
+      "peakUnits": 10.6,
+      "units1": 7.1,
+      "unitsLast": 1.4
     }
   },
   "スマスロ からくりサーカス": {
@@ -4052,7 +4673,16 @@
       "katsudoLast": 41,
       "deadWeeks": 74,
       "weeksBelowAvg": 67,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "優秀(需要型)",
+      "tierVia": "需要型",
+      "katsudo1": 238,
+      "katsudo2": 221,
+      "ret2": 88,
+      "verdict": "hit",
+      "peakUnits": 8.0,
+      "units1": 4.1,
+      "unitsLast": 2.8
     }
   },
   "スマスロ ギルティクラウン2": {
@@ -4088,7 +4718,16 @@
       "katsudoLast": 45,
       "deadWeeks": 58,
       "weeksBelowAvg": 59,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 226,
+      "katsudo2": 174,
+      "ret2": 76,
+      "verdict": null,
+      "peakUnits": 2.4,
+      "units1": 2.4,
+      "unitsLast": 1.2
     }
   },
   "ぱちんこ 必殺仕事人VI": {
@@ -4280,7 +4919,16 @@
       "katsudoLast": 106,
       "deadWeeks": 21,
       "weeksBelowAvg": 3,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 158,
+      "katsudo2": 129,
+      "ret2": 77,
+      "verdict": null,
+      "peakUnits": 5.9,
+      "units1": 5.8,
+      "unitsLast": 5.9
     }
   },
   "スマスロ いざ！番長": {
@@ -4327,7 +4975,16 @@
       "katsudoLast": 67,
       "deadWeeks": 39,
       "weeksBelowAvg": 38,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 269,
+      "katsudo2": 264,
+      "ret2": 97,
+      "verdict": "hit",
+      "peakUnits": 4.6,
+      "units1": 3.3,
+      "unitsLast": 2.4
     }
   },
   "押忍!番長（4号機）": {
@@ -4514,7 +5171,16 @@
       "katsudoLast": 75,
       "deadWeeks": 20,
       "weeksBelowAvg": 19,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 230,
+      "katsudo2": 172,
+      "ret2": 89,
+      "verdict": null,
+      "peakUnits": 1.5,
+      "units1": 1.5,
+      "unitsLast": 1.3
     }
   },
   "eフィーバー機動戦士ガンダムSEED クライマックス": {
@@ -4860,7 +5526,16 @@
       "katsudoLast": 67,
       "deadWeeks": 124,
       "weeksBelowAvg": 126,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 216,
+      "katsudo2": 175,
+      "ret2": 81,
+      "verdict": null,
+      "peakUnits": 4.1,
+      "units1": 4.1,
+      "unitsLast": 1.3
     }
   },
   "スマスロ SHAKE BONUS TRIGGER": {
@@ -4908,7 +5583,16 @@
       "katsudoLast": 85,
       "deadWeeks": 22,
       "weeksBelowAvg": 16,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "優良",
+      "tierVia": null,
+      "katsudo1": 222,
+      "katsudo2": 202,
+      "ret2": 89,
+      "verdict": "hit",
+      "peakUnits": 1.5,
+      "units1": 1.5,
+      "unitsLast": 1.4
     }
   },
   "スマスロ ニューパルサーBT": {
@@ -4955,7 +5639,16 @@
       "katsudoLast": 20,
       "deadWeeks": 59,
       "weeksBelowAvg": 60,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "危険",
+      "tierVia": null,
+      "katsudo1": 174,
+      "katsudo2": 129,
+      "ret2": 73,
+      "verdict": null,
+      "peakUnits": 2.2,
+      "units1": 2.2,
+      "unitsLast": 1.2
     }
   },
   "スマスロ シャーマンキング": {
@@ -5002,7 +5695,16 @@
       "katsudoLast": 72,
       "deadWeeks": 71,
       "weeksBelowAvg": 72,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 222,
+      "katsudo2": 186,
+      "ret2": 89,
+      "verdict": null,
+      "peakUnits": 2.5,
+      "units1": 2.5,
+      "unitsLast": 1.6
     }
   },
   "e冥妃転生": {
@@ -5083,7 +5785,16 @@
       "katsudoLast": 61,
       "deadWeeks": 30,
       "weeksBelowAvg": 32,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "優秀(需要型)",
+      "tierVia": "需要型",
+      "katsudo1": 238,
+      "katsudo2": 220,
+      "ret2": 88,
+      "verdict": "miss",
+      "peakUnits": 2.4,
+      "units1": 2.4,
+      "unitsLast": 1.2
     }
   },
   "eライザのアトリエ 常闇の女王と秘密の隠れ家": {
@@ -5201,7 +5912,16 @@
       "katsudoLast": 69,
       "deadWeeks": 51,
       "weeksBelowAvg": 50,
-      "asOf": "2026-08-10"
+      "asOf": "2026-08-10",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 248,
+      "katsudo2": 248,
+      "ret2": 93,
+      "verdict": "hit",
+      "peakUnits": 1.7,
+      "units1": 1.5,
+      "unitsLast": 1.3
     }
   }
 }
