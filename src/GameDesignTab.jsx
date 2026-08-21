@@ -128,59 +128,71 @@ const DATA = {
 // 表現評価（介入度）の一覧。分析タブの独立モード「表現評価」として使う。
 // 型のexamplesに載っているかに依存せず、presentationを持つ全機種を介入度の降順で出す。
 // ※新台診断の仕分けには使わない（説明軸。昇格条件は presentationDesign.介入度の検証状況 に明記）
+/* 演出・表現分析。2026-08-21、介入度（0〜3）を物差しにした一覧をやめ、
+   ゲーム性分析と同じ「型 → 該当機種」の形に変えた。介入度は寿命の予測に使えないと
+   分かっているので型の軸には使わない（値そのものは各機種の詳細に残してある）。
+   型は presentationDesign.表現の型 に置き、実データ（noticeType / disclosure）から起こしている。 */
 export function PresentationTab() {
-  const rows = Object.entries(GAME_LIBRARY.machines || {})
-    .filter(([, v]) => v.presentation)
-    .map(([name, v]) => ({ name, p: v.presentation }))
-    .sort((a, b) => (b.p.intervention - a.p.intervention) || a.name.localeCompare(b.name, "ja"));
-  const LV = ["完全自動", "押し順のみ", "狙い目あり", "常設の自力契機"];
-  const COL = ["#999", "#8D9BA8", "#2a7ae8", "#7B1FA2"];
-  const BG = ["#F2F2F2", "#EFF2F5", "#EAF2FD", "#F5E9FA"];
-  const crit = GAME_LIBRARY.presentationDesign?.["介入度の検証状況"];
+  const T = GAME_LIBRARY.presentationDesign?.["表現の型"];
+  const [axis, setAxis] = useState("告知の型");
+  const [open, setOpen] = useState({});
+  if (!T) return <div style={{ textAlign: "center", color: "#aaa", padding: "2rem" }}>表現の型が未登録です</div>;
+  const AXES = ["告知の型", "開示の型"];
+  const types = Object.entries(T[axis] || {}).sort((a, b) => b[1].count - a[1].count);
+  const total = types.reduce((s, [, v]) => s + v.count, 0);
+  const card = { background: "#fff", borderRadius: 12, boxShadow: "3px 3px 7px #C8CED8, -3px -3px 7px #FFFFFF" };
   return (
     <div>
-      <div style={{ fontSize: 12, color: "#888", lineHeight: 1.7, marginBottom: 12, background: "#fff", borderRadius: 12, padding: "12px 14px", border: "0.5px solid #E0E4E8" }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: "#333", marginBottom: 6 }}>🎯 表現評価（介入度）</div>
-        打ち手の操作が結果にどれだけ効くかを機種横断で比較するための軸。
-        <b>0</b>=完全自動／<b>1</b>=押し順のみ・周期やポイント到達型／<b>2</b>=狙い目あり（チャンス目・自力CZ）／<b>3</b>=常設の自力契機（全場面に介入対象があり目押しが結果認知に直結）。
-        あわせて<b>範囲</b>（どこで介入できるか）と<b>効く先</b>（当否だけか出玉量まで動くか）を持つ。突破契機は全て実機解析で裏取りし、参照URLを記録している。
-        <div style={{ marginTop: 8, paddingTop: 8, borderTop: "0.5px solid #F0F0F0", color: "#999", fontSize: 11 }}>
-          <b style={{ color: "#C77B00" }}>⚠ 稼働の予測には使っていません（説明用の軸です）。</b>
-          {crit && <> 予測軸への昇格条件は「貢献週が確定した機種×採点が40件を超えた時点で、既存2軸（2週持続率 r=+0.54 / 2週稼働値 r=+0.39）との相関を比較して判断」と先に固定してある。
-            パイロットでは介入度2の機種が真逆に割れており（東京喰種76週 vs ダンバイン8週・麻雀物語7週）、粗い0〜3では寿命を分離できないことが判明済み。</>}
-        </div>
+      <div style={{ ...card, padding: "10px 12px", marginBottom: 10, fontSize: 11.5, color: "#777", lineHeight: 1.7 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: "#333", marginBottom: 5 }}>🎬 演出・表現分析</div>
+        {T["軸"]}
       </div>
-      <div style={{ fontSize: 12, color: "#aaa", marginBottom: 8 }}>採点済み {rows.length}機種（自動で毎日最大3機種ずつ追加）</div>
-      {rows.length === 0 && (
-        <div style={{ textAlign: "center", color: "#aaa", padding: "2rem", fontSize: 13 }}>まだ採点済みの機種がありません</div>
-      )}
+      <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+        {AXES.map(a => {
+          const on = axis === a;
+          const n = Object.values(T[a] || {}).reduce((s, v) => s + v.count, 0);
+          return <button key={a} onClick={() => { setAxis(a); setOpen({}); }}
+            style={{ border: "none", borderRadius: 9, padding: "6px 13px", fontSize: 12.5, fontWeight: on ? 700 : 500,
+              background: on ? "#D85A30" : "#fff", color: on ? "#fff" : "#888", cursor: "pointer",
+              boxShadow: on ? "inset 2px 2px 5px rgba(0,0,0,0.2)" : "2px 2px 5px #C8CED8,-2px -2px 5px #fff" }}>
+            {a}<span style={{ opacity: 0.75, marginLeft: 5 }}>{n}</span>
+          </button>;
+        })}
+      </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {rows.map(({ name, p }) => (
-          <div key={name} style={{ background: "#fff", borderRadius: 12, padding: "11px 13px", border: "0.5px solid #E0E4E8" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: "#333", minWidth: 0, overflowWrap: "anywhere" }}>{name}</span>
-              <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 700, color: COL[p.intervention] || "#999", background: BG[p.intervention] || "#F2F2F2", borderRadius: 6, padding: "3px 9px", whiteSpace: "nowrap" }}>
-                介入度 {p.intervention}／3・{LV[p.intervention] || "—"}
-              </span>
+        {types.map(([name, v]) => {
+          const on = open[name] !== false; // 既定は開く（型の中身を見せるのが目的のタブ）
+          const pct = total ? Math.round(v.count / total * 100) : 0;
+          return (
+            <div key={name} style={card}>
+              <button onClick={() => setOpen(o => ({ ...o, [name]: !on }))}
+                style={{ width: "100%", textAlign: "left", border: "none", background: on ? "#FBF3EF" : "#fff",
+                  borderRadius: on ? "12px 12px 0 0" : 12, borderLeft: "4px solid #D85A30", cursor: "pointer", padding: "10px 13px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                  <span style={{ fontSize: 14.5, fontWeight: 700, color: "#333" }}>{name}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#993C1D", background: "#FAECE7", borderRadius: 5, padding: "2px 8px" }}>{v.count}機種・{pct}%</span>
+                  <span style={{ marginLeft: "auto", fontSize: 15, color: "#D85A30", fontWeight: 700 }}>{on ? "−" : "＋"}</span>
+                </div>
+                <div style={{ fontSize: 12, color: "#666", lineHeight: 1.7 }}>{v.description}</div>
+              </button>
+              {on && (
+                <div style={{ padding: "4px 13px 12px" }}>
+                  {v.examples.map(e => (
+                    <div key={e.machine} style={{ borderTop: "1px dashed #eee", padding: "9px 0 0", marginTop: 8 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#1A56B0", marginBottom: 3 }}>{e.machine}</div>
+                      <div style={{ fontSize: 12, color: "#555", lineHeight: 1.8 }}>{e.detail}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 6 }}>
-              {p.interventionScope && <span style={{ fontSize: 11, fontWeight: 600, color: "#555", background: "#EEF1F4", borderRadius: 6, padding: "3px 8px", whiteSpace: "nowrap" }}>範囲: {p.interventionScope}</span>}
-              {p.interventionPayoff && <span style={{ fontSize: 11, fontWeight: 600, color: p.interventionPayoff === "出玉量に直結" ? "#C77B00" : "#555", background: p.interventionPayoff === "出玉量に直結" ? "#FFF6E5" : "#EEF1F4", borderRadius: 6, padding: "3px 8px", whiteSpace: "nowrap" }}>効く先: {p.interventionPayoff}</span>}
-            </div>
-            {p.interventionNote && <div style={{ fontSize: 12.5, color: "#555", lineHeight: 1.8 }}>{p.interventionNote}</div>}
-            {p.scopeNote && <div style={{ fontSize: 11.5, color: "#888", lineHeight: 1.7, marginTop: 5 }}>{p.scopeNote}</div>}
-            <div style={{ fontSize: 11, color: "#999", lineHeight: 1.75, marginTop: 7, borderTop: "0.5px solid #F0F0F0", paddingTop: 6 }}>
-              {p.escalation && <div><b style={{ color: "#777" }}>段階</b>: {p.escalation}</div>}
-              {p.noticeType && <div><b style={{ color: "#777" }}>告知</b>: {p.noticeType}</div>}
-              {p.disclosure && <div><b style={{ color: "#777" }}>情報開示</b>: {p.disclosure}</div>}
-              {(p.soundDesign || p.cabinet) && <div><b style={{ color: "#777" }}>音・筐体</b>: {[p.soundDesign, p.cabinet].filter(Boolean).join("／")}</div>}
-              <div style={{ color: "#bbb", marginTop: 4 }}>
-                {p.scoredBasis || "採点"}・{p.scoredAt}
-                {(p.evidence || []).length > 0 && <>／裏取り{(p.evidence || []).length}件</>}
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
+      </div>
+      <div style={{ marginTop: 12, fontSize: 10.5, color: "#aaa", lineHeight: 1.7 }}>
+        該当機種の説明は記録した原文をそのまま出している（要約すると根拠が消えるため）。
+        介入度・範囲・効く先の値は各機種のデータに残してあるが、<b>型の物差しには使っていない</b>。
+        貢献週が確定した機種で介入度2が真逆に割れており（東京喰種76週 vs ダンバイン8週）、寿命を分離できないことが分かっているため。
       </div>
     </div>
   );
