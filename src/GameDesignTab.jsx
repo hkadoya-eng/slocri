@@ -132,25 +132,37 @@ const DATA = {
    ゲーム性分析と同じ「型 → 該当機種」の形に変えた。介入度は寿命の予測に使えないと
    分かっているので型の軸には使わない（値そのものは各機種の詳細に残してある）。
    型は presentationDesign.表現の型 に置き、実データ（noticeType / disclosure）から起こしている。 */
+const REP = "評判になっている表現";  // この軸だけ形が違う（声の原文・1機種に複数）
 export function PresentationTab() {
   const T = GAME_LIBRARY.presentationDesign?.["表現の型"];
   const [axis, setAxis] = useState("告知の型");
+  const [side, setSide] = useState("評価されている");
   const [open, setOpen] = useState({});
   if (!T) return <div style={{ textAlign: "center", color: "#aaa", padding: "2rem" }}>表現の型が未登録です</div>;
-  const AXES = ["告知の型", "開示の型"];
-  const types = Object.entries(T[axis] || {}).sort((a, b) => b[1].count - a[1].count);
+  const AXES = ["告知の型", "開示の型", "昇格の型", REP];
+  const isRep = axis === REP;
+  // 軸ごとの機種数。評判は1機種が複数の声を持つので実機種数を数える
+  const axisCount = a => {
+    if (a !== REP) return Object.values(T[a] || {}).reduce((s, v) => s + v.count, 0);
+    const s = new Set();
+    ["評価されている", "批判されている"].forEach(g =>
+      Object.values(T[a]?.[g] || {}).forEach(v => v.examples.forEach(e => s.add(e.machine))));
+    return s.size;
+  };
+  const src = isRep ? (T[REP]?.[side] || {}) : (T[axis] || {});
+  const types = Object.entries(src).sort((a, b) => b[1].count - a[1].count);
   const total = types.reduce((s, [, v]) => s + v.count, 0);
   const card = { background: "#fff", borderRadius: 12, boxShadow: "3px 3px 7px #C8CED8, -3px -3px 7px #FFFFFF" };
   return (
     <div>
       <div style={{ ...card, padding: "10px 12px", marginBottom: 10, fontSize: 11.5, color: "#777", lineHeight: 1.7 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: "#333", marginBottom: 5 }}>🎬 演出・表現分析</div>
-        {T["軸"]}
+        {isRep ? T[REP]["軸の説明"] : T["軸"]}
       </div>
       <div style={{ display: "flex", gap: 6, marginBottom: 10, alignItems: "center", flexWrap: "wrap" }}>
         {AXES.map(a => {
           const on = axis === a;
-          const n = Object.values(T[a] || {}).reduce((s, v) => s + v.count, 0);
+          const n = axisCount(a);
           return <button key={a} onClick={() => { setAxis(a); setOpen({}); }}
             style={{ border: "none", borderRadius: 9, padding: "6px 13px", fontSize: 12.5, fontWeight: on ? 700 : 500,
               background: on ? "#D85A30" : "#fff", color: on ? "#fff" : "#888", cursor: "pointer",
@@ -164,28 +176,46 @@ export function PresentationTab() {
           {Object.keys(open).length ? "すべて閉じる" : "すべて開く"}
         </button>
       </div>
+      {isRep && (
+        <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+          {[["評価されている", "#1A7F37", "#E8F5EC"], ["批判されている", "#B3261E", "#FBEAE8"]].map(([g, c, bg]) => {
+            const on = side === g;
+            const n = Object.values(T[REP][g] || {}).reduce((s, v) => s + v.count, 0);
+            return <button key={g} onClick={() => { setSide(g); setOpen({}); }}
+              style={{ border: "none", borderRadius: 8, padding: "5px 12px", fontSize: 12, fontWeight: on ? 700 : 500,
+                background: on ? c : bg, color: on ? "#fff" : c, cursor: "pointer" }}>
+              {g}<span style={{ opacity: 0.8, marginLeft: 5 }}>{n}件</span>
+            </button>;
+          })}
+        </div>
+      )}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {types.map(([name, v]) => {
           const on = !!open[name]; // 既定は畳む（型が一覧で見渡せることを優先する）
           const pct = total ? Math.round(v.count / total * 100) : 0;
+          const uniq = new Set(v.examples.map(e => e.machine)).size;
+          const accent = !isRep ? "#D85A30" : side === "評価されている" ? "#1A7F37" : "#B3261E";
           return (
             <div key={name} style={card}>
               <button onClick={() => setOpen(o => ({ ...o, [name]: !on }))}
-                style={{ width: "100%", textAlign: "left", border: "none", background: on ? "#FBF3EF" : "#fff",
-                  borderRadius: on ? "12px 12px 0 0" : 12, borderLeft: "4px solid #D85A30", cursor: "pointer", padding: "10px 13px" }}>
+                style={{ width: "100%", textAlign: "left", border: "none", background: on ? (isRep ? "#F7F8F9" : "#FBF3EF") : "#fff",
+                  borderRadius: on ? "12px 12px 0 0" : 12, borderLeft: `4px solid ${accent}`, cursor: "pointer", padding: "10px 13px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                   <span style={{ fontSize: 14.5, fontWeight: 700, color: "#333" }}>{name}</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#993C1D", background: "#FAECE7", borderRadius: 5, padding: "2px 8px" }}>{v.count}機種・{pct}%</span>
-                  <span style={{ marginLeft: "auto", fontSize: 15, color: "#D85A30", fontWeight: 700 }}>{on ? "−" : "＋"}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: isRep ? "#555" : "#993C1D",
+                    background: isRep ? "#EDEFF2" : "#FAECE7", borderRadius: 5, padding: "2px 8px" }}>
+                    {isRep ? `${uniq}機種・${v.count}件` : `${v.count}機種・${pct}%`}</span>
+                  <span style={{ marginLeft: "auto", fontSize: 15, color: accent, fontWeight: 700 }}>{on ? "−" : "＋"}</span>
                 </div>
                 <div style={{ fontSize: 12, color: "#666", lineHeight: 1.7 }}>{v.description}</div>
               </button>
               {on && (
                 <div style={{ padding: "4px 13px 12px" }}>
-                  {v.examples.map(e => (
-                    <div key={e.machine} style={{ borderTop: "1px dashed #eee", padding: "9px 0 0", marginTop: 8 }}>
+                  {v.examples.map((e, i) => (
+                    <div key={e.machine + i} style={{ borderTop: "1px dashed #eee", padding: "9px 0 0", marginTop: 8 }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: "#1A56B0", marginBottom: 3 }}>{e.machine}</div>
-                      <div style={{ fontSize: 12, color: "#555", lineHeight: 1.8 }}>{e.detail}</div>
+                      <div style={{ fontSize: 12, color: "#555", lineHeight: 1.8,
+                        ...(isRep ? { borderLeft: `2px solid ${accent}33`, paddingLeft: 9 } : {}) }}>{e.detail || e.voice}</div>
                     </div>
                   ))}
                 </div>
@@ -196,8 +226,14 @@ export function PresentationTab() {
       </div>
       <div style={{ marginTop: 12, fontSize: 10.5, color: "#aaa", lineHeight: 1.7 }}>
         該当機種の説明は記録した原文をそのまま出している（要約すると根拠が消えるため）。
-        介入度・範囲・効く先の値は各機種のデータに残してあるが、<b>型の物差しには使っていない</b>。
-        貢献週が確定した機種で介入度2が真逆に割れており（東京喰種76週 vs ダンバイン8週）、寿命を分離できないことが分かっているため。
+        {isRep ? <>
+          出どころは各機種の長所・短所（市場の声から起こした項目）。演出・音・映像・出目・筐体に触れているものだけを型に分けた。
+          1機種が複数の型に出る（同じ台が別の面で褒められ、別の面で批判される）ので、機種数と件数は一致しない。
+          設定判別だけの示唆や、突入率・純増などスペックの話は<b>表現の評判ではないので入れていない</b>（9件を除外）。
+        </> : <>
+          介入度・範囲・効く先の値は各機種のデータに残してあるが、<b>型の物差しには使っていない</b>。
+          貢献週が確定した機種で介入度2が真逆に割れており（東京喰種76週 vs ダンバイン8週）、寿命を分離できないことが分かっているため。
+        </>}
       </div>
     </div>
   );
