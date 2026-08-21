@@ -3761,10 +3761,13 @@ ${policyText}
                 const allShort = misses.length > 0 && misses.every(c => (c.sisOutcome.diff || 0) < 0);
                 const avgDiff = misses.length
                   ? (misses.reduce((s, c) => s + (c.sisOutcome.diff || 0), 0) / misses.length).toFixed(1) : null;
-                const pin = done.filter(c => c.longevityMin === c.longevityMax);
-                const pinHit = pin.filter(c => c.sisOutcome.verdict === "hit").length;
-                const rng = done.filter(c => c.longevityMin !== c.longevityMax);
-                const rngHit = rng.filter(c => c.sisOutcome.verdict === "hit").length;
+                const exacts = done.filter(c => c.sisOutcome.precision === "exact");
+                const nears = done.filter(c => c.sisOutcome.precision === "near");
+                // ビタで当てられた台の実績週数の幅。短命台しか言い切れていないかを見る
+                const exactMax = exacts.length ? Math.max(...exacts.map(c => c.sisOutcome.contribWeeks)) : null;
+                // 10週以上を予測した台の成績。長めの予測が当たっているかを見る
+                const longs = done.filter(c => (c.longevityMax || 0) >= 10);
+                const longExact = longs.filter(c => c.sisOutcome.precision === "exact").length;
                 const row = (c, kind) => {
                   const o = c.sisOutcome || {};
                   const pred = c.longevityMin === c.longevityMax ? `${c.longevityMin}週` : `${c.longevityMin}〜${c.longevityMax}週`;
@@ -3817,14 +3820,24 @@ ${policyText}
                         {group("採点待ち（継続中）", live, "live")}
                         {group("SIS実績が紐付いていない", other, "live")}
                         <div style={{marginTop:12,paddingTop:10,borderTop:"1px dashed #DDD"}}>
-                          <div style={{fontSize:12,fontWeight:700,color:"#333",marginBottom:5}}>判定の決まりと振り返り</div>
-                          <div style={{fontSize:11.5,color:"#666",lineHeight:1.85,marginBottom:8,paddingBottom:8,borderBottom:"1px dashed #EEE"}}>
-                            <b style={{color:"#555"}}>許容差＝予測週数 ÷ 5 の切り捨て。</b>
-                            4週以下は許容0でビタ当て、5〜9週は±1週、10〜14週は±2週、15〜19週は±3週、20〜24週は±4週。
-                            短命台は週数が少ないぶん1週のズレも割合として大きいのでビタ当てを求め、長い台は5週ごとに1週ずつ緩める。
-                            レンジ内で当てた{predScore.exact}件と、許容差に収まった{predScore.near}件は分けて数えている（甘くした分を隠さないため）。
-                            {predScore.avgErr != null && <> 実績が予測からどれだけずれたかの平均は<b>{predScore.avgErr}%</b>、最大{predScore.maxErr}%。</>}
+                          <div style={{fontSize:12,fontWeight:700,color:"#333",marginBottom:6}}>判定の決まり</div>
+                          <div style={{fontSize:11.5,color:"#666",lineHeight:1.8,marginBottom:6}}>
+                            許容差は<b style={{color:"#555"}}>予測週数 ÷ 5 の切り捨て</b>。
+                            短い台は週数が少ないぶん1週のズレも割合として大きいのでビタ当てを求め、長い台は5週ごとに1週ずつ緩める。
                           </div>
+                          <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:7}}>
+                            {[["〜4週","ビタ当て"],["5〜9週","±1週"],["10〜14週","±2週"],["15〜19週","±3週"],["20〜24週","±4週"],["25〜29週","±5週"]].map(([a,b]) => (
+                              <span key={a} style={{fontSize:10.5,color:"#555",background:"#F2F4F7",borderRadius:5,padding:"3px 8px",whiteSpace:"nowrap"}}>
+                                {a} <b style={{color:"#333"}}>{b}</b>
+                              </span>
+                            ))}
+                          </div>
+                          <div style={{fontSize:11,color:"#888",lineHeight:1.8,marginBottom:12,paddingBottom:12,borderBottom:"1px dashed #DDD"}}>
+                            的中は<b>レンジ内{predScore.exact}件</b>と<b>許容差内{predScore.near}件</b>を分けて数える（甘くした分を隠さないため）。
+                            {predScore.avgErr != null && <> 近似の度合いは<b>誤差率</b>で持ち、平均<b>{predScore.avgErr}%</b>・最大{predScore.maxErr}%。</>}
+                            採点は終了した台だけで、継続中は貢献週がまだ増えるので数に入れない。
+                          </div>
+                          <div style={{fontSize:12,fontWeight:700,color:"#333",marginBottom:6}}>振り返り</div>
                           <div style={{fontSize:11.5,color:"#666",lineHeight:1.85}}>
                             {misses.length > 0 && (
                               <div style={{marginBottom:7}}>
@@ -3835,11 +3848,21 @@ ${policyText}
                                 {allShort && "「まだ続きそう」と見えている台が、思ったより早く平均を割っている。"}
                               </div>
                             )}
-                            {pin.length > 0 && rng.length > 0 && (
+                            {exacts.length > 0 && exactMax != null && (
                               <div style={{marginBottom:7}}>
-                                <b style={{color:"#555"}}>ピンポイントで当てるのは難しい。</b>
-                                1週で言い切った{pin.length}件は的中{pinHit}件、レンジで出した{rng.length}件は的中{rngHit}件。
-                                週数を1点で当てるより、幅を持たせたほうが素直に当たる。
+                                <b style={{color:"#555"}}>ビタで当てられているのは短命台だけ。</b>
+                                週数まで正確に当たった{exacts.length}件は実績が最長{exactMax}週で、いずれも早く終わる台だった。
+                                {longs.length > 0 && <>10週以上を予測した{longs.length}件でビタ当ては{longExact}件にとどまり、残りは許容差に助けられている。</>}
+                                長い台ほど週数の言い切りは効かない。
+                              </div>
+                            )}
+                            {nears.length > 0 && (
+                              <div style={{marginBottom:7}}>
+                                <b style={{color:"#555"}}>許容差がどれだけ効いたか。</b>
+                                的中{predScore.hit}件のうち{nears.length}件は許容差で救われている（
+                                {nears.map(c => `${c.name.replace(/^(スマスロ|L|e)\s?/, "")}${c.sisOutcome.diff > 0 ? "+" : ""}${c.sisOutcome.diff}`).join("・")}）。
+                                レンジ内で当てた{predScore.exact}件だけで見ると{predScore.done ? Math.round(predScore.exact / predScore.done * 100) : 0}%で、
+                                この差が今の実力の幅である。
                               </div>
                             )}
                             <div style={{marginBottom:7}}>
