@@ -503,11 +503,91 @@ function FigStepsData({ spec }) {
   );
 }
 
+/* ---------------- ゲームフロー図（分岐とループを描ける・定義はJSON側） ----------------
+   ノードを col（列）と row（行）の格子に置き、edges で結ぶ。
+   矢印にラベルを付けられるので「成功」「失敗」「◯◯を引く」を線の上に出せる。
+   座標は格子から自動計算するため、機種ごとに座標を手で置く必要がない。 */
+function FigFlowData({ spec }) {
+  const st = spec || {};
+  const nodes = st.nodes || [];
+  const edges = st.edges || [];
+  if (!nodes.length) return null;
+  const CW = 214, CH = 104, BW = 186, BH = 72, PAD = 14;
+  const TONE = { hair: C.hair, blue: C.blue, brand: C.brand, tier: C.tier };
+  const cols = Math.max(...nodes.map(n => n.col)) + 1;
+  const rows = Math.max(...nodes.map(n => n.row)) + 1;
+  const W = PAD * 2 + cols * CW, H = PAD * 2 + rows * CH;
+  const at = id => {
+    const n = nodes.find(x => x.id === id);
+    if (!n) return null;
+    const x = PAD + n.col * CW, y = PAD + n.row * CH;
+    return { x, y, cx: x + BW / 2, cy: y + BH / 2, r: x + BW, b: y + BH, n };
+  };
+  // 2点を結ぶ線と、ラベルを置く位置を決める
+  const link = (a, b) => {
+    if (a.n.col === b.n.col) {                       // 縦
+      const down = b.y > a.y;
+      return { x1: a.cx, y1: down ? a.b : a.y, x2: b.cx, y2: down ? b.y : b.b,
+               lx: a.cx + 6, ly: (down ? a.b + (b.y - a.b) / 2 : b.b + (a.y - b.b) / 2) + 4, anchor: "start" };
+    }
+    const right = b.x > a.x;
+    return { x1: right ? a.r : a.x, y1: a.cy, x2: right ? b.x : b.r, y2: b.cy,
+             lx: (right ? a.r + (b.x - a.r) / 2 : b.r + (a.x - b.r) / 2), ly: a.cy - 7, anchor: "middle" };
+  };
+  return (
+    <figure style={{ margin: 0 }}>
+      <div style={{ overflowX: "auto" }}>
+        <svg viewBox={`0 0 ${W} ${H}`} role="img"
+          style={{ width: "100%", minWidth: Math.min(W, 760), height: "auto" }}
+          aria-label={st.aria || "台の状態遷移を分岐とループつきで示したフロー図"}>
+          <defs>
+            <marker id="flAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
+              orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill={C.muted} /></marker>
+          </defs>
+          {edges.map((e, i) => {
+            const a = at(e.from), b = at(e.to);
+            if (!a || !b) return null;
+            const l = link(a, b);
+            return (
+              <g key={i}>
+                <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={C.muted} strokeWidth="1.5"
+                  strokeDasharray={e.dashed ? "5 4" : undefined} markerEnd="url(#flAr)" />
+                {e.label && (
+                  <text x={l.lx} y={l.ly} textAnchor={l.anchor}
+                    style={{ fontSize: 10, fill: e.hot ? C.brand : C.muted, fontWeight: 700 }}>{e.label}</text>
+                )}
+              </g>
+            );
+          })}
+          {nodes.map(n => {
+            const q = at(n.id), c = TONE[n.tone] || C.blue;
+            return (
+              <g key={n.id}>
+                <rect x={q.x} y={q.y} width={BW} height={BH} rx="6" fill="#fff" stroke={c} strokeWidth="1.6" />
+                <rect x={q.x} y={q.y} width="5" height={BH} rx="2" fill={c} />
+                <text x={q.x + 13} y={q.y + 19} style={{ fontSize: 11.5, fill: C.ink, fontWeight: 700 }}>{n.name}</text>
+                {n.meta && <text x={q.x + 13} y={q.y + 36} style={{ fontSize: 10, fill: c, fontWeight: 700 }}>{n.meta}</text>}
+                {n.body && <text x={q.x + 13} y={q.y + 52} style={{ fontSize: 10, fill: C.muted }}>{n.body}</text>}
+                {n.body2 && <text x={q.x + 13} y={q.y + 65} style={{ fontSize: 10, fill: C.muted }}>{n.body2}</text>}
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+      <figcaption style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.7, marginTop: 6 }}>
+        {st.caption || "矢印のラベルが遷移の契機。破線は失敗時の戻り先。"}
+      </figcaption>
+    </figure>
+  );
+}
+
 const FIGURES = {
   bulletCircle: FigBulletCircle, ladder: FigLadder, gauge: FigGauge,
   flowNormal: FigFlowNormal, flowLoop: FigFlowLoop,
   // 機種ごとに中身を差し替えられる図。spec をJSON側から渡す
   ladderData: FigLadderData, stepsData: FigStepsData,
+  // 分岐・ループ・並列を描けるフロー図
+  flowData: FigFlowData,
 };
 
 /* ---------------- 稼働推移グラフ（DBから毎回計算） ---------------- */
