@@ -49,7 +49,7 @@ NUMPAT = {
     "AT天井": r"AT[間]?天井[^0-9]{0,4}([0-9]{3,4})G",
 }
 # 設定変更後・リセット時の短縮値は別の値なので、複数あって当然。数値の食い違いから除く
-SHORTENED = ["設定変更後", "設定変更時", "リセット時", "リセット後", "変更後", "朝イチ", "短縮"]
+SHORTENED = ["設定変更", "リセット", "変更後", "朝イチ", "短縮", "据え置き"]
 
 # ⑥ 実在しないと確認した言い回し（当編集部が生成してしまった造語）。本文に出たら差し替える
 FABRICATED = {
@@ -129,8 +129,10 @@ for dd in d["dossiers"]:
     # ④ 同じ項目に複数の値
     for label, pat in NUMPAT.items():
         # 短縮値の文脈にある数字は拾わない
+        # 短縮の話をしている文（前40字か後30字に短縮系の語がある）は数えない
         vals = sorted({m.group(1) for m in re.finditer(pat, body)
-                       if not any(w in body[max(0, m.start() - 40):m.start()] for w in SHORTENED)})
+                       if not any(w in body[max(0, m.start() - 40):m.end() + 30]
+                                  for w in SHORTENED)})
         if len(vals) > 1:
             # 上位ATの純増など、複数あるのが正しい場合は除く
             if label == "AT純増" and len(vals) <= 4:
