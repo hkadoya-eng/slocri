@@ -611,10 +611,32 @@ function KatsudoChart({ spec }) {
         })}
       </svg>
       <figcaption style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.7, marginTop: 6 }}>
-        横軸は各機種の<b>導入からの経過週</b>。稼働値＝1台あたりアウト÷その週の全国平均アウト（実値）。
-        <b>このグラフは週次データから毎回計算しているので、更新のたびに自動で最新</b>になる。
+        横軸は<b>導入からの経過週</b>。縦軸は稼働値（100%＝全国平均）。
       </figcaption>
     </figure>
+  );
+}
+
+/* ---------------- 共通の説明を畳むブロック ----------------
+   基準や算出方法は全機種で同じ文章なので、既定で閉じておく。 */
+function Fold({ title, items }) {
+  const [on, setOn] = useState(false);
+  return (
+    <div style={{ margin: "0 0 12px" }}>
+      <button onClick={() => setOn(!on)}
+        style={{ width: "100%", textAlign: "left", border: "none", cursor: "pointer",
+          background: on ? C.sunk : "#F2F4F7", borderRadius: on ? "9px 9px 0 0" : 9,
+          padding: "8px 11px", display: "flex", alignItems: "center", gap: 7 }}>
+        <span style={{ fontSize: 12, color: C.brand, fontWeight: 700 }}>{on ? "−" : "＋"}</span>
+        <span style={{ fontSize: 12, color: C.muted }}>{title || "基準と算出方法（全機種で共通）"}</span>
+      </button>
+      {on && (
+        <div style={{ background: "#fff", borderRadius: "0 0 9px 9px", padding: "10px 11px 2px",
+          boxShadow: C.shadowSm }}>
+          {items.map((x, i) => <Section key={i} s={x} />)}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -634,6 +656,10 @@ function Section({ s }) {
       );
     case "p":
       return <p style={{ ...p, whiteSpace: "pre-line" }}><RichText v={s.v} /></p>;
+    case "fold": {
+      // 全機種で同じ説明（基準・算出方法・出どころ）は既定で閉じる
+      return <Fold title={s.title} items={s.v} />;
+    }
     case "note":
       return (
         <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.8, background: "#F7F8FA", borderRadius: 10, padding: "10px 12px", margin: "0 0 10px", whiteSpace: "pre-line" }}>
