@@ -1114,7 +1114,10 @@ export default function MachineDossierTab() {
               <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 18, fontWeight: 700, color: C.ink, lineHeight: 1.35, marginBottom: 4 }}>{d.machine}</div>
-                  <div style={{ fontSize: 13, color: C.ink2, lineHeight: 1.55 }}>{d.title}</div>
+                  {/* 一文のタイトルは言い切りなのでブランド色で立てる。二文なら地の文の色 */}
+                  <div style={{ fontSize: 13, lineHeight: 1.55,
+                    color: String(d.title).includes("。") ? C.ink2 : C.brand,
+                    fontWeight: String(d.title).includes("。") ? 400 : 700 }}>{d.title}</div>
                 </div>
                 <span style={{ flexShrink: 0, fontSize: 16, color: C.brand, fontWeight: 700, lineHeight: 1.6 }}>{on ? "−" : "＋"}</span>
               </div>
