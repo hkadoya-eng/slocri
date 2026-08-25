@@ -1110,20 +1110,23 @@ export default function MachineDossierTab() {
           <div key={d.id} style={{ background: "#fff", boxShadow: C.shadow, borderRadius: 14, marginBottom: 12, overflow: "hidden" }}>
             <button onClick={() => setOpenId(on ? null : d.id)} aria-expanded={on}
               style={{ display: "block", width: "100%", textAlign: "left", background: on ? "#FBF3EF" : "#fff", border: "none", padding: "13px 14px", cursor: "pointer" }}>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+              {/* 機種名を主役にする。タイトルはその下に控えめに置く */}
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 11.5, color: C.brand, fontWeight: 700, marginBottom: 3 }}>{d.machine}</div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: C.ink, lineHeight: 1.45, marginBottom: 5 }}>{d.title}</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: C.ink, lineHeight: 1.35, marginBottom: 4 }}>{d.machine}</div>
+                  <div style={{ fontSize: 13, color: C.ink2, lineHeight: 1.55 }}>{d.title}</div>
                 </div>
-                <span style={{ flexShrink: 0, fontSize: 16, color: C.brand, fontWeight: 700, lineHeight: 1.2 }}>{on ? "−" : "＋"}</span>
+                <span style={{ flexShrink: 0, fontSize: 16, color: C.brand, fontWeight: 700, lineHeight: 1.6 }}>{on ? "−" : "＋"}</span>
               </div>
-              <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.7, marginBottom: 7,
-                ...(on ? {} : { display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }) }}>
-                {on ? <RichText v={d.lede} /> : String(d.lede).replace(/\*\*/g, "")}
-              </div>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-                {(d.chips || []).slice(0, on ? 99 : 3).map(c => chip(c, !on))}
-                <span style={{ fontSize: 11, color: "#bbb", marginLeft: "auto" }}>{d.sections?.length || 0}節 · {d.date}</span>
+              {/* 畳んでいる時は要点だけ。開いた時にリード文を出す */}
+              {on && (
+                <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.75, margin: "9px 0 7px" }}>
+                  <RichText v={d.lede} />
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginTop: 9 }}>
+                {(d.chips || []).slice(0, on ? 99 : 1).map(c => chip(c, !on))}
+                <span style={{ fontSize: 11, color: "#c4c4c4", marginLeft: "auto" }}>{d.date}</span>
               </div>
             </button>
             {on && (
