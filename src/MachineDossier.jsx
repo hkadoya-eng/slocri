@@ -196,7 +196,7 @@ function FigRadar({ spec }) {
         ))}
       </div>
       <svg viewBox="0 0 570 470" role="img" style={{ width: "100%", height: "auto", maxWidth: 520, margin: "0 auto", display: "block" }}
-        aria-label={`評価5軸の5角形チャート。${spec.series.map(s => `${s.label}は${axes.map((a, i) => s.values[i] == null ? `${a.name}が測定不能` : `${a.name}が上位${100 - s.values[i]}%`).join("、")}`).join("。")}`}>
+        aria-label={`評価5軸の5角形チャート。${spec.series.map(s => `${s.label}は${axes.map((a, i) => s.values[i] == null ? `${a.name}が測定不能` : a.small ? `${a.name}が${s.values[i]}点` : `${a.name}が上位${100 - s.values[i]}%`).join("、")}`).join("。")}`}>
         {grid.map(g => (
           <polygon key={g} points={poly(axes.map(() => g))} fill="none"
             stroke={C.hair} strokeWidth={g === 100 ? 1.4 : 1} />
@@ -236,7 +236,7 @@ function FigRadar({ spec }) {
               </text>
               <text x={lx} y={ly + 15} textAnchor={anchor}
                 style={{ fontSize: 11, fill: v == null ? C.muted : C.brand, fontWeight: 700 }}>
-                {v == null ? "測定不能" : `上位${100 - v}%`}
+                {v == null ? "測定不能" : a.small ? `${v}点` : `上位${100 - v}%`}
               </text>
             </g>
           );
