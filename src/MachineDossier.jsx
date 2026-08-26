@@ -512,63 +512,113 @@ function FigFlowData({ spec }) {
   const nodes = st.nodes || [];
   const edges = st.edges || [];
   if (!nodes.length) return null;
-  const CW = 214, CH = 104, BW = 186, BH = 72, PAD = 14;
+  const CW = 250, CH = 124, BW = 194, BH = 78, PAD = 16;
+  const GX = CW - BW, GY = CH - BH;                  // ボックス間の隙間
   const TONE = { hair: C.hair, blue: C.blue, brand: C.brand, tier: C.tier };
   const cols = Math.max(...nodes.map(n => n.col)) + 1;
   const rows = Math.max(...nodes.map(n => n.row)) + 1;
-  const W = PAD * 2 + cols * CW, H = PAD * 2 + rows * CH;
+  const W = PAD * 2 + (cols - 1) * CW + BW, H = PAD * 2 + (rows - 1) * CH + BH;
   const at = id => {
     const n = nodes.find(x => x.id === id);
     if (!n) return null;
     const x = PAD + n.col * CW, y = PAD + n.row * CH;
     return { x, y, cx: x + BW / 2, cy: y + BH / 2, r: x + BW, b: y + BH, n };
   };
-  // 2点を結ぶ線と、ラベルを置く位置を決める
-  const link = (a, b) => {
-    if (a.n.col === b.n.col) {                       // 縦
-      const down = b.y > a.y;
-      return { x1: a.cx, y1: down ? a.b : a.y, x2: b.cx, y2: down ? b.y : b.b,
-               lx: a.cx + 6, ly: (down ? a.b + (b.y - a.b) / 2 : b.b + (a.y - b.b) / 2) + 4, anchor: "start" };
+  // 同じ2点を往復する線は重なるので、垂直方向に少しずらして2本に分ける
+  const pair = {};
+  edges.forEach(e => { const k = [e.from, e.to].sort().join("|"); pair[k] = (pair[k] || 0) + 1; });
+  const nth = {};
+  // ラベルはノードより後に描く（ボックスに隠れないように）
+  const marks = [];
+  const paths = edges.map((e, i) => {
+    const a = at(e.from), b = at(e.to);
+    if (!a || !b) return null;
+    const k = [e.from, e.to].sort().join("|");
+    nth[k] = (nth[k] || 0) + 1;
+    const off = pair[k] > 1 ? (nth[k] === 1 ? -7 : 7) : 0;   // 往復ぶんのずらし
+    // 途中のマスに別のボックスがあると直線が突き抜けるので、その時は迂回させる
+    const occupied = (col, row) => nodes.some(n => n.col === col && n.row === row);
+    const blocked = (() => {
+      if (a.n.col === b.n.col) {
+        const [lo, hi] = [a.n.row, b.n.row].sort((p, q) => p - q);
+        for (let r = lo + 1; r < hi; r++) if (occupied(a.n.col, r)) return true;
+      } else if (a.n.row === b.n.row) {
+        const [lo, hi] = [a.n.col, b.n.col].sort((p, q) => p - q);
+        for (let c = lo + 1; c < hi; c++) if (occupied(c, a.n.row)) return true;
+      }
+      return false;
+    })();
+    const sameCol = a.n.col === b.n.col && !blocked, sameRow = a.n.row === b.n.row && !blocked;
+    let d, lx, ly, anchor = "middle";
+    if (sameCol) {
+      // 往復ぶんは線の左右に振り分ける（縦にずらしても横書きの文字は離れない）
+      const down = b.y > a.y, x = a.cx + off;
+      const y1 = down ? a.b : a.y, y2 = down ? b.y : b.b;
+      d = `M ${x} ${y1} L ${x} ${y2}`;
+      lx = x + (off ? (off < 0 ? -6 : 6) : 0); ly = (y1 + y2) / 2 + 3.5;
+      anchor = off ? (off < 0 ? "end" : "start") : "middle";
+    } else if (sameRow) {
+      // 往復ぶんは線の上下に振り分ける
+      const right = b.x > a.x, y = a.cy + off;
+      const x1 = right ? a.r : a.x, x2 = right ? b.x : b.r;
+      d = `M ${x1} ${y} L ${x2} ${y}`;
+      lx = (x1 + x2) / 2; ly = y + (off > 0 ? 13 : -8);
+    } else if (a.n.col === b.n.col) {
+      // 同じ列で間に箱がある。左の隙間へ出して縦に流し、同じ側から戻す
+      const gx = a.x - GX / 2;
+      d = `M ${a.x} ${a.cy} L ${gx} ${a.cy} L ${gx} ${b.cy} L ${b.x} ${b.cy}`;
+      lx = gx; ly = (a.cy + b.cy) / 2 + 3.5;
+    } else {
+      // 斜め、または同じ行で間に箱がある。列の隙間を通してL字に折る
+      const right = b.x > a.x;
+      const x1 = right ? a.r : a.x;
+      const gx = right ? a.r + GX / 2 : a.x - GX / 2;
+      const y2 = a.n.row === b.n.row ? (b.y > PAD ? b.y - GY / 2 : b.b + GY / 2) : b.cy;
+      const x2 = right ? b.x : b.r;
+      d = a.n.row === b.n.row
+        ? `M ${x1} ${a.cy} L ${gx} ${a.cy} L ${gx} ${y2} L ${b.cx} ${y2} L ${b.cx} ${b.y > PAD ? b.y : b.b}`
+        : `M ${x1} ${a.cy} L ${gx} ${a.cy} L ${gx} ${b.cy} L ${x2} ${b.cy}`;
+      lx = gx; ly = (a.cy + y2) / 2 + 3.5;
     }
-    const right = b.x > a.x;
-    return { x1: right ? a.r : a.x, y1: a.cy, x2: right ? b.x : b.r, y2: b.cy,
-             lx: (right ? a.r + (b.x - a.r) / 2 : b.r + (a.x - b.r) / 2), ly: a.cy - 7, anchor: "middle" };
-  };
+    if (e.label) marks.push({ lx, ly, label: e.label, hot: e.hot, key: i, anchor });
+    return (
+      <path key={i} d={d} fill="none" stroke={C.muted} strokeWidth="1.5"
+        strokeDasharray={e.dashed ? "5 4" : undefined} markerEnd="url(#flAr)" />
+    );
+  });
   return (
     <figure style={{ margin: 0 }}>
       <div style={{ overflowX: "auto" }}>
         <svg viewBox={`0 0 ${W} ${H}`} role="img"
-          style={{ width: "100%", minWidth: Math.min(W, 760), height: "auto" }}
+          style={{ width: "100%", minWidth: Math.min(W, 780), height: "auto" }}
           aria-label={st.aria || "台の状態遷移を分岐とループつきで示したフロー図"}>
           <defs>
             <marker id="flAr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
               orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill={C.muted} /></marker>
           </defs>
-          {edges.map((e, i) => {
-            const a = at(e.from), b = at(e.to);
-            if (!a || !b) return null;
-            const l = link(a, b);
-            return (
-              <g key={i}>
-                <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={C.muted} strokeWidth="1.5"
-                  strokeDasharray={e.dashed ? "5 4" : undefined} markerEnd="url(#flAr)" />
-                {e.label && (
-                  <text x={l.lx} y={l.ly} textAnchor={l.anchor}
-                    style={{ fontSize: 10, fill: e.hot ? C.brand : C.muted, fontWeight: 700 }}>{e.label}</text>
-                )}
-              </g>
-            );
-          })}
+          {paths}
           {nodes.map(n => {
             const q = at(n.id), c = TONE[n.tone] || C.blue;
             return (
               <g key={n.id}>
                 <rect x={q.x} y={q.y} width={BW} height={BH} rx="6" fill="#fff" stroke={c} strokeWidth="1.6" />
                 <rect x={q.x} y={q.y} width="5" height={BH} rx="2" fill={c} />
-                <text x={q.x + 13} y={q.y + 19} style={{ fontSize: 11.5, fill: C.ink, fontWeight: 700 }}>{n.name}</text>
-                {n.meta && <text x={q.x + 13} y={q.y + 36} style={{ fontSize: 10, fill: c, fontWeight: 700 }}>{n.meta}</text>}
-                {n.body && <text x={q.x + 13} y={q.y + 52} style={{ fontSize: 10, fill: C.muted }}>{n.body}</text>}
-                {n.body2 && <text x={q.x + 13} y={q.y + 65} style={{ fontSize: 10, fill: C.muted }}>{n.body2}</text>}
+                <text x={q.x + 13} y={q.y + 20} style={{ fontSize: 11.5, fill: C.ink, fontWeight: 700 }}>{n.name}</text>
+                {n.meta && <text x={q.x + 13} y={q.y + 37} style={{ fontSize: 10, fill: c, fontWeight: 700 }}>{n.meta}</text>}
+                {n.body && <text x={q.x + 13} y={q.y + 54} style={{ fontSize: 10, fill: C.muted }}>{n.body}</text>}
+                {n.body2 && <text x={q.x + 13} y={q.y + 68} style={{ fontSize: 10, fill: C.muted }}>{n.body2}</text>}
+              </g>
+            );
+          })}
+          {/* ラベルは白地を敷いて最前面に。隙間より広い文字でも読める */}
+          {marks.map(m => {
+            const w = [...m.label].reduce((s, ch) => s + (/[\x00-\x7F]/.test(ch) ? 5.6 : 10), 0);
+            const rx = m.anchor === "end" ? m.lx - w : m.anchor === "start" ? m.lx : m.lx - w / 2;
+            return (
+              <g key={`l${m.key}`}>
+                <rect x={rx - 3} y={m.ly - 11} width={w + 6} height={14} rx="3" fill="#fff" />
+                <text x={m.lx} y={m.ly} textAnchor={m.anchor || "middle"}
+                  style={{ fontSize: 10, fill: m.hot ? C.brand : C.muted, fontWeight: 700 }}>{m.label}</text>
               </g>
             );
           })}

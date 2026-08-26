@@ -57,6 +57,110 @@ FABRICATED = {
     "残量ゲージ": "実機にそんな表示はない（SAO2で同じ事故を出した）",
 }
 
+# ── ⑦ ゲームフロー図の重なり（FigFlowData と同じ定数・同じ経路の決め方）
+FW_CW, FW_CH, FW_BW, FW_BH, FW_PAD = 250, 124, 194, 78, 16
+FW_GX, FW_GY = FW_CW - FW_BW, FW_CH - FW_BH
+
+
+def _fw_box(n):
+    x, y = FW_PAD + n["col"] * FW_CW, FW_PAD + n["row"] * FW_CH
+    return x, y, x + FW_BW, y + FW_BH
+
+
+def _fw_blocked(nodes, a, b):
+    occ = {(n["col"], n["row"]) for n in nodes}
+    if a["col"] == b["col"]:
+        lo, hi = sorted([a["row"], b["row"]])
+        return any((a["col"], r) in occ for r in range(lo + 1, hi))
+    if a["row"] == b["row"]:
+        lo, hi = sorted([a["col"], b["col"]])
+        return any((c, a["row"]) in occ for c in range(lo + 1, hi))
+    return False
+
+
+def _fw_route(nodes, a, b, off):
+    """線の折れ点と、ラベルの位置・寄せ方を返す。"""
+    ax, ay, ar, ab = _fw_box(a)
+    bx, by, br, bb = _fw_box(b)
+    acy, bcy = ay + FW_BH / 2, by + FW_BH / 2
+    acx, bcx = ax + FW_BW / 2, bx + FW_BW / 2
+    blocked = _fw_blocked(nodes, a, b)
+    if a["col"] == b["col"] and not blocked:
+        down = by > ay
+        x = acx + off
+        y1, y2 = (ab, by) if down else (ay, bb)
+        lx = x + (0 if not off else (-6 if off < 0 else 6))
+        an = "middle" if not off else ("end" if off < 0 else "start")
+        return [(x, y1), (x, y2)], lx, (y1 + y2) / 2 + 3.5, an
+    if a["row"] == b["row"] and not blocked:
+        right = bx > ax
+        y = acy + off
+        x1, x2 = (ar, bx) if right else (ax, br)
+        return [(x1, y), (x2, y)], (x1 + x2) / 2, y + (13 if off > 0 else -8), "middle"
+    if a["col"] == b["col"]:
+        gx = ax - FW_GX / 2
+        return ([(ax, acy), (gx, acy), (gx, bcy), (bx, bcy)],
+                gx, (acy + bcy) / 2 + 3.5, "middle")
+    right = bx > ax
+    x1 = ar if right else ax
+    gx = (ar + FW_GX / 2) if right else (ax - FW_GX / 2)
+    if a["row"] == b["row"]:
+        y2 = by - FW_GY / 2
+        return ([(x1, acy), (gx, acy), (gx, y2), (bcx, y2), (bcx, by)],
+                gx, (acy + y2) / 2 + 3.5, "middle")
+    return ([(x1, acy), (gx, acy), (gx, bcy), ((bx if right else br), bcy)],
+            gx, (acy + bcy) / 2 + 3.5, "middle")
+
+
+def _fw_cross(seg, r, pad=3):
+    (x1, y1), (x2, y2) = seg
+    l, t2, rt, b2 = r[0] + pad, r[1] + pad, r[2] - pad, r[3] - pad
+    if x1 == x2:
+        return l < x1 < rt and max(t2, min(y1, y2)) < min(b2, max(y1, y2))
+    if y1 == y2:
+        return t2 < y1 < b2 and max(l, min(x1, x2)) < min(rt, max(x1, x2))
+    return False
+
+
+def check_flow(dd):
+    """flowData の線がボックスを横切らないか、ラベルが重ならないかを見る。"""
+    ng = []
+    for s in dd["sections"]:
+        if s.get("t") != "fig" or s.get("v") != "flowData":
+            continue
+        sp = s.get("spec") or {}
+        N = {n["id"]: n for n in sp.get("nodes", [])}
+        cnt = {}
+        for e in sp.get("edges", []):
+            cnt["|".join(sorted([e["from"], e["to"]]))] =                 cnt.get("|".join(sorted([e["from"], e["to"]])), 0) + 1
+        nth, rects = {}, []
+        for e in sp.get("edges", []):
+            a, b = N.get(e["from"]), N.get(e["to"])
+            if not a or not b:
+                ng.append("⑦ 図の辺 %s→%s に対応する節点が無い" % (e["from"], e["to"]))
+                continue
+            k = "|".join(sorted([e["from"], e["to"]]))
+            nth[k] = nth.get(k, 0) + 1
+            off = 0 if cnt[k] < 2 else (-7 if nth[k] == 1 else 7)
+            pts, lx, ly, an = _fw_route(sp["nodes"], a, b, off)
+            for i in range(len(pts) - 1):
+                for n in sp["nodes"]:
+                    if n["id"] in (a["id"], b["id"]):
+                        continue
+                    if _fw_cross((pts[i], pts[i + 1]), _fw_box(n)):
+                        ng.append("⑦ 図の線 %s→%s が「%s」を横切る" % (a["name"], b["name"], n["name"]))
+            if e.get("label"):
+                w = sum(5.6 if ord(c) < 128 else 10 for c in e["label"])
+                x0 = lx - w if an == "end" else (lx if an == "start" else lx - w / 2)
+                rects.append((x0 - 3, ly - 11, x0 + w + 3, ly + 3, e["label"]))
+        for i in range(len(rects)):
+            for j in range(i + 1, len(rects)):
+                p, q = rects[i], rects[j]
+                if p[0] < q[2] and q[0] < p[2] and p[1] < q[3] and q[1] < p[3]:
+                    ng.append("⑦ 図のラベル「%s」と「%s」が重なる" % (p[4], q[4]))
+    return sorted(set(ng))
+
+
 ng_all = []
 for dd in d["dossiers"]:
     if want and dd["id"] != want:
@@ -155,6 +259,8 @@ for dd in d["dossiers"]:
             ng.append("⑤ 解析サイトの出典が%d件しかない（2件以上で突合する）" % len(kaiseki))
     else:
         ng.append("⑤ Ⅶ章のlinksが無い")
+
+    ng += check_flow(dd)
 
     if ng:
         for x in ng:
