@@ -15,7 +15,7 @@ P = (r"C:\Users\HCF92~1.KAD\AppData\Local\Temp\claude"
      r"\C--Users-h-kadoya-Desktop-slocri\749754dd-562f-4a3c-9aeb-9eb666cc91d2\scratchpad\sao2-dossier.html")
 
 d = json.loads(io.open(J, encoding="utf-8").read())
-S = d["dossiers"][0]["sections"]
+S = next(x for x in d["dossiers"] if x["id"] == "sao2")["sections"]  # 並び順に依存しない
 C = d["common"]["criteria"]
 
 
@@ -98,7 +98,10 @@ def radar_svg(spec):
 rad = next(x for x in S if x.get("t") == "radar")["v"]
 intro = next(x for x in S if x.get("t") == "p" and "結論を1枚" in str(x.get("v", "")))["v"] \
     if any(x.get("t") == "p" and "結論を1枚" in str(x.get("v", "")) for x in S) else None
-read = next(x for x in S if x.get("t") == "note" and "この図の読み方" in str(x.get("v", "")))["v"]
+# レーダーの読み方。文言を書き換えても拾えるよう、radarの直後のnoteも候補にする
+_ri = next(i for i, x in enumerate(S) if x.get("t") == "radar")
+read = next((x["v"] for x in S if x.get("t") == "note" and "この図の読み方" in str(x.get("v", ""))),
+            next((x["v"] for x in S[_ri + 1:_ri + 4] if x.get("t") == "note"), ""))
 sc = rad["score"]
 
 A = ['    <h2>5軸スコアカード</h2>']

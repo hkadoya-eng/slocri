@@ -16,7 +16,7 @@ P = (r"C:\Users\HCF92~1.KAD\AppData\Local\Temp\claude"
      r"\C--Users-h-kadoya-Desktop-slocri\749754dd-562f-4a3c-9aeb-9eb666cc91d2\scratchpad\sao2-dossier.html")
 
 d = json.loads(io.open(J, encoding="utf-8").read())
-S = d["dossiers"][0]["sections"]
+S = next(x for x in d["dossiers"] if x["id"] == "sao2")["sections"]  # 並び順に依存しない
 C = d["common"]["criteria"]
 
 
@@ -55,16 +55,23 @@ def render(secs):
 
 
 def grab(lst, start_pred, count):
-    i = next(k for k, x in enumerate(lst) if start_pred(x))
+    i = next((k for k, x in enumerate(lst) if start_pred(x)), None)
+    if i is None:
+        return []                      # 見出しを書き換えた区画は飛ばす（下で警告する）
     return lst[i:i + count]
 
 
+def head_in(*words):
+    """見出しの文言が変わっても拾えるよう候補を複数持つ"""
+    return lambda x: x.get("t") == "h" and any(w in str(x.get("v", "")) for w in words)
+
+
 BLOCKS = {
-    "traj": render(grab(S, lambda x: x.get("t") == "h" and "総稼働の落ち方" in str(x.get("v", "")), 4)),
-    "extra": render(grab(S, lambda x: x.get("t") == "h" and "軸にはしていない3つ" in str(x.get("v", "")), 3)),
-    "comp": render(grab(C, lambda x: x.get("t") == "h" and "競合の新台圧" in str(x.get("v", "")), 4)),
+    "traj": render(grab(S, head_in("総稼働の落ち方"), 4)),
+    "extra": render(grab(S, head_in("軸にはしていない3つ"), 3)),
+    "comp": render(grab(C, head_in("競合の新台圧", "新台が重なっても稼働は落ちない"), 4)),
     "ret": render(grab(C, lambda x: x.get("t") == "note" and "②を「4週目÷初週" in str(x.get("v", "")), 1)),
-    "rej": render(grab(C, lambda x: x.get("t") == "h" and "軸にしなかった指標" in str(x.get("v", "")), 4)),
+    "rej": render(grab(C, head_in("軸にしなかった指標"), 4)),
 }
 
 t = io.open(P, encoding="utf-8").read()

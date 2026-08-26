@@ -13,7 +13,7 @@ P = (r"C:\Users\HCF92~1.KAD\AppData\Local\Temp\claude"
      r"\C--Users-h-kadoya-Desktop-slocri\749754dd-562f-4a3c-9aeb-9eb666cc91d2\scratchpad\sao2-dossier.html")
 
 d = json.loads(io.open(J, encoding="utf-8").read())
-D = d["dossiers"][0]
+D = next(x for x in d["dossiers"] if x["id"] == "sao2")  # 並び順に依存しない
 S = D["sections"]
 t = io.open(P, encoding="utf-8").read()
 
@@ -112,21 +112,30 @@ blk.append("      </div>")
 t = t[:s] + "\n".join(blk) + t[e:]
 print("  置換: 同日デビュー3台")
 
+def swap_note(t, marks, note, label, style=""):
+    """HTMLの目印を含む<p class="note">を丸ごと差し替える。目印が無ければ何もしない。"""
+    if note is None:
+        print("  飛ばす: %s（サイト側のnoteが見つからない）" % label)
+        return t
+    i = next((t.index(m) for m in marks if m in t), None)
+    if i is None:
+        print("  飛ばす: %s（HTML側の目印が見つからない）" % label)
+        return t
+    s = t.rindex('<p class="note"', 0, i)
+    e = t.index("</p>", i) + 4
+    print("  置換:", label)
+    return t[:s] + '<p class="note"%s>%s</p>' % (style, rich(note)) + t[e:]
+
+
 # 7. 予測の答え合わせ
-n84 = next(x for x in S if x.get("t") == "note" and "22週" in str(x.get("v", "")) and "予測" in str(x.get("v", "")))
-i = next(t.index(m) for m in ("次の2〜3週の分岐点", "当編集部は8月3日のコラムでSAO2の稼働貢献週") if m in t)
-s = t.rindex('<p class="note"', 0, i)
-e = t.index("</p>", i) + 4
-t = t[:s] + '<p class="note" style="margin-bottom:0">%s</p>' % rich(n84["v"]) + t[e:]
-print("  置換: 予測の答え合わせ")
+n84 = next((x["v"] for x in S if x.get("t") == "note"
+            and "22週" in str(x.get("v", "")) and "予測" in str(x.get("v", ""))), None)
+t = swap_note(t, ("次の2〜3週の分岐点", "当編集部は8月3日のコラムでSAO2の稼働貢献週"),
+              n84, "予測の答え合わせ", ' style="margin-bottom:0"')
 
 # 8. 母数と出典
-n96 = next(x for x in S if x.get("t") == "note" and "母数と出典" in str(x.get("v", "")))
-i = t.index("<b>母数と出典。</b>")
-s = t.rindex('<p class="note"', 0, i)
-e = t.index("</p>", i) + 4
-t = t[:s] + '<p class="note">%s</p>' % rich(n96["v"]) + t[e:]
-print("  置換: 母数と出典")
+n96 = next((x["v"] for x in S if x.get("t") == "note" and "母数と出典" in str(x.get("v", ""))), None)
+t = swap_note(t, ("<b>母数と出典。</b>",), n96, "母数と出典")
 
 io.open(P, "w", encoding="utf-8").write(t)
 bad = [g for g in ("div", "table", "section", "details", "figure", "svg", "p", "ul", "li")
