@@ -6384,6 +6384,28 @@
       "設定1・2が100%割れで、設定3の100.6%まで上げないとプラス域に入らない"
     ],
     "postCount": 3,
-    "updatedAt": "2026-08-28"
+    "updatedAt": "2026-08-28",
+    "sisRecord": {
+      "sisName": "Lゴジラ",
+      "contribWeeks": 6,
+      "status": "終了",
+      "statusReason": "撤去(直近にデータなし)",
+      "installedWeeks": 54,
+      "firstWeek": "2025-04-07",
+      "lastWeek": "2026-04-13",
+      "katsudoLast": 50,
+      "deadWeeks": 48,
+      "weeksBelowAvg": 50,
+      "asOf": "2026-08-17",
+      "tier": "注意",
+      "tierVia": null,
+      "katsudo1": 211,
+      "katsudo2": 180,
+      "ret2": 86,
+      "verdict": null,
+      "peakUnits": 2.4,
+      "units1": 2.3,
+      "unitsLast": 1.2
+    }
   }
 }
