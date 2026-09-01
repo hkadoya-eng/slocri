@@ -30,6 +30,9 @@ python scripts\misc\update_sis_record.py >> logs\sis_import.log 2>&1
 echo [%date% %time%] contribution forecast update... >> logs\sis_import.log 2>&1
 python scripts\misc\update_forecast.py >> logs\sis_import.log 2>&1
 
+echo [%date% %time%] new machine review entries... >> logs\sis_import.log 2>&1
+python scripts\misc\add_review_entries.py >> logs\sis_import.log 2>&1
+
 git diff --quiet src\columnData.json
 if errorlevel 1 (
     echo [%date% %time%] columnData.json updated, pushing... >> logs\sis_import.log 2>&1
