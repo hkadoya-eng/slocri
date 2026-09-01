@@ -2,9 +2,19 @@
 SISデータからcolumnData.jsonの機種評価稼働予測を自動更新するスクリプト。
 run_sis_import.bat（デイリー）・run_sis_weekly.bat（ウィークリー）から呼び出す。
 
-更新ルール:
-  [デイリー] 発売7日以内の機種: sis_dataのランキングから longevityMin/Max を自動調整
-  [ウィークリー] 全機種: sis_machine_stats の貢献週が予測上限を超えていれば延長
+更新ルール（2026-09-01 改定）:
+  [全機種] sis_machine_stats の貢献週が予測上限を超えたら **予測値は変えず**、
+           longevityOverrun（実績が上限を超えた事実）だけを記録する。
+
+**やらないこと（過去にやって外した方法）**
+  ・デイリー全国ランキングの順位倍率で longevityMin/Max を書き換える方式は廃止した。
+    確定4機種すべてで過大評価だった（バイオRE:3 を38〜47週に自動更新→実績5週で終了、
+    ビッグドリームを21〜24週→実績5週）。columnData の longevityPolicy には「廃止」と
+    書いてあるのにコードだけ残って毎平日3回動いていたため、2026-09-01 に削除した。
+    新台の予測は2週診断（sisRecord.tier × update_forecast.py の到達週分布）に一本化する。
+  ・実績が上限を超えたときに上限を+4して延長する処理も廃止した。予測は導入2週目で確定し
+    以降変えないルールなので、延長すると上振れ側で miss が出ず答え合わせが甘くなる。
+
 """
 
 import sys
@@ -12,7 +22,7 @@ import io
 import os
 import json
 import requests
-from datetime import datetime, date
+from datetime import date
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -21,15 +31,6 @@ sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="repla
 
 SUPABASE_URL = "https://vpzbtuucopucablwyqeq.supabase.co"
 COLUMN_DATA_PATH = os.path.join(ROOT_DIR, "src", "columnData.json")
-
-# デイリーランキング順位 → 予測倍率
-RANK_MULTIPLIER = [
-    (1,   3,  1.25),
-    (4,   7,  1.10),
-    (8,  15,  1.00),
-    (16, 30,  0.85),
-    (31, 999, 0.70),
-]
 
 def load_env():
     env_path = os.path.join(ROOT_DIR, ".env.local")
@@ -47,37 +48,6 @@ def api_key():
 
 def hdrs(key):
     return {"apikey": key, "Authorization": f"Bearer {key}"}
-
-def days_since_release(release_str):
-    if not release_str:
-        return 9999
-    try:
-        fmt = "%Y-%m-%d" if len(release_str) == 10 else "%Y-%m"
-        d = datetime.strptime(release_str if fmt == "%Y-%m-%d" else release_str + "-01", "%Y-%m-%d").date()
-        return (date.today() - d).days
-    except Exception:
-        return 9999
-
-def get_multiplier(rank):
-    for lo, hi, mult in RANK_MULTIPLIER:
-        if lo <= rank <= hi:
-            return mult
-    return 0.70
-
-def apply_range_rule(target):
-    t = round(target)
-    if t <= 9:
-        return t, t
-    elif t < 15:
-        return t, t + 1
-    elif t < 20:
-        return t, t + 2
-    elif t < 25:
-        return t, t + 3
-    elif t < 30:
-        return t, t + 4
-    else:
-        return t, t + 9
 
 def run():
     load_env()
@@ -98,14 +68,6 @@ def run():
     latest_date = rows[0]["date"]
     print(f"SIS最新日付: {latest_date}")
 
-    # 最新日 Top50 ランキング
-    r = requests.get(f"{SUPABASE_URL}/rest/v1/sis_data",
-                     params={"select": "machine,out_coins,payout_rate,coin_price",
-                             "date": f"eq.{latest_date}",
-                             "order": "out_coins.desc", "limit": "50"}, headers=h)
-    rankings = r.json() if r.status_code == 200 else []
-    rank_map = {row["machine"]: (i + 1, row) for i, row in enumerate(rankings)}
-
     # sis_machine_stats（貢献週）
     r = requests.get(f"{SUPABASE_URL}/rest/v1/sis_machine_stats",
                      params={"select": "machine,contrib_weeks"}, headers=h)
@@ -121,48 +83,17 @@ def run():
 
     for col in column_data["columns"]:
         sis_name = col.get("sisDataMachine", "")
-        days = days_since_release(col.get("releaseDate", ""))
 
-        # ① 発売7日以内: デイリーランキングで予測更新
-        if days <= 7 and sis_name:
-            if sis_name in rank_map:
-                rank, row = rank_map[sis_name]
-                mult = get_multiplier(rank)
-                base = col.get("longevityMin") or 12
-                new_min, new_max = apply_range_rule(max(4, base * mult))
-                if new_min != col.get("longevityMin") or new_max != col.get("longevityMax"):
-                    print(f"  [{col['name']}] {col.get('longevityMin')}〜{col.get('longevityMax')}週"
-                          f" → {new_min}〜{new_max}週 (rank {rank}, out_coins {row['out_coins']:,}枚)")
-                    col["longevityMin"] = new_min
-                    col["longevityMax"] = new_max
-                    col["longevityNote"] = (
-                        f"{latest_date} SIS: {row['out_coins']:,}枚・全国{rank}位"
-                        f"（payout {row['payout_rate']}%・単価{row['coin_price']}円）。"
-                        f"デイリーデータから{new_min}〜{new_max}週に自動更新。"
-                    )
-                    changed = True
-            else:
-                # Top50圏外
-                base = col.get("longevityMin") or 12
-                new_min, new_max = apply_range_rule(max(4, base * 0.65))
-                if new_min != col.get("longevityMin") or new_max != col.get("longevityMax"):
-                    print(f"  [{col['name']}] → {new_min}〜{new_max}週 (top50圏外)")
-                    col["longevityMin"] = new_min
-                    col["longevityMax"] = new_max
-                    col["longevityNote"] = (
-                        f"{latest_date} SIS: top50圏外のため{new_min}〜{new_max}週に下方修正。"
-                    )
-                    changed = True
-
-        # ② 全機種: 実績が予測上限を超えていれば延長
+        # ② 全機種: 実績が予測上限を超えたら「超えた事実」だけ記録する（予測値は変えない）
         contrib = stats.get(sis_name) if sis_name else None
         if contrib and col.get("longevityMax") and contrib > col["longevityMax"]:
-            new_max = contrib + 4
-            print(f"  [{col['name']}] SIS実績{contrib}週 > 予測上限{col['longevityMax']}週 → {new_max}週に延長")
-            col["longevityMax"] = new_max
-            col["longevityNote"] = (col.get("longevityNote") or "") + \
-                f" ※SIS実績{contrib}週超のため上限を{new_max}週に自動延長（{today}）。"
-            changed = True
+            over = {"contribWeeks": contrib, "predictedMax": col["longevityMax"],
+                    "overBy": contrib - col["longevityMax"], "asOf": today}
+            if col.get("longevityOverrun") != over:
+                print(f"  [{col['name']}] SIS実績{contrib}週 > 予測上限{col['longevityMax']}週"
+                      f"（+{over['overBy']}週・予測は据え置き）")
+                col["longevityOverrun"] = over
+                changed = True
 
     if not changed:
         print("更新なし")
