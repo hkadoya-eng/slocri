@@ -183,5 +183,11 @@
       "保留": 2,
       "内訳": "下位判定(注意)5件は実測中央値5週に対し4〜6週で全て的中。上位判定5件は全て成功ライン13週超で的中。外しは優秀判定の範馬刃牙1件のみ。"
     }
+  },
+  "_status": {
+    "状態": "停止中（2026-09-01 確認）。最終更新 2026-08-03・記録2機種のみ。",
+    "なぜ止まったか": "この台帳はアプリからも自動タスクからも参照されていない（src/*.jsx に import なし・bat/prompts と scripts に参照なし）。手作業で書く前提だったため、対話セッションが止まると更新も止まる。",
+    "実際に動いている台帳": "src/columnData.json の columns[].longevityMin/Max + predictedAt + longevityReason + sisOutcome（予測と答え合わせ）。longevityPolicy にルールが書いてあり、run_sis_import.bat / run_sis_weekly.bat から update_machine_review_predictions.py・update_review_outcome.py が毎回更新する。予測の出し方は sisRecord.tier × update_forecast.py の到達週分布。",
+    "扱い": "物差しを2本持たないため、予測の記録先は columnData 側に一本化する。このファイルは 2026-08-03 までの記録として残すだけで、新規の予測は書かない。"
   }
 }
