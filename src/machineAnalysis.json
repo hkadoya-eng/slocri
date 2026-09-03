@@ -6486,6 +6486,28 @@
       "yamenikusa": "ボーナスとDTの区切りが明確で、DT終了後にやめる判断がしやすい"
     },
     "postCount": 3,
-    "updatedAt": "2026-09-03"
+    "updatedAt": "2026-09-03",
+    "sisRecord": {
+      "sisName": "LディスクアップULTRAREMIX",
+      "contribWeeks": 83,
+      "status": "継続中",
+      "statusReason": "直近稼働値123%で市場平均超え",
+      "installedWeeks": 84,
+      "firstWeek": "2025-01-20",
+      "lastWeek": "2026-08-24",
+      "katsudoLast": 123,
+      "deadWeeks": 0,
+      "weeksBelowAvg": 0,
+      "asOf": "2026-08-24",
+      "tier": "超優良",
+      "tierVia": null,
+      "katsudo1": 260,
+      "katsudo2": 252,
+      "ret2": 95,
+      "verdict": "hit",
+      "peakUnits": 2.3,
+      "units1": 1.9,
+      "unitsLast": 2.0
+    }
   }
 }
