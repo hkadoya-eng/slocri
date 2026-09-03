@@ -1,6 +1,25 @@
 {
-  "updatedAt": "2026-08-27",
+  "updatedAt": "2026-09-03",
   "columns": [
+    {
+      "id": "lパチスロ喰霊-零-re",
+      "name": "Lパチスロ喰霊-零-Re",
+      "tag": "推移で決まる（導入直後）",
+      "tagColor": "#1565C0",
+      "tagBg": "#E9F1FB",
+      "postCount": 20,
+      "longevityMin": 24,
+      "longevityMax": 28,
+      "predictedAt": "2026-09-03",
+      "predictedAtWeeks": 2,
+      "predictedAtSource": "add_review_entries.py（2週診断の到達週分布をそのまま採用）",
+      "difficulty": "open",
+      "longevityMethod": "sisRecord.forecast（update_forecast.py）",
+      "longevityTier": "優秀(需要型)",
+      "longevityReason": "初週稼働値267・2週稼働値238・2週持続率88で仕分け『優秀(需要型)』。上位判定の台で1週以上まで到達した終了台（母数24台）から24週。許容差±4週・実測誤差±None週",
+      "sisDataMachine": "L喰霊-零-Re",
+      "releaseDate": "2026-08-17"
+    },
     {
       "id": "スマスロ_サンダーv",
       "name": "スマスロ サンダーV",
