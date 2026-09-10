@@ -362,10 +362,14 @@ proposal_requestsの処理分岐：
 | `SlocriIdeaColumn` | 毎週土 8:12（2026-06-25新設） | 編集部発「新ゲーム性提案」考察コラムを posts(cat=column)へ週1投稿（⑬）。フリーズ活用/擬似レア役/特化ゾーン契機等を題材ローテし"打ち手の介入で面白くする"視点で実機根拠付きの新ゲーム性を提案。git不要(DB投稿) | `bat\prompts\idea_column.txt` |
 | `SlocriSisImport_1000/1100/1200` | 平日 10/11/12時 | SIS稼働データ更新（日次） | `bat\run_sis_import.bat` |
 | `SlocriSisWeekly_1000/1100/1200` | 木曜 10:07/11:07/12:07 | SIS週次データ更新 | `bat\run_sis_weekly.bat` |
+| `SlocriCatchupOnLogon` | ログオン時（3分遅延・2026-09-10新設） | **取りこぼし復旧**。ログオンしていない間に落ちた occurrence だけを判定して1本ずつ再実行 | `bat\catchup_missed.ps1`（`run_hidden.vbs run_catchup.bat` 経由） |
 
 **実行の仕組み**: `bat\run_claude_task.bat <promptファイル名>` が `type prompt | claude.exe -p --dangerously-skip-permissions` でヘッドレス実行。ログは `logs\claude_task_*.log`。実行ユーザー h.kadoya・Interactive・LIMITED（既存SISタスクと同じ）。
 
 > **⚠️ ウィンドウ非表示起動（2026-06-24）**: `SlocriChatTick`/`SlocriReqTick`（高頻度Tick）は、cmdウィンドウが出てフォーカスを奪うのを防ぐため、タスクのアクションを `wscript.exe "bat\run_hidden.vbs" <promptファイル名>` に変更済み（`run_hidden.vbs` が window style 0=非表示・bWaitOnReturn=True で `run_claude_task.bat` を起動）。タスクを作り直す/他タスクも非表示化する時は同じく `run_hidden.vbs` 経由にすること。`run_claude_task.bat` を直接アクションに指定すると毎回コンソールが点滅する。
+
+> **⚠️ ログオンしていない間はタスクが全部落ちる（2026-09-10判明・対策済み）**: Slocriタスクは全て LogonType=Interactive（「ユーザーがログオンしているときのみ実行」）。**ログオフ中／再起動後ログオン前は StartWhenAvailable=True でも発火せず、イベント332「ユーザーがログオンしていなかったため起動しませんでした」で無言で消える**（9/10にWindows Updateで3:30再起動→10:20までログオンなし＝ゲーム性拡充7:22・ネタ収集9:00・SIS10:00が全滅、チャット/要望Tickも約7時間停止。IdeaColumnは土曜ログオフのため9/6も落ちていた）。
+> 対策として `SlocriCatchupOnLogon`（ログオン時トリガー・3分遅延）を新設。**各タスクに素の -AtLogOn を足すとログオンのたびに二重実行になるため、判定は `bat\catchup_missed.ps1` が持つ**: 直近の scheduled occurrence を算出 → LastRunTime と突合 → 落ちた分だけを、**git index の衝突を避けるため1本ずつ順番に**起動する（72時間より古い分は対象外・実行中/無効はスキップ・多重起動はロックファイルで防止）。ログは `logs\catchup.log`。**スケジュールを変えたらスクリプト冒頭の `$Schedules` テーブルも必ず同期すること**（ここがズレると復旧が誤爆する）。手動で取り戻したい時は `Start-ScheduledTask -TaskName SlocriCatchupOnLogon` でよい。
 
 **注意**:
 - これら6ジョブ（ネタ収集×2・コラム・カレンダー・ゲーム性拡充・企画提案）を **Claude session cron として CronCreate してはいけない**（二重実行になる）。
