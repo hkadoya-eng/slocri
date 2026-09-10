@@ -7,7 +7,8 @@ BASE=https://vpzbtuucopucablwyqeq.supabase.co/rest/v1
 
 ━━ ジョブD【収集要望処理】━━
 ①collection_requests pending のうち theme が「【ゲーム性分析追加リクエスト】」「修正提案：」以外（空・新台情報・名機エピソード・実戦・機種情報・業界ニュース・カテゴリ+自由文 など）を処理対象
-②各依頼ごと: 手順0(posts.internal.bads/likes/comments取得・bad除外・like重視) → WebSearch 2-3クエリ → 該当テーマで未収録ネタ5件選定 → CSV作成(ヘッダー cat,source,machine,title,body,url,quality,dup_key,author・数字カンマ除去・本文カンマはダブルクォート・品質ゲート遵守) → python scripts/import/import_csv.py → python scripts/misc/fetch_ogp.py → PATCH status=done,result_count=実件数
+②各依頼ごと: 手順0(posts.internal.bads/likes/comments取得・bad除外・like重視) → **sources_and_rules.md の27サイトから最低4サイトを WebFetch で巡回**＋WebSearch 2-3クエリ → 該当テーマで未収録ネタ5件選定 → CSV作成(ヘッダー cat,source,machine,title,body,url,quality,dup_key,author・数字カンマ除去・本文カンマはダブルクォート・品質ゲート遵守) → python scripts/import/import_csv.py → python scripts/misc/fetch_ogp.py → PATCH status=done,result_count=実件数
+　**【出典ゲート・2026-09-10追加】5件のうち url無し(自前SIS分析だけの投稿)は最大1件・同一ドメインは最大2件・最低3ドメインに散らす。他サイトの後追いは歓迎で解析値や実戦値の数字はそのまま使ってよいが、本文はコピペせず自分の言葉で書き直し、source にサイト名・url に記事URLを必ず入れる**（neta_0900.txt の出典ゲートと同じ趣旨・管理者指摘「分析によりすぎている」2026-09-10）
 ③git push・memory/dup_keys.md追記
 
 ━━ ジョブE【フィードバック自動対応処理】━━
