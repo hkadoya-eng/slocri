@@ -50,7 +50,7 @@ Cronジョブによる自動タスク（【自動ネタ収集タスク】【自�
 ユーザーに確認せず全ステップを最後まで自律実行してください。
 
 0. **ユーザーフィードバック取得（必須・スキップ禁止）**:
-   curl -s "https://vpzbtuucopucablwyqeq.supabase.co/rest/v1/posts?select=machine,cat,title,internal&limit=2000" -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwemJ0dXVjb3B1Y2FibHd5cWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjk2MzEsImV4cCI6MjA5MTIwNTYzMX0.qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA"
+   curl -s "https://vpzbtuucopucablwyqeq.supabase.co/rest/v1/posts?select=machine,cat,title,url,internal&order=created_at.desc&limit=2000" -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwemJ0dXVjb3B1Y2FibHd5cWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mjk2MzEsImV4cCI6MjA5MTIwNTYzMX0.qry7pSzmm3lWK82Vnp7Wz-R9wHsDVwbj7ysy62xUhuA"
    - bad数1以上 → 機種・カテゴリ・タイトルを【除外パターン】として認識し、類似ネタは選ばない
    - like数2以上 → 機種・カテゴリ・タイトルを【重視パターン】として認識し、類似・周辺ネタを優先
    - comment1以上 → ユーザー反応ありの話題として優先候補。**コメント本文も読み、要望/批評の中身（欲しい角度・つまらない点）を選定方針に反映する**
@@ -58,7 +58,7 @@ Cronジョブによる自動タスク（【自動ネタ収集タスク】【自�
    - **【出典の偏り確認・2026-09-10追加】直近40件の url からドメインを数える**（selectに url を含めること）。多い上位ドメインは今回控えめにし、**0件のサイトを手順3の巡回先に必ず入れる**
 1. memory/dup_keys.md を読んで既存dup_keyを確認
 2. memory/sources_and_rules.md のルール・ソース一覧を読む
-3. **【サイト巡回・2026-09-10全面改定】WebSearchだけで済ませない。sources_and_rules.md の27サイトから最低6サイトを WebFetch で実際に開いて回る**（手順0の重視/除外パターンを意識する）
+3. **【サイト巡回・2026-09-10全面改定】WebSearchだけで済ませない。sources_and_rules.md の31サイトから最低6サイトを WebFetch で実際に開いて回る**（手順0の重視/除外パターンを意識する）
    - うち1〜2サイトは手順0で「直近40件に0件」だったサイトから選ぶ（毎回ちょんぼりすた/DMMぱちタウンだけに戻らないため）。定番サイトを外す意味ではなく、定番は毎回見てよい
    - 見るのは「そのサイトが今なにを扱っているか」＝新着見出し・解析更新・初日評価・口コミ欄。**他サイトが取り上げている話題はそのまま後追いしてよい**（独自ネタである必要はない）
    - WebSearch 3〜4クエリは巡回の補助として併用する（巡回の代わりにはしない）・巡回したサイト名は報告に列挙する
